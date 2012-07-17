@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">Diary Browser</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_authorization_form">Diary Browser</string>
+    <string name="login">Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="not_impl_sc">Not Implemented scenario</string>
+    <string name="details_missing">username and password fields required</string>
+    <string name="title_activity_diary_list">DiaryList</string>
+    <string name="loading">Loading</string>
+    <string name="please_wait">Please Wait&#8230;</string>
+
+</resources>
