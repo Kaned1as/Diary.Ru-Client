@@ -3,58 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
-    <TabHost
-        android:id="@android:id/tabhost"
+    <WebView
+        android:id="@+id/main_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true" >
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" >
-            </TabWidget>
-
-            <FrameLayout
-                android:id="@android:id/tabcontent"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-
-                <LinearLayout
-                    android:id="@+id/Favorite"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
-
-                    <ListView
-                        android:id="@+id/FavoriteList"
-                        android:layout_width="0dip"
-                        android:layout_height="fill_parent"
-                        android:layout_weight="1" >
-                    </ListView>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:id="@+id/My_Diary"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
-
-                    <ListView
-                        android:id="@+id/MyDiaryList"
-                        android:layout_width="0dip"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1" >
-                    </ListView>
-
-                </LinearLayout>
-            </FrameLayout>
-        </LinearLayout>
-    </TabHost>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
 
 </RelativeLayout>
