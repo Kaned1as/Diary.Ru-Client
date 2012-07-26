@@ -10,4 +10,12 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
 
+    <ImageButton
+        android:id="@+id/exit_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:src="@android:drawable/ic_lock_idle_lock" />
+
 </RelativeLayout>

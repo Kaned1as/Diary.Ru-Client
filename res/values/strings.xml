@@ -1,9 +1,8 @@
 <resources>
 
     <string name="app_name">Diary Browser</string>
-    <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
-    <string name="title_activity_authorization_form">Diary Browser</string>
+    <string name="title_activity_authorization_form">AuthForm</string>
     <string name="login">Login</string>
     <string name="username">Username</string>
     <string name="password">Password</string>
@@ -12,5 +11,7 @@
     <string name="title_activity_diary_list">DiaryList</string>
     <string name="loading">Loading</string>
     <string name="please_wait">Please Wait&#8230;</string>
+    <string name="title_activity_launch">Diary Browser</string>
+    <string name="loading_data">Loading data&#8230;</string>
 
 </resources>

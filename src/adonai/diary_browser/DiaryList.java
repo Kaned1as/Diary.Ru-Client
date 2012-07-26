@@ -1,21 +1,21 @@
 package adonai.diary_browser;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
+
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.protocol.HTTP;
-import org.apache.http.util.EncodingUtils;
 import org.apache.http.util.EntityUtils;
+import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.TagNode;
 
 import de.timroes.axmlrpc.XMLRPCException;
 
@@ -28,24 +28,32 @@ import android.os.Message;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
 import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
-public class DiaryList extends Activity {
+public class DiaryList extends Activity implements OnClickListener {
 
 	public static final int GET_U_BLOGS = 1;
 	public static final int SET_HTTP_COOKIE = 2;
+	protected static final int GET_DATA = 3;
 	
 	SharedPreferences mSharedPrefs;
 	ListView mFavoriteList;
 	WebView mMainView;
+	ImageButton mExitButton;
 	ProgressDialog pd;
 	
-	DiaryHttpClient dhcl;
+	DiaryHttpClient mDHCL;
+	UserData mUser;
 	
 	JMetaWeblogClient WMAClient;
 	Object[] RPCResponse;
@@ -56,8 +64,11 @@ public class DiaryList extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDHCL = new DiaryHttpClient();
+        mUser = new UserData();
         
         mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        CookieSyncManager.createInstance(getApplicationContext());
         
         try {
 			WMAClient = new JMetaWeblogClient("http://www.diary.ru/client/mwa.php");
@@ -69,8 +80,11 @@ public class DiaryList extends Activity {
         
         setContentView(R.layout.activity_diary_list_a);
         //mFavoriteList = (ListView)findViewById(R.id.FavoriteList);
-        mMainView = (WebView)findViewById(R.id.main_view);
+        mMainView = (WebView) findViewById(R.id.main_view);
         	mMainView.setWebViewClient(new WebViewClient());
+        mExitButton = (ImageButton) findViewById(R.id.exit_button);	
+        	mExitButton.setOnClickListener(this);
+        
         
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start(); mLooper = thr.getLooper();
@@ -95,7 +109,6 @@ public class DiaryList extends Activity {
 		super.onStart();
 		pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
 		mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
-		mMainView.postUrl("http://www.diary.ru", null);
 		//mHandler.sendEmptyMessage(GET_U_BLOGS);
 	}
 	
@@ -104,7 +117,14 @@ public class DiaryList extends Activity {
 		{
 			switch (message.what) {
 			case GET_U_BLOGS:
+				break;
 			case SET_HTTP_COOKIE:
+				pd.setMessage(getString(R.string.loading_data));
+				mHandler.sendEmptyMessage(GET_DATA);
+				//pd.dismiss();
+				//mMainView.loadUrl("http://diary.ru");
+				break;
+			case GET_DATA:
 				pd.dismiss();
 				break;
 			default:
@@ -136,48 +156,83 @@ public class DiaryList extends Activity {
 					}
 					
 					mUiHandler.sendEmptyMessage(GET_U_BLOGS);
-					break;
+					return true;
 				case SET_HTTP_COOKIE:
 					List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
 			        nameValuePairs.add(new BasicNameValuePair("user_login", mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
 			        nameValuePairs.add(new BasicNameValuePair("user_pass", mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
 			        nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
 
-			        dhcl = new DiaryHttpClient();
-			        try {
-			        	dhcl.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
-						String resultEntity = EntityUtils.toString(dhcl.response.getEntity());
+			        mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+					String loginScreen = EntityUtils.toString(mDHCL.response.getEntity());
+					
+					if(loginScreen.contains("Добро пожаловать")) { //login successful
+						CookieManager cookieManager = CookieManager.getInstance();
 						
-						if(resultEntity.contains("Добро пожаловать")) { //login successful
-							CookieSyncManager.createInstance(getApplicationContext());
-							CookieManager cookieManager = CookieManager.getInstance();
-							
-							List<Cookie> cookies = dhcl.cookieStore.getCookies();
-							for (Cookie cookie : cookies){
-								String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
-								cookieManager.removeSessionCookie();
-				                cookieManager.setCookie("www.diary.ru", cookieString);
-				                CookieSyncManager.getInstance().sync();
-				            }
-						}
-					} catch (UnsupportedEncodingException e) {
-						e.printStackTrace();
-					} catch (ParseException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
+						// Sharing cookies between webView and mDHCL
+						List<Cookie> cookies = mDHCL.cookieStore.getCookies();
+						cookieManager.removeSessionCookie();
+						for (Cookie cookie : cookies){
+							String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
+			                cookieManager.setCookie("diary.ru", cookieString);
+			            }
+						Log.i("Cookie", cookieManager.getCookie("diary.ru"));
+		                CookieSyncManager.getInstance().sync();
 					}
 			        
 			        mUiHandler.sendEmptyMessage(SET_HTTP_COOKIE);
-					break;
+					return true;
+				case GET_DATA:
+					mDHCL.postPage("http://www.diary.ru", null);
+					String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+					HtmlCleaner cleaner = new HtmlCleaner();
+					cleaner.getProperties().setOmitComments(true);
+					
+					TagNode rootNode = cleaner.clean(dataPage);
+					TagNode[] lists = rootNode.getElementsByAttValue("class", "sp", true, false);
+					if(lists.length == 0)
+						return false;
+					
+					for(TagNode child : lists[0].getChildTags())
+						mUser.favorites.put(child.getText().toString(), child.getAttributeByName("href"));
+					
+					for(TagNode child : lists[1].getChildTags())
+						mUser.communities.put(child.getText().toString(), child.getAttributeByName("href"));
+					
+					mUiHandler.sendEmptyMessage(GET_DATA);
+					return true;
 				default:
 					return false;
 				}
 			} catch (XMLRPCException e) {
 				e.printStackTrace();
+			} catch (ParseException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			
 			
 			return true;
 		}
 	};
+
+	public void onClick(View v) {
+		switch (v.getId()) {
+		case R.id.exit_button:
+			Editor lysosome = mSharedPrefs.edit();
+			lysosome.remove(AuthorizationForm.KEY_USERNAME);
+			lysosome.remove(AuthorizationForm.KEY_PASSWORD);
+			lysosome.commit();
+			
+			CookieManager cookieManager = CookieManager.getInstance();
+			cookieManager.removeSessionCookie();
+			CookieSyncManager.getInstance().sync();
+			mMainView.reload();
+			break;
+		default:
+			return;
+		}
+		
+	}
 }

@@ -25,7 +25,7 @@ public class DiaryHttpClient {
     HttpPost httpPost = null;
 
     public DiaryHttpClient() {
-    	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.RFC_2109);
+    	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     	localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
     }
     
@@ -49,8 +49,9 @@ public class DiaryHttpClient {
 
     	httpPost = new HttpPost(url);
     	response = null;
-
-    	httpPost.setEntity(data);
+    	
+    	if(data != null)
+    		httpPost.setEntity(data);
 
     	try {
     		response = httpClient.execute(httpPost,localContext);
