@@ -13,5 +13,8 @@
     <string name="please_wait">Please Wait&#8230;</string>
     <string name="title_activity_launch">Diary Browser</string>
     <string name="loading_data">Loading data&#8230;</string>
+    <string name="favourites">Favourites</string>
+    <string name="communities">Communities</string>
+    <string name="my_diary">My Diary</string>
 
 </resources>

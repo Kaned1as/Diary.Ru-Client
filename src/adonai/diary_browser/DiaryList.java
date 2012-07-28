@@ -29,16 +29,17 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TabHost;
 
 public class DiaryList extends Activity implements OnClickListener {
 
@@ -50,6 +51,7 @@ public class DiaryList extends Activity implements OnClickListener {
 	ListView mFavoriteList;
 	WebView mMainView;
 	ImageButton mExitButton;
+	TabHost mTabHost;
 	ProgressDialog pd;
 	
 	DiaryHttpClient mDHCL;
@@ -68,7 +70,7 @@ public class DiaryList extends Activity implements OnClickListener {
         mUser = new UserData();
         
         mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
-        CookieSyncManager.createInstance(getApplicationContext());
+        CookieSyncManager.createInstance(this);
         
         try {
 			WMAClient = new JMetaWeblogClient("http://www.diary.ru/client/mwa.php");
@@ -78,12 +80,20 @@ public class DiaryList extends Activity implements OnClickListener {
 			e.printStackTrace();
 		}
         
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
-        //mFavoriteList = (ListView)findViewById(R.id.FavoriteList);
+        mFavoriteList = (ListView)findViewById(R.id.favourite_list);
         mMainView = (WebView) findViewById(R.id.main_view);
         	mMainView.setWebViewClient(new WebViewClient());
         mExitButton = (ImageButton) findViewById(R.id.exit_button);	
         	mExitButton.setOnClickListener(this);
+        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
+        	mTabHost.setup();
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.favourite_list));
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_communities").setIndicator(getString(R.string.communities)).setContent(R.id.communities_list));
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.owndiary_list));
+
+        	mTabHost.setCurrentTab(0);
         
         
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -107,9 +117,9 @@ public class DiaryList extends Activity implements OnClickListener {
 	@Override
 	protected void onStart() {
 		super.onStart();
+		
 		pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
 		mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
-		//mHandler.sendEmptyMessage(GET_U_BLOGS);
 	}
 	
 	Handler.Callback UiCallback = new Handler.Callback() {
@@ -120,12 +130,12 @@ public class DiaryList extends Activity implements OnClickListener {
 				break;
 			case SET_HTTP_COOKIE:
 				pd.setMessage(getString(R.string.loading_data));
-				mHandler.sendEmptyMessage(GET_DATA);
-				//pd.dismiss();
-				//mMainView.loadUrl("http://diary.ru");
+				mHandler.sendEmptyMessageDelayed(GET_DATA, 500);
 				break;
 			case GET_DATA:
 				pd.dismiss();
+				
+				mMainView.loadUrl("http://www.diary.ru");
 				break;
 			default:
 				return false;
@@ -171,13 +181,17 @@ public class DiaryList extends Activity implements OnClickListener {
 						
 						// Sharing cookies between webView and mDHCL
 						List<Cookie> cookies = mDHCL.cookieStore.getCookies();
-						cookieManager.removeSessionCookie();
+						
+						//What the hell is with net Android devs? 
+						//Why cookie operations are done through another thread without any clue like "onCookiePendingOperationsListener"??
+						//Don't uncomment this line! If you do, cookies'll be added and only then another thread'll delete them resulting in having no cookies at all.
+						//cookieManager.removeSessionCookie();
+						
 						for (Cookie cookie : cookies){
 							String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
 			                cookieManager.setCookie("diary.ru", cookieString);
 			            }
-						Log.i("Cookie", cookieManager.getCookie("diary.ru"));
-		                CookieSyncManager.getInstance().sync();
+						CookieSyncManager.getInstance().sync();
 					}
 			        
 			        mUiHandler.sendEmptyMessage(SET_HTTP_COOKIE);

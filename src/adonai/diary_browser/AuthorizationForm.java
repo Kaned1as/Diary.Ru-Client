@@ -60,6 +60,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 			editor.apply();
 			
 			startActivity(new Intent(this, DiaryList.class));
+			finish();
 			break;
 		default:
 			Toast.makeText(this, R.string.not_impl_sc, Toast.LENGTH_LONG).show();
