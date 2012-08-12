@@ -43,14 +43,15 @@
                     <ListView
                         android:id="@+id/favourite_list"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
+                        android:layout_height="fill_parent"
                         android:layout_weight="1" >
                     </ListView>
 
                     <WebView
                         android:id="@+id/main_view"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                        android:layout_height="match_parent"
+                        android:visibility="gone" />
 
                 </LinearLayout>
 

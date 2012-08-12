@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
-
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -27,28 +26,39 @@ import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 
 public class DiaryList extends Activity implements OnClickListener {
 
 	public static final int GET_U_BLOGS = 1;
 	public static final int SET_HTTP_COOKIE = 2;
-	protected static final int GET_DATA = 3;
+	protected static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
+	
+	public static final int TAB_FAVOURITES = 0;
+	public static final int TAB_COMMUNITIES = 1;
+	public static final int TAB_MY_DIARY = 2;
+	
+	boolean mNeedsRefresh = true;
+	MediaArrayAdapter mFavouritesAdapter;
 	
 	SharedPreferences mSharedPrefs;
-	ListView mFavoriteList;
+	ListView mFavouriteList;
 	WebView mMainView;
 	ImageButton mExitButton;
 	TabHost mTabHost;
@@ -69,6 +79,11 @@ public class DiaryList extends Activity implements OnClickListener {
         mDHCL = new DiaryHttpClient();
         mUser = new UserData();
         
+        HandlerThread thr = new HandlerThread("ServiceThread");
+        thr.start(); mLooper = thr.getLooper();
+		mHandler = new Handler(mLooper, WorkerCallback);
+		mUiHandler = new Handler(UiCallback);
+        
         mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         CookieSyncManager.createInstance(this);
         
@@ -82,7 +97,7 @@ public class DiaryList extends Activity implements OnClickListener {
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
-        mFavoriteList = (ListView)findViewById(R.id.favourite_list);
+        mFavouriteList = (ListView)findViewById(R.id.favourite_list);
         mMainView = (WebView) findViewById(R.id.main_view);
         	mMainView.setWebViewClient(new WebViewClient());
         mExitButton = (ImageButton) findViewById(R.id.exit_button);	
@@ -92,14 +107,14 @@ public class DiaryList extends Activity implements OnClickListener {
         	mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.favourite_list));
         	mTabHost.addTab(mTabHost.newTabSpec("tab_communities").setIndicator(getString(R.string.communities)).setContent(R.id.communities_list));
         	mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.owndiary_list));
-
-        	mTabHost.setCurrentTab(0);
-        
-        
-        HandlerThread thr = new HandlerThread("ServiceThread");
-        thr.start(); mLooper = thr.getLooper();
-		mHandler = new Handler(mLooper, WorkerCallback);
-		mUiHandler = new Handler(UiCallback);
+        	for(int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i) {
+        		mTabHost.getTabWidget().getChildTabViewAt(i).setOnClickListener(this);
+        		mTabHost.getTabWidget().getChildTabViewAt(i).setTag(i);
+        	}
+        mFavouritesAdapter = new MediaArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites); 
+        mFavouriteList.setAdapter(mFavouritesAdapter);	
+        //setCurrentTab(0);
+        	
     }
 
     @Override
@@ -117,8 +132,7 @@ public class DiaryList extends Activity implements OnClickListener {
 	@Override
 	protected void onStart() {
 		super.onStart();
-		
-		pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
 		mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
 	}
 	
@@ -127,15 +141,16 @@ public class DiaryList extends Activity implements OnClickListener {
 		{
 			switch (message.what) {
 			case GET_U_BLOGS:
+				pd.dismiss();
 				break;
 			case SET_HTTP_COOKIE:
-				pd.setMessage(getString(R.string.loading_data));
-				mHandler.sendEmptyMessageDelayed(GET_DATA, 500);
-				break;
-			case GET_DATA:
 				pd.dismiss();
-				
-				mMainView.loadUrl("http://www.diary.ru");
+				setCurrentTab(TAB_FAVOURITES);
+				break;
+			case GET_FAVORITES_COMMUNITIES_DATA:
+				mFavouritesAdapter.notifyDataSetChanged();
+				pd.dismiss();
+				//mMainView.loadUrl("http://www.diary.ru");
 				break;
 			default:
 				return false;
@@ -152,7 +167,6 @@ public class DiaryList extends Activity implements OnClickListener {
 				case GET_U_BLOGS:
 					
 					RPCResponse = WMAClient.getUsersBlogs();
-					pd.dismiss();
 					
 					if(RPCResponse == null)
 						return false; 
@@ -176,7 +190,7 @@ public class DiaryList extends Activity implements OnClickListener {
 			        mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
 					String loginScreen = EntityUtils.toString(mDHCL.response.getEntity());
 					
-					if(loginScreen.contains("Добро пожаловать")) { //login successful
+					if (loginScreen.contains("Добро пожаловать")) { //login successful
 						CookieManager cookieManager = CookieManager.getInstance();
 						
 						// Sharing cookies between webView and mDHCL
@@ -196,24 +210,36 @@ public class DiaryList extends Activity implements OnClickListener {
 			        
 			        mUiHandler.sendEmptyMessage(SET_HTTP_COOKIE);
 					return true;
-				case GET_DATA:
-					mDHCL.postPage("http://www.diary.ru", null);
+				case GET_FAVORITES_COMMUNITIES_DATA:
+					// TODO: Исправить все к чертям!! Поставить строгое извлечение по столбцам таблицы, идиот!!
+					
+					mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
 					String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
 					HtmlCleaner cleaner = new HtmlCleaner();
 					cleaner.getProperties().setOmitComments(true);
 					
 					TagNode rootNode = cleaner.clean(dataPage);
-					TagNode[] lists = rootNode.getElementsByAttValue("class", "sp", true, false);
-					if(lists.length == 0)
-						return false;
-					
-					for(TagNode child : lists[0].getChildTags())
-						mUser.favorites.put(child.getText().toString(), child.getAttributeByName("href"));
-					
-					for(TagNode child : lists[1].getChildTags())
-						mUser.communities.put(child.getText().toString(), child.getAttributeByName("href"));
-					
-					mUiHandler.sendEmptyMessage(GET_DATA);
+					TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
+					TagNode[] rows = table.getElementsByName("td", true);
+					TagNode title = null, author = null, last_post = null;
+					for(int i = 0; i < rows.length; ++i) {
+						if (title == null)
+							title = rows[i].findElementByAttValue("class", "withfloat", true, false);
+						if (author == null)
+							author = rows[i].findElementByAttValue("target", "_blank", true, false);
+						if (last_post == null)
+							if(rows[i].getAttributeByName("class") == null)
+								last_post = rows[i].findElementByAttValue("class", "withfloat", true, false);
+						
+						if(title != null && author != null && last_post != null) {
+							mUser.favorites.add(mUser.new Diary(title.findElementByName("b", false).getText().toString(), title.getAttributeByName("href"), 
+																					  author.getText().toString(), author.getAttributeByName("href"), 
+																					  last_post.getText().toString(), last_post.getAttributeByName("href")));
+							title = author = last_post = null;
+						}
+					}
+						
+					mUiHandler.sendEmptyMessage(GET_FAVORITES_COMMUNITIES_DATA);
 					return true;
 				default:
 					return false;
@@ -230,10 +256,80 @@ public class DiaryList extends Activity implements OnClickListener {
 			return true;
 		}
 	};
+	
+	private class MediaArrayAdapter extends ArrayAdapter<UserData.Diary> {
+		
+		public MediaArrayAdapter(Context context, int textViewResourceId,
+				List<UserData.Diary> objects) {
+			super(context, textViewResourceId, objects);
+		}
 
-	public void onClick(View v) {
-		switch (v.getId()) {
-		case R.id.exit_button:
+		@Override
+		public View getView(int pos, View convertView, ViewGroup parent)
+		{
+			View view;
+			if (convertView == null)
+				view = View.inflate(getContext(), R.layout.tab_list_item, null);
+			else
+				view = convertView;
+			
+			/*ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete);
+			TextView title = (TextView)view.findViewById(R.id.p_title);
+			TextView artist = (TextView)view.findViewById(R.id.p_artist);
+			TextView album = (TextView)view.findViewById(R.id.p_album);
+			
+			ImageButton up = (ImageButton)view.findViewById(R.id.p_upbutton);
+			ImageButton down = (ImageButton)view.findViewById(R.id.p_downbutton);
+			up.setOnClickListener(ListItemButtonClickListener);
+			down.setOnClickListener(ListItemButtonClickListener);
+			
+			delete.setOnClickListener(ListItemButtonClickListener);
+			title.setText(getItem(pos).title);
+			artist.setText(getItem(pos).artist);
+			album.setText(getItem(pos).album); */
+			
+			return view;
+		}
+		
+	}
+	
+	/*private OnClickListener ListItemButtonClickListener = new OnClickListener() {
+
+		@Override
+		public void onClick(View view) 
+		{
+			int pos = mSongList.getPositionForView((View)view.getParent());
+			Song song = mAdapter.getItem(pos);
+			switch (view.getId()) {
+			case R.id.p_delete:
+				if(mID == -1)
+					mAdapter.remove(song);
+				else {
+					String[] selected = { String.format("%d", song.id) };
+					Uri uri = MediaStore.Audio.Playlists.Members.getContentUri("external", mID);
+					getContentResolver().delete(uri, "AUDIO_ID = ?", selected);
+					mAdapter.remove(song);
+				}
+				break;
+			case R.id.p_upbutton:
+				if(pos > 0) {
+					mAdapter.remove(song);
+					mAdapter.insert(song, pos - 1);
+				}
+				break;
+			case R.id.p_downbutton:
+				if(pos < mAdapter.getCount() - 1) {
+					mAdapter.remove(song);
+					mAdapter.insert(song, pos + 1);
+				}
+				break;
+			}
+		}
+	}; */
+	
+	public void onClick(View view) {
+		
+		if (view == mExitButton) {
 			Editor lysosome = mSharedPrefs.edit();
 			lysosome.remove(AuthorizationForm.KEY_USERNAME);
 			lysosome.remove(AuthorizationForm.KEY_PASSWORD);
@@ -243,10 +339,34 @@ public class DiaryList extends Activity implements OnClickListener {
 			cookieManager.removeSessionCookie();
 			CookieSyncManager.getInstance().sync();
 			mMainView.reload();
-			break;
-		default:
-			return;
+		} else if (view.getTag() != null && view.getParent() instanceof TabWidget) {
+			int i = (Integer) view.getTag();
+			setCurrentTab(i);
 		}
-		
 	}
+	
+	/* (non-Javadoc)
+	 * Sets the contents to current tab and hides everything other.
+	 * In addition, refreshes content on page, if needed.
+	 */
+	public void setCurrentTab(int index) {
+		if (mNeedsRefresh)
+			switch (index) {
+			case TAB_FAVOURITES:
+				pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+				mHandler.sendEmptyMessage(GET_FAVORITES_COMMUNITIES_DATA);
+				break;
+			case TAB_COMMUNITIES:
+				pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+				
+				break;
+			case TAB_MY_DIARY:
+				break;
+			default:
+				break;
+			}
+		
+		mTabHost.setCurrentTab(index);
+	}
+
 }
