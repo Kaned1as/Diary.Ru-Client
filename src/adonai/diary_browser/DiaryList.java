@@ -18,6 +18,7 @@ import org.htmlcleaner.TagNode;
 
 import de.timroes.axmlrpc.XMLRPCException;
 
+import adonai.diary_browser.UserData.Post;
 import adonai.metaweblog_client.JMetaWeblogClient;
 import android.os.Bundle;
 import android.os.Handler;
@@ -29,6 +30,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,22 +45,26 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TextView;
 
 public class DiaryList extends Activity implements OnClickListener {
 
 	public static final int GET_U_BLOGS = 1;
 	public static final int SET_HTTP_COOKIE = 2;
 	protected static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
+	private static final int GET_DIARY_POSTS_DATA = 4;
 	
 	public static final int TAB_FAVOURITES = 0;
 	public static final int TAB_COMMUNITIES = 1;
 	public static final int TAB_MY_DIARY = 2;
 	
 	boolean mNeedsRefresh = true;
-	MediaArrayAdapter mFavouritesAdapter;
+	DiaryListArrayAdapter mFavouritesAdapter;
+	PostListArrayAdapter mPostListAdapter;
 	
 	SharedPreferences mSharedPrefs;
 	ListView mFavouriteList;
+	ListView mPostBrowser;
 	WebView mMainView;
 	ImageButton mExitButton;
 	TabHost mTabHost;
@@ -98,20 +104,21 @@ public class DiaryList extends Activity implements OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         mFavouriteList = (ListView)findViewById(R.id.favourite_list);
+        mPostBrowser = (ListView)findViewById(R.id.post_browser);
         mMainView = (WebView) findViewById(R.id.main_view);
         	mMainView.setWebViewClient(new WebViewClient());
         mExitButton = (ImageButton) findViewById(R.id.exit_button);	
         	mExitButton.setOnClickListener(this);
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         	mTabHost.setup();
-        	mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.favourite_list));
-        	mTabHost.addTab(mTabHost.newTabSpec("tab_communities").setIndicator(getString(R.string.communities)).setContent(R.id.communities_list));
-        	mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.owndiary_list));
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.tab1));
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_communities").setIndicator(getString(R.string.communities)).setContent(R.id.tab2));
+        	mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.tab3));
         	for(int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i) {
         		mTabHost.getTabWidget().getChildTabViewAt(i).setOnClickListener(this);
         		mTabHost.getTabWidget().getChildTabViewAt(i).setTag(i);
         	}
-        mFavouritesAdapter = new MediaArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites); 
+        mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
         mFavouriteList.setAdapter(mFavouritesAdapter);	
         //setCurrentTab(0);
         	
@@ -212,18 +219,19 @@ public class DiaryList extends Activity implements OnClickListener {
 					return true;
 				case GET_FAVORITES_COMMUNITIES_DATA:
 					// TODO: Исправить все к чертям!! Поставить строгое извлечение по столбцам таблицы, идиот!!
-					
+				{
 					mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
-					String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+					String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
 					HtmlCleaner cleaner = new HtmlCleaner();
 					cleaner.getProperties().setOmitComments(true);
 					
-					TagNode rootNode = cleaner.clean(dataPage);
+					TagNode rootNode = cleaner.clean(favListPage);
 					TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
 					TagNode[] rows = table.getElementsByName("td", true);
+					mUser.favorites.clear();
 					TagNode title = null, author = null, last_post = null;
 					for(int i = 0; i < rows.length; ++i) {
-						if (title == null)
+						if (title == null && rows[i].getAttributeByName("class").equals("l"))
 							title = rows[i].findElementByAttValue("class", "withfloat", true, false);
 						if (author == null)
 							author = rows[i].findElementByAttValue("target", "_blank", true, false);
@@ -241,6 +249,28 @@ public class DiaryList extends Activity implements OnClickListener {
 						
 					mUiHandler.sendEmptyMessage(GET_FAVORITES_COMMUNITIES_DATA);
 					return true;
+				}
+				case GET_DIARY_POSTS_DATA:
+				{
+					UserData.Diary diary = (UserData.Diary)message.obj;
+					String URL = diary.getDiaryUrl();
+					
+					mDHCL.postPage(URL, null);
+					String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+					HtmlCleaner cleaner = new HtmlCleaner();
+					cleaner.getProperties().setOmitComments(true);
+					
+					TagNode rootNode = cleaner.clean(dataPage);
+					for(TagNode post; ; ) {
+						post = rootNode.findElementByAttValue("", "", false, true);
+						
+						if(post == null)
+							break;
+						
+						post.removeFromTree();
+					}
+					return true;
+				}
 				default:
 					return false;
 				}
@@ -257,9 +287,20 @@ public class DiaryList extends Activity implements OnClickListener {
 		}
 	};
 	
-	private class MediaArrayAdapter extends ArrayAdapter<UserData.Diary> {
+	
+	private class PostListArrayAdapter extends ArrayAdapter<UserData.Post> {
+
+		public PostListArrayAdapter(Context context, int textViewResourceId,
+				List<Post> objects) {
+			super(context, textViewResourceId, objects);
+		}
 		
-		public MediaArrayAdapter(Context context, int textViewResourceId,
+	}
+	
+	
+	private class DiaryListArrayAdapter extends ArrayAdapter<UserData.Diary> {
+		
+		public DiaryListArrayAdapter(Context context, int textViewResourceId,
 				List<UserData.Diary> objects) {
 			super(context, textViewResourceId, objects);
 		}
@@ -268,25 +309,22 @@ public class DiaryList extends Activity implements OnClickListener {
 		public View getView(int pos, View convertView, ViewGroup parent)
 		{
 			View view;
+			UserData.Diary diary = getItem(pos);
 			if (convertView == null)
 				view = View.inflate(getContext(), R.layout.tab_list_item, null);
 			else
 				view = convertView;
 			
-			/*ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete);
-			TextView title = (TextView)view.findViewById(R.id.p_title);
-			TextView artist = (TextView)view.findViewById(R.id.p_artist);
-			TextView album = (TextView)view.findViewById(R.id.p_album);
-			
-			ImageButton up = (ImageButton)view.findViewById(R.id.p_upbutton);
-			ImageButton down = (ImageButton)view.findViewById(R.id.p_downbutton);
-			up.setOnClickListener(ListItemButtonClickListener);
-			down.setOnClickListener(ListItemButtonClickListener);
-			
-			delete.setOnClickListener(ListItemButtonClickListener);
-			title.setText(getItem(pos).title);
-			artist.setText(getItem(pos).artist);
-			album.setText(getItem(pos).album); */
+			/*ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete);*/
+			TextView title = (TextView)view.findViewById(R.id.title);
+			 	title.setText(diary.getTitle());
+			 	title.setOnClickListener(DiaryList.this);
+			TextView author = (TextView)view.findViewById(R.id.author);
+				author.setText(diary.getAuthor());
+				title.setOnClickListener(DiaryList.this);
+			TextView last_post = (TextView)view.findViewById(R.id.last_post);
+				last_post.setText(diary.getLastPost());
+				last_post.setOnClickListener(DiaryList.this);
 			
 			return view;
 		}
@@ -342,7 +380,20 @@ public class DiaryList extends Activity implements OnClickListener {
 		} else if (view.getTag() != null && view.getParent() instanceof TabWidget) {
 			int i = (Integer) view.getTag();
 			setCurrentTab(i);
-		}
+		} else
+			switch(view.getId()) {
+			case R.id.title:
+				int pos = mFavouriteList.getPositionForView((View)view.getParent());
+				UserData.Diary diary = mUser.favorites.get(pos);
+				mPostBrowser.setVisibility(View.VISIBLE);
+				
+				pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+				mHandler.sendMessage(mHandler.obtainMessage(GET_DIARY_POSTS_DATA, diary));
+				break;
+			default:
+				Log.i("TODO", "Sorry, this click action is not yet implemented");
+				break;
+			}
 	}
 	
 	/* (non-Javadoc)
