@@ -36,13 +36,6 @@
                 android:layout_height="wrap_content" >
             </TabWidget>
 
-            <ListView
-                android:id="@+id/post_browser"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone" >
-            </ListView>
-
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
@@ -55,10 +48,24 @@
                     android:layout_height="match_parent" >
 
                     <ListView
-                        android:id="@+id/favourite_list"
+                        android:id="@+id/favourite_browser"
                         android:layout_width="match_parent"
                         android:layout_height="fill_parent" >
                     </ListView>
+
+                    <ListView
+                        android:id="@+id/post_browser"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent"
+                        android:visibility="visible" >
+                    </ListView>
+
+                    <ListView
+                        android:id="@+id/comment_browser"
+                        android:layout_width="match_parent"
+                        android:layout_height="fill_parent" >
+                    </ListView>
+
                 </FrameLayout>
 
                 <LinearLayout

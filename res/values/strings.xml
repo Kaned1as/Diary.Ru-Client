@@ -19,5 +19,7 @@
     <string name="author">Author</string>
     <string name="title">Title</string>
     <string name="last_post">Last Post</string>
+    <string name="post_date">post date</string>
+    <string name="author_avatar">Avatar</string>
 
 </resources>
