@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.text.Html;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -334,7 +335,9 @@ public class DiaryList extends Activity implements OnClickListener
                                 if(contentNode != null)
                                 {
                                 	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
-                                	currentPost.set_text(Html.fromHtml(serializer.getAsString(contentNode)));
+                                	SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                                	formatText(SB);
+                                	currentPost.set_text(SB);
                                 }
                                 mUser.currentDiary.add(currentPost);  
                             }
@@ -364,9 +367,8 @@ public class DiaryList extends Activity implements OnClickListener
         }
     };
     
-    private Spanned formatText(Spannable spannable)
+    private void formatText(SpannableStringBuilder spannable)
     {
-		return spannable;
     	
     }
     
@@ -396,7 +398,7 @@ public class DiaryList extends Activity implements OnClickListener
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date());
+            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
