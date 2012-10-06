@@ -13,7 +13,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
+import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 
 import de.timroes.axmlrpc.XMLRPCException;
@@ -30,6 +32,10 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -296,6 +302,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case GET_DIARY_POSTS_DATA:
                     {
+                    	mUser.currentDiary.clear();
                         UserData.Diary diary = (UserData.Diary) message.obj;
                         String URL = diary.getDiaryUrl();
                         
@@ -308,16 +315,16 @@ public class DiaryList extends Activity implements OnClickListener
                         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
                         for (TagNode post : postsArea.getAllElements(false))
                         {
-                            UserData.Post currentPost = mUser.new Post();
                             if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
                             {
+                                UserData.Post currentPost = mUser.new Post();
                                 TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
                                 if (headerNode != null)
                                 {
                                     currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
                                     currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
                                 }
-                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
+                                TagNode authorNode = post.findElementByAttValue("class", "authorName", true, true);
                                 if(authorNode != null)
                                 {
                                     currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
@@ -326,7 +333,8 @@ public class DiaryList extends Activity implements OnClickListener
                                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                                 if(contentNode != null)
                                 {
-                                    currentPost.set_text(contentNode.getText());
+                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                                	currentPost.set_text(Html.fromHtml(serializer.getAsString(contentNode)));
                                 }
                                 mUser.currentDiary.add(currentPost);  
                             }
@@ -355,6 +363,12 @@ public class DiaryList extends Activity implements OnClickListener
             return true;
         }
     };
+    
+    private Spanned formatText(Spannable spannable)
+    {
+		return spannable;
+    	
+    }
     
     private class PostListArrayAdapter extends ArrayAdapter<UserData.Post>
     {
@@ -385,6 +399,7 @@ public class DiaryList extends Activity implements OnClickListener
             post_date.setText(post.get_date());
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
+            post_content.setMovementMethod(LinkMovementMethod.getInstance());
             
             return view;
         }

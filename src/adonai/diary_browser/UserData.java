@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import java.util.ArrayList;
 
 import android.graphics.drawable.Drawable;
+import android.text.Spanned;
 import android.util.Pair;
 
 public class UserData
@@ -113,7 +114,7 @@ public class UserData
             
         }
         
-        public Post(String _title, String _author, String _author_URL, String _URL, StringBuffer _text, String _date, Drawable _author_avatar)
+        public Post(String _title, String _author, String _author_URL, String _URL, Spanned _text, String _date, Drawable _author_avatar)
         {
             this._title = _title;
             this._author = _author;
@@ -127,7 +128,7 @@ public class UserData
         private String _author = "";
         private String _author_URL = "";
         private String _URL = "";
-        private StringBuffer _text = new StringBuffer("");
+        private Spanned _text = null;
         private String _date;
         private String _title = "";
         private Drawable _author_avatar = null;
@@ -169,18 +170,18 @@ public class UserData
         /**
          * @return the _text
          */
-        public StringBuffer get_text()
+        public Spanned get_text()
         {
             return _text;
         }
         
         /**
-         * @param _text
+         * @param spanned
          *            the _text to set
          */
-        public void set_text(StringBuffer _text)
+        public void set_text(Spanned spanned)
         {
-            this._text = _text;
+            this._text = spanned;
         }
         
         /**
