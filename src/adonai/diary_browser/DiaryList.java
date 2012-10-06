@@ -59,12 +59,17 @@ public class DiaryList extends Activity implements OnClickListener
     public static final int TAB_COMMUNITIES = 1;
     public static final int TAB_MY_DIARY = 2;
     
+    private static final int FAVOURITE_LIST = 0;
+    private static final int POST_LIST = 1;
+    private static final int COMMENTS_LIST = 2;
+    private static final int AUTHOR_PAGE = 3;
+    
     boolean mNeedsRefresh = true;
     DiaryListArrayAdapter mFavouritesAdapter;
     PostListArrayAdapter mPostListAdapter;
     
     SharedPreferences mSharedPrefs;
-    ListView mFavouriteList;
+    ListView mFavouriteBrowser;
     ListView mPostBrowser;
     WebView mMainView;
     ImageButton mExitButton;
@@ -109,7 +114,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
-        mFavouriteList = (ListView) findViewById(R.id.favourite_list);
+        mFavouriteBrowser = (ListView) findViewById(R.id.favourite_list);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mMainView = (WebView) findViewById(R.id.main_view);
         mMainView.setWebViewClient(new WebViewClient());
@@ -126,7 +131,7 @@ public class DiaryList extends Activity implements OnClickListener
             mTabHost.getTabWidget().getChildTabViewAt(i).setTag(i);
         }
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
-        mFavouriteList.setAdapter(mFavouritesAdapter);
+        mFavouriteBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiary);
         mPostBrowser.setAdapter(mPostListAdapter);
         // setCurrentTab(0);
@@ -174,7 +179,8 @@ public class DiaryList extends Activity implements OnClickListener
                 // mMainView.loadUrl("http://www.diary.ru");
                 break;
                 case GET_DIARY_POSTS_DATA:
-                    mFavouriteList.setVisibility(View.GONE);
+                    mPostListAdapter.notifyDataSetChanged();
+                    setCurrentVisibleComponent(POST_LIST);
                     pd.dismiss();
                 break;
                 default:
@@ -443,7 +449,7 @@ public class DiaryList extends Activity implements OnClickListener
             switch (view.getId())
             {
                 case R.id.title:
-                    int pos = mFavouriteList.getPositionForView((View) view.getParent());
+                    int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
                     UserData.Diary diary = mUser.favorites.get(pos);
                     mPostBrowser.setVisibility(View.VISIBLE);
                     
@@ -460,7 +466,7 @@ public class DiaryList extends Activity implements OnClickListener
      * (non-Javadoc) Sets the contents to current tab and hides everything other. In addition, refreshes content on
      * page, if needed.
      */
-    public void setCurrentTab(int index)
+    private void setCurrentTab(int index)
     {
         if (mNeedsRefresh)
             switch (index)
@@ -480,6 +486,25 @@ public class DiaryList extends Activity implements OnClickListener
             }
         
         mTabHost.setCurrentTab(index);
+    }
+    
+    private void setCurrentVisibleComponent(int needed)
+    {
+        mFavouriteBrowser.setVisibility(needed == FAVOURITE_LIST ? View.VISIBLE : View.GONE);
+        mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
+        //mCommentBrowser.setVisibility(needed == COMMENTS_LIST ? View.VISIBLE : View.GONE);
+        //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onBackPressed()
+     */
+    @Override
+    public void onBackPressed()
+    {
+        if(mPostBrowser.getVisibility() == View.VISIBLE)
+            setCurrentVisibleComponent(FAVOURITE_LIST);
+        super.onBackPressed();
     }
     
 }
