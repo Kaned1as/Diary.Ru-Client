@@ -50,10 +50,11 @@ import android.widget.TextView;
 public class DiaryList extends Activity implements OnClickListener
 {
     
-    public static final int GET_U_BLOGS = 1;
-    public static final int SET_HTTP_COOKIE = 2;
-    protected static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
+    private static final int GET_U_BLOGS = 1;
+    private static final int SET_HTTP_COOKIE = 2;
+    private static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
     private static final int GET_DIARY_POSTS_DATA = 4;
+    private static final int GET_POST_COMMENTS_DATA = 5;
     
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_COMMUNITIES = 1;
@@ -71,6 +72,7 @@ public class DiaryList extends Activity implements OnClickListener
     SharedPreferences mSharedPrefs;
     ListView mFavouriteBrowser;
     ListView mPostBrowser;
+    ListView mCommentBrowser;
     WebView mMainView;
     ImageButton mExitButton;
     TabHost mTabHost;
@@ -114,12 +116,16 @@ public class DiaryList extends Activity implements OnClickListener
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
-        mFavouriteBrowser = (ListView) findViewById(R.id.favourite_list);
+        mFavouriteBrowser = (ListView) findViewById(R.id.favourite_browser);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
+        mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
+        
         mMainView = (WebView) findViewById(R.id.main_view);
         mMainView.setWebViewClient(new WebViewClient());
+        
         mExitButton = (ImageButton) findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
+        
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup();
         mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.tab1));
@@ -130,6 +136,7 @@ public class DiaryList extends Activity implements OnClickListener
             mTabHost.getTabWidget().getChildTabViewAt(i).setOnClickListener(this);
             mTabHost.getTabWidget().getChildTabViewAt(i).setTag(i);
         }
+        
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
         mFavouriteBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiary);
@@ -172,6 +179,7 @@ public class DiaryList extends Activity implements OnClickListener
                 case SET_HTTP_COOKIE:
                     pd.dismiss();
                     setCurrentTab(TAB_FAVOURITES);
+                    setCurrentVisibleComponent(FAVOURITE_LIST);
                 break;
                 case GET_FAVORITES_COMMUNITIES_DATA:
                     mFavouritesAdapter.notifyDataSetChanged();
@@ -297,13 +305,13 @@ public class DiaryList extends Activity implements OnClickListener
                         cleaner.getProperties().setOmitComments(true);
                         
                         TagNode rootNode = cleaner.clean(dataPage);
-                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", false, true);
+                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
                         for (TagNode post : postsArea.getAllElements(false))
                         {
                             UserData.Post currentPost = mUser.new Post();
                             if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
                             {
-                                TagNode headerNode = post.findElementByAttValue("class", "PostTitle header", false, true);
+                                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
                                 if (headerNode != null)
                                 {
                                     currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
@@ -315,7 +323,7 @@ public class DiaryList extends Activity implements OnClickListener
                                     currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
                                     currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
                                 }
-                                TagNode contentNode = post.findElementByAttValue("class", "postInner", true, true);
+                                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                                 if(contentNode != null)
                                 {
                                     currentPost.set_text(contentNode.getText());
@@ -494,7 +502,7 @@ public class DiaryList extends Activity implements OnClickListener
     {
         mFavouriteBrowser.setVisibility(needed == FAVOURITE_LIST ? View.VISIBLE : View.GONE);
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
-        //mCommentBrowser.setVisibility(needed == COMMENTS_LIST ? View.VISIBLE : View.GONE);
+        mCommentBrowser.setVisibility(needed == COMMENTS_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
     }
 
