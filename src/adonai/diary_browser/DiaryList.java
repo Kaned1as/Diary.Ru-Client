@@ -175,6 +175,7 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
                 case GET_FAVORITES_COMMUNITIES_DATA:
                     mFavouritesAdapter.notifyDataSetChanged();
+                    setCurrentVisibleComponent(FAVOURITE_LIST);
                     pd.dismiss();
                 // mMainView.loadUrl("http://www.diary.ru");
                 break;
@@ -361,7 +362,7 @@ public class DiaryList extends Activity implements OnClickListener
             View view;
             UserData.Post post = getItem(pos);
             if (convertView == null)
-                view = View.inflate(getContext(), R.layout.tab_list_item, null);
+                view = View.inflate(getContext(), R.layout.post_list_item, null);
             else
                 view = convertView;
             
@@ -372,9 +373,10 @@ public class DiaryList extends Activity implements OnClickListener
             TextView author = (TextView) view.findViewById(R.id.author);
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
-            TextView last_post = (TextView) view.findViewById(R.id.last_post);
-            last_post.setText(post.get_date());
-            last_post.setOnClickListener(DiaryList.this);
+            TextView post_date = (TextView) view.findViewById(R.id.post_date);
+            post_date.setText(post.get_date());
+            TextView post_content = (TextView) view.findViewById(R.id.post_content);
+            post_content.setText(post.get_text());
             
             return view;
         }
@@ -395,7 +397,7 @@ public class DiaryList extends Activity implements OnClickListener
             View view;
             UserData.Diary diary = getItem(pos);
             if (convertView == null)
-                view = View.inflate(getContext(), R.layout.tab_list_item, null);
+                view = View.inflate(getContext(), R.layout.diary_list_item, null);
             else
                 view = convertView;
             
@@ -504,7 +506,8 @@ public class DiaryList extends Activity implements OnClickListener
     {
         if(mPostBrowser.getVisibility() == View.VISIBLE)
             setCurrentVisibleComponent(FAVOURITE_LIST);
-        super.onBackPressed();
+        else
+            super.onBackPressed();
     }
     
 }
