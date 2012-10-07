@@ -149,6 +149,8 @@ public class DiaryList extends Activity implements OnClickListener
         mFavouriteBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
+        mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
+        mCommentBrowser.setAdapter(mCommentListAdapter);
         // setCurrentTab(0);
         
     }
@@ -201,7 +203,7 @@ public class DiaryList extends Activity implements OnClickListener
                     pd.dismiss();
                 break;
                 case GET_POST_COMMENTS_DATA:
-                	//mCommentListAdapter.notifyDataSetChanged();
+                	mCommentListAdapter.notifyDataSetChanged();
                 	setCurrentVisibleComponent(COMMENT_LIST);
                     pd.dismiss();
                 break;
@@ -359,7 +361,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case GET_POST_COMMENTS_DATA:
                     {
-                    	mUser.currentDiaryPosts.clear();
+                    	mUser.currentPostComments.clear();
                         UserData.Post parsingPost = (UserData.Post) message.obj;
                         String URL = parsingPost.get_URL();
                         
@@ -371,11 +373,17 @@ public class DiaryList extends Activity implements OnClickListener
                         mUser.currentPostComments.add(parsingPost);
                         TagNode rootNode = cleaner.clean(dataPage);
                         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
+                        if(commentsArea == null)
+                        {
+                            mUiHandler.sendEmptyMessage(GET_POST_COMMENTS_DATA);
+                            return true;
+                        }
+                        
                         for (TagNode comment : commentsArea.getAllElements(false))
                         {
                             if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
                             {
-                                UserData.Post currentPost = mUser.new Post();
+                                UserData.Comment currentPost = mUser.new Comment();
                                 TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
                                 if (headerNode != null)
                                 {
@@ -401,7 +409,7 @@ public class DiaryList extends Activity implements OnClickListener
                                 {
                                 	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
                                 }
-                                mUser.currentDiaryPosts.add(currentPost);  
+                                mUser.currentPostComments.add(currentPost);  
                             }
                             
                         }
@@ -625,7 +633,7 @@ public class DiaryList extends Activity implements OnClickListener
     }
     
     private void setCurrentVisibleComponent(int needed)
-    {
+    {   
         mFavouriteBrowser.setVisibility(needed == FAVOURITE_LIST ? View.VISIBLE : View.GONE);
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
@@ -644,6 +652,21 @@ public class DiaryList extends Activity implements OnClickListener
             setCurrentVisibleComponent(POST_LIST);
         else
             super.onBackPressed();
+    }
+
+    /* (non-Javadoc)
+     * @see android.app.Activity#onSearchRequested()
+     */
+    @Override
+    public boolean onSearchRequested()
+    {
+        int visibility = mTabHost.getTabWidget().getVisibility();
+        if(visibility == View.GONE)
+            mTabHost.getTabWidget().setVisibility(View.VISIBLE);
+        else
+            mTabHost.getTabWidget().setVisibility(View.GONE);
+        
+        return super.onSearchRequested();
     }
     
 }
