@@ -10,12 +10,14 @@ public class UserData
 {
     ArrayList<Pair<String, String>> communities;
     ArrayList<Diary> favorites;
-    ArrayList<Post> currentDiary;
+    ArrayList<Post> currentDiaryPosts;
+    ArrayList<Post> currentPostComments;
     
     UserData()
     {
         favorites = new ArrayList<Diary>();
-        currentDiary = new ArrayList<Post>();
+        currentDiaryPosts = new ArrayList<Post>();
+        currentPostComments = new ArrayList<Post>();
         communities = new ArrayList<Pair<String, String>>();
     }
     
@@ -237,5 +239,10 @@ public class UserData
         {
             this._author_URL = _author_URL;
         }
+    }
+    
+    public class Comment extends Post
+    {
+    	
     }
 }

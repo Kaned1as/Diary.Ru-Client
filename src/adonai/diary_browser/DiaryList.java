@@ -69,12 +69,13 @@ public class DiaryList extends Activity implements OnClickListener
     
     private static final int FAVOURITE_LIST = 0;
     private static final int POST_LIST = 1;
-    private static final int COMMENTS_LIST = 2;
+    private static final int COMMENT_LIST = 2;
     private static final int AUTHOR_PAGE = 3;
     
     boolean mNeedsRefresh = true;
     DiaryListArrayAdapter mFavouritesAdapter;
     PostListArrayAdapter mPostListAdapter;
+    CommentListArrayAdapter mCommentListAdapter;
     
     SharedPreferences mSharedPrefs;
     ListView mFavouriteBrowser;
@@ -146,7 +147,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
         mFavouriteBrowser.setAdapter(mFavouritesAdapter);
-        mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiary);
+        mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
         // setCurrentTab(0);
         
@@ -197,6 +198,11 @@ public class DiaryList extends Activity implements OnClickListener
                 case GET_DIARY_POSTS_DATA:
                     mPostListAdapter.notifyDataSetChanged();
                     setCurrentVisibleComponent(POST_LIST);
+                    pd.dismiss();
+                break;
+                case GET_POST_COMMENTS_DATA:
+                	//mCommentListAdapter.notifyDataSetChanged();
+                	setCurrentVisibleComponent(COMMENT_LIST);
                     pd.dismiss();
                 break;
                 default:
@@ -303,7 +309,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case GET_DIARY_POSTS_DATA:
                     {
-                    	mUser.currentDiary.clear();
+                    	mUser.currentDiaryPosts.clear();
                         UserData.Diary diary = (UserData.Diary) message.obj;
                         String URL = diary.getDiaryUrl();
                         
@@ -325,7 +331,7 @@ public class DiaryList extends Activity implements OnClickListener
                                     currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
                                     currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
                                 }
-                                TagNode authorNode = post.findElementByAttValue("class", "authorName", true, true);
+                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
                                 if(authorNode != null)
                                 {
                                     currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
@@ -339,12 +345,69 @@ public class DiaryList extends Activity implements OnClickListener
                                 	formatText(SB);
                                 	currentPost.set_text(SB);
                                 }
-                                mUser.currentDiary.add(currentPost);  
+                                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
+                                if (urlNode != null)
+                                {
+                                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                                }
+                                mUser.currentDiaryPosts.add(currentPost);  
                             }
                             
                         }
                         mUiHandler.sendEmptyMessage(GET_DIARY_POSTS_DATA);
                         return true;
+                    }
+                    case GET_POST_COMMENTS_DATA:
+                    {
+                    	mUser.currentDiaryPosts.clear();
+                        UserData.Post parsingPost = (UserData.Post) message.obj;
+                        String URL = parsingPost.get_URL();
+                        
+                        mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        HtmlCleaner cleaner = new HtmlCleaner();
+                        cleaner.getProperties().setOmitComments(true);
+                        
+                        mUser.currentPostComments.add(parsingPost);
+                        TagNode rootNode = cleaner.clean(dataPage);
+                        TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
+                        for (TagNode comment : commentsArea.getAllElements(false))
+                        {
+                            if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
+                            {
+                                UserData.Post currentPost = mUser.new Post();
+                                TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
+                                if (headerNode != null)
+                                {
+                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                                }
+                                TagNode authorNode = comment.findElementByAttValue("class", "authorName", false, true);
+                                if(authorNode != null)
+                                {
+                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
+                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                                }
+                                TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
+                                if(contentNode != null)
+                                {
+                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                                	SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                                	formatText(SB);
+                                	currentPost.set_text(SB);
+                                }
+                                TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
+                                if (urlNode != null)
+                                {
+                                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                                }
+                                mUser.currentDiaryPosts.add(currentPost);  
+                            }
+                            
+                        }
+                          
+                        mUiHandler.sendEmptyMessage(GET_POST_COMMENTS_DATA);
+                    	return true;
                     }
                     default:
                         return false;
@@ -391,10 +454,46 @@ public class DiaryList extends Activity implements OnClickListener
                 view = convertView;
             
             /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
-            TextView title = (TextView) view.findViewById(R.id.title);
+            TextView title = (TextView) view.findViewById(R.id.post_title);
             title.setText(post.get_title());
             title.setOnClickListener(DiaryList.this);
-            TextView author = (TextView) view.findViewById(R.id.author);
+            TextView author = (TextView) view.findViewById(R.id.post_author);
+            author.setText(post.get_author());
+            author.setOnClickListener(DiaryList.this);
+            TextView post_date = (TextView) view.findViewById(R.id.post_date);
+            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
+            TextView post_content = (TextView) view.findViewById(R.id.post_content);
+            post_content.setText(post.get_text());
+            post_content.setMovementMethod(LinkMovementMethod.getInstance());
+            
+            return view;
+        }
+        
+    }
+    
+    private class CommentListArrayAdapter extends ArrayAdapter<UserData.Post>
+    {
+        
+        public CommentListArrayAdapter(Context context, int textViewResourceId, List<Post> objects)
+        {
+            super(context, textViewResourceId, objects);
+        }
+        
+        @Override
+        public View getView(int pos, View convertView, ViewGroup parent)
+        {
+            View view;
+            UserData.Post post = getItem(pos);
+            if (convertView == null)
+                view = View.inflate(getContext(), R.layout.post_list_item, null);
+            else
+                view = convertView;
+            
+            /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
+            TextView title = (TextView) view.findViewById(R.id.post_title);
+            title.setText(post.get_title());
+            title.setOnClickListener(DiaryList.this);
+            TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
@@ -476,12 +575,22 @@ public class DiaryList extends Activity implements OnClickListener
             switch (view.getId())
             {
                 case R.id.title:
+                {
                     int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
                     UserData.Diary diary = mUser.favorites.get(pos);
-                    mPostBrowser.setVisibility(View.VISIBLE);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(GET_DIARY_POSTS_DATA, diary));
+                }
+                break;
+                case R.id.post_title:
+                {
+                	int pos = mPostBrowser.getPositionForView((View) view.getParent());
+                	UserData.Post post = mUser.currentDiaryPosts.get(pos);
+                	
+                	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                     mHandler.sendMessage(mHandler.obtainMessage(GET_POST_COMMENTS_DATA, post));
+                }
                 break;
                 default:
                     Log.i("TODO", "Sorry, this click action is not yet implemented");
@@ -519,7 +628,7 @@ public class DiaryList extends Activity implements OnClickListener
     {
         mFavouriteBrowser.setVisibility(needed == FAVOURITE_LIST ? View.VISIBLE : View.GONE);
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
-        mCommentBrowser.setVisibility(needed == COMMENTS_LIST ? View.VISIBLE : View.GONE);
+        mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
     }
 
@@ -529,8 +638,10 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public void onBackPressed()
     {
-        if(mPostBrowser.getVisibility() == View.VISIBLE)
+        if (mPostBrowser.getVisibility() == View.VISIBLE)
             setCurrentVisibleComponent(FAVOURITE_LIST);
+        else if (mCommentBrowser.getVisibility() == View.VISIBLE)
+            setCurrentVisibleComponent(POST_LIST);
         else
             super.onBackPressed();
     }
