@@ -1,7 +1,9 @@
 package adonai.diary_browser;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,12 +36,17 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
+import android.text.style.ImageSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -55,6 +62,7 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener
 {
@@ -64,6 +72,8 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
     private static final int GET_DIARY_POSTS_DATA = 4;
     private static final int GET_POST_COMMENTS_DATA = 5;
+    
+    private static final int SERVICE_LOAD_IMAGE = 10;
     
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_COMMUNITIES = 1;
@@ -185,6 +195,10 @@ public class DiaryList extends Activity implements OnClickListener
         {
             switch (message.what)
             {
+                case SERVICE_LOAD_IMAGE:
+                    mCommentListAdapter.notifyDataSetChanged();
+                    mPostListAdapter.notifyDataSetChanged();
+                break;
                 case GET_U_BLOGS:
                     pd.dismiss();
                 break;
@@ -218,12 +232,25 @@ public class DiaryList extends Activity implements OnClickListener
     
     Handler.Callback WorkerCallback = new Handler.Callback()
     {
+        @SuppressWarnings("unchecked")
         public boolean handleMessage(Message message)
         {
             try
             {
                 switch (message.what)
                 {
+                    case SERVICE_LOAD_IMAGE:
+                    {
+                        Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
+                        Drawable loadedPicture = loadImage(pair.second.getSource());
+                        loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
+                        final int start = pair.first.getSpanStart(pair.second);
+                        final int end = pair.first.getSpanEnd(pair.second);
+                        pair.first.removeSpan(pair.second);
+                        pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(SERVICE_LOAD_IMAGE));                        
+                    }
+                    break;
                     case GET_U_BLOGS:
                         
                         RPCResponse = WMAClient.getUsersBlogs();
@@ -442,9 +469,42 @@ public class DiaryList extends Activity implements OnClickListener
         }
     };
     
-    private void formatText(SpannableStringBuilder spannable)
+    private void formatText(final SpannableStringBuilder spannable)
     {
+    	ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
     	
+        for (final ImageSpan span : imageSpans)
+        {
+            
+            final String image_src = span.getSource();
+            final int start = spannable.getSpanStart(span);
+            final int end = spannable.getSpanEnd(span);
+            
+            ClickableSpan click_span = new ClickableSpan()
+            {
+                
+                @Override
+                public void onClick(View widget)
+                {
+                    mHandler.sendMessage(mHandler.obtainMessage(SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+                    Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
+                }
+                
+            };
+            
+            ClickableSpan[] click_spans = spannable.getSpans(start, end, ClickableSpan.class);            
+            if (click_spans.length != 0)
+            {   
+                for (ClickableSpan c_span : click_spans)
+                {
+                    spannable.removeSpan(c_span);
+                }
+                
+            }
+            
+            spannable.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+        }
     }
     
     private class PostListArrayAdapter extends ArrayAdapter<Post>
@@ -477,6 +537,8 @@ public class DiaryList extends Activity implements OnClickListener
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
+            TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
+            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
             
             return view;
         }
@@ -631,6 +693,21 @@ public class DiaryList extends Activity implements OnClickListener
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
     }
+    
+    public static Drawable loadImage(String url) 
+    {
+        try 
+        {
+            InputStream is = (InputStream) new URL(url).getContent();
+            Drawable d = Drawable.createFromStream(is, "InTextImage");
+            return d;
+        } 
+        catch (Exception e) 
+        {
+            return null;
+        }
+    }
+
 
     /* (non-Javadoc)
      * @see android.app.Activity#onBackPressed()

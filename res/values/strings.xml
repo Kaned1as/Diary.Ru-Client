@@ -21,5 +21,6 @@
     <string name="last_post">Last Post</string>
     <string name="post_date">post date</string>
     <string name="author_avatar">Avatar</string>
+    <string name="comments">Comments</string>
 
 </resources>
