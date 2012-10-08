@@ -20,7 +20,9 @@ import org.htmlcleaner.TagNode;
 
 import de.timroes.axmlrpc.XMLRPCException;
 
-import adonai.diary_browser.UserData.Post;
+import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.Post;
 import adonai.metaweblog_client.JMetaWeblogClient;
 import android.os.Bundle;
 import android.os.Handler;
@@ -301,7 +303,7 @@ public class DiaryList extends Activity implements OnClickListener
                             
                             if (title != null && author != null && last_post != null)
                             {
-                                mUser.favorites.add(mUser.new Diary(title.findElementByName("b", false).getText().toString(), title.getAttributeByName("href"), author.getText().toString(), author.getAttributeByName("href"), last_post.getText().toString(), last_post.getAttributeByName("href")));
+                                mUser.favorites.add(new Diary(title.findElementByName("b", false).getText().toString(), title.getAttributeByName("href"), author.getText().toString(), author.getAttributeByName("href"), last_post.getText().toString(), last_post.getAttributeByName("href")));
                                 title = author = last_post = null;
                             }
                         }
@@ -312,7 +314,7 @@ public class DiaryList extends Activity implements OnClickListener
                     case GET_DIARY_POSTS_DATA:
                     {
                     	mUser.currentDiaryPosts.clear();
-                        UserData.Diary diary = (UserData.Diary) message.obj;
+                        Diary diary = (Diary) message.obj;
                         String URL = diary.getDiaryUrl();
                         
                         mDHCL.postPage(URL, null);
@@ -326,7 +328,7 @@ public class DiaryList extends Activity implements OnClickListener
                         {
                             if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
                             {
-                                UserData.Post currentPost = mUser.new Post();
+                                Post currentPost = new Post();
                                 TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
                                 if (headerNode != null)
                                 {
@@ -351,7 +353,9 @@ public class DiaryList extends Activity implements OnClickListener
                                 if (urlNode != null)
                                 {
                                 	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                                	currentPost.set_comment_count(urlNode.findElementByAttValue("class", "comments_count_link", true, true).getText().toString());
                                 }
+                                
                                 mUser.currentDiaryPosts.add(currentPost);  
                             }
                             
@@ -362,7 +366,7 @@ public class DiaryList extends Activity implements OnClickListener
                     case GET_POST_COMMENTS_DATA:
                     {
                     	mUser.currentPostComments.clear();
-                        UserData.Post parsingPost = (UserData.Post) message.obj;
+                        Post parsingPost = (Post) message.obj;
                         String URL = parsingPost.get_URL();
                         
                         mDHCL.postPage(URL, null);
@@ -383,7 +387,7 @@ public class DiaryList extends Activity implements OnClickListener
                         {
                             if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
                             {
-                                UserData.Comment currentPost = mUser.new Comment();
+                                Comment currentPost = new Comment();
                                 TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
                                 if (headerNode != null)
                                 {
@@ -443,7 +447,7 @@ public class DiaryList extends Activity implements OnClickListener
     	
     }
     
-    private class PostListArrayAdapter extends ArrayAdapter<UserData.Post>
+    private class PostListArrayAdapter extends ArrayAdapter<Post>
     {
         
         public PostListArrayAdapter(Context context, int textViewResourceId, List<Post> objects)
@@ -455,7 +459,7 @@ public class DiaryList extends Activity implements OnClickListener
         public View getView(int pos, View convertView, ViewGroup parent)
         {
             View view;
-            UserData.Post post = getItem(pos);
+            Post post = getItem(pos);
             if (convertView == null)
                 view = View.inflate(getContext(), R.layout.post_list_item, null);
             else
@@ -479,7 +483,7 @@ public class DiaryList extends Activity implements OnClickListener
         
     }
     
-    private class CommentListArrayAdapter extends ArrayAdapter<UserData.Post>
+    private class CommentListArrayAdapter extends ArrayAdapter<Post>
     {
         
         public CommentListArrayAdapter(Context context, int textViewResourceId, List<Post> objects)
@@ -491,7 +495,7 @@ public class DiaryList extends Activity implements OnClickListener
         public View getView(int pos, View convertView, ViewGroup parent)
         {
             View view;
-            UserData.Post post = getItem(pos);
+            Post post = getItem(pos);
             if (convertView == null)
                 view = View.inflate(getContext(), R.layout.post_list_item, null);
             else
@@ -515,10 +519,10 @@ public class DiaryList extends Activity implements OnClickListener
         
     }
     
-    private class DiaryListArrayAdapter extends ArrayAdapter<UserData.Diary>
+    private class DiaryListArrayAdapter extends ArrayAdapter<Diary>
     {
         
-        public DiaryListArrayAdapter(Context context, int textViewResourceId, List<UserData.Diary> objects)
+        public DiaryListArrayAdapter(Context context, int textViewResourceId, List<Diary> objects)
         {
             super(context, textViewResourceId, objects);
         }
@@ -527,7 +531,7 @@ public class DiaryList extends Activity implements OnClickListener
         public View getView(int pos, View convertView, ViewGroup parent)
         {
             View view;
-            UserData.Diary diary = getItem(pos);
+            Diary diary = getItem(pos);
             if (convertView == null)
                 view = View.inflate(getContext(), R.layout.diary_list_item, null);
             else
@@ -548,18 +552,6 @@ public class DiaryList extends Activity implements OnClickListener
         }
         
     }
-    
-    /*
-     * private OnClickListener ListItemButtonClickListener = new OnClickListener() {
-     * 
-     * @Override public void onClick(View view) { int pos = mSongList.getPositionForView((View)view.getParent()); Song
-     * song = mAdapter.getItem(pos); switch (view.getId()) { case R.id.p_delete: if(mID == -1) mAdapter.remove(song);
-     * else { String[] selected = { String.format("%d", song.id) }; Uri uri =
-     * MediaStore.Audio.Playlists.Members.getContentUri("external", mID); getContentResolver().delete(uri,
-     * "AUDIO_ID = ?", selected); mAdapter.remove(song); } break; case R.id.p_upbutton: if(pos > 0) {
-     * mAdapter.remove(song); mAdapter.insert(song, pos - 1); } break; case R.id.p_downbutton: if(pos <
-     * mAdapter.getCount() - 1) { mAdapter.remove(song); mAdapter.insert(song, pos + 1); } break; } } };
-     */
     
     public void onClick(View view)
     {
@@ -585,7 +577,7 @@ public class DiaryList extends Activity implements OnClickListener
                 case R.id.title:
                 {
                     int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
-                    UserData.Diary diary = mUser.favorites.get(pos);
+                    Diary diary = mUser.favorites.get(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(GET_DIARY_POSTS_DATA, diary));
@@ -594,7 +586,7 @@ public class DiaryList extends Activity implements OnClickListener
                 case R.id.post_title:
                 {
                 	int pos = mPostBrowser.getPositionForView((View) view.getParent());
-                	UserData.Post post = mUser.currentDiaryPosts.get(pos);
+                	Post post = mUser.currentDiaryPosts.get(pos);
                 	
                 	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                      mHandler.sendMessage(mHandler.obtainMessage(GET_POST_COMMENTS_DATA, post));
