@@ -15,7 +15,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
@@ -34,6 +33,7 @@ import android.os.Message;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Rect;
@@ -90,6 +90,8 @@ public class DiaryList extends Activity implements OnClickListener
     CommentListArrayAdapter mCommentListAdapter;
     
     SharedPreferences mSharedPrefs;
+    
+    TextView mLogin;
     ListView mFavouriteBrowser;
     ListView mPostBrowser;
     ListView mCommentBrowser;
@@ -123,6 +125,7 @@ public class DiaryList extends Activity implements OnClickListener
         mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         CookieSyncManager.createInstance(this);
         
+        // Возможно, устаревший код. Оставлен для возможного будущего использования
         try
         {
             WMAClient = new JMetaWeblogClient("http://www.diary.ru/client/mwa.php");
@@ -140,6 +143,9 @@ public class DiaryList extends Activity implements OnClickListener
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
         
+        mLogin = (TextView) findViewById(R.id.login_name);
+        
+        // Также устаревший код, оставлен в целях тестирования
         mMainView = (WebView) findViewById(R.id.main_view);
         mMainView.setWebViewClient(new WebViewClient());
         
@@ -185,8 +191,11 @@ public class DiaryList extends Activity implements OnClickListener
     protected void onStart()
     {
         super.onStart();
-        pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-        mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
+        if(pd == null)
+        {
+            pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+            mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
+        }
     }
     
     Handler.Callback UiCallback = new Handler.Callback()
@@ -204,6 +213,7 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
                 case SET_HTTP_COOKIE:
                     pd.dismiss();
+                    mLogin.setText(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
                     setCurrentTab(TAB_FAVOURITES);
                     setCurrentVisibleComponent(FAVOURITE_LIST);
                 break;
@@ -246,7 +256,13 @@ public class DiaryList extends Activity implements OnClickListener
                         loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
                         final int start = pair.first.getSpanStart(pair.second);
                         final int end = pair.first.getSpanEnd(pair.second);
+                        
                         pair.first.removeSpan(pair.second);
+                        for(ClickableSpan spanToPurge : pair.first.getSpans(start, end, ClickableSpan.class))
+                            pair.first.removeSpan(spanToPurge);
+                        
+                        
+                        
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(SERVICE_LOAD_IMAGE));                        
                     }
@@ -469,6 +485,7 @@ public class DiaryList extends Activity implements OnClickListener
         }
     };
     
+    // форматируем текст перед выведением в TextView в списках
     private void formatText(final SpannableStringBuilder spannable)
     {
     	ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
@@ -477,9 +494,16 @@ public class DiaryList extends Activity implements OnClickListener
         {
             
             final String image_src = span.getSource();
+            
+            // Если это смайлик или системное изображение
+            // загрузка изображений обрабатывается в сервисном потоке - обязательно!
+            if(image_src.contains("static") && !image_src.contains("userdir"))
+                mHandler.sendMessage(mHandler.obtainMessage(SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+            
             final int start = spannable.getSpanStart(span);
             final int end = spannable.getSpanEnd(span);
             
+            // делаем каждую картинку кликабельной
             ClickableSpan click_span = new ClickableSpan()
             {
                 
@@ -492,14 +516,10 @@ public class DiaryList extends Activity implements OnClickListener
                 
             };
             
-            ClickableSpan[] click_spans = spannable.getSpans(start, end, ClickableSpan.class);            
-            if (click_spans.length != 0)
-            {   
-                for (ClickableSpan c_span : click_spans)
-                {
-                    spannable.removeSpan(c_span);
-                }
-                
+            ClickableSpan[] click_spans = spannable.getSpans(start, end, ClickableSpan.class);
+            for (ClickableSpan c_span : click_spans)
+            {
+                spannable.removeSpan(c_span);
             }
             
             spannable.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -628,8 +648,12 @@ public class DiaryList extends Activity implements OnClickListener
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeSessionCookie();
             CookieSyncManager.getInstance().sync();
-            mMainView.reload();
-        } else if (view.getTag() != null && view.getParent() instanceof TabWidget)
+            
+            //TODO: просмотр без логина тоже еще не введен
+            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+            finish();
+        } 
+        else if (view.getTag() != null && view.getParent() instanceof TabWidget)
         {
             int i = (Integer) view.getTag();
             setCurrentTab(i);

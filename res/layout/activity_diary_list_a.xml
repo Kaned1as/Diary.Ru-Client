@@ -3,16 +3,32 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/diary_background"
     android:orientation="vertical" >
 
-    <ImageButton
-        android:id="@+id/exit_button"
-        android:layout_width="30dip"
-        android:layout_height="30dip"
-        android:layout_gravity="right"
-        android:layout_marginTop="3dip"
-        android:scaleType="center"
-        android:src="@android:drawable/ic_lock_idle_lock" />
+    <LinearLayout
+        android:id="@+id/upperDeck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right" >
+
+        <TextView
+            android:id="@+id/login_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right|center_vertical" />
+
+        <ImageButton
+            android:id="@+id/exit_button"
+            android:layout_width="30dip"
+            android:layout_height="30dip"
+            android:layout_gravity="right"
+            android:layout_marginTop="3dip"
+            android:contentDescription="@string/logout_drawable"
+            android:scaleType="center"
+            android:src="@android:drawable/ic_lock_idle_lock" />
+
+    </LinearLayout>
 
     <WebView
         android:id="@+id/main_view"

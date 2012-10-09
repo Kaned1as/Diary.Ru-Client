@@ -22,5 +22,7 @@
     <string name="post_date">post date</string>
     <string name="author_avatar">Avatar</string>
     <string name="comments">Comments</string>
+    <string name="diary_logo">Diary.Ru header logo</string>
+    <string name="logout_drawable">logout drawable</string>
 
 </resources>

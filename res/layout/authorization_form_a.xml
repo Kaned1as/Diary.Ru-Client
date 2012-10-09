@@ -1,7 +1,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    android:background="@drawable/diary_background" >
 
     <EditText
         android:id="@+id/login_text"
@@ -10,7 +11,7 @@
         android:layout_alignParentLeft="false"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
-        android:layout_marginTop="100dip"
+        android:layout_marginTop="150dip"
         android:ems="10"
         android:inputType="textPersonName" />
 
@@ -33,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/password_text"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="63dp"
+        android:layout_marginTop="20dip"
         android:minWidth="200dip"
         android:text="@string/login" />
 
@@ -60,5 +61,15 @@
         android:textSize="24dip"
         android:textStyle="bold"
         android:typeface="normal" />
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:contentDescription="@string/diary_logo"
+        android:src="@drawable/diary_logo" />
 
 </RelativeLayout>
