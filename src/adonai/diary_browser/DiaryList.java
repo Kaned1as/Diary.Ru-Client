@@ -72,16 +72,18 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
     private static final int HANDLE_GET_U_BLOGS = 1;
     private static final int HANDLE_SET_HTTP_COOKIE = 2;
-    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 3;
-    private static final int HANDLE_GET_DIARY_POSTS_DATA = 4;
-    private static final int HANDLE_GET_POST_COMMENTS_DATA = 5;
+    private static final int HANDLE_GET_USER_PARAMS = 3;
+    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 4;
+    private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
+    private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
+    private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_LOAD_IMAGE = 10;
     
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
-    public static final int TAB_COMMUNITIES = 1;
+    public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
     
     // текущий контекст
@@ -96,6 +98,7 @@ public class DiaryList extends Activity implements OnClickListener
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     PostListArrayAdapter mPostListAdapter;
+    PostListArrayAdapter mFavPostListAdapter;
     CommentListArrayAdapter mCommentListAdapter;
     
     // Настройки (пока нужны только для добавления логина и пароля)
@@ -106,6 +109,8 @@ public class DiaryList extends Activity implements OnClickListener
     ListView mFavouriteBrowser;
     ListView mPostBrowser;
     ListView mCommentBrowser;
+    
+    ListView mFavPostBrowser;
     WebView mMainView;
     ImageButton mExitButton;
     TabHost mTabHost;
@@ -154,6 +159,7 @@ public class DiaryList extends Activity implements OnClickListener
         mFavouriteBrowser = (ListView) findViewById(R.id.favourite_browser);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
+        mFavPostBrowser = (ListView) findViewById(R.id.favorite_post_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
         
@@ -202,6 +208,8 @@ public class DiaryList extends Activity implements OnClickListener
         mPostBrowser.setAdapter(mPostListAdapter);
         mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
         mCommentBrowser.setAdapter(mCommentListAdapter);
+        mFavPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favoritePosts);
+        mFavPostBrowser.setAdapter(mFavPostListAdapter);
         // setCurrentTab(0);
         
     }
@@ -245,8 +253,12 @@ public class DiaryList extends Activity implements OnClickListener
                     pd.dismiss();
                 break;
                 case HANDLE_SET_HTTP_COOKIE:
-                    pd.dismiss();
+                    pd.setMessage(getResources().getString(R.string.getting_user_info));
                     mLogin.setText(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
+                    mHandler.sendEmptyMessage(HANDLE_GET_USER_PARAMS);
+                break;
+                case HANDLE_GET_USER_PARAMS:
+                    pd.dismiss();
                     setCurrentTab(TAB_FAVOURITES);
                     setCurrentVisibleComponent(FAVOURITE_LIST);
                 break;
@@ -264,6 +276,11 @@ public class DiaryList extends Activity implements OnClickListener
                 case HANDLE_GET_POST_COMMENTS_DATA:
                 	mCommentListAdapter.notifyDataSetChanged();
                 	setCurrentVisibleComponent(COMMENT_LIST);
+                    pd.dismiss();
+                break;
+                case HANDLE_GET_FAVORITE_POSTS_DATA:
+                    mFavPostListAdapter.notifyDataSetChanged();
+                    //setCurrentVisibleComponent(POST_LIST);
                     pd.dismiss();
                 break;
                 case HANDLE_AUTHORIZATION_ERROR:
@@ -359,10 +376,31 @@ public class DiaryList extends Activity implements OnClickListener
                         else
                         {
                             mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                            return false;
                         }
                         
                         mUiHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
                         return true;
+                    case HANDLE_GET_USER_PARAMS:
+                    {
+                        mDHCL.postPage("http://www.diary.ru", null);
+                        String homeScreen = EntityUtils.toString(mDHCL.response.getEntity());
+                        HtmlCleaner cleaner = new HtmlCleaner();
+                        cleaner.getProperties().setOmitComments(true);
+                        
+                        TagNode rootNode = cleaner.clean(homeScreen);
+                        TagNode[] nodes = rootNode.getAllElements(true);
+                        for(TagNode node : nodes)
+                        {
+                            if(node.getText().toString().equals("Мой дневник"))
+                                mUser.ownDiaryURL = node.getAttributeByName("href");
+                            if(node.getText().toString().equals(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")))
+                                mUser.ownProfileURL = node.getAttributeByName("href");
+                        }
+                        
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_USER_PARAMS);
+                        return true;
+                    }
                     case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     // TODO: Исправить все к чертям!! Поставить строгое извлечение по
                     // столбцам таблицы, идиот!!
@@ -502,12 +540,64 @@ public class DiaryList extends Activity implements OnClickListener
                                 	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
                                 }
                                 mUser.currentPostComments.add(currentPost);  
-                            }
-                            
+                            }   
                         }
                           
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
+                    }
+                    case HANDLE_GET_FAVORITE_POSTS_DATA:
+                    {
+                        mUser.favoritePosts.clear();
+                        String URL = mUser.ownDiaryURL + "?favorite";
+                        
+                        mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        HtmlCleaner cleaner = new HtmlCleaner();
+                        cleaner.getProperties().setOmitComments(true);
+                        
+                        TagNode rootNode = cleaner.clean(dataPage);
+                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
+                        for (TagNode post : postsArea.getAllElements(false))
+                        {
+                            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
+                            {
+                                Post currentPost = new Post();
+                                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
+                                if (headerNode != null)
+                                {
+                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                                    if(currentPost.get_title().equals(""))
+                                        currentPost.set_title(getResources().getString(R.string.without_title));
+                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                                }
+                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
+                                if(authorNode != null)
+                                {
+                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
+                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                                }
+                                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
+                                if(contentNode != null)
+                                {
+                                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                                    SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                                    formatText(SB);
+                                    currentPost.set_text(SB);
+                                }
+                                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
+                                if (urlNode != null)
+                                {
+                                    currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                                    currentPost.set_comment_count(urlNode.findElementByAttValue("class", "comments_count_link", true, true).getText().toString());
+                                }
+                                
+                                mUser.favoritePosts.add(currentPost);  
+                            }
+                            
+                        }
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
+                        return true;
                     }
                     default:
                         return false;
@@ -542,8 +632,10 @@ public class DiaryList extends Activity implements OnClickListener
             
             // Если это смайлик или системное изображение
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
-            if(image_src.contains("static") && !image_src.contains("userdir"))
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+            
+            // Временно отключено - большая потеря памяти
+            //if(image_src.contains("static") && !image_src.contains("userdir"))
+            //    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
             
             final int start = spannable.getSpanStart(span);
             final int end = spannable.getSpanEnd(span);
@@ -716,8 +808,9 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
                 case R.id.post_title:
                 {
-                	int pos = mPostBrowser.getPositionForView((View) view.getParent());
-                	Post post = mUser.currentDiaryPosts.get(pos);
+                    ListView ownerListView = (ListView)((View) view.getParent()).getParent();
+                	int pos = ownerListView.getPositionForView((View) view.getParent());
+                	Post post = (Post) mPostBrowser.getAdapter().getItem(pos);
                 	
                 	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                      mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post));
@@ -742,9 +835,9 @@ public class DiaryList extends Activity implements OnClickListener
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                 break;
-                case TAB_COMMUNITIES:
+                case TAB_FAV_POSTS:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                
+                    mHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                 break;
                 case TAB_MY_DIARY:
                 break;

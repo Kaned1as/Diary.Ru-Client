@@ -12,6 +12,9 @@ public class UserData
     ArrayList<Diary> favorites;
     ArrayList<Post> currentDiaryPosts;
     ArrayList<Post> currentPostComments;
+    ArrayList<Post> favoritePosts;
+    String ownDiaryURL = "";
+    String ownProfileURL = "";
     
     UserData()
     {
@@ -19,5 +22,6 @@ public class UserData
         currentDiaryPosts = new ArrayList<Post>();
         currentPostComments = new ArrayList<Post>();
         communities = new ArrayList<Pair<String, String>>();
+        favoritePosts = new ArrayList<Post>();
     }
 }

@@ -26,5 +26,6 @@
     <string name="logout_drawable">logout drawable</string>
     <string name="without_title">Without title</string>
     <string name="posts">Posts</string>
+    <string name="getting_user_info">Getting user info</string>
 
 </resources>

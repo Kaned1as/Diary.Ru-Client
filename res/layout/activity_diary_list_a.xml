@@ -30,7 +30,6 @@
             android:contentDescription="@string/logout_drawable"
             android:scaleType="center"
             android:src="@android:drawable/ic_lock_idle_lock" />
-
     </LinearLayout>
 
     <WebView
@@ -53,14 +52,12 @@
                 android:id="@android:id/tabs"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" >
-
             </TabWidget>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="visible" >
+                android:layout_height="match_parent" >
 
                 <FrameLayout
                     android:id="@+id/tab1"
@@ -85,36 +82,32 @@
                         android:layout_width="match_parent"
                         android:layout_height="fill_parent" >
                     </ListView>
-
                 </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/tab2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
 
                     <ListView
-                        android:id="@+id/communities_list"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
+                        android:id="@+id/favorite_post_browser"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
                     </ListView>
-                </LinearLayout>
+                </FrameLayout>
 
-                <LinearLayout
+                <FrameLayout
                     android:id="@+id/tab3"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
 
                     <ListView
-                        android:id="@+id/owndiary_list"
-                        android:layout_width="0dip"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" >
+                        android:id="@+id/owndiary_browser"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
                     </ListView>
-                </LinearLayout>
+                </FrameLayout>
             </FrameLayout>
-
         </LinearLayout>
     </TabHost>
 
