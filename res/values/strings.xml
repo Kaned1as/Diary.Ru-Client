@@ -24,5 +24,7 @@
     <string name="comments">Comments</string>
     <string name="diary_logo">Diary.Ru header logo</string>
     <string name="logout_drawable">logout drawable</string>
+    <string name="without_title">Without title</string>
+    <string name="posts">Posts</string>
 
 </resources>

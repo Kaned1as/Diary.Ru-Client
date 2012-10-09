@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
@@ -47,6 +48,7 @@ import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.util.Log;
 import android.util.Pair;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -165,14 +167,35 @@ public class DiaryList extends Activity implements OnClickListener
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup();
         mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.tab1));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_communities").setIndicator(getString(R.string.communities)).setContent(R.id.tab2));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(R.id.tab2));
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.tab3));
+        
+        // UGLY HACK для более тонких табов
         for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
         {
-            mTabHost.getTabWidget().getChildTabViewAt(i).setOnClickListener(this);
-            mTabHost.getTabWidget().getChildTabViewAt(i).setTag(i);
+            final View view = mTabHost.getTabWidget().getChildTabViewAt(i);
+            view.setOnClickListener(this);
+            view.setTag(i);
+            
+            // reduce height of the tab
+            view.getLayoutParams().height *= 0.50;
+            
+            // get title text view
+            final View textView = view.findViewById(android.R.id.title);
+            if (textView instanceof TextView)
+            {
+                // just in case check the type
+                
+                // center text
+                ((TextView) textView).setGravity(Gravity.CENTER);
+                ((TextView) textView).setTypeface(Typeface.DEFAULT_BOLD);
+                
+                // explicitly set layout parameters
+                textView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
+                textView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+            }
         }
-        
+
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
         mFavouriteBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
@@ -396,6 +419,8 @@ public class DiaryList extends Activity implements OnClickListener
                                 if (headerNode != null)
                                 {
                                     currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                                    if(currentPost.get_title().equals(""))
+                                        currentPost.set_title(getResources().getString(R.string.without_title));
                                     currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
                                 }
                                 TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
@@ -574,12 +599,13 @@ public class DiaryList extends Activity implements OnClickListener
             author.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
             post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
-            TextView post_content = (TextView) view.findViewById(R.id.post_content);
-            post_content.setText(post.get_text());
-            post_content.setMovementMethod(LinkMovementMethod.getInstance());
             TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
             comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
+            TextView post_content = (TextView) view.findViewById(R.id.post_content);
+            post_content.setText(post.get_text());
             
+            post_content.setMovementMethod(LinkMovementMethod.getInstance());
+                        
             return view;
         }
         
@@ -606,14 +632,13 @@ public class DiaryList extends Activity implements OnClickListener
             /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
             TextView title = (TextView) view.findViewById(R.id.post_title);
             title.setText(post.get_title());
-            title.setOnClickListener(DiaryList.this);
             TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
-            author.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
             post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
+            
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
             
             return view;
