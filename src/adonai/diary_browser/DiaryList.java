@@ -66,31 +66,40 @@ import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener
 {
+    // Команды хэндлерам
+    private static final int HANDLE_AUTHORIZATION_ERROR = 0;
+    private static final int HANDLE_GET_U_BLOGS = 1;
+    private static final int HANDLE_SET_HTTP_COOKIE = 2;
+    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 3;
+    private static final int HANDLE_GET_DIARY_POSTS_DATA = 4;
+    private static final int HANDLE_GET_POST_COMMENTS_DATA = 5;
     
-    private static final int GET_U_BLOGS = 1;
-    private static final int SET_HTTP_COOKIE = 2;
-    private static final int GET_FAVORITES_COMMUNITIES_DATA = 3;
-    private static final int GET_DIARY_POSTS_DATA = 4;
-    private static final int GET_POST_COMMENTS_DATA = 5;
+    // дополнительные команды хэндлерам
+    private static final int HANDLE_SERVICE_LOAD_IMAGE = 10;
     
-    private static final int SERVICE_LOAD_IMAGE = 10;
-    
+    // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_COMMUNITIES = 1;
     public static final int TAB_MY_DIARY = 2;
     
+    // текущий контекст
     private static final int FAVOURITE_LIST = 0;
     private static final int POST_LIST = 1;
     private static final int COMMENT_LIST = 2;
     private static final int AUTHOR_PAGE = 3;
     
+    // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
+    
+    // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     PostListArrayAdapter mPostListAdapter;
     CommentListArrayAdapter mCommentListAdapter;
     
+    // Настройки (пока нужны только для добавления логина и пароля)
     SharedPreferences mSharedPrefs;
     
+    // Видимые объекты
     TextView mLogin;
     ListView mFavouriteBrowser;
     ListView mPostBrowser;
@@ -100,6 +109,7 @@ public class DiaryList extends Activity implements OnClickListener
     TabHost mTabHost;
     ProgressDialog pd;
     
+    // Сервисные объекты
     DiaryHttpClient mDHCL;
     UserData mUser;
     
@@ -107,7 +117,7 @@ public class DiaryList extends Activity implements OnClickListener
     Object[] RPCResponse;
     
     static Handler mHandler, mUiHandler;
-    Looper mLooper;
+    Looper mLooper; // петля времени
     
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -194,7 +204,7 @@ public class DiaryList extends Activity implements OnClickListener
         if(pd == null)
         {
             pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-            mHandler.sendEmptyMessage(SET_HTTP_COOKIE);
+            mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
     }
     
@@ -204,34 +214,40 @@ public class DiaryList extends Activity implements OnClickListener
         {
             switch (message.what)
             {
-                case SERVICE_LOAD_IMAGE:
+                case HANDLE_SERVICE_LOAD_IMAGE:
                     mCommentListAdapter.notifyDataSetChanged();
                     mPostListAdapter.notifyDataSetChanged();
                 break;
-                case GET_U_BLOGS:
+                case HANDLE_GET_U_BLOGS:
                     pd.dismiss();
                 break;
-                case SET_HTTP_COOKIE:
+                case HANDLE_SET_HTTP_COOKIE:
                     pd.dismiss();
                     mLogin.setText(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
                     setCurrentTab(TAB_FAVOURITES);
                     setCurrentVisibleComponent(FAVOURITE_LIST);
                 break;
-                case GET_FAVORITES_COMMUNITIES_DATA:
+                case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     mFavouritesAdapter.notifyDataSetChanged();
                     setCurrentVisibleComponent(FAVOURITE_LIST);
                     pd.dismiss();
                 // mMainView.loadUrl("http://www.diary.ru");
                 break;
-                case GET_DIARY_POSTS_DATA:
+                case HANDLE_GET_DIARY_POSTS_DATA:
                     mPostListAdapter.notifyDataSetChanged();
                     setCurrentVisibleComponent(POST_LIST);
                     pd.dismiss();
                 break;
-                case GET_POST_COMMENTS_DATA:
+                case HANDLE_GET_POST_COMMENTS_DATA:
                 	mCommentListAdapter.notifyDataSetChanged();
                 	setCurrentVisibleComponent(COMMENT_LIST);
                     pd.dismiss();
+                break;
+                case HANDLE_AUTHORIZATION_ERROR:
+                    pd.dismiss();
+                    Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+                    finish();
                 break;
                 default:
                     return false;
@@ -249,7 +265,7 @@ public class DiaryList extends Activity implements OnClickListener
             {
                 switch (message.what)
                 {
-                    case SERVICE_LOAD_IMAGE:
+                    case HANDLE_SERVICE_LOAD_IMAGE:
                     {
                         Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
                         Drawable loadedPicture = loadImage(pair.second.getSource());
@@ -264,10 +280,10 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(SERVICE_LOAD_IMAGE));                        
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE));                        
                     }
                     break;
-                    case GET_U_BLOGS:
+                    case HANDLE_GET_U_BLOGS:
                         
                         RPCResponse = WMAClient.getUsersBlogs();
                         
@@ -283,9 +299,9 @@ public class DiaryList extends Activity implements OnClickListener
                             contents.add(ctr, contentHash);
                         }
                         
-                        mUiHandler.sendEmptyMessage(GET_U_BLOGS);
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_U_BLOGS);
                         return true;
-                    case SET_HTTP_COOKIE:
+                    case HANDLE_SET_HTTP_COOKIE:
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                         nameValuePairs.add(new BasicNameValuePair("user_login", mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
                         nameValuePairs.add(new BasicNameValuePair("user_pass", mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
@@ -317,10 +333,14 @@ public class DiaryList extends Activity implements OnClickListener
                             }
                             CookieSyncManager.getInstance().sync();
                         }
+                        else
+                        {
+                            mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        }
                         
-                        mUiHandler.sendEmptyMessage(SET_HTTP_COOKIE);
+                        mUiHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
                         return true;
-                    case GET_FAVORITES_COMMUNITIES_DATA:
+                    case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     // TODO: Исправить все к чертям!! Поставить строгое извлечение по
                     // столбцам таблицы, идиот!!
                     {
@@ -351,10 +371,10 @@ public class DiaryList extends Activity implements OnClickListener
                             }
                         }
                         
-                        mUiHandler.sendEmptyMessage(GET_FAVORITES_COMMUNITIES_DATA);
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                         return true;
                     }
-                    case GET_DIARY_POSTS_DATA:
+                    case HANDLE_GET_DIARY_POSTS_DATA:
                     {
                     	mUser.currentDiaryPosts.clear();
                         Diary diary = (Diary) message.obj;
@@ -403,10 +423,10 @@ public class DiaryList extends Activity implements OnClickListener
                             }
                             
                         }
-                        mUiHandler.sendEmptyMessage(GET_DIARY_POSTS_DATA);
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
                         return true;
                     }
-                    case GET_POST_COMMENTS_DATA:
+                    case HANDLE_GET_POST_COMMENTS_DATA:
                     {
                     	mUser.currentPostComments.clear();
                         Post parsingPost = (Post) message.obj;
@@ -422,7 +442,7 @@ public class DiaryList extends Activity implements OnClickListener
                         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
                         if(commentsArea == null)
                         {
-                            mUiHandler.sendEmptyMessage(GET_POST_COMMENTS_DATA);
+                            mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                             return true;
                         }
                         
@@ -461,7 +481,7 @@ public class DiaryList extends Activity implements OnClickListener
                             
                         }
                           
-                        mUiHandler.sendEmptyMessage(GET_POST_COMMENTS_DATA);
+                        mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
                     }
                     default:
@@ -498,7 +518,7 @@ public class DiaryList extends Activity implements OnClickListener
             // Если это смайлик или системное изображение
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
             if(image_src.contains("static") && !image_src.contains("userdir"))
-                mHandler.sendMessage(mHandler.obtainMessage(SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
             
             final int start = spannable.getSpanStart(span);
             final int end = spannable.getSpanEnd(span);
@@ -510,7 +530,7 @@ public class DiaryList extends Activity implements OnClickListener
                 @Override
                 public void onClick(View widget)
                 {
-                    mHandler.sendMessage(mHandler.obtainMessage(SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
                     Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
                 }
                 
@@ -666,7 +686,7 @@ public class DiaryList extends Activity implements OnClickListener
                     Diary diary = mUser.favorites.get(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(GET_DIARY_POSTS_DATA, diary));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary));
                 }
                 break;
                 case R.id.post_title:
@@ -675,7 +695,7 @@ public class DiaryList extends Activity implements OnClickListener
                 	Post post = mUser.currentDiaryPosts.get(pos);
                 	
                 	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                     mHandler.sendMessage(mHandler.obtainMessage(GET_POST_COMMENTS_DATA, post));
+                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post));
                 }
                 break;
                 default:
@@ -695,7 +715,7 @@ public class DiaryList extends Activity implements OnClickListener
             {
                 case TAB_FAVOURITES:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendEmptyMessage(GET_FAVORITES_COMMUNITIES_DATA);
+                    mHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                 break;
                 case TAB_COMMUNITIES:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
