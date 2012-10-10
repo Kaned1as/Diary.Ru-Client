@@ -313,16 +313,17 @@ public class DiaryList extends Activity implements OnClickListener
                     case HANDLE_SERVICE_LOAD_IMAGE:
                     {
                         Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
-                        Drawable loadedPicture = loadImage(pair.second.getSource());
-                        loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
                         final int start = pair.first.getSpanStart(pair.second);
                         final int end = pair.first.getSpanEnd(pair.second);
+                        if(start == -1 || end == -1) // уже удалена
+                            return false;
                         
+                        Drawable loadedPicture = loadImage(pair.second.getSource());
+                        loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
+                                                
                         pair.first.removeSpan(pair.second);
                         for(ClickableSpan spanToPurge : pair.first.getSpans(start, end, ClickableSpan.class))
                             pair.first.removeSpan(spanToPurge);
-                        
-                        
                         
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE));                        
@@ -355,7 +356,7 @@ public class DiaryList extends Activity implements OnClickListener
                         mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                         String loginScreen = EntityUtils.toString(mDHCL.response.getEntity());
                         
-                        if (loginScreen.contains("Добро пожаловать"))
+                        if (loginScreen.contains("Если браузер не перенаправляет вас автоматически"))
                         { // login successful
                             CookieManager cookieManager = CookieManager.getInstance();
                             
