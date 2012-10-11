@@ -120,6 +120,7 @@ public class DiaryList extends Activity implements OnClickListener
     
     // Сервисные объекты
     DiaryHttpClient mDHCL;
+    HtmlCleaner postCleaner;
     UserData mUser;
     
     JMetaWeblogClient WMAClient;
@@ -132,6 +133,11 @@ public class DiaryList extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        
+        postCleaner = new HtmlCleaner();
+        postCleaner.getProperties().setOmitComments(true);
+        postCleaner.getProperties().setRecognizeUnicodeChars(true);
+        
         mDHCL = new DiaryHttpClient();
         mUser = new UserData();
         
@@ -391,10 +397,8 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         mDHCL.postPage("http://www.diary.ru", null);
                         String homeScreen = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
                         
-                        TagNode rootNode = cleaner.clean(homeScreen);
+                        TagNode rootNode = postCleaner.clean(homeScreen);
                         TagNode[] nodes = rootNode.getAllElements(true);
                         for(TagNode node : nodes)
                         {
@@ -413,10 +417,8 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
                         
-                        TagNode rootNode = cleaner.clean(favListPage);
+                        TagNode rootNode = postCleaner.clean(favListPage);
                         TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
                         TagNode[] rows = table.getElementsByName("td", true);
                         mUser.favorites.clear();
@@ -460,11 +462,9 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         mDHCL.postPage(URL, null);
                         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
                         
                         mUser.currentPostComments.add(parsingPost);
-                        TagNode rootNode = cleaner.clean(dataPage);
+                        TagNode rootNode = postCleaner.clean(dataPage);
                         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
                         if(commentsArea == null)
                         {
@@ -492,7 +492,7 @@ public class DiaryList extends Activity implements OnClickListener
                                 TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
                                 if(contentNode != null)
                                 {
-                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
                                 	SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
                                 	formatText(SB);
                                 	currentPost.set_text(SB);
@@ -516,9 +516,7 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         String URL = mUser.ownDiaryURL + "?favorite";
                         
-                        serializePostsPage(URL, mUser.favoritePosts);
-                                
-                        mUser.currentDiaryPosts = (ArrayList<Post>)mUser.favoritePosts.clone();
+                        serializePostsPage(URL, mUser.favoritePosts);       
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                         return true;
@@ -530,8 +528,6 @@ public class DiaryList extends Activity implements OnClickListener
                         String URL = mUser.ownDiaryURL;
                         
                         serializePostsPage(URL, mUser.ownDiaryPosts);
-                        
-                        mUser.currentDiaryPosts = (ArrayList<Post>)mUser.ownDiaryPosts.clone();
 
                         mUiHandler.sendEmptyMessage(HANDLE_GET_OWNDIARY_POSTS_DATA);
                         return true;
@@ -841,12 +837,12 @@ public class DiaryList extends Activity implements OnClickListener
     
     public void serializePostsPage(String URL, List<Post> destination) throws IOException
     {
+        mUser.currentDiaryPosts.clear();
+        
         mDHCL.postPage(URL, null);
         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-        HtmlCleaner cleaner = new HtmlCleaner();
-        cleaner.getProperties().setOmitComments(true);
         
-        TagNode rootNode = cleaner.clean(dataPage);
+        TagNode rootNode = postCleaner.clean(dataPage);
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
         {
@@ -870,7 +866,7 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
-                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
                     SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
                     formatText(SB);
                     currentPost.set_text(SB);
@@ -886,7 +882,10 @@ public class DiaryList extends Activity implements OnClickListener
                         currentPost.set_comment_count(getResources().getString(R.string.comments_disabled));
                 }
                 
-                destination.add(currentPost);  
+                if(destination != null)
+                    destination.add(currentPost);
+                
+                mUser.currentDiaryPosts.add(currentPost);
             }
         }
     }
