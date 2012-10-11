@@ -445,11 +445,10 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case HANDLE_GET_DIARY_POSTS_DATA:
                     {
-                    	mUser.currentDiaryPosts.clear();
                         Diary diary = (Diary) message.obj;
                         String URL = diary.getDiaryUrl();
                         
-                        serializePostsPage(URL, mUser.currentDiaryPosts);
+                        serializePostsPage(URL, null);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
                         return true;
@@ -512,8 +511,6 @@ public class DiaryList extends Activity implements OnClickListener
                     case HANDLE_GET_FAVORITE_POSTS_DATA:
                     {
                         mUser.favoritePosts.clear();
-                        mUser.currentDiaryPosts.clear();
-                        
                         String URL = mUser.ownDiaryURL + "?favorite";
                         
                         serializePostsPage(URL, mUser.favoritePosts);       
@@ -524,7 +521,6 @@ public class DiaryList extends Activity implements OnClickListener
                     case HANDLE_GET_OWNDIARY_POSTS_DATA:
                     {
                         mUser.ownDiaryPosts.clear();
-                        mUser.currentDiaryPosts.clear();
                         String URL = mUser.ownDiaryURL;
                         
                         serializePostsPage(URL, mUser.ownDiaryPosts);
@@ -885,6 +881,7 @@ public class DiaryList extends Activity implements OnClickListener
                 if(destination != null)
                     destination.add(currentPost);
                 
+                // Всегда заполняем текущие посты
                 mUser.currentDiaryPosts.add(currentPost);
             }
         }
