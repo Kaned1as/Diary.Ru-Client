@@ -808,7 +808,7 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public void onBackPressed()
     {
-        if (mPostBrowser.getVisibility() == View.VISIBLE)
+        if (mPostBrowser.getVisibility() == View.VISIBLE || mTabHost.getCurrentTab() == TAB_FAVOURITES)
             setCurrentVisibleComponent(FAVOURITE_LIST);
         else if (mCommentBrowser.getVisibility() == View.VISIBLE)
             setCurrentVisibleComponent(POST_LIST);
