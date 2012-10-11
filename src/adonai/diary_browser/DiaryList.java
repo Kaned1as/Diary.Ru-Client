@@ -447,53 +447,8 @@ public class DiaryList extends Activity implements OnClickListener
                         Diary diary = (Diary) message.obj;
                         String URL = diary.getDiaryUrl();
                         
-                        mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
+                        serializePostsPage(URL, mUser.currentDiaryPosts);
                         
-                        TagNode rootNode = cleaner.clean(dataPage);
-                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-                        for (TagNode post : postsArea.getAllElements(false))
-                        {
-                            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
-                            {
-                                Post currentPost = new Post();
-                                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
-                                if (headerNode != null)
-                                {
-                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                                    if(currentPost.get_title().equals(""))
-                                        currentPost.set_title(getResources().getString(R.string.without_title));
-                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
-                                }
-                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
-                                if(authorNode != null)
-                                {
-                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
-                                }
-                                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
-                                if(contentNode != null)
-                                {
-                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
-                                	SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
-                                	formatText(SB);
-                                	currentPost.set_text(SB);
-                                }
-                                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
-                                if (urlNode != null)
-                                {
-                                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
-                                	TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
-                                    if(comment_count != null)
-                                        currentPost.set_comment_count(comment_count.getText().toString());
-                                }
-                                
-                                mUser.currentDiaryPosts.add(currentPost);  
-                            }
-                            
-                        }
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
                         return true;
                     }
@@ -558,56 +513,13 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         mUser.favoritePosts.clear();
                         mUser.currentDiaryPosts.clear();
+                        
                         String URL = mUser.ownDiaryURL + "?favorite";
                         
-                        mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
-                        
-                        TagNode rootNode = cleaner.clean(dataPage);
-                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-                        for (TagNode post : postsArea.getAllElements(false))
-                        {
-                            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
-                            {
-                                Post currentPost = new Post();
-                                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
-                                if (headerNode != null)
-                                {
-                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                                    if(currentPost.get_title().equals(""))
-                                        currentPost.set_title(getResources().getString(R.string.without_title));
-                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
-                                }
-                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
-                                if(authorNode != null)
-                                {
-                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
-                                }
-                                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
-                                if(contentNode != null)
-                                {
-                                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
-                                    SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
-                                    formatText(SB);
-                                    currentPost.set_text(SB);
-                                }
-                                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
-                                if (urlNode != null)
-                                {
-                                    currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
-                                    TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
-                                    if(comment_count != null)
-                                        currentPost.set_comment_count(comment_count.getText().toString());
-                                }
+                        serializePostsPage(URL, mUser.favoritePosts);
                                 
-                                mUser.favoritePosts.add(currentPost); 
-                                mUser.currentDiaryPosts.add(currentPost);
-                            }
-                            
-                        }
+                        mUser.currentDiaryPosts = (ArrayList<Post>)mUser.favoritePosts.clone();
+                        
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                         return true;
                     }
@@ -617,54 +529,10 @@ public class DiaryList extends Activity implements OnClickListener
                         mUser.currentDiaryPosts.clear();
                         String URL = mUser.ownDiaryURL;
                         
-                        mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        HtmlCleaner cleaner = new HtmlCleaner();
-                        cleaner.getProperties().setOmitComments(true);
+                        serializePostsPage(URL, mUser.ownDiaryPosts);
                         
-                        TagNode rootNode = cleaner.clean(dataPage);
-                        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-                        for (TagNode post : postsArea.getAllElements(false))
-                        {
-                            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
-                            {
-                                Post currentPost = new Post();
-                                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
-                                if (headerNode != null)
-                                {
-                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                                    if(currentPost.get_title().equals(""))
-                                        currentPost.set_title(getResources().getString(R.string.without_title));
-                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
-                                }
-                                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
-                                if(authorNode != null)
-                                {
-                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
-                                }
-                                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
-                                if(contentNode != null)
-                                {
-                                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
-                                    SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
-                                    formatText(SB);
-                                    currentPost.set_text(SB);
-                                }
-                                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
-                                if (urlNode != null)
-                                {
-                                    currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
-                                    TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
-                                    if(comment_count != null)
-                                        currentPost.set_comment_count(comment_count.getText().toString());
-                                }
-                                
-                                mUser.ownDiaryPosts.add(currentPost); 
-                                mUser.currentDiaryPosts.add(currentPost);
-                            }
-                            
-                        }
+                        mUser.currentDiaryPosts = (ArrayList<Post>)mUser.ownDiaryPosts.clone();
+
                         mUiHandler.sendEmptyMessage(HANDLE_GET_OWNDIARY_POSTS_DATA);
                         return true;
                     }
@@ -971,4 +839,55 @@ public class DiaryList extends Activity implements OnClickListener
         return super.onSearchRequested();
     }
     
+    public void serializePostsPage(String URL, List<Post> destination) throws IOException
+    {
+        mDHCL.postPage(URL, null);
+        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+        HtmlCleaner cleaner = new HtmlCleaner();
+        cleaner.getProperties().setOmitComments(true);
+        
+        TagNode rootNode = cleaner.clean(dataPage);
+        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
+        for (TagNode post : postsArea.getAllElements(false))
+        {
+            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
+            {
+                Post currentPost = new Post();
+                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
+                if (headerNode != null)
+                {
+                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                    if(currentPost.get_title().equals(""))
+                        currentPost.set_title(getResources().getString(R.string.without_title));
+                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                }
+                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
+                if(authorNode != null)
+                {
+                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
+                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                }
+                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
+                if(contentNode != null)
+                {
+                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(cleaner.getProperties());
+                    SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                    formatText(SB);
+                    currentPost.set_text(SB);
+                }
+                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
+                if (urlNode != null)
+                {
+                    currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                    TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
+                    if(comment_count != null)
+                        currentPost.set_comment_count(comment_count.getText().toString());
+                    else 
+                        currentPost.set_comment_count(getResources().getString(R.string.comments_disabled));
+                }
+                
+                destination.add(currentPost);  
+            }
+        }
+    }
 }

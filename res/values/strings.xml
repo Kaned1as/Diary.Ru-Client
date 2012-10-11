@@ -27,5 +27,6 @@
     <string name="without_title">Without title</string>
     <string name="posts">Posts</string>
     <string name="getting_user_info">Getting user info</string>
+    <string name="comments_disabled">disabled</string>
 
 </resources>
