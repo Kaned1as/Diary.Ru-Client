@@ -41,11 +41,11 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
+import android.text.style.URLSpan;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
@@ -81,7 +81,7 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_GET_OWNDIARY_POSTS_DATA = 8;
     
     // дополнительные команды хэндлерам
-    private static final int HANDLE_SERVICE_LOAD_IMAGE = 10;
+    private static final int HANDLE_SERVICE_RELOAD_CONTENT = 10;
     
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
@@ -253,7 +253,7 @@ public class DiaryList extends Activity implements OnClickListener
         {
             switch (message.what)
             {
-                case HANDLE_SERVICE_LOAD_IMAGE:
+                case HANDLE_SERVICE_RELOAD_CONTENT:
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
                     mCommentListAdapter.notifyDataSetChanged();
                 break;
@@ -316,7 +316,7 @@ public class DiaryList extends Activity implements OnClickListener
             {
                 switch (message.what)
                 {
-                    case HANDLE_SERVICE_LOAD_IMAGE:
+                    case HANDLE_SERVICE_RELOAD_CONTENT:
                     {
                         Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
                         final int start = pair.first.getSpanStart(pair.second);
@@ -332,7 +332,7 @@ public class DiaryList extends Activity implements OnClickListener
                             pair.first.removeSpan(spanToPurge);
                         
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE));                        
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));                        
                     }
                     break;
                     case HANDLE_GET_U_BLOGS:
@@ -492,7 +492,7 @@ public class DiaryList extends Activity implements OnClickListener
                                 if(contentNode != null)
                                 {
                                 	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
-                                	SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                                	PostContentBuilder SB = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
                                 	formatText(SB);
                                 	currentPost.set_text(SB);
                                 }
@@ -550,13 +550,40 @@ public class DiaryList extends Activity implements OnClickListener
     };
     
     // форматируем текст перед выведением в TextView в списках
-    private void formatText(final SpannableStringBuilder spannable)
+    private void formatText(final PostContentBuilder spannable)
     {
-    	ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
-    	
-        for (final ImageSpan span : imageSpans)
+        URLSpan[] urlSpans = spannable.getSpans(0, spannable.length(), URLSpan.class);
+        for (URLSpan span : urlSpans)
         {
-            
+            // Если это действительно нужный тэг
+            if(span.getURL().contains("#more"))
+            {
+                int url_start = spannable.getSpanStart(span);
+                int url_end = spannable.getSpanEnd(span);
+                
+                ClickableSpan click_span = new ClickableSpan()
+                {
+                    @Override
+                    public void onClick(View widget)
+                    {
+                        int start = spannable.getSpanStart(this);
+                        int end = spannable.getSpanEnd(this);
+                        Spanned hiddenText = spannable.moresPop();
+                        if(hiddenText != null)
+                            spannable.insert(end, hiddenText);
+                        spannable.removeSpan(this);
+                        spannable.delete(start, end);
+                        mUiHandler.sendEmptyMessage(HANDLE_SERVICE_RELOAD_CONTENT);
+                    }
+                };
+                spannable.removeSpan(span);
+                spannable.setSpan(click_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+        }
+        
+    	ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+        for (final ImageSpan span : imageSpans)
+        {            
             final String image_src = span.getSource();
             
             // Если это смайлик или системное изображение
@@ -566,27 +593,23 @@ public class DiaryList extends Activity implements OnClickListener
             //if(image_src.contains("static") && !image_src.contains("userdir"))
             //    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
             
-            final int start = spannable.getSpanStart(span);
-            final int end = spannable.getSpanEnd(span);
+            int start = spannable.getSpanStart(span);
+            int end = spannable.getSpanEnd(span);
             
             // делаем каждую картинку кликабельной
             ClickableSpan click_span = new ClickableSpan()
-            {
-                
+            {       
                 @Override
                 public void onClick(View widget)
                 {
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(spannable, span)));
                     Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
-                }
-                
+                }   
             };
             
             ClickableSpan[] click_spans = spannable.getSpans(start, end, ClickableSpan.class);
             for (ClickableSpan c_span : click_spans)
-            {
                 spannable.removeSpan(c_span);
-            }
             
             spannable.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
@@ -862,8 +885,19 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
+                    // То, чем будем выстраивать контент
                     SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
-                    SpannableStringBuilder SB = new SpannableStringBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
+                    ArrayList<Spanned> moresText = new ArrayList<Spanned>();
+                    // ищем тэги MORE
+                    TagNode[] mores = contentNode.getElementsHavingAttribute("ondblclick", true);
+                    if(mores.length > 0) // нашлись
+                        for(TagNode more : mores)
+                        {
+                            moresText.add(Html.fromHtml(serializer.getAsString(more)));
+                            more.removeFromTree();
+                        }
+                    
+                    PostContentBuilder SB = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)), moresText);
                     formatText(SB);
                     currentPost.set_text(SB);
                 }
