@@ -325,6 +325,9 @@ public class DiaryList extends Activity implements OnClickListener
                             return false;
                         
                         Drawable loadedPicture = loadImage(pair.second.getSource());
+                        if(loadedPicture == null) // нет такой картинки
+                            return false;
+                        
                         loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
                                                 
                         pair.first.removeSpan(pair.second);
@@ -568,7 +571,8 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         int start = spannable.getSpanStart(this);
                         int end = spannable.getSpanEnd(this);
-                        Spanned hiddenText = spannable.moresPop();
+                        PostContentBuilder hiddenText = new PostContentBuilder(spannable.moresPop());
+                        formatText(hiddenText);
                         if(hiddenText != null)
                             spannable.insert(end, hiddenText);
                         spannable.removeSpan(this);
@@ -602,7 +606,7 @@ public class DiaryList extends Activity implements OnClickListener
                 @Override
                 public void onClick(View widget)
                 {
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(spannable, span)));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(spannable.getRealContainer(), span)));
                     Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
                 }   
             };
