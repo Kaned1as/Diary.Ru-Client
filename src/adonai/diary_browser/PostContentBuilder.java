@@ -2,20 +2,21 @@ package adonai.diary_browser;
 
 import java.util.ArrayList;
 
+import adonai.diary_browser.tags.MoreTag;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
 public class PostContentBuilder extends SpannableStringBuilder
 {
     private PostContentBuilder parent = null;
-    private ArrayList<Spanned> moresText = null;
+    private MoreTag moresText = null;
 
     public PostContentBuilder(Spanned fromHtml)
     {
         super(fromHtml);
     }
     
-    public PostContentBuilder(Spanned fromHtml, ArrayList<Spanned> moresText)
+    public PostContentBuilder(Spanned fromHtml, MoreTag moresText)
     {
         super(fromHtml);
         if(moresText != null)
@@ -24,9 +25,15 @@ public class PostContentBuilder extends SpannableStringBuilder
     
     public Spanned moresPop()
     {
-        if(!moresText.isEmpty())
+        if(moresText != null && !moresText.isEmpty())
             return moresText.remove(0);
+        
         return null;
+    }
+    
+    public MoreTag getMore()
+    {
+        return moresText;
     }
 
     public PostContentBuilder getParent()

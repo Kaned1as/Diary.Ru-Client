@@ -24,6 +24,7 @@ import de.timroes.axmlrpc.XMLRPCException;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.tags.MoreTag;
 import adonai.metaweblog_client.JMetaWeblogClient;
 import android.os.Bundle;
 import android.os.Handler;
@@ -494,10 +495,7 @@ public class DiaryList extends Activity implements OnClickListener
                                 TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
                                 if(contentNode != null)
                                 {
-                                	SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
-                                	PostContentBuilder SB = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)));
-                                	formatText(SB);
-                                	currentPost.set_text(SB);
+                                	currentPost.set_text(makePost(contentNode));
                                 }
                                 TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
                                 if (urlNode != null)
@@ -552,6 +550,44 @@ public class DiaryList extends Activity implements OnClickListener
         }
     };
     
+    private PostContentBuilder makePost(TagNode contentNode) throws IOException
+    {
+     // То, чем будем выстраивать контент
+        SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
+        
+        // Ищем тэги MORE
+        MoreTag moreTag = null;
+        // Есть
+        if(contentNode.findElementHavingAttribute("ondblclick", true) != null)
+            moreTag = makeMoreTag(contentNode, null);
+        
+        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)), moreTag);
+        formatText(post);
+        
+        return post;
+    }
+    
+    public MoreTag makeMoreTag(TagNode contentNode, MoreTag parent) throws IOException
+    {
+        SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
+        MoreTag result = new MoreTag(parent);
+        for(; ;)
+        {
+            TagNode moreNode = contentNode.findElementHavingAttribute("ondblclick", true);
+            if (moreNode == null)
+                break;
+            
+            if(moreNode.findElementHavingAttribute("ondblclick", true) != null)
+                result.addChild(makeMoreTag(moreNode, result));
+                
+            result.add(Html.fromHtml(serializer.getAsString(moreNode)));
+            moreNode.removeFromTree();
+        }
+        
+        
+        return result;
+    }
+    
     // форматируем текст перед выведением в TextView в списках
     private void formatText(final PostContentBuilder spannable)
     {
@@ -571,11 +607,19 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         int start = spannable.getSpanStart(this);
                         int end = spannable.getSpanEnd(this);
-                        PostContentBuilder hiddenText = new PostContentBuilder(spannable.moresPop());
+                        MoreTag content = spannable.getMore();
+                        if(content == null)
+                            return;
+                        
+                        
+                        PostContentBuilder hiddenText = new PostContentBuilder(content.pop(), content.popChild());
                         formatText(hiddenText);
-                        if(hiddenText != null)
-                            spannable.insert(end, hiddenText);
+                        
+                        // вставляем содержимое тэга после его названия
+                        spannable.insert(end, hiddenText);
+                        // удаляем кликабельный текст
                         spannable.removeSpan(this);
+                        // удаляем текст тэга
                         spannable.delete(start, end);
                         mUiHandler.sendEmptyMessage(HANDLE_SERVICE_RELOAD_CONTENT);
                     }
@@ -889,21 +933,7 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
-                    // То, чем будем выстраивать контент
-                    SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
-                    ArrayList<Spanned> moresText = new ArrayList<Spanned>();
-                    // ищем тэги MORE
-                    TagNode[] mores = contentNode.getElementsHavingAttribute("ondblclick", true);
-                    if(mores.length > 0) // нашлись
-                        for(TagNode more : mores)
-                        {
-                            moresText.add(Html.fromHtml(serializer.getAsString(more)));
-                            more.removeFromTree();
-                        }
-                    
-                    PostContentBuilder SB = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)), moresText);
-                    formatText(SB);
-                    currentPost.set_text(SB);
+                    currentPost.set_text(makePost(contentNode));
                 }
                 TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
