@@ -589,25 +589,26 @@ public class DiaryList extends Activity implements OnClickListener
     }
     
     // форматируем текст перед выведением в TextView в списках
-    private void formatText(final PostContentBuilder spannable)
+    private void formatText(final PostContentBuilder contentPart)
     {
-        URLSpan[] urlSpans = spannable.getSpans(0, spannable.length(), URLSpan.class);
+        URLSpan[] urlSpans = contentPart.getSpans(0, contentPart.length(), URLSpan.class);
         for (URLSpan span : urlSpans)
         {
             // Если это действительно нужный тэг
             if(span.getURL().contains("#more"))
             {
-                int url_start = spannable.getSpanStart(span);
-                int url_end = spannable.getSpanEnd(span);
+                int url_start = contentPart.getSpanStart(span);
+                int url_end = contentPart.getSpanEnd(span);
                 
                 ClickableSpan click_span = new ClickableSpan()
                 {
                     @Override
                     public void onClick(View widget)
                     {
-                        int start = spannable.getSpanStart(this);
-                        int end = spannable.getSpanEnd(this);
-                        MoreTag content = spannable.getMore();
+                    	PostContentBuilder onscreenText = contentPart.getRealContainer();
+                        int start = onscreenText.getSpanStart(this);
+                        int end = onscreenText.getSpanEnd(this);
+                        MoreTag content = contentPart.getMore();
                         if(content == null)
                             return;
                         
@@ -616,20 +617,20 @@ public class DiaryList extends Activity implements OnClickListener
                         formatText(hiddenText);
                         
                         // вставляем содержимое тэга после его названия
-                        spannable.insert(end, hiddenText);
+                        onscreenText.insert(end, hiddenText);
                         // удаляем кликабельный текст
-                        spannable.removeSpan(this);
+                        onscreenText.removeSpan(this);
                         // удаляем текст тэга
-                        spannable.delete(start, end);
+                        onscreenText.delete(start, end);
                         mUiHandler.sendEmptyMessage(HANDLE_SERVICE_RELOAD_CONTENT);
                     }
                 };
-                spannable.removeSpan(span);
-                spannable.setSpan(click_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                contentPart.removeSpan(span);
+                contentPart.setSpan(click_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
         
-    	ImageSpan[] imageSpans = spannable.getSpans(0, spannable.length(), ImageSpan.class);
+    	ImageSpan[] imageSpans = contentPart.getSpans(0, contentPart.length(), ImageSpan.class);
         for (final ImageSpan span : imageSpans)
         {            
             final String image_src = span.getSource();
@@ -641,8 +642,8 @@ public class DiaryList extends Activity implements OnClickListener
             //if(image_src.contains("static") && !image_src.contains("userdir"))
             //    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
             
-            int start = spannable.getSpanStart(span);
-            int end = spannable.getSpanEnd(span);
+            int start = contentPart.getSpanStart(span);
+            int end = contentPart.getSpanEnd(span);
             
             // делаем каждую картинку кликабельной
             ClickableSpan click_span = new ClickableSpan()
@@ -650,16 +651,16 @@ public class DiaryList extends Activity implements OnClickListener
                 @Override
                 public void onClick(View widget)
                 {
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(spannable.getRealContainer(), span)));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
                     Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
                 }   
             };
             
-            ClickableSpan[] click_spans = spannable.getSpans(start, end, ClickableSpan.class);
+            ClickableSpan[] click_spans = contentPart.getSpans(start, end, ClickableSpan.class);
             for (ClickableSpan c_span : click_spans)
-                spannable.removeSpan(c_span);
+                contentPart.removeSpan(c_span);
             
-            spannable.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            contentPart.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
         }
     }
@@ -689,10 +690,11 @@ public class DiaryList extends Activity implements OnClickListener
             TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
-            TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
             TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
             comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
+            comment_count.setOnClickListener(DiaryList.this);
+            TextView post_date = (TextView) view.findViewById(R.id.post_date);
+            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
             
@@ -807,9 +809,9 @@ public class DiaryList extends Activity implements OnClickListener
                 }
                 break;
                 case R.id.post_title:
+                case R.id.comments_number:
                 {
-                    ListView ownerListView = (ListView)((View) view.getParent()).getParent();
-                	int pos = ownerListView.getPositionForView((View) view.getParent());
+                	int pos = mPostBrowser.getPositionForView((View) view.getParent());
                 	Post post = (Post) mPostBrowser.getAdapter().getItem(pos);
                 	
                 	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
@@ -879,7 +881,7 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public void onBackPressed()
     {
-        if (mPostBrowser.getVisibility() == View.VISIBLE || mTabHost.getCurrentTab() == TAB_FAVOURITES)
+        if (mPostBrowser.getVisibility() == View.VISIBLE && mTabHost.getCurrentTab() == TAB_FAVOURITES)
             setCurrentVisibleComponent(FAVOURITE_LIST);
         else if (mCommentBrowser.getVisibility() == View.VISIBLE)
             setCurrentVisibleComponent(POST_LIST);
