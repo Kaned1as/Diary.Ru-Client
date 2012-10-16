@@ -28,5 +28,6 @@
     <string name="posts">Посты</string>
     <string name="getting_user_info">Получаю данные пользователя</string>
     <string name="comments_disabled">отключены</string>
+    <string name="community">Сообщество</string>
 
 </resources>

@@ -57,7 +57,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 			SharedPreferences.Editor editor = mSharedPrefs.edit();
 			editor.putString(KEY_USERNAME, mUsername.getText().toString());
 			editor.putString(KEY_PASSWORD, mPassword.getText().toString());
-			editor.apply();
+			editor.commit();
 			
 			startActivity(new Intent(this, DiaryList.class));
 			finish();
