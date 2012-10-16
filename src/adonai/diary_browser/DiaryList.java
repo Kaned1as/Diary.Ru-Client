@@ -592,13 +592,15 @@ public class DiaryList extends Activity implements OnClickListener
     private void formatText(final PostContentBuilder contentPart)
     {
         URLSpan[] urlSpans = contentPart.getSpans(0, contentPart.length(), URLSpan.class);
-        for (int index = 0 ; index < urlSpans.length; index++)
+        
+        // индекс тэга в списке нужных (т.е. только тех, где есть #more)
+        int effective_index = 0;
+        for (URLSpan span : urlSpans)
         {
-        	URLSpan span = urlSpans[index];
             // Если это действительно нужный тэг
             if(span.getURL().contains("#more"))
             {
-            	final int i = index;
+            	final int i = effective_index;
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
                 ClickableSpan click_span = new ClickableSpan()
@@ -627,6 +629,7 @@ public class DiaryList extends Activity implements OnClickListener
                 };
                 contentPart.removeSpan(span);
                 contentPart.setSpan(click_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            	effective_index++;
             }
         }
         
