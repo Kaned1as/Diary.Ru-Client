@@ -38,7 +38,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -62,13 +61,11 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
-import android.widget.TableLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -676,7 +673,7 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         ImageView img = (ImageView) dialog.findViewById(R.id.image_content);
                         
-                        ImageSpan[] loadedSpans = contentPart.getSpans(start, end, ImageSpan.class);
+                        ImageSpan[] loadedSpans = container.getSpans(start, end, ImageSpan.class);
                         for(ImageSpan loadedSpan : loadedSpans)
                         {
                             Drawable scaling = loadedSpan.getDrawable().getConstantState().newDrawable();
