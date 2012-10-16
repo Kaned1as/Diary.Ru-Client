@@ -1,11 +1,17 @@
 package adonai.diary_browser;
 
-import java.util.ArrayList;
-
 import adonai.diary_browser.tags.MoreTag;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 
+/**
+ * 
+ * @author Adonai
+ * Класс - содержимое текстовых форм поста в списках постов/комментариев
+ * Служит промежуточным звеном между парсингом HTML и выводом на экран
+ * Используется при построении графического интерфейса и обработке тэгов
+ * @see adonai.diary_browser.DiaryList#mPostListAdapter
+ */
 public class PostContentBuilder extends SpannableStringBuilder
 {
     private PostContentBuilder parent = null;

@@ -10,20 +10,10 @@ public class Post
         
     }
     
-    public Post(String _title, String _author, String _author_URL, String _URL, Spanned _text, String _comment_count, String _date, Drawable _author_avatar)
-    {
-        this._title = _title;
-        this._author = _author;
-        this._author_URL = _author_URL;
-        this._URL = _URL;
-        this._text = _text;
-        this._comment_count = _comment_count;
-        this._date = _date;
-        this._author_avatar = _author_avatar;
-    }
-    
     private String _author = "";
     private String _author_URL = "";
+    private String _community = "";
+    private String _community_URL = "";
     private String _URL = "";
     private Spanned _text = null;
     private String _date;
@@ -151,4 +141,24 @@ public class Post
     {
         this._comment_count = _comment_count;
     }
+
+	public String get_community() 
+	{
+		return _community;
+	}
+
+	public void set_community(String _community) 
+	{
+		this._community = _community;
+	}
+
+	final public String get_community_URL() 
+	{
+		return _community_URL;
+	}
+
+	final public void set_community_URL(String _community_URL) 
+	{
+		this._community_URL = _community_URL;
+	}
 }

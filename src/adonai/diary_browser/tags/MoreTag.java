@@ -3,7 +3,14 @@ package adonai.diary_browser.tags;
 import java.util.ArrayList;
 
 import android.text.Spanned;
-
+/**
+ * 
+ * @author Adonai
+ * Класс - контейнер для тэгов MORE.
+ * Используется в содержимом поста.
+ * @see adonai.diary_browser.PostContentBuilder
+ *
+ */
 public class MoreTag extends ArrayList<Spanned>
 {
     private static final long serialVersionUID = 100000L;

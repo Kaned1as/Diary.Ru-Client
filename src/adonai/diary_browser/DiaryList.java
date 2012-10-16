@@ -684,6 +684,8 @@ public class DiaryList extends Activity implements OnClickListener
                 view = convertView;
             
             /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
+            TextView community = (TextView) view.findViewById(R.id.post_community);
+            community.setText(post.get_community());
             TextView title = (TextView) view.findViewById(R.id.post_title);
             title.setText(post.get_title());
             title.setOnClickListener(DiaryList.this);
@@ -694,7 +696,7 @@ public class DiaryList extends Activity implements OnClickListener
             comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
             comment_count.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
+            post_date.setText(post.get_date());
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
             
@@ -729,7 +731,7 @@ public class DiaryList extends Activity implements OnClickListener
             TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date(), TextView.BufferType.SPANNABLE);
+            post_date.setText(post.get_date());
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
             
@@ -932,6 +934,13 @@ public class DiaryList extends Activity implements OnClickListener
                     currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
                     currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
                 }
+                TagNode communityNode = post.findElementByAttValue("class", "communityName", false, true);
+                if(communityNode != null)
+                {
+                    currentPost.set_community(communityNode.findElementByName("a", false).getText().toString());
+                    currentPost.set_community_URL(communityNode.findElementByName("a", false).getAttributeByName("href"));
+                }
+                
                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
