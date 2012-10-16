@@ -35,6 +35,14 @@ public class MoreTag extends ArrayList<Spanned>
         return null;
     }
     
+    public MoreTag getChild(int index)
+    {
+        if(children != null && !children.isEmpty())
+            return children.get(index);
+        
+        return null;
+    }
+    
     public Spanned pop()
     {
         if(!isEmpty())

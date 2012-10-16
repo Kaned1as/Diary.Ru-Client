@@ -592,14 +592,15 @@ public class DiaryList extends Activity implements OnClickListener
     private void formatText(final PostContentBuilder contentPart)
     {
         URLSpan[] urlSpans = contentPart.getSpans(0, contentPart.length(), URLSpan.class);
-        for (URLSpan span : urlSpans)
+        for (int index = 0 ; index < urlSpans.length; index++)
         {
+        	URLSpan span = urlSpans[index];
             // Если это действительно нужный тэг
             if(span.getURL().contains("#more"))
             {
+            	final int i = index;
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
-                
                 ClickableSpan click_span = new ClickableSpan()
                 {
                     @Override
@@ -612,8 +613,7 @@ public class DiaryList extends Activity implements OnClickListener
                         if(content == null)
                             return;
                         
-                        
-                        PostContentBuilder hiddenText = new PostContentBuilder(content.pop(), content.popChild());
+                        PostContentBuilder hiddenText = new PostContentBuilder(content.get(i), content.getChild(i));
                         formatText(hiddenText);
                         
                         // вставляем содержимое тэга после его названия
