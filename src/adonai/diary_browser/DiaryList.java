@@ -47,6 +47,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
@@ -329,7 +330,12 @@ public class DiaryList extends Activity implements OnClickListener
                         if(loadedPicture == null) // нет такой картинки
                             return false;
                         
-                        loadedPicture.setBounds(new Rect(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicWidth()));
+                        DisplayMetrics metrics = new DisplayMetrics();
+                        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+                        if(loadedPicture.getIntrinsicWidth() > metrics.widthPixels)
+                            loadedPicture.setBounds(0, 0, metrics.widthPixels, loadedPicture.getIntrinsicHeight() * metrics.widthPixels / loadedPicture.getIntrinsicWidth());
+                        else
+                            loadedPicture.setBounds(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicHeight());
                                                 
                         pair.first.removeSpan(pair.second);
                         for(ClickableSpan spanToPurge : pair.first.getSpans(start, end, ClickableSpan.class))
