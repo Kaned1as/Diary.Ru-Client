@@ -32,6 +32,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -63,9 +64,11 @@ import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
+import android.widget.TableLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -323,7 +326,7 @@ public class DiaryList extends Activity implements OnClickListener
                         Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
                         final int start = pair.first.getSpanStart(pair.second);
                         final int end = pair.first.getSpanEnd(pair.second);
-                        if(start == -1 || end == -1) // уже удалена
+                        if(start == -1 || end == -1) // удалена
                             return false;
                         
                         Drawable loadedPicture = loadImage(pair.second.getSource());
@@ -338,10 +341,8 @@ public class DiaryList extends Activity implements OnClickListener
                             loadedPicture.setBounds(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicHeight());
                                                 
                         pair.first.removeSpan(pair.second);
-                        for(ClickableSpan spanToPurge : pair.first.getSpans(start, end, ClickableSpan.class))
-                            pair.first.removeSpan(spanToPurge);
+                        pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         
-                        pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));                        
                     }
                     break;
@@ -609,7 +610,7 @@ public class DiaryList extends Activity implements OnClickListener
             	final int i = effective_index;
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
-                ClickableSpan click_span = new ClickableSpan()
+                ClickableSpan more_span = new ClickableSpan()
                 {
                     @Override
                     public void onClick(View widget)
@@ -634,7 +635,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                 };
                 contentPart.removeSpan(span);
-                contentPart.setSpan(click_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                contentPart.setSpan(more_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             	effective_index++;
             }
         }
@@ -648,20 +649,42 @@ public class DiaryList extends Activity implements OnClickListener
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
             
             // Временно отключено - большая потеря памяти
-            //if(image_src.contains("static") && !image_src.contains("userdir"))
-            //    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_IMAGE, new Pair<Spannable, ImageSpan>(spannable, span)));
+            if(image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
             
-            int start = contentPart.getSpanStart(span);
-            int end = contentPart.getSpanEnd(span);
+            final int start = contentPart.getSpanStart(span);
+            final int end = contentPart.getSpanEnd(span);
             
             // делаем каждую картинку кликабельной
-            ClickableSpan click_span = new ClickableSpan()
+            ClickableSpan image_span = new ClickableSpan()
             {       
                 @Override
                 public void onClick(View widget)
                 {
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
-                    Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
+                    PostContentBuilder container = contentPart.getRealContainer();
+                    if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
+                    {
+                        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(container, span)));
+                        Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
+                    }
+                    else // если картинки уже нет
+                    {
+                        Dialog dialog = new Dialog(DiaryList.this);
+                        dialog.setContentView(R.layout.image_dialog_form);
+                        dialog.setTitle("Image Fullsize");
+                        dialog.setCancelable(true);
+                        
+                        ImageView img = (ImageView) dialog.findViewById(R.id.image_content);
+                        
+                        ImageSpan[] loadedSpans = contentPart.getSpans(start, end, ImageSpan.class);
+                        for(ImageSpan loadedSpan : loadedSpans)
+                        {
+                            Drawable scaling = loadedSpan.getDrawable().getConstantState().newDrawable();
+                            scaling.setBounds(0, 0, scaling.getIntrinsicWidth(), scaling.getIntrinsicHeight());
+                            img.setImageDrawable(scaling);
+                        }
+                        dialog.show();
+                    }
                 }   
             };
             
@@ -669,7 +692,7 @@ public class DiaryList extends Activity implements OnClickListener
             for (ClickableSpan c_span : click_spans)
                 contentPart.removeSpan(c_span);
             
-            contentPart.setSpan(click_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            contentPart.setSpan(image_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
         }
     }
