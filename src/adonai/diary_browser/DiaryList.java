@@ -124,6 +124,7 @@ public class DiaryList extends Activity implements OnClickListener
     DiaryHttpClient mDHCL;
     HtmlCleaner postCleaner;
     UserData mUser;
+    DisplayMetrics gMetrics;
     
     JMetaWeblogClient WMAClient;
     Object[] RPCResponse;
@@ -140,6 +141,8 @@ public class DiaryList extends Activity implements OnClickListener
         postCleaner.getProperties().setOmitComments(true);
         postCleaner.getProperties().setRecognizeUnicodeChars(true);
         
+        gMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         mDHCL = new DiaryHttpClient();
         mUser = new UserData();
         
@@ -330,10 +333,8 @@ public class DiaryList extends Activity implements OnClickListener
                         if(loadedPicture == null) // нет такой картинки
                             return false;
                         
-                        DisplayMetrics metrics = new DisplayMetrics();
-                        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-                        if(loadedPicture.getIntrinsicWidth() > metrics.widthPixels)
-                            loadedPicture.setBounds(0, 0, metrics.widthPixels, loadedPicture.getIntrinsicHeight() * metrics.widthPixels / loadedPicture.getIntrinsicWidth());
+                        if(loadedPicture.getIntrinsicWidth() > gMetrics.widthPixels)
+                            loadedPicture.setBounds(0, 0, gMetrics.widthPixels, loadedPicture.getIntrinsicHeight() * gMetrics.widthPixels / loadedPicture.getIntrinsicWidth());
                         else
                             loadedPicture.setBounds(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicHeight());
                                                 
@@ -666,21 +667,21 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     else // если картинки уже нет
                     {
-                        Dialog dialog = new Dialog(DiaryList.this);
-                        dialog.setContentView(R.layout.image_dialog_form);
-                        dialog.setTitle("Image Fullsize");
-                        dialog.setCancelable(true);
-                        
-                        ImageView img = (ImageView) dialog.findViewById(R.id.image_content);
-                        
+                    	// вообще она будет одна, но на всякий случай я оставляю цикл
                         ImageSpan[] loadedSpans = container.getSpans(start, end, ImageSpan.class);
                         for(ImageSpan loadedSpan : loadedSpans)
                         {
-                            Drawable scaling = loadedSpan.getDrawable().getConstantState().newDrawable();
-                            scaling.setBounds(0, 0, scaling.getIntrinsicWidth(), scaling.getIntrinsicHeight());
-                            img.setImageDrawable(scaling);
+                        	
+                        	// Если картинка не нуждается в увеличении...
+                        	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
+                        		return;
+                        	
+                        	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+                        	Drawable sendDrawable = loadedSpan.getDrawable().getConstantState().newDrawable();
+                        	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+                            Globals.tempDrawable = sendDrawable;
+                            startActivity(intent);
                         }
-                        dialog.show();
                     }
                 }   
             };
