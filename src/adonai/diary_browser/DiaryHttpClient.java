@@ -61,6 +61,9 @@ public class DiaryHttpClient {
     		System.out.println("HTTPHelp : IOException : " + e);
     	} 
 
-        return response.toString();
+    	if(response != null)
+    		return response.toString();
+    	
+    	return null;
     }
 }

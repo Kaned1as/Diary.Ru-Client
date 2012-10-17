@@ -3,8 +3,10 @@ package adonai.diary_browser;
 import contrib.gesture.GestureImageView;
 import android.R.color;
 import android.os.Bundle;
+import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.app.Activity;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 
 public class ImageViewer extends Activity 
@@ -16,10 +18,11 @@ public class ImageViewer extends Activity
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         GestureImageView view = new GestureImageView(this);
-        view.setBackgroundColor(color.widget_edittext_dark);
+        view.setBackgroundColor(0x20AAFF11);
         view.setImageDrawable(Globals.tempDrawable);
         view.setLayoutParams(params);
 
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(view);
     }
 	
