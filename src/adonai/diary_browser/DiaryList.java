@@ -32,7 +32,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -62,7 +61,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -139,8 +137,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
-        postCleaner.getProperties().setRecognizeUnicodeChars(true);
-        
+
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         mDHCL = new DiaryHttpClient();
@@ -341,7 +338,7 @@ public class DiaryList extends Activity implements OnClickListener
                         pair.first.removeSpan(pair.second);
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));                        
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));
                     }
                     break;
                     case HANDLE_GET_U_BLOGS:
@@ -444,7 +441,7 @@ public class DiaryList extends Activity implements OnClickListener
                             
                             if (title != null && author != null && last_post != null)
                             {
-                                mUser.favorites.add(new Diary(title.findElementByName("b", false).getText().toString(), title.getAttributeByName("href"), author.getText().toString(), author.getAttributeByName("href"), last_post.getText().toString(), last_post.getAttributeByName("href")));
+                                mUser.favorites.add(new Diary(Html.fromHtml(title.findElementByName("b", false).getText().toString()).toString(), title.getAttributeByName("href"), author.getText().toString(), author.getAttributeByName("href"), last_post.getText().toString(), last_post.getAttributeByName("href")));
                                 title = author = last_post = null;
                             }
                         }
@@ -663,7 +660,7 @@ public class DiaryList extends Activity implements OnClickListener
                     if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
                     {
                         mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(container, span)));
-                        Toast.makeText(DiaryList.this, "Image Clicked " + image_src, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(DiaryList.this, R.string.loading, Toast.LENGTH_SHORT).show();
                     }
                     else // если картинки уже нет
                     {
@@ -953,7 +950,7 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
                 if (headerNode != null)
                 {
-                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                    currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
                     if(currentPost.get_title().equals(""))
                         currentPost.set_title(getResources().getString(R.string.without_title));
                     currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
@@ -967,7 +964,7 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode communityNode = post.findElementByAttValue("class", "communityName", false, true);
                 if(communityNode != null)
                 {
-                    currentPost.set_community(communityNode.findElementByName("a", false).getText().toString());
+                    currentPost.set_community(Html.fromHtml(communityNode.findElementByName("a", false).getText().toString()).toString());
                     currentPost.set_community_URL(communityNode.findElementByName("a", false).getAttributeByName("href"));
                 }
                 

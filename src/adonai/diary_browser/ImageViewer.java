@@ -18,11 +18,11 @@ public class ImageViewer extends Activity
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         GestureImageView view = new GestureImageView(this);
-        view.setBackgroundColor(0x20AAFF11);
         view.setImageDrawable(Globals.tempDrawable);
         view.setLayoutParams(params);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
+        
+        getWindow().setBackgroundDrawableResource(android.R.color.background_dark);
         setContentView(view);
     }
 	
