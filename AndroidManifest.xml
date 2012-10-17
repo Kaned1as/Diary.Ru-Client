@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="001"
-    android:versionName="Alpha-0.0.1" >
+    android:versionCode="002"
+    android:versionName="Alpha-0.0.2" >
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -31,8 +31,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ImageViewer"
-            android:label="@string/title_activity_image_viewer" >
+            android:name=".ImageViewer">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="adonai.diary_browser.DiaryList" />

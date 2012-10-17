@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.polites.android;
+package contrib.gesture;
 
 import android.graphics.PointF;
 
@@ -47,7 +47,6 @@ public class ZoomAnimation implements Animation {
 	/* (non-Javadoc)
 	 * @see com.polites.android.Animation#update(com.polites.android.GestureImageView, long)
 	 */
-	@Override
 	public boolean update(GestureImageView view, long time) {
 		if(firstFrame) {
 			firstFrame = false;

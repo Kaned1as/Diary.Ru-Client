@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.polites.android;
+package contrib.gesture;
 
 
 /**
@@ -37,7 +37,6 @@ public class MoveAnimation implements Animation {
 	/* (non-Javadoc)
 	 * @see com.polites.android.Animation#update(com.polites.android.GestureImageView, long)
 	 */
-	@Override
 	public boolean update(GestureImageView view, long time) {
 		totalTime += time;
 		

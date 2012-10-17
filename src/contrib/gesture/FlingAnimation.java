@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.polites.android;
+package contrib.gesture;
 
 /**
  * @author Jason Polites
@@ -33,7 +33,6 @@ public class FlingAnimation implements Animation {
 	/* (non-Javadoc)
 	 * @see com.polites.android.Transformer#update(com.polites.android.GestureImageView, long)
 	 */
-	@Override
 	public boolean update(GestureImageView view, long time) {
 		float seconds = (float) time / 1000.0f;
 		

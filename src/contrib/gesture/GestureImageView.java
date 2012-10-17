@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.polites.android;
+package contrib.gesture;
 
 import java.io.InputStream;
 import java.util.concurrent.Semaphore;
@@ -233,7 +233,6 @@ public class GestureImageView extends ImageView  {
 			drawable.setBounds(-hWidth,-hHeight,hWidth,hHeight);
 
 			super.setOnTouchListener(new OnTouchListener() {
-				@Override
 				public boolean onTouch(View v, MotionEvent event) {
 					if(customOnTouchListener != null) {
 						customOnTouchListener.onTouch(v, event);

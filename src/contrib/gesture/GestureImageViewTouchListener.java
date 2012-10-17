@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.polites.android;
+package contrib.gesture;
 
 import android.content.res.Configuration;
 import android.graphics.PointF;
@@ -114,25 +114,23 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		moveAnimation = new MoveAnimation();
 		
 		flingAnimation.setListener(new FlingAnimationListener() {
-			@Override
 			public void onMove(float x, float y) {
 				handleDrag(current.x + x, current.y + y);
 			}
 
-			@Override
 			public void onComplete() {}
 		});
 		
 		zoomAnimation.setZoom(2.0f);
 		zoomAnimation.setZoomAnimationListener(new ZoomAnimationListener() {
-			@Override
+
 			public void onZoom(float scale, float x, float y) {
 				if(scale <= maxScale && scale >= minScale) {
 					handleScale(scale, x, y);
 				}
 			}
 
-			@Override
+
 			public void onComplete() {
 				inZoom = false;
 				handleUp();
@@ -141,7 +139,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		
 		moveAnimation.setMoveAnimationListener(new MoveAnimationListener() {
 			
-			@Override
+
 			public void onMove(float x, float y) {
 				image.setPosition(x, y);
 				image.redraw();
@@ -155,7 +153,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 				return true;
 			}
 
-			@Override
+
 			public boolean onSingleTapConfirmed(MotionEvent e) {
 				if(!inZoom) {
 					if(onClickListener != null) {
@@ -267,7 +265,7 @@ public class GestureImageViewTouchListener implements OnTouchListener {
 		image.animationStop();
 	}
 	
-	@Override
+
 	public boolean onTouch(View v, MotionEvent event) {
 
 		if(!inZoom) {
