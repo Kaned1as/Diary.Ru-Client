@@ -32,12 +32,14 @@ public class UserData implements DiaryList.onUserDataParseListener
     
     public void parseData(TagNode tag)
     {
-        TagNode[] nodes = tag.getAllElements(true);
+        userName = Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "");
+        
+        TagNode[] nodes = tag.getElementsByName("a", true);
         for(TagNode node : nodes)
         {
             if(node.getText().toString().equals("Мой дневник"))
                 ownDiaryURL = node.getAttributeByName("href");
-            if(node.getText().toString().equals(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")))
+            if(node.getText().toString().equals(userName) || node.getText().toString().equals("Мой профиль"))
                 ownProfileURL = node.getAttributeByName("href");
         }
     }
