@@ -1,12 +1,10 @@
 package adonai.diary_browser;
 
 import contrib.gesture.GestureImageView;
-import android.R.color;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.app.Activity;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 
 public class ImageViewer extends Activity 

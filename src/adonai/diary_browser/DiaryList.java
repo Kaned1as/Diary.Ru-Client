@@ -35,7 +35,6 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -73,7 +72,6 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
     private static final int HANDLE_GET_U_BLOGS = 1;
     private static final int HANDLE_SET_HTTP_COOKIE = 2;
-    private static final int HANDLE_GET_USER_PARAMS = 3;
     private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 4;
     private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
     private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
@@ -104,9 +102,6 @@ public class DiaryList extends Activity implements OnClickListener
     PostListArrayAdapter mOwnDiaryPostListAdapter;
     CommentListArrayAdapter mCommentListAdapter;
     
-    // Настройки (пока нужны только для добавления логина и пароля)
-    SharedPreferences mSharedPrefs;
-    
     // Видимые объекты
     TextView mLogin;
     ListView mFavouriteBrowser;
@@ -122,6 +117,7 @@ public class DiaryList extends Activity implements OnClickListener
     DiaryHttpClient mDHCL;
     HtmlCleaner postCleaner;
     UserData mUser;
+    onUserDataParseListener listener;
     DisplayMetrics gMetrics;
     
     JMetaWeblogClient WMAClient;
@@ -142,6 +138,7 @@ public class DiaryList extends Activity implements OnClickListener
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         mDHCL = new DiaryHttpClient();
         mUser = new UserData();
+        setUserDataListener(mUser);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -149,15 +146,14 @@ public class DiaryList extends Activity implements OnClickListener
         mHandler = new Handler(mLooper, WorkerCallback);
         mUiHandler = new Handler(UiCallback);
         
-        mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         CookieSyncManager.createInstance(this);
         
         // Возможно, устаревший код. Оставлен для возможного будущего использования
         try
         {
             WMAClient = new JMetaWeblogClient("http://www.diary.ru/client/mwa.php");
-            WMAClient.setUsername(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
-            WMAClient.setPassword(mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, ""));
+            WMAClient.setUsername(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
+            WMAClient.setPassword(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, ""));
         }
         catch (MalformedURLException e)
         {
@@ -264,12 +260,8 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
                 case HANDLE_SET_HTTP_COOKIE:
                     pd.setMessage(getResources().getString(R.string.getting_user_info));
-                    mLogin.setText(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
-                    mHandler.sendEmptyMessage(HANDLE_GET_USER_PARAMS);
-                break;
-                case HANDLE_GET_USER_PARAMS:
-                    pd.dismiss();
-                    setCurrentTab(TAB_FAVOURITES);
+                    mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
+                    mHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                 break;
                 case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     setCurrentVisibleComponent(FAVOURITE_LIST);
@@ -361,8 +353,8 @@ public class DiaryList extends Activity implements OnClickListener
                         return true;
                     case HANDLE_SET_HTTP_COOKIE:
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                        nameValuePairs.add(new BasicNameValuePair("user_login", mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
-                        nameValuePairs.add(new BasicNameValuePair("user_pass", mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
+                        nameValuePairs.add(new BasicNameValuePair("user_login", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
+                        nameValuePairs.add(new BasicNameValuePair("user_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
                         nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
                         
                         mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
@@ -399,24 +391,6 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         mUiHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
                         return true;
-                    case HANDLE_GET_USER_PARAMS:
-                    {
-                        mDHCL.postPage("http://www.diary.ru", null);
-                        String homeScreen = EntityUtils.toString(mDHCL.response.getEntity());
-                        
-                        TagNode rootNode = postCleaner.clean(homeScreen);
-                        TagNode[] nodes = rootNode.getAllElements(true);
-                        for(TagNode node : nodes)
-                        {
-                            if(node.getText().toString().equals("Мой дневник"))
-                                mUser.ownDiaryURL = node.getAttributeByName("href");
-                            if(node.getText().toString().equals(mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")))
-                                mUser.ownProfileURL = node.getAttributeByName("href");
-                        }
-                        
-                        mUiHandler.sendEmptyMessage(HANDLE_GET_USER_PARAMS);
-                        return true;
-                    }
                     case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     // TODO: Исправить все к чертям!! Поставить строгое извлечение по
                     // столбцам таблицы, идиот!!
@@ -425,6 +399,10 @@ public class DiaryList extends Activity implements OnClickListener
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
                         
                         TagNode rootNode = postCleaner.clean(favListPage);
+                        
+                        if(listener != null && listener.updateNeeded())
+                            listener.parseData(rootNode);
+                            
                         TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
                         TagNode[] rows = table.getElementsByName("td", true);
                         mUser.favorites.clear();
@@ -470,6 +448,10 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         mUser.currentPostComments.add(parsingPost);
                         TagNode rootNode = postCleaner.clean(dataPage);
+                        
+                        if(listener != null && listener.updateNeeded())
+                            listener.parseData(rootNode);
+                        
                         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
                         if(commentsArea == null)
                         {
@@ -808,7 +790,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         if (view == mExitButton)
         {
-            Editor lysosome = mSharedPrefs.edit();
+            Editor lysosome = Globals.mSharedPrefs.edit();
             lysosome.remove(AuthorizationForm.KEY_USERNAME);
             lysosome.remove(AuthorizationForm.KEY_PASSWORD);
             lysosome.commit();
@@ -941,6 +923,10 @@ public class DiaryList extends Activity implements OnClickListener
         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
         
         TagNode rootNode = postCleaner.clean(dataPage);
+        
+        if(listener != null && listener.updateNeeded())
+            listener.parseData(rootNode);
+        
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
         {
@@ -991,5 +977,16 @@ public class DiaryList extends Activity implements OnClickListener
                 mUser.currentDiaryPosts.add(currentPost);
             }
         }
+    }
+    
+    public void setUserDataListener(onUserDataParseListener listener)
+    {
+        this.listener = listener;
+    }
+    
+    public interface onUserDataParseListener
+    {
+        public void parseData(TagNode tag);
+        public boolean updateNeeded();
     }
 }

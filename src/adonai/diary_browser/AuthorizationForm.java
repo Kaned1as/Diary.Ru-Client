@@ -17,14 +17,13 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 	public static final String KEY_PASSWORD = "diary.password.key";
 	public static final String mPrefsFile = "diary.shared.prefs";
 	
-	SharedPreferences mSharedPrefs;
 	Button mLogin;
 	EditText mUsername, mPassword;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mSharedPrefs = getSharedPreferences(mPrefsFile, MODE_PRIVATE);
+        Globals.mSharedPrefs = getSharedPreferences(mPrefsFile, MODE_PRIVATE);
         
         setContentView(R.layout.authorization_form_a);
         mLogin = (Button)findViewById(R.id.login_button);
@@ -36,8 +35,8 @@ public class AuthorizationForm extends Activity implements OnClickListener {
     @Override
 	protected void onStart() {
 		super.onStart();
-        mUsername.setText(mSharedPrefs.getString(KEY_USERNAME, ""));
-        mPassword.setText(mSharedPrefs.getString(KEY_PASSWORD, ""));
+        mUsername.setText(Globals.mSharedPrefs.getString(KEY_USERNAME, ""));
+        mPassword.setText(Globals.mSharedPrefs.getString(KEY_PASSWORD, ""));
 	}
 
     @Override
@@ -54,7 +53,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 				return;
 			}
 			
-			SharedPreferences.Editor editor = mSharedPrefs.edit();
+			SharedPreferences.Editor editor = Globals.mSharedPrefs.edit();
 			editor.putString(KEY_USERNAME, mUsername.getText().toString());
 			editor.putString(KEY_PASSWORD, mPassword.getText().toString());
 			editor.commit();
