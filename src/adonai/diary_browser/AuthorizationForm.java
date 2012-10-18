@@ -23,7 +23,6 @@ public class AuthorizationForm extends Activity implements OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Globals.mSharedPrefs = getSharedPreferences(mPrefsFile, MODE_PRIVATE);
         
         setContentView(R.layout.authorization_form_a);
         mLogin = (Button)findViewById(R.id.login_button);
