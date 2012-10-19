@@ -96,7 +96,7 @@ public class DiaryList extends Activity implements OnClickListener
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
-    int mCurrentPage = 0;
+    int mCurrentBrowser = 0;
     
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
@@ -219,7 +219,13 @@ public class DiaryList extends Activity implements OnClickListener
         mOwnDiaryPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.ownDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
         mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
-        mCommentBrowser.setAdapter(mCommentListAdapter);        
+        mCommentBrowser.setAdapter(mCommentListAdapter);    
+        
+        if (savedInstanceState != null) 
+        {
+            mTabHost.setCurrentTab(savedInstanceState.getInt("current_tab", 0));
+            setCurrentVisibleComponent(savedInstanceState.getInt("current_browser", 0));
+        }
     }
     
     @Override
@@ -232,7 +238,7 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        if(mCurrentPage == POST_LIST)
+        if(mCurrentBrowser == POST_LIST)
             menu.add(0, 1, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
         return super.onCreateOptionsMenu(menu);
     }
@@ -254,13 +260,20 @@ public class DiaryList extends Activity implements OnClickListener
     protected void onStart()
     {
         super.onStart();
-        if(pd == null)
+        if(mUser.updateNeeded())
         {
             pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
             mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
-        setCurrentVisibleComponent(mCurrentPage);
     }
+    
+    @Override
+    protected void onSaveInstanceState(Bundle out)
+    {
+        out.putInt("current_browser", mCurrentBrowser);
+        out.putInt("current_tab", mTabHost.getCurrentTab());
+    }
+    
     
     Handler.Callback UiCallback = new Handler.Callback()
     {
@@ -892,7 +905,7 @@ public class DiaryList extends Activity implements OnClickListener
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
-        mCurrentPage = needed;
+        mCurrentBrowser = needed;
     }
     
     private static Drawable loadImage(String url) 
