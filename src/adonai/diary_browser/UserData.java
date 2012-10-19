@@ -19,6 +19,8 @@ public class UserData implements DiaryList.onUserDataParseListener
     String ownDiaryURL = "";
     String ownProfileURL = "";
     String userName = "";
+    String signature = "";
+    String currentDiaryId = "";
     
     UserData()
     {
@@ -33,6 +35,10 @@ public class UserData implements DiaryList.onUserDataParseListener
     public void parseData(TagNode tag)
     {
         userName = Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "");
+        TagNode sigNode = tag.findElementByAttValue("name", "signature", true, true);
+        if (sigNode != null)
+            signature = sigNode.getAttributeByName("value");
+        
         
         TagNode[] nodes = tag.getElementsByName("a", true);
         for(TagNode node : nodes)
@@ -55,6 +61,21 @@ public class UserData implements DiaryList.onUserDataParseListener
         if(userName.equals(""))
             return true;
         
+        if(signature.equals(""))
+            return true;
+        
         return false;
+    }
+
+    public void setPageId(TagNode root)
+    {
+        TagNode author = root.findElementByAttValue("id", "authorName", true, true);
+        if(author != null)
+        {
+            String Id = author.getAttributeByName("href");
+            currentDiaryId = Id.substring(Id.lastIndexOf("?"));
+        }
+        else
+            currentDiaryId = "";
     }
 }

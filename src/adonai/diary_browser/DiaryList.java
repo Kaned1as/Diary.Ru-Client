@@ -94,6 +94,7 @@ public class DiaryList extends Activity implements OnClickListener
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
+    int mCurrentPage = 0;
     
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
@@ -116,7 +117,7 @@ public class DiaryList extends Activity implements OnClickListener
     // Сервисные объекты
     DiaryHttpClient mDHCL;
     HtmlCleaner postCleaner;
-    UserData mUser;
+    UserData mUser = Globals.mUser;
     onUserDataParseListener listener;
     DisplayMetrics gMetrics;
     
@@ -137,7 +138,6 @@ public class DiaryList extends Activity implements OnClickListener
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         mDHCL = new DiaryHttpClient();
-        mUser = new UserData();
         setUserDataListener(mUser);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -243,6 +243,7 @@ public class DiaryList extends Activity implements OnClickListener
             pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
             mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
+        setCurrentVisibleComponent(mCurrentPage);
     }
     
     Handler.Callback UiCallback = new Handler.Callback()
@@ -551,7 +552,7 @@ public class DiaryList extends Activity implements OnClickListener
         return post;
     }
     
-    public MoreTag makeMoreTag(TagNode contentNode, MoreTag parent) throws IOException
+    private MoreTag makeMoreTag(TagNode contentNode, MoreTag parent) throws IOException
     {
         SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
         MoreTag result = new MoreTag(parent);
@@ -869,9 +870,10 @@ public class DiaryList extends Activity implements OnClickListener
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
+        mCurrentPage = needed;
     }
     
-    public static Drawable loadImage(String url) 
+    private static Drawable loadImage(String url) 
     {
         try 
         {
@@ -924,8 +926,13 @@ public class DiaryList extends Activity implements OnClickListener
         
         TagNode rootNode = postCleaner.clean(dataPage);
         
-        if(listener != null && listener.updateNeeded())
-            listener.parseData(rootNode);
+        if(listener != null)
+        {
+            listener.setPageId(rootNode);
+            
+            if(listener.updateNeeded())
+                listener.parseData(rootNode);
+        }
         
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
@@ -987,6 +994,13 @@ public class DiaryList extends Activity implements OnClickListener
     public interface onUserDataParseListener
     {
         public void parseData(TagNode tag);
+        public void setPageId(TagNode root);
         public boolean updateNeeded();
+    }
+    
+    public void newPostPost(String diaryUrl)
+    {
+        if(mUser.currentDiaryId.equals(""))
+            return;
     }
 }
