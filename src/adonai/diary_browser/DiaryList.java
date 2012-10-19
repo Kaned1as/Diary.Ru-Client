@@ -15,6 +15,7 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
+import org.htmlcleaner.FastHtmlSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
@@ -111,7 +112,6 @@ public class DiaryList extends Activity implements OnClickListener
     ListView mPostBrowser;
     ListView mCommentBrowser;
     
-    WebView mMainView;
     ImageButton mExitButton;
     TabHost mTabHost;
     ProgressDialog pd;
@@ -171,8 +171,6 @@ public class DiaryList extends Activity implements OnClickListener
         mLogin = (TextView) findViewById(R.id.login_name);
         
         // Также устаревший код, оставлен в целях тестирования
-        mMainView = (WebView) findViewById(R.id.main_view);
-        mMainView.setWebViewClient(new WebViewClient());
         
         mExitButton = (ImageButton) findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
@@ -573,7 +571,8 @@ public class DiaryList extends Activity implements OnClickListener
     private PostContentBuilder makePost(TagNode contentNode) throws IOException
     {
      // То, чем будем выстраивать контент
-        SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
+        //SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
+        FastHtmlSerializer serializer = new FastHtmlSerializer(postCleaner.getProperties());
         
         // Ищем тэги MORE
         MoreTag moreTag = null;
