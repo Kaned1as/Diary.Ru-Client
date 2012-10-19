@@ -926,13 +926,8 @@ public class DiaryList extends Activity implements OnClickListener
         
         TagNode rootNode = postCleaner.clean(dataPage);
         
-        if(listener != null)
-        {
-            listener.setPageId(rootNode);
-            
-            if(listener.updateNeeded())
-                listener.parseData(rootNode);
-        }
+        if(listener != null && listener.updateNeeded())
+            listener.parseData(rootNode);
         
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
@@ -994,7 +989,6 @@ public class DiaryList extends Activity implements OnClickListener
     public interface onUserDataParseListener
     {
         public void parseData(TagNode tag);
-        public void setPageId(TagNode root);
         public boolean updateNeeded();
     }
     
