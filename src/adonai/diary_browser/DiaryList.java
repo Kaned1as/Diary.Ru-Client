@@ -50,6 +50,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -230,8 +231,22 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.menu.activity_diary_list_a, menu);
-        return true;
+        if(mCurrentPage == POST_LIST)
+            menu.add(0, 1, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case 1:
+                newPostPost();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
     
     @Override
@@ -992,7 +1007,7 @@ public class DiaryList extends Activity implements OnClickListener
         public boolean updateNeeded();
     }
     
-    public void newPostPost(String diaryUrl)
+    public void newPostPost()
     {
         if(mUser.currentDiaryId.equals(""))
             return;

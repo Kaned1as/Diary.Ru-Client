@@ -9,8 +9,8 @@
     <string name="not_impl_sc">Еще не реализовано</string>
     <string name="details_missing">Необзодимо заполнить поля логина и пароля</string>
     <string name="title_activity_diary_list">Список дневников</string>
-    <string name="loading">Загрузка</string>
-    <string name="please_wait">Ждите…</string>
+    <string name="loading">Загрузка…</string>
+    <string name="please_wait">Авторизация…</string>
     <string name="title_activity_launch">Diary.Ru клиент</string>
     <string name="loading_data">Загрузка данных…</string>
     <string name="favourites">Избранное</string>
@@ -26,8 +26,9 @@
     <string name="logout_drawable">лого выхода</string>
     <string name="without_title">Без названия</string>
     <string name="posts">Посты</string>
-    <string name="getting_user_info">Получаю данные пользователя</string>
+    <string name="getting_user_info">Загрузка данных…</string>
     <string name="comments_disabled">отключены</string>
     <string name="community">Сообщество</string>
+    <string name="new_post">Новый пост</string>
 
 </resources>
