@@ -30,4 +30,5 @@
     <string name="comments_disabled">disabled</string>
     <string name="community">Community</string>
     <string name="new_post">New Post</string>
+    <string name="parsing_data">Parsing Data&#8230;</string>
 </resources>

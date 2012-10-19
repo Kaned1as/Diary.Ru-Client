@@ -78,6 +78,7 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
     private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
     private static final int HANDLE_GET_OWNDIARY_POSTS_DATA = 8;
+    private static final int HANDLE_PROGRESS = 9;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 10;
@@ -267,6 +268,10 @@ public class DiaryList extends Activity implements OnClickListener
         {
             switch (message.what)
             {
+                case HANDLE_PROGRESS:
+                    if(pd != null && pd.isShowing())
+                        pd.setMessage(getResources().getString(R.string.parsing_data));
+                break;
                 case HANDLE_SERVICE_RELOAD_CONTENT:
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
                     mCommentListAdapter.notifyDataSetChanged();
@@ -412,6 +417,7 @@ public class DiaryList extends Activity implements OnClickListener
                     // столбцам таблицы, идиот!!
                     {
                         mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
                         
                         TagNode rootNode = postCleaner.clean(favListPage);
@@ -460,6 +466,7 @@ public class DiaryList extends Activity implements OnClickListener
                         String URL = parsingPost.get_URL();
                         
                         mDHCL.postPage(URL, null);
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
                         
                         mUser.currentPostComments.add(parsingPost);
@@ -937,6 +944,7 @@ public class DiaryList extends Activity implements OnClickListener
         mUser.currentDiaryPosts.clear();
         
         mDHCL.postPage(URL, null);
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
         
         TagNode rootNode = postCleaner.clean(dataPage);
