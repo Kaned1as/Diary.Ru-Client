@@ -37,6 +37,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
@@ -117,7 +118,7 @@ public class DiaryList extends Activity implements OnClickListener
     ProgressDialog pd;
     
     // Сервисные объекты
-    DiaryHttpClient mDHCL;
+    DiaryHttpClient mDHCL = Globals.mDHCL;
     HtmlCleaner postCleaner;
     UserData mUser = Globals.mUser;
     onUserDataParseListener listener;
@@ -139,7 +140,6 @@ public class DiaryList extends Activity implements OnClickListener
 
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
-        mDHCL = new DiaryHttpClient();
         setUserDataListener(mUser);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -164,6 +164,11 @@ public class DiaryList extends Activity implements OnClickListener
         
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
+        initializeUI();
+    }
+    
+    public void initializeUI()
+    {
         mFavouriteBrowser = (ListView) findViewById(R.id.favourite_browser);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
@@ -209,7 +214,7 @@ public class DiaryList extends Activity implements OnClickListener
                 textView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
             }
         }
-
+        
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
         mFavouriteBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
@@ -218,12 +223,14 @@ public class DiaryList extends Activity implements OnClickListener
         mPostBrowser.setAdapter(mPostListAdapter);
         mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
         mCommentBrowser.setAdapter(mCommentListAdapter);    
-        
-        if (savedInstanceState != null) 
-        {
-            mTabHost.setCurrentTab(savedInstanceState.getInt("current_tab", 0));
-            setCurrentVisibleComponent(savedInstanceState.getInt("current_browser", 0));
-        }
+    }
+    
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) 
+    {
+        super.onConfigurationChanged(newConfig);
+        setContentView(R.layout.activity_diary_list_a);
+        initializeUI();
     }
     
     @Override
@@ -264,14 +271,6 @@ public class DiaryList extends Activity implements OnClickListener
             mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
     }
-    
-    @Override
-    protected void onSaveInstanceState(Bundle out)
-    {
-        out.putInt("current_browser", mCurrentBrowser);
-        out.putInt("current_tab", mTabHost.getCurrentTab());
-    }
-    
     
     Handler.Callback UiCallback = new Handler.Callback()
     {

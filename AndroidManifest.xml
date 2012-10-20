@@ -19,7 +19,7 @@
         </activity>
         <activity
             android:name=".DiaryList"
-            android:label="@string/title_activity_diary_list" >
+            android:label="@string/title_activity_diary_list" android:configChanges="keyboardHidden|orientation|screenSize">
         </activity>
         <activity
             android:name=".LaunchActivity"
