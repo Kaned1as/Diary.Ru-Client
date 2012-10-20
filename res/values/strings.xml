@@ -31,4 +31,9 @@
     <string name="community">Community</string>
     <string name="new_post">New Post</string>
     <string name="parsing_data">Parsing Data&#8230;</string>
+    <string name="message_title">Message title</string>
+    <string name="message_content">Message content</string>
+    <string name="message_themes">Message themes</string>
+    <string name="message_music">Current music</string>
+    <string name="message_mood">Current mood</string>
 </resources>

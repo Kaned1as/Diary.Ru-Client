@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.SharedPreferences;
 
 public class LaunchActivity extends Activity {
 

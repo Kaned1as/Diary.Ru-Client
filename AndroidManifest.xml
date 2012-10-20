@@ -36,6 +36,7 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="adonai.diary_browser.DiaryList" />
         </activity>
+        <activity android:name=".MessageSender"></activity>
     </application>
 
 </manifest>

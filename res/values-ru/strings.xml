@@ -31,4 +31,9 @@
     <string name="community">Сообщество</string>
     <string name="new_post">Новый пост</string>
     <string name="parsing_data">Обработка данных…</string>
+    <string name="message_title">Заголовок</string>
+    <string name="message_content">Содержимое</string>
+    <string name="message_themes">Темы</string>
+    <string name="message_music">Музыка</string>
+    <string name="message_mood">Настроение</string>
 </resources>
