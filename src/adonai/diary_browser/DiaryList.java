@@ -99,6 +99,7 @@ public class DiaryList extends Activity implements OnClickListener
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
     int mCurrentBrowser = 0;
+    int mCurrentTab = 0;
     
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
@@ -222,7 +223,10 @@ public class DiaryList extends Activity implements OnClickListener
         mOwnDiaryPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.ownDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
         mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
-        mCommentBrowser.setAdapter(mCommentListAdapter);    
+        mCommentBrowser.setAdapter(mCommentListAdapter);
+        
+        mTabHost.setCurrentTab(mCurrentTab);
+        setCurrentVisibleComponent(mCurrentBrowser);
     }
     
     @Override
@@ -894,6 +898,7 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
             }
         
+        mCurrentTab = index;
         mTabHost.setCurrentTab(index);
     }
     
