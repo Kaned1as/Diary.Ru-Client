@@ -39,4 +39,6 @@
     <string name="message_publish">Publish</string>
     <string name="message_optional">Optional</string>
     <string name="message_poll">Poll</string>
+    <string name="message_poll_title">Poll title</string>
+    <string name="message_poll_choice">Poll choice</string>
 </resources>

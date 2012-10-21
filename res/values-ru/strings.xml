@@ -37,4 +37,8 @@
     <string name="message_music">Музыка</string>
     <string name="message_mood">Настроение</string>
     <string name="message_publish">Опубликовать</string>
+    <string name="message_optional">Дополнительно</string>
+    <string name="message_poll">Опрос</string>
+    <string name="message_poll_title">Название вопроса</string>
+    <string name="message_poll_choice">Вариант выбора</string>
 </resources>

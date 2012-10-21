@@ -47,46 +47,129 @@
         android:id="@+id/message_themes_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/message_themes" />
+        android:text="@string/message_themes"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/message_themes"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/message_themes" />
+        android:hint="@string/message_themes"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/message_music_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/message_music" />
+        android:text="@string/message_music"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/message_music"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/message_music" />
+        android:hint="@string/message_music"
+        android:visibility="gone" />
 
     <TextView
         android:id="@+id/message_mood_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/message_mood" />
+        android:text="@string/message_mood"
+        android:visibility="gone" />
 
     <EditText
         android:id="@+id/message_mood"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/message_mood" />
+        android:hint="@string/message_mood"
+        android:visibility="gone" />
 
     <CheckBox
         android:id="@+id/message_poll"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/message_poll" />
+
+    <EditText
+        android:id="@+id/message_poll_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_title"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/message_poll_8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+    
+    <EditText
+        android:id="@+id/message_poll_9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
+    
+    <EditText
+        android:id="@+id/message_poll_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/message_poll_choice"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/message_publish"
