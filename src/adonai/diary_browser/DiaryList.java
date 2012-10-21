@@ -281,11 +281,32 @@ public class DiaryList extends Activity implements OnClickListener
     protected void onStart()
     {
         super.onStart();
+
         if(mUser.updateNeeded())
         {
             pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
             mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) 
+    {
+        super.onNewIntent(intent);
+        setIntent(intent);
+    }
+
+    
+    @Override
+    protected void onResume()
+    {
+    	 super.onResume();
+    	 Intent intent = getIntent();
+         if(intent != null && intent.getBooleanExtra("reloadContent", false))
+         {
+         	reloadContent();
+         	return;
+         }
     }
     
     Handler.Callback UiCallback = new Handler.Callback()

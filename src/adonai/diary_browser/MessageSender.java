@@ -16,9 +16,12 @@ import android.text.Html;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 
-public class MessageSender extends Activity implements OnClickListener
+public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener
 {
 	TextView titleText;
 	TextView contentText;
@@ -26,6 +29,11 @@ public class MessageSender extends Activity implements OnClickListener
 	TextView musicText;
 	TextView moodText;
 	Button mPublish;
+	CheckBox mShowOptionals;
+	CheckBox mShowPoll;
+	
+	List<View> optionals = new ArrayList<View>();
+	List<View> pollScheme = new ArrayList<View>();
 	
 	String mSignature = null;
 	String mDiaryId = null;
@@ -53,6 +61,17 @@ public class MessageSender extends Activity implements OnClickListener
     	moodText = (TextView) findViewById(R.id.message_mood);
     	mPublish = (Button)findViewById(R.id.message_publish);
     	mPublish.setOnClickListener(this);
+    	
+    	mShowOptionals = (CheckBox) findViewById(R.id.message_optional);
+    	mShowOptionals.setOnCheckedChangeListener(this);
+    	mShowPoll = (CheckBox) findViewById(R.id.message_poll);
+    	
+    	optionals.add(findViewById(R.id.message_themes_hint));
+    	optionals.add(themesText);
+    	optionals.add(findViewById(R.id.message_music_hint));
+    	optionals.add(musicText);
+    	optionals.add(findViewById(R.id.message_mood_hint));
+    	optionals.add(moodText);
     }
 
     /* (non-Javadoc)
@@ -127,7 +146,8 @@ public class MessageSender extends Activity implements OnClickListener
 					
 					// Пост опубликован, возвращаемся
 					Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
-					returnIntent.putExtra("reload", true);
+					returnIntent.putExtra("reloadContent", true);
+					returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
 					startActivity(returnIntent);
 					finish();
 					
@@ -139,6 +159,12 @@ public class MessageSender extends Activity implements OnClickListener
 				
 			break;
 		}
+	}
+
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) 
+	{
+
+		
 	}
     
 }
