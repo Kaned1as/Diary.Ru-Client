@@ -77,8 +77,7 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
     private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
     private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
-    private static final int HANDLE_GET_OWNDIARY_POSTS_DATA = 8;
-    private static final int HANDLE_PROGRESS = 9;
+    private static final int HANDLE_PROGRESS = 8;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 10;
@@ -141,8 +140,6 @@ public class DiaryList extends Activity implements OnClickListener
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
 
-        gMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         setUserDataListener(mUser);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -172,6 +169,10 @@ public class DiaryList extends Activity implements OnClickListener
     
     public void initializeUI()
     {
+
+        gMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
+        
         mFavouriteBrowser = (ListView) findViewById(R.id.favourite_browser);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
@@ -329,11 +330,6 @@ public class DiaryList extends Activity implements OnClickListener
                     mPostBrowser.setAdapter(mFavPostListAdapter);
                     pd.dismiss();
                 break;
-                case HANDLE_GET_OWNDIARY_POSTS_DATA:
-                    setCurrentVisibleComponent(POST_LIST);
-                    mPostBrowser.setAdapter(mOwnDiaryPostListAdapter);
-                    pd.dismiss();
-                break;
                 case HANDLE_AUTHORIZATION_ERROR:
                     pd.dismiss();
                     Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
@@ -476,8 +472,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case HANDLE_GET_DIARY_POSTS_DATA:
                     {
-                        Diary diary = (Diary) message.obj;
-                        String URL = diary.getDiaryUrl();
+                        String URL = (String) message.obj;
                         
                         serializePostsPage(URL, null);
                         
@@ -488,55 +483,8 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                     	mUser.currentPostComments.clear();
                         Post parsingPost = (Post) message.obj;
-                        String URL = parsingPost.get_URL();
                         
-                        mDHCL.postPage(URL, null);
-                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        
-                        mUser.currentPostComments.add(parsingPost);
-                        TagNode rootNode = postCleaner.clean(dataPage);
-                        
-                        if(listener != null && listener.updateNeeded())
-                            listener.parseData(rootNode);
-                        
-                        TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
-                        if(commentsArea == null)
-                        {
-                            mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
-                            return true;
-                        }
-                        
-                        for (TagNode comment : commentsArea.getAllElements(false))
-                        {
-                            if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
-                            {
-                                Comment currentPost = new Comment();
-                                TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
-                                if (headerNode != null)
-                                {
-                                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
-                                }
-                                TagNode authorNode = comment.findElementByAttValue("class", "authorName", false, true);
-                                if(authorNode != null)
-                                {
-                                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
-                                }
-                                TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
-                                if(contentNode != null)
-                                {
-                                	currentPost.set_text(makePost(contentNode));
-                                }
-                                TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
-                                if (urlNode != null)
-                                {
-                                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
-                                }
-                                mUser.currentPostComments.add(currentPost);  
-                            }   
-                        }
+                        serializeCommentsPage(parsingPost, mUser.currentPostComments);
                           
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
@@ -549,16 +497,6 @@ public class DiaryList extends Activity implements OnClickListener
                         serializePostsPage(URL, mUser.favoritePosts);       
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
-                        return true;
-                    }
-                    case HANDLE_GET_OWNDIARY_POSTS_DATA:
-                    {
-                        mUser.ownDiaryPosts.clear();
-                        String URL = mUser.ownDiaryURL;
-                        
-                        serializePostsPage(URL, mUser.ownDiaryPosts);
-
-                        mUiHandler.sendEmptyMessage(HANDLE_GET_OWNDIARY_POSTS_DATA);
                         return true;
                     }
                     default:
@@ -582,7 +520,7 @@ public class DiaryList extends Activity implements OnClickListener
         }
     };
     
-    private PostContentBuilder makePost(TagNode contentNode) throws IOException
+    private PostContentBuilder makeContent(TagNode contentNode) throws IOException
     {
      // То, чем будем выстраивать контент
         //SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
@@ -594,7 +532,7 @@ public class DiaryList extends Activity implements OnClickListener
         if(contentNode.findElementHavingAttribute("ondblclick", true) != null)
             moreTag = makeMoreTag(contentNode, null);
         
-        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode)), moreTag);
+        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode), new DiaryImageGetter(), null), moreTag);
         formatText(post);
         
         return post;
@@ -613,7 +551,7 @@ public class DiaryList extends Activity implements OnClickListener
             if(moreNode.findElementHavingAttribute("ondblclick", true) != null)
                 result.addChild(makeMoreTag(moreNode, result));
                 
-            result.add(Html.fromHtml(serializer.getAsString(moreNode)));
+            result.add(Html.fromHtml(serializer.getAsString(moreNode), new DiaryImageGetter(), null));
             moreNode.removeFromTree();
         }
         
@@ -866,7 +804,7 @@ public class DiaryList extends Activity implements OnClickListener
                     Diary diary = mUser.favorites.get(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.getDiaryUrl()));
                 }
                 break;
                 case R.id.post_title:
@@ -904,7 +842,7 @@ public class DiaryList extends Activity implements OnClickListener
                 break;
                 case TAB_MY_DIARY:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendEmptyMessage(HANDLE_GET_OWNDIARY_POSTS_DATA);
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.ownDiaryURL));
                 break;
                 default:
                 break;
@@ -923,6 +861,21 @@ public class DiaryList extends Activity implements OnClickListener
         mCurrentBrowser = needed;
     }
     
+    private void reloadContent()
+    {
+    	switch(mCurrentBrowser)
+    	{
+    		case POST_LIST:
+    			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mDHCL.lastURL));
+    			break;
+    		case COMMENT_LIST:
+    			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mDHCL.lastURL));
+    			break;
+    	}
+    }
+    
     private static Drawable loadImage(String url) 
     {
         try 
@@ -936,6 +889,18 @@ public class DiaryList extends Activity implements OnClickListener
             return null;
         }
     }
+    
+    public class DiaryImageGetter implements Html.ImageGetter
+	{
+		public Drawable getDrawable(String source)
+		{
+			Drawable loader = getResources().getDrawable(R.drawable.load_image);
+            loader.setBounds(0, 0, loader.getIntrinsicWidth(), loader.getIntrinsicHeight());
+
+			return loader;
+		}
+		
+	}
 
 
     /* (non-Javadoc)
@@ -1015,7 +980,7 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
-                    currentPost.set_text(makePost(contentNode));
+                    currentPost.set_text(makeContent(contentNode));
                 }
                 TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
@@ -1034,6 +999,59 @@ public class DiaryList extends Activity implements OnClickListener
                 // Всегда заполняем текущие посты
                 mUser.currentDiaryPosts.add(currentPost);
             }
+        }
+    }
+    
+    public void serializeCommentsPage(Post originalPost, List<Post> destination) throws IOException
+    {
+        String URL = originalPost.get_URL();
+        
+    	mDHCL.postPage(URL, null);
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+        
+        mUser.currentPostComments.add(originalPost);
+        TagNode rootNode = postCleaner.clean(dataPage);
+        
+        if(listener != null && listener.updateNeeded())
+            listener.parseData(rootNode);
+        
+        TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
+        if(commentsArea == null)
+        {
+            mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
+            return;
+        }
+        
+        for (TagNode comment : commentsArea.getAllElements(false))
+        {
+            if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
+            {
+                Comment currentPost = new Comment();
+                TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
+                if (headerNode != null)
+                {
+                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                }
+                TagNode authorNode = comment.findElementByAttValue("class", "authorName", false, true);
+                if(authorNode != null)
+                {
+                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
+                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                }
+                TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
+                if(contentNode != null)
+                {
+                	currentPost.set_text(makeContent(contentNode));
+                }
+                TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
+                if (urlNode != null)
+                {
+                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                }
+                mUser.currentPostComments.add(currentPost);
+            }   
         }
     }
     
