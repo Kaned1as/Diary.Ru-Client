@@ -23,6 +23,7 @@ public class DiaryHttpClient {
 
     HttpResponse response = null;
     HttpPost httpPost = null;
+    String lastURL = "";
 
     public DiaryHttpClient() {
     	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
@@ -52,6 +53,8 @@ public class DiaryHttpClient {
     	
     	if(data != null)
     		httpPost.setEntity(data);
+    	else
+        	lastURL = url;
 
     	try {
     		response = httpClient.execute(httpPost,localContext);
@@ -61,9 +64,6 @@ public class DiaryHttpClient {
     		System.out.println("HTTPHelp : IOException : " + e);
     	} 
 
-    	if(response != null)
-    		return response.toString();
-    	
-    	return null;
+  		return response.toString();
     }
 }

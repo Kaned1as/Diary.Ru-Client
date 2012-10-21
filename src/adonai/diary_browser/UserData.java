@@ -38,17 +38,7 @@ public class UserData implements DiaryList.onUserDataParseListener
         TagNode sigNode = tag.findElementByAttValue("name", "signature", true, true);
         if (sigNode != null)
             signature = sigNode.getAttributeByName("value");
-        
-        TagNode author = tag.findElementByAttValue("id", "authorName", true, true);
-        if(author != null)
-        {
-            String Id = author.getAttributeByName("href");
-            currentDiaryId = Id.substring(Id.lastIndexOf("?"));
-        }
-        else
-            currentDiaryId = "";
-        
-        
+
         TagNode[] nodes = tag.getElementsByName("a", true);
         for(TagNode node : nodes)
         {
@@ -75,4 +65,16 @@ public class UserData implements DiaryList.onUserDataParseListener
         
         return false;
     }
+
+	public void updateIDs(TagNode tag) 
+	{
+		TagNode author = tag.findElementByAttValue("id", "authorName", true, true);
+        if(author != null)
+        {
+            String Id = author.getAttributeByName("href");
+            currentDiaryId = Id.substring(Id.lastIndexOf("?") + 1);
+        }
+        else
+            currentDiaryId = "";
+	}
 }

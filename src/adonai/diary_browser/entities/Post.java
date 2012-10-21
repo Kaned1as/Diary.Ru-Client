@@ -10,6 +10,7 @@ public class Post
         
     }
     
+    // обработка
     private String _author = "";
     private String _author_URL = "";
     private String _community = "";
@@ -20,6 +21,12 @@ public class Post
     private String _title = "";
     private String _comment_count = "";
     private Drawable _author_avatar = null;
+    
+    // постинг
+    private String _mood = "";
+    private String _themes = "";
+    private String _tags = "";
+    private String _music = "";
     
     /**
      * @return the _author
@@ -160,5 +167,43 @@ public class Post
 	final public void set_community_URL(String _community_URL) 
 	{
 		this._community_URL = _community_URL;
+	}
+
+	public String get_mood() 
+	{
+		return _mood;
+	}
+
+	public void set_mood(String _mood) 
+	{
+		this._mood = _mood;
+	}
+
+	public String get_themes() 
+	{
+		return _themes;
+	}
+
+	public void set_themes(String _themes) 
+	{
+		this._themes = _themes;
+	}
+
+	public String get_tags() 
+	{
+		return _tags;
+	}
+
+	public void set_tags(String _tags) 
+	{
+		this._tags = _tags;
+	}
+
+	public String get_music() {
+		return _music;
+	}
+
+	public void set_music(String _music) {
+		this._music = _music;
 	}
 }

@@ -94,6 +94,10 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int COMMENT_LIST = 2;
     private static final int AUTHOR_PAGE = 3;
     
+    // меню
+    private static final int MENU_GROUP_POST = 1;
+    private static final int MENU_NEW_POST = 1;
+    
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
     int mCurrentBrowser = 0;
@@ -245,17 +249,26 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        if(mCurrentBrowser == POST_LIST)
-            menu.add(0, 1, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(MENU_GROUP_POST, MENU_NEW_POST, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+        if(mCurrentBrowser == POST_LIST)
+        	menu.setGroupVisible(MENU_GROUP_POST, true);
+        else
+        	menu.setGroupVisible(MENU_GROUP_POST, false);
+        
+		return super.onPrepareOptionsMenu(menu);
+	}
+
+	@Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch(item.getItemId())
         {
-            case 1:
+            case MENU_NEW_POST:
                 newPostPost();
                 return true;
             default:
@@ -834,6 +847,7 @@ public class DiaryList extends Activity implements OnClickListener
             CookieManager cookieManager = CookieManager.getInstance();
             cookieManager.removeSessionCookie();
             CookieSyncManager.getInstance().sync();
+            Globals.mUser = new UserData();
             
             //TODO: просмотр без логина тоже еще не введен
             startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
@@ -963,8 +977,13 @@ public class DiaryList extends Activity implements OnClickListener
         
         TagNode rootNode = postCleaner.clean(dataPage);
         
-        if(listener != null && listener.updateNeeded())
-            listener.parseData(rootNode);
+        if(listener != null)
+        {
+        	listener.updateIDs(rootNode);
+        	
+        	if(listener.updateNeeded())
+        		listener.parseData(rootNode);
+        }
         
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
@@ -1027,11 +1046,18 @@ public class DiaryList extends Activity implements OnClickListener
     {
         public void parseData(TagNode tag);
         public boolean updateNeeded();
+        public void updateIDs(TagNode tag);
     }
     
     public void newPostPost()
     {
         if(mUser.currentDiaryId.equals(""))
             return;
+        
+        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+        postIntent.putExtra("DiaryId", mUser.currentDiaryId);
+        postIntent.putExtra("signature", mUser.signature);
+        
+        startActivity(postIntent);
     }
 }

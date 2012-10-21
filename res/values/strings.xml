@@ -36,4 +36,5 @@
     <string name="message_themes">Message themes</string>
     <string name="message_music">Current music</string>
     <string name="message_mood">Current mood</string>
+    <string name="message_publish">Publish</string>
 </resources>
