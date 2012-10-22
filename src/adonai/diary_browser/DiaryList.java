@@ -4,10 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Vector;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -269,7 +266,12 @@ public class DiaryList extends Activity implements OnClickListener
     protected void onNewIntent(Intent intent) 
     {
         super.onNewIntent(intent);
-        setIntent(intent);
+
+        if(intent != null && intent.getBooleanExtra("reloadContent", false))
+        {
+        	reloadContent();
+        	return;
+        }
     }
 
     
@@ -277,12 +279,6 @@ public class DiaryList extends Activity implements OnClickListener
     protected void onResume()
     {
     	 super.onResume();
-    	 Intent intent = getIntent();
-         if(intent != null && intent.getBooleanExtra("reloadContent", false))
-         {
-         	reloadContent();
-         	return;
-         }
     }
     
     Handler.Callback UiCallback = new Handler.Callback()

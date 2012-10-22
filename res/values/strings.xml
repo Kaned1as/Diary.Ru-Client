@@ -9,7 +9,7 @@
     <string name="not_impl_sc">Not Implemented scenario</string>
     <string name="details_missing">username and password fields required</string>
     <string name="title_activity_diary_list">DiaryList</string>
-    <string name="loading">Loading</string>
+    <string name="loading">Loading&#8230;</string>
     <string name="please_wait">Please Wait&#8230;</string>
     <string name="title_activity_launch">Diary Browser</string>
     <string name="loading_data">Loading data&#8230;</string>
@@ -41,4 +41,5 @@
     <string name="message_poll">Poll</string>
     <string name="message_poll_title">Poll title</string>
     <string name="message_poll_choice">Poll choice</string>
+    <string name="sending_data">Sending data&#8230;</string>
 </resources>

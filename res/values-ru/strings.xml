@@ -41,4 +41,5 @@
     <string name="message_poll">Опрос</string>
     <string name="message_poll_title">Название вопроса</string>
     <string name="message_poll_choice">Вариант выбора</string>
+    <string name="sending_data">Отправка данных…</string>
 </resources>
