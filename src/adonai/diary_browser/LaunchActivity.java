@@ -12,9 +12,12 @@ public class LaunchActivity extends Activity {
         Globals.mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         
         if (!Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "").equals("") && 
-            !Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "").equals("")) {
+            !Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "").equals("")) 
+        {
         	startActivity(new Intent(this, DiaryList.class));
-        } else {
+        } 
+        else 
+        {
         	startActivity(new Intent(this, AuthorizationForm.class));
         }
         

@@ -2,7 +2,6 @@ package adonai.diary_browser;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,13 +19,10 @@ import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 
-import de.timroes.axmlrpc.XMLRPCException;
-
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.tags.MoreTag;
-import adonai.metaweblog_client.JMetaWeblogClient;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -71,7 +67,6 @@ public class DiaryList extends Activity implements OnClickListener
 {
     // Команды хэндлерам
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
-    private static final int HANDLE_GET_U_BLOGS = 1;
     private static final int HANDLE_SET_HTTP_COOKIE = 2;
     private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 4;
     private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
@@ -125,8 +120,6 @@ public class DiaryList extends Activity implements OnClickListener
     UserData mUser = Globals.mUser;
     onUserDataParseListener listener;
     DisplayMetrics gMetrics;
-    
-    JMetaWeblogClient WMAClient;
     Object[] RPCResponse;
     
     static Handler mHandler, mUiHandler;
@@ -149,19 +142,7 @@ public class DiaryList extends Activity implements OnClickListener
         mUiHandler = new Handler(UiCallback);
         
         CookieSyncManager.createInstance(this);
-        
-        // Возможно, устаревший код. Оставлен для возможного будущего использования
-        try
-        {
-            WMAClient = new JMetaWeblogClient("http://www.diary.ru/client/mwa.php");
-            WMAClient.setUsername(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
-            WMAClient.setPassword(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, ""));
-        }
-        catch (MalformedURLException e)
-        {
-            e.printStackTrace();
-        }
-        
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
@@ -200,16 +181,11 @@ public class DiaryList extends Activity implements OnClickListener
             view.setOnClickListener(this);
             view.setTag(i);
             
-            // reduce height of the tab
             view.getLayoutParams().height *= 0.50;
-            
-            // get title text view
+
             final View textView = view.findViewById(android.R.id.title);
             if (textView instanceof TextView)
             {
-                // just in case check the type
-                
-                // center text
                 ((TextView) textView).setGravity(Gravity.CENTER);
                 ((TextView) textView).setTypeface(Typeface.DEFAULT_BOLD);
                 
@@ -323,9 +299,6 @@ public class DiaryList extends Activity implements OnClickListener
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
                     mCommentListAdapter.notifyDataSetChanged();
                 break;
-                case HANDLE_GET_U_BLOGS:
-                    pd.dismiss();
-                break;
                 case HANDLE_SET_HTTP_COOKIE:
                     pd.setMessage(getResources().getString(R.string.getting_user_info));
                     mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
@@ -396,24 +369,6 @@ public class DiaryList extends Activity implements OnClickListener
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));
                     }
                     break;
-                    case HANDLE_GET_U_BLOGS:
-                        
-                        RPCResponse = WMAClient.getUsersBlogs();
-                        
-                        if (RPCResponse == null)
-                            return false;
-                        
-                        HashMap<?, ?> contentHash = new HashMap<Object, Object>();
-                        Vector<HashMap<?, ?>> contents = new Vector<HashMap<?, ?>>();
-                        
-                        for (int ctr = 0; ctr < RPCResponse.length; ctr++)
-                        {
-                            contentHash = (HashMap<?, ?>) RPCResponse[ctr];
-                            contents.add(ctr, contentHash);
-                        }
-                        
-                        mUiHandler.sendEmptyMessage(HANDLE_GET_U_BLOGS);
-                        return true;
                     case HANDLE_SET_HTTP_COOKIE:
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                         nameValuePairs.add(new BasicNameValuePair("user_login", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
@@ -523,10 +478,6 @@ public class DiaryList extends Activity implements OnClickListener
                     default:
                         return false;
                 }
-            }
-            catch (XMLRPCException e)
-            {
-                e.printStackTrace();
             }
             catch (ParseException e)
             {
