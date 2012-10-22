@@ -850,7 +850,7 @@ public class DiaryList extends Activity implements OnClickListener
     			break;
     		case COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mDHCL.lastURL));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.currentPostComments.get(0)));
     			break;
     	}
     }

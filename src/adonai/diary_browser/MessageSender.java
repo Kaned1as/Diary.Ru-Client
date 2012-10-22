@@ -18,6 +18,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.text.Html;
+import android.text.Spannable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -156,7 +157,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_COMMENT:
 					try 
 					{
-						mDHCL.postPage(mDHCL.lastURL.substring(0, mDHCL.lastURL.lastIndexOf('/')) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(mDHCL.lastURL.substring(0, mDHCL.lastURL.lastIndexOf('/') + 1) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -219,7 +220,10 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         if (mDiaryId == null)
         {
         	mShowPoll.setVisibility(View.GONE);
+        	mShowOptionals.setVisibility(View.GONE);
+        	titleText.setVisibility(View.GONE);
         	
+        	mSubscribe.setVisibility(View.VISIBLE);
         }
         
         super.onStart();
@@ -234,7 +238,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				// TODO: Сохранение в черновики
 				// Задел на будущее - для сохранения в черновики
 				mPost.set_title(titleText.getText().toString());
-				mPost.set_text(Html.fromHtml(contentText.getText().toString()));
+				mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
 				mPost.set_themes(themesText.getText().toString());
 				mPost.set_music(musicText.getText().toString());
 				mPost.set_mood(moodText.getText().toString());
@@ -243,20 +247,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				postParams.add(new BasicNameValuePair("action", "dosend"));
 				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString()));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
-				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-				
-				if(mShowOptionals.isChecked())
-				{
-					postParams.add(new BasicNameValuePair("themes", mPost.get_themes()));
-					postParams.add(new BasicNameValuePair("current_music", mPost.get_music()));
-					postParams.add(new BasicNameValuePair("current_mood", mPost.get_mood()));
-				}
-				else
-				{
-					postParams.add(new BasicNameValuePair("themes", ""));
-					postParams.add(new BasicNameValuePair("current_music", ""));
-					postParams.add(new BasicNameValuePair("current_mood", ""));
-				}
+				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
 				
 				// Если пост
 				if(mDiaryId != null)
@@ -268,6 +259,18 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
 					postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+					if(mShowOptionals.isChecked())
+					{
+						postParams.add(new BasicNameValuePair("themes", mPost.get_themes()));
+						postParams.add(new BasicNameValuePair("current_music", mPost.get_music()));
+						postParams.add(new BasicNameValuePair("current_mood", mPost.get_mood()));
+					}
+					else
+					{
+						postParams.add(new BasicNameValuePair("themes", ""));
+						postParams.add(new BasicNameValuePair("current_music", ""));
+						postParams.add(new BasicNameValuePair("current_mood", ""));
+					}
 
 					postParams.add(new BasicNameValuePair("attachment", ""));
 					postParams.add(new BasicNameValuePair("close_text", ""));

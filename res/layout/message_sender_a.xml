@@ -21,7 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
-        android:hint="@string/message_title" />
+        android:hint="@string/message_title"
+        android:maxLines="1" />
 
     <TextView
         android:id="@+id/message_content_hint"
@@ -33,9 +34,10 @@
         android:id="@+id/message_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:contentDescription="@string/message_content"
         android:ems="10"
-        android:hint="@string/message_content"
-        android:inputType="textMultiLine" />
+        android:inputType="textMultiLine"
+        android:minLines="2" />
 
     <CheckBox
         android:id="@+id/message_subscribe"
@@ -63,6 +65,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/message_themes"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <TextView
@@ -78,6 +81,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/message_music"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <TextView
@@ -93,6 +97,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/message_mood"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <CheckBox
@@ -106,6 +111,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_title"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -113,6 +119,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -120,6 +127,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -127,6 +135,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -134,6 +143,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -141,6 +151,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -148,6 +159,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -155,6 +167,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <EditText
@@ -162,6 +175,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
     
     <EditText
@@ -169,6 +183,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
     
     <EditText
@@ -176,6 +191,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/message_poll_choice"
+        android:maxLines="1"
         android:visibility="gone" />
 
     <Button
