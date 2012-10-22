@@ -225,8 +225,8 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        menu.add(MENU_GROUP_POST, MENU_NEW_POST, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
-        menu.add(MENU_GROUP_COMMENT, MENU_NEW_COMMENT, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(MENU_GROUP_POST, MENU_NEW_POST, Menu.NONE, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(MENU_GROUP_COMMENT, MENU_NEW_COMMENT, Menu.NONE, R.string.new_comment).setIcon(android.R.drawable.ic_menu_add);
         return super.onCreateOptionsMenu(menu);
     }
     
