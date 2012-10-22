@@ -661,9 +661,6 @@ public class DiaryList extends Activity implements OnClickListener
             /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
             TextView community = (TextView) view.findViewById(R.id.post_community);
             community.setText(post.get_community());
-            TextView title = (TextView) view.findViewById(R.id.post_title);
-            title.setText(post.get_title());
-            title.setOnClickListener(DiaryList.this);
             TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
@@ -673,15 +670,23 @@ public class DiaryList extends Activity implements OnClickListener
             post_content.setText(post.get_text());
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
             
+            TextView title = (TextView) view.findViewById(R.id.post_title);
             TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
             if(!post.isEpigraph())
             {
             	comment_count.setVisibility(View.VISIBLE);
 	            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
 	            comment_count.setOnClickListener(DiaryList.this);
+	            
+	            title.setVisibility(View.VISIBLE);
+	            title.setText(post.get_title());
+	            title.setOnClickListener(DiaryList.this);
             }
             else
+            {
             	comment_count.setVisibility(View.GONE);
+            	title.setVisibility(View.GONE);
+            }
             	
                         
             return view;
@@ -798,8 +803,11 @@ public class DiaryList extends Activity implements OnClickListener
                 	int pos = mPostBrowser.getPositionForView((View) view.getParent());
                 	Post post = (Post) mPostBrowser.getAdapter().getItem(pos);
                 	
-                	 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post));
+                	if(!post.isEpigraph())
+                	{
+                		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post));
+                	}
                 }
                 break;
                 default:
