@@ -918,8 +918,8 @@ public class DiaryList extends Activity implements OnClickListener
         mUser.currentDiaryPosts.clear();
         
         mDHCL.postPage(URL, null);
-        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         
         TagNode rootNode = postCleaner.clean(dataPage);
         
@@ -990,8 +990,8 @@ public class DiaryList extends Activity implements OnClickListener
         String URL = originalPost.get_URL();
         
     	mDHCL.postPage(URL, null);
-        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         
         mUser.currentPostComments.add(originalPost);
         TagNode rootNode = postCleaner.clean(dataPage);
