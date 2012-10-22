@@ -29,6 +29,7 @@ import android.widget.TextView;
 public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener
 {
 	private static final int HANDLE_DO_POST = 0;
+	private static final int HANDLE_DO_COMMENT = 1;
 	
 	TextView titleText;
 	TextView contentText;
@@ -38,6 +39,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	Button mPublish;
 	CheckBox mShowOptionals;
 	CheckBox mShowPoll;
+	CheckBox mSubscribe;
 	
 	TextView mPollTitle;
 	TextView mPollChoice1;
@@ -61,6 +63,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	
 	String mSignature = null;
 	String mDiaryId = null;
+	String mPostId = null;
 	
 	DiaryHttpClient mDHCL;
 	Post mPost;
@@ -109,6 +112,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	mShowOptionals.setOnCheckedChangeListener(this);
     	mShowPoll = (CheckBox) findViewById(R.id.message_poll);
     	mShowPoll.setOnCheckedChangeListener(this);
+    	mSubscribe = (CheckBox) findViewById(R.id.message_subscribe);
     	
     	optionals.add(findViewById(R.id.message_themes_hint));
     	optionals.add(themesText);
@@ -149,6 +153,17 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 						e.printStackTrace();
 					}
         			return true;
+        		case HANDLE_DO_COMMENT:
+					try 
+					{
+						mDHCL.postPage(mDHCL.lastURL.substring(0, mDHCL.lastURL.lastIndexOf('/')) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
+					} 
+					catch (UnsupportedEncodingException e) 
+					{
+						e.printStackTrace();
+					}
+        			return true;
         		default:
         			break;
         	}
@@ -164,6 +179,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         	switch (message.what)
         	{
         		case HANDLE_DO_POST:
+        		case HANDLE_DO_COMMENT:
         			// Пост опубликован, возвращаемся
         			pd.dismiss();
         			
@@ -192,8 +208,19 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         if(intent == null)
         	finish();
         
+        // обязательно
         mSignature = intent.getStringExtra("signature");
+        
+        // одно из двух
         mDiaryId = intent.getStringExtra("DiaryId");
+        mPostId = intent.getStringExtra("PostId");
+        
+        // если это комментарий
+        if (mDiaryId == null)
+        {
+        	mShowPoll.setVisibility(View.GONE);
+        	
+        }
         
         super.onStart();
     }
@@ -203,7 +230,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 		switch(view.getId())
 		{
 			case R.id.message_publish:
-				
+			{
 				// TODO: Сохранение в черновики
 				// Задел на будущее - для сохранения в черновики
 				mPost.set_title(titleText.getText().toString());
@@ -211,18 +238,12 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				mPost.set_themes(themesText.getText().toString());
 				mPost.set_music(musicText.getText().toString());
 				mPost.set_mood(moodText.getText().toString());
-
-
-				postParams.add(new BasicNameValuePair("act", "new_post_post"));
-				postParams.add(new BasicNameValuePair("module", "journal"));
-				postParams.add(new BasicNameValuePair("post_id", ""));
-				postParams.add(new BasicNameValuePair("journal_id", mDiaryId));
-				postParams.add(new BasicNameValuePair("referer", mDHCL.lastURL));
-				postParams.add(new BasicNameValuePair("action", "dosend"));
-				postParams.add(new BasicNameValuePair("post_type", ""));
 				
-				postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+				postParams.add(new BasicNameValuePair("module", "journal"));
+				postParams.add(new BasicNameValuePair("action", "dosend"));
 				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString()));
+				postParams.add(new BasicNameValuePair("signature", mSignature));
+				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
 				
 				if(mShowOptionals.isChecked())
 				{
@@ -237,45 +258,75 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("current_mood", ""));
 				}
 				
-				postParams.add(new BasicNameValuePair("attachment", ""));
-				postParams.add(new BasicNameValuePair("close_text", ""));
-				
-				if(mShowPoll.isChecked())
+				// Если пост
+				if(mDiaryId != null)
 				{
-					postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_1", mPollChoice1.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_2", mPollChoice2.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_3", mPollChoice3.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_4", mPollChoice4.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_5", mPollChoice5.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_6", mPollChoice6.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_7", mPollChoice7.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_8", mPollChoice8.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_9", mPollChoice9.getText().toString()));
-					postParams.add(new BasicNameValuePair("poll_answer_10", mPollChoice10.getText().toString()));
+					postParams.add(new BasicNameValuePair("act", "new_post_post"));
+					postParams.add(new BasicNameValuePair("post_id", ""));
+					postParams.add(new BasicNameValuePair("journal_id", mDiaryId));
+					postParams.add(new BasicNameValuePair("referer", mDHCL.lastURL));
+					postParams.add(new BasicNameValuePair("post_type", ""));
+					
+					postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+
+					postParams.add(new BasicNameValuePair("attachment", ""));
+					postParams.add(new BasicNameValuePair("close_text", ""));
+					
+					if(mShowPoll.isChecked())
+					{
+						postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_1", mPollChoice1.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_2", mPollChoice2.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_3", mPollChoice3.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_4", mPollChoice4.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_5", mPollChoice5.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_6", mPollChoice6.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_7", mPollChoice7.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_8", mPollChoice8.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_9", mPollChoice9.getText().toString()));
+						postParams.add(new BasicNameValuePair("poll_answer_10", mPollChoice10.getText().toString()));
+					}
+					else
+					{
+						postParams.add(new BasicNameValuePair("poll_title", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_1", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_2", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_3", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_4", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_5", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_6", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_7", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_8", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_9", ""));
+						postParams.add(new BasicNameValuePair("poll_answer_10", ""));
+					}
+					
+					postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
+					postParams.add(new BasicNameValuePair("save_type", "js2"));
+					
+					mHandler.sendEmptyMessage(HANDLE_DO_POST);
 				}
-				else
+				else // если коммент
 				{
-					postParams.add(new BasicNameValuePair("poll_title", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_1", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_2", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_3", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_4", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_5", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_6", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_7", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_8", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_9", ""));
-					postParams.add(new BasicNameValuePair("poll_answer_10", ""));
+					postParams.add(new BasicNameValuePair("act", "new_comment_post"));
+					postParams.add(new BasicNameValuePair("post_id", mPostId));
+					postParams.add(new BasicNameValuePair("commentid", ""));
+					postParams.add(new BasicNameValuePair("referer", ""));
+					postParams.add(new BasicNameValuePair("page", "last"));
+					postParams.add(new BasicNameValuePair("open_uri", ""));
+					
+					postParams.add(new BasicNameValuePair("write_from", "0"));
+					postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
+					postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
+					
+					postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
+					postParams.add(new BasicNameValuePair("attachment1", ""));
+					postParams.add(new BasicNameValuePair("resulttype", "2"));
+					
+					mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 				}
-				
-				postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
-				postParams.add(new BasicNameValuePair("save_type", "js2"));
-				postParams.add(new BasicNameValuePair("signature", mSignature));
-				
-				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-				mHandler.sendEmptyMessage(HANDLE_DO_POST);
 			break;
+			}
 		}
 	}
 

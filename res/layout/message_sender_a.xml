@@ -38,6 +38,13 @@
         android:inputType="textMultiLine" />
 
     <CheckBox
+        android:id="@+id/message_subscribe"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/message_subscribe"
+        android:visibility="gone" />
+
+    <CheckBox
         android:id="@+id/message_optional"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

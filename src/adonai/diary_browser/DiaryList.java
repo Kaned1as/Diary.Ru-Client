@@ -49,7 +49,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.ArrayAdapter;
@@ -87,7 +86,10 @@ public class DiaryList extends Activity implements OnClickListener
     
     // меню
     private static final int MENU_GROUP_POST = 1;
+    private static final int MENU_GROUP_COMMENT = 2;
+    
     private static final int MENU_NEW_POST = 1;
+    private static final int MENU_NEW_COMMENT = 2;
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
@@ -140,7 +142,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         CookieSyncManager.createInstance(this);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
@@ -224,6 +226,7 @@ public class DiaryList extends Activity implements OnClickListener
     public boolean onCreateOptionsMenu(Menu menu)
     {
         menu.add(MENU_GROUP_POST, MENU_NEW_POST, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
+        menu.add(MENU_GROUP_COMMENT, MENU_NEW_COMMENT, 0, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
         return super.onCreateOptionsMenu(menu);
     }
     
@@ -233,6 +236,11 @@ public class DiaryList extends Activity implements OnClickListener
         	menu.setGroupVisible(MENU_GROUP_POST, true);
         else
         	menu.setGroupVisible(MENU_GROUP_POST, false);
+        
+        if(mCurrentBrowser == COMMENT_LIST)
+        	menu.setGroupVisible(MENU_GROUP_COMMENT, true);
+        else
+        	menu.setGroupVisible(MENU_GROUP_COMMENT, false);
         
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -245,6 +253,9 @@ public class DiaryList extends Activity implements OnClickListener
             case MENU_NEW_POST:
                 newPostPost();
                 return true;
+            case MENU_NEW_COMMENT:
+            	newCommentPost();
+            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -1042,6 +1053,19 @@ public class DiaryList extends Activity implements OnClickListener
         
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
         postIntent.putExtra("DiaryId", mUser.currentDiaryId);
+        postIntent.putExtra("signature", mUser.signature);
+        
+        startActivity(postIntent);
+    }
+    
+    public void newCommentPost()
+    {
+    	if(mUser.currentDiaryId.equals(""))
+            return;
+    	
+    	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+    	String postLink = mUser.currentPostComments.get(0).get_URL();
+        postIntent.putExtra("PostId", postLink.substring(postLink.lastIndexOf('p') + 1, postLink.lastIndexOf('.')));
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);
