@@ -28,6 +28,8 @@ public class Post
     private String _tags = "";
     private String _music = "";
     
+    private boolean epigraph = false;
+    
     /**
      * @return the _author
      */
@@ -205,5 +207,15 @@ public class Post
 
 	public void set_music(String _music) {
 		this._music = _music;
+	}
+
+	public void setIsEpigraph(boolean equals) 
+	{
+		epigraph = equals;
+	}
+	
+	public boolean isEpigraph() 
+	{
+		return epigraph;
 	}
 }

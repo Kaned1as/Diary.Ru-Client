@@ -667,15 +667,18 @@ public class DiaryList extends Activity implements OnClickListener
             TextView author = (TextView) view.findViewById(R.id.post_author);
             author.setText(post.get_author());
             author.setOnClickListener(DiaryList.this);
-            TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
-            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
-            comment_count.setOnClickListener(DiaryList.this);
             TextView post_date = (TextView) view.findViewById(R.id.post_date);
             post_date.setText(post.get_date());
             TextView post_content = (TextView) view.findViewById(R.id.post_content);
             post_content.setText(post.get_text());
-            
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
+            
+            if(!post.isEpigraph())
+            {
+            	TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
+	            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
+	            comment_count.setOnClickListener(DiaryList.this);
+            }
                         
             return view;
         }
@@ -735,7 +738,6 @@ public class DiaryList extends Activity implements OnClickListener
             else
                 view = convertView;
             
-            /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
             TextView title = (TextView) view.findViewById(R.id.title);
             title.setText(diary.getTitle());
             title.setOnClickListener(DiaryList.this);
@@ -935,6 +937,8 @@ public class DiaryList extends Activity implements OnClickListener
             if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
             {
                 Post currentPost = new Post();
+                
+            	currentPost.setIsEpigraph(post.getAttributeByName("id") != null && post.getAttributeByName("id").equals("epigraph"));
                 TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
                 if (headerNode != null)
                 {
