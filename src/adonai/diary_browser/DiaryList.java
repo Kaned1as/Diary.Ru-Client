@@ -673,12 +673,16 @@ public class DiaryList extends Activity implements OnClickListener
             post_content.setText(post.get_text());
             post_content.setMovementMethod(LinkMovementMethod.getInstance());
             
+            TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
             if(!post.isEpigraph())
             {
-            	TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
+            	comment_count.setVisibility(View.VISIBLE);
 	            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
 	            comment_count.setOnClickListener(DiaryList.this);
             }
+            else
+            	comment_count.setVisibility(View.GONE);
+            	
                         
             return view;
         }
