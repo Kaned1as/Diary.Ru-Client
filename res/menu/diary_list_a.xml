@@ -10,4 +10,5 @@
         android:title="@string/new_comment" 
         android:icon="@android:drawable/ic_menu_add"
         android:showAsAction="never" />
+    <item android:id="@+id/menu_settings" android:title="@string/menu_settings"></item>
 </menu>

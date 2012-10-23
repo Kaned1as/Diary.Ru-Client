@@ -33,6 +33,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.support.v4.app.ActivityCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -138,7 +139,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         CookieSyncManager.createInstance(this);
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
+        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
@@ -223,7 +224,7 @@ public class DiaryList extends Activity implements OnClickListener
     {
     	MenuInflater inflater = getMenuInflater();
     	inflater.inflate(R.menu.diary_list_a, menu);
-    	
+        
         return super.onCreateOptionsMenu(menu);
     }
     
