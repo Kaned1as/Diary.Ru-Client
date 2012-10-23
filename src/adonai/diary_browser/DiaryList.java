@@ -45,10 +45,12 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.ArrayAdapter;
@@ -69,6 +71,7 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
     private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
     private static final int HANDLE_PROGRESS = 8;
+    private static final int HANDLE_PROGRESS_2 = 9;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 10;
@@ -83,13 +86,6 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int POST_LIST = 1;
     private static final int COMMENT_LIST = 2;
     private static final int AUTHOR_PAGE = 3;
-    
-    // меню
-    private static final int MENU_GROUP_POST = 1;
-    private static final int MENU_GROUP_COMMENT = 2;
-    
-    private static final int MENU_NEW_POST = 1;
-    private static final int MENU_NEW_COMMENT = 2;
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
@@ -142,7 +138,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         CookieSyncManager.createInstance(this);
 
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
@@ -225,22 +221,23 @@ public class DiaryList extends Activity implements OnClickListener
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        menu.add(MENU_GROUP_POST, MENU_NEW_POST, Menu.NONE, R.string.new_post).setIcon(android.R.drawable.ic_menu_add);
-        menu.add(MENU_GROUP_COMMENT, MENU_NEW_COMMENT, Menu.NONE, R.string.new_comment).setIcon(android.R.drawable.ic_menu_add);
+    	MenuInflater inflater = getMenuInflater();
+    	inflater.inflate(R.menu.diary_list_a, menu);
+    	
         return super.onCreateOptionsMenu(menu);
     }
     
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
         if(mCurrentBrowser == POST_LIST)
-        	menu.setGroupVisible(MENU_GROUP_POST, true);
+        	menu.findItem(R.id.menu_new_post).setVisible(true);
         else
-        	menu.setGroupVisible(MENU_GROUP_POST, false);
+        	menu.findItem(R.id.menu_new_post).setVisible(false);
         
         if(mCurrentBrowser == COMMENT_LIST)
-        	menu.setGroupVisible(MENU_GROUP_COMMENT, true);
+        	menu.findItem(R.id.menu_new_comment).setVisible(true);
         else
-        	menu.setGroupVisible(MENU_GROUP_COMMENT, false);
+        	menu.findItem(R.id.menu_new_comment).setVisible(false);
         
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -250,10 +247,10 @@ public class DiaryList extends Activity implements OnClickListener
     {
         switch(item.getItemId())
         {
-            case MENU_NEW_POST:
+            case R.id.menu_new_post:
                 newPostPost();
                 return true;
-            case MENU_NEW_COMMENT:
+            case R.id.menu_new_comment:
             	newCommentPost();
             	return true;
             default:
@@ -268,7 +265,7 @@ public class DiaryList extends Activity implements OnClickListener
 
         if(mUser.updateNeeded())
         {
-            pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+            pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
             mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
         }
     }
@@ -301,6 +298,10 @@ public class DiaryList extends Activity implements OnClickListener
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getResources().getString(R.string.parsing_data));
+                break;
+                case HANDLE_PROGRESS_2:
+                    if(pd != null && pd.isShowing())
+                        pd.setMessage(getResources().getString(R.string.sorting_data));
                 break;
                 case HANDLE_SERVICE_RELOAD_CONTENT:
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
@@ -943,6 +944,7 @@ public class DiaryList extends Activity implements OnClickListener
         		listener.parseData(rootNode);
         }
         
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
         {
@@ -1011,6 +1013,7 @@ public class DiaryList extends Activity implements OnClickListener
         if(listener != null && listener.updateNeeded())
             listener.parseData(rootNode);
         
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
         if(commentsArea == null)
         {

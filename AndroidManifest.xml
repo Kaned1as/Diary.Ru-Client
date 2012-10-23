@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="002"
-    android:versionName="Alpha-0.0.2" android:installLocation="auto">
+    android:versionCode="003"
+    android:versionName="Alpha-0.0.3" android:installLocation="auto">
 
     <uses-sdk
         android:minSdkVersion="7"

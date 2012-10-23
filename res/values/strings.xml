@@ -30,7 +30,7 @@
     <string name="comments_disabled">disabled</string>
     <string name="community">Community</string>
     <string name="new_post">New Post</string>
-    <string name="parsing_data">Parsing Data&#8230;</string>
+    <string name="parsing_data">Parsing data&#8230;</string>
     <string name="message_title">Message title</string>
     <string name="message_content">Message content</string>
     <string name="message_themes">Message themes</string>
@@ -44,4 +44,5 @@
     <string name="sending_data">Sending data&#8230;</string>
     <string name="message_subscribe">Subscribe</string>
     <string name="new_comment">New comment</string>
+    <string name="sorting_data">Sorting data&#8230;</string>
 </resources>

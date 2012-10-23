@@ -1,0 +1,13 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_new_post"
+        android:title="@string/new_post"
+        android:orderInCategory="100"
+        android:showAsAction="never" 
+        android:icon="@android:drawable/ic_menu_add" />
+    
+    <item android:id="@+id/menu_new_comment" 
+        android:orderInCategory="101" 
+        android:title="@string/new_comment" 
+        android:icon="@android:drawable/ic_menu_add"
+        android:showAsAction="never" />
+</menu>

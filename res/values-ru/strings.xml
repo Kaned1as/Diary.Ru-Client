@@ -44,4 +44,5 @@
     <string name="sending_data">Отправка данных…</string>
     <string name="message_subscribe">Подписаться</string>
     <string name="new_comment">Новый комментарий</string>
+    <string name="sorting_data">Сортировка данных…</string>
 </resources>
