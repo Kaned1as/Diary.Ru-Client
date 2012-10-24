@@ -33,7 +33,6 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.support.v4.app.ActivityCompat;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -51,7 +50,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.ArrayAdapter;
@@ -156,6 +154,7 @@ public class DiaryList extends Activity implements OnClickListener
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
+        mLogin.setText(mUser.userName);
         
         // Также устаревший код, оставлен в целях тестирования
         
