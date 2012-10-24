@@ -11,6 +11,7 @@ public class Post
     }
     
     // обработка
+    private String _ID;
     private String _author = "";
     private String _author_URL = "";
     private String _community = "";
@@ -207,6 +208,16 @@ public class Post
 
 	public void set_music(String _music) {
 		this._music = _music;
+	}
+
+	public String get_ID() 
+	{
+		return _ID;
+	}
+
+	public void set_ID(String _ID) 
+	{
+		this._ID = _ID;
 	}
 
 	public void setIsEpigraph(boolean equals) 

@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener
 {
+
 	private static final int HANDLE_DO_POST = 0;
 	private static final int HANDLE_DO_COMMENT = 1;
 	
@@ -136,6 +137,13 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	
     	
     }
+    
+	@Override
+	protected void onDestroy() 
+	{
+		mLooper.quit();
+		super.onDestroy();
+	}
     
     Handler.Callback HttpCallback = new Handler.Callback()
     {

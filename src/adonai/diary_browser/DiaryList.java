@@ -985,7 +985,9 @@ public class DiaryList extends Activity implements OnClickListener
                 TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
                 {
-                    currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                	String postURL = urlNode.findElementByName("a", true).getAttributeByName("href");
+                    currentPost.set_URL(postURL);
+                    currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
                     TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
                     if(comment_count != null)
                         currentPost.set_comment_count(comment_count.getText().toString());
@@ -1086,8 +1088,8 @@ public class DiaryList extends Activity implements OnClickListener
             return;
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-    	String postLink = mUser.currentPostComments.get(0).get_URL();
-        postIntent.putExtra("PostId", postLink.substring(postLink.lastIndexOf('p') + 1, postLink.lastIndexOf('.')));
+    	
+        postIntent.putExtra("PostId", mUser.currentPostComments.get(0).get_ID());
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);

@@ -8,6 +8,7 @@ public class Diary
     private String _title = "", _url = "";
     private String _author = "", _author_url = "";
     private String _last_post = "", _last_post_url = "";
+    private String _ID;
     private ArrayList<Post> _posts = new ArrayList<Post>();
     
     public Diary(String title, String url, String author, String author_url, String last_post, String last_post_url)
@@ -89,4 +90,14 @@ public class Diary
     {
         return _last_post_url;
     }
+
+	public String get_ID() 
+	{
+		return _ID;
+	}
+
+	public void set_ID(String _ID) 
+	{
+		this._ID = _ID;
+	}
 }
