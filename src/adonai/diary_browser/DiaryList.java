@@ -20,6 +20,7 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.tags.MoreTag;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -62,6 +63,13 @@ import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener
 {
+    public interface onUserDataParseListener
+    {
+        public void parseData(TagNode tag);
+        public boolean updateNeeded();
+        public void updateIDs(TagNode tag);
+    }
+	
     // Команды хэндлерам
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
     private static final int HANDLE_START = 1;
@@ -72,9 +80,10 @@ public class DiaryList extends Activity implements OnClickListener
     private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
     private static final int HANDLE_PROGRESS = 8;
     private static final int HANDLE_PROGRESS_2 = 9;
+    private static final int HANDLE_PICK_URL = 3;
     
     // дополнительные команды хэндлерам
-    private static final int HANDLE_SERVICE_RELOAD_CONTENT = 10;
+    private static final int HANDLE_SERVICE_RELOAD_CONTENT = 100;
     
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
@@ -82,10 +91,10 @@ public class DiaryList extends Activity implements OnClickListener
     public static final int TAB_MY_DIARY = 2;
     
     // текущий контекст
-    private static final int FAVOURITE_LIST = 0;
-    private static final int POST_LIST = 1;
-    private static final int COMMENT_LIST = 2;
-    private static final int AUTHOR_PAGE = 3;
+    public static final int DIARY_LIST = 0;
+    public static final int POST_LIST = 1;
+    public static final int COMMENT_LIST = 2;
+    public static final int AUTHOR_PAGE = 3;
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
@@ -315,7 +324,7 @@ public class DiaryList extends Activity implements OnClickListener
                     mHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                 break;
                 case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
-                    setCurrentVisibleComponent(FAVOURITE_LIST);
+                    setCurrentVisibleComponent(DIARY_LIST);
                     mFavouritesAdapter.notifyDataSetChanged();
                     pd.dismiss();
                 break;
@@ -459,18 +468,26 @@ public class DiaryList extends Activity implements OnClickListener
                     case HANDLE_GET_DIARY_POSTS_DATA:
                     {
                         String URL = (String) message.obj;
+                        mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
                         
-                        serializePostsPage(URL, null);
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+                        
+                        serializePostsPage(dataPage, null);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
                         return true;
                     }
                     case HANDLE_GET_POST_COMMENTS_DATA:
                     {
-                    	mUser.currentPostComments.clear();
                         Post parsingPost = (Post) message.obj;
+                        String URL = parsingPost.get_URL();
                         
-                        serializeCommentsPage(parsingPost, mUser.currentPostComments);
+                    	mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+                        
+                        serializeCommentsPage(dataPage, null);
                           
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
@@ -484,6 +501,12 @@ public class DiaryList extends Activity implements OnClickListener
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                         return true;
+                    }
+                    case HANDLE_PICK_URL:
+                    {
+                    	String URL = (String) message.obj;
+                    	checkUrlAndHandle(URL);
+                    	return true;
                     }
                     default:
                         return false;
@@ -583,6 +606,22 @@ public class DiaryList extends Activity implements OnClickListener
                 contentPart.removeSpan(span);
                 contentPart.setSpan(more_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             	effective_index++;
+            }
+            else // если обычный URL
+            {
+                int url_start = contentPart.getSpanStart(span);
+                int url_end = contentPart.getSpanEnd(span);
+                URLSpan url_span = new URLSpan(span.getURL())
+                {
+                    @Override
+                    public void onClick(View widget)
+                    {
+                    	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, getURL()));
+                    }
+                };
+                contentPart.removeSpan(span);
+                contentPart.setSpan(url_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
         }
         
@@ -850,7 +889,7 @@ public class DiaryList extends Activity implements OnClickListener
     
     private void setCurrentVisibleComponent(int needed)
     {   
-        mFavouriteBrowser.setVisibility(needed == FAVOURITE_LIST ? View.VISIBLE : View.GONE);
+        mFavouriteBrowser.setVisibility(needed == DIARY_LIST ? View.VISIBLE : View.GONE);
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
@@ -906,7 +945,7 @@ public class DiaryList extends Activity implements OnClickListener
     public void onBackPressed()
     {
         if (mPostBrowser.getVisibility() == View.VISIBLE && mTabHost.getCurrentTab() == TAB_FAVOURITES)
-            setCurrentVisibleComponent(FAVOURITE_LIST);
+            setCurrentVisibleComponent(DIARY_LIST);
         else if (mCommentBrowser.getVisibility() == View.VISIBLE)
             setCurrentVisibleComponent(POST_LIST);
         else
@@ -928,14 +967,9 @@ public class DiaryList extends Activity implements OnClickListener
         return super.onSearchRequested();
     }
     
-    public void serializePostsPage(String URL, List<Post> destination) throws IOException
+    public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
     {
         mUser.currentDiaryPosts.clear();
-        
-        mDHCL.postPage(URL, null);
-        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
-        
         TagNode rootNode = postCleaner.clean(dataPage);
         
         if(listener != null)
@@ -1003,21 +1037,47 @@ public class DiaryList extends Activity implements OnClickListener
         }
     }
     
-    public void serializeCommentsPage(Post originalPost, List<Post> destination) throws IOException
+    public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
-        String URL = originalPost.get_URL();
-        
-    	mDHCL.postPage(URL, null);
-        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
-        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
-        
-        mUser.currentPostComments.add(originalPost);
+    	mUser.currentPostComments.clear();
         TagNode rootNode = postCleaner.clean(dataPage);
         
         if(listener != null && listener.updateNeeded())
             listener.parseData(rootNode);
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        
+        // сначала получаем первый пост
+        
+        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
+        if(postsArea != null)
+        {
+            Post currentPost = new Post();
+	        TagNode headerNode = postsArea.findElementByAttValue("class", "postTitle header", true, true);
+	        if (headerNode != null)
+	        {
+	            currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
+	            if(currentPost.get_title().equals(""))
+	                currentPost.set_title(getResources().getString(R.string.without_title));
+	            currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+	        }
+	        TagNode authorNode = postsArea.findElementByAttValue("class", "authorName", true, true);
+	        if(authorNode != null)
+	        {
+	            currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
+	            currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+	        }
+	        
+	        TagNode contentNode = postsArea.findElementByAttValue("class", "paragraph", true, true);
+	        if(contentNode != null)
+	        {
+	            currentPost.set_text(makeContent(contentNode));
+	        }
+        mUser.currentPostComments.add(currentPost);
+        }
+        
+        // теперь получаем его комменты
+        
         TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
         if(commentsArea == null)
         {
@@ -1029,30 +1089,34 @@ public class DiaryList extends Activity implements OnClickListener
         {
             if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
             {
-                Comment currentPost = new Comment();
+                Comment currentComment = new Comment();
                 TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
                 if (headerNode != null)
                 {
-                    currentPost.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                    currentComment.set_title(headerNode.findElementByName("h2", false).getText().toString());
+                    currentComment.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
                 }
                 TagNode authorNode = comment.findElementByAttValue("class", "authorName", false, true);
                 if(authorNode != null)
                 {
-                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                    currentComment.set_author(authorNode.findElementByName("a", false).getText().toString());
+                    currentComment.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
                 }
                 TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
                 if(contentNode != null)
                 {
-                	currentPost.set_text(makeContent(contentNode));
+                	currentComment.set_text(makeContent(contentNode));
                 }
                 TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
                 {
-                	currentPost.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
+                	currentComment.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
                 }
-                mUser.currentPostComments.add(currentPost);
+                
+                if(destination != null)
+                    destination.add(currentComment);
+                
+                mUser.currentPostComments.add(currentComment);
             }   
         }
     }
@@ -1060,13 +1124,6 @@ public class DiaryList extends Activity implements OnClickListener
     public void setUserDataListener(onUserDataParseListener listener)
     {
         this.listener = listener;
-    }
-    
-    public interface onUserDataParseListener
-    {
-        public void parseData(TagNode tag);
-        public boolean updateNeeded();
-        public void updateIDs(TagNode tag);
     }
     
     public void newPostPost()
@@ -1092,5 +1149,47 @@ public class DiaryList extends Activity implements OnClickListener
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);
+    }
+    
+    public void checkUrlAndHandle(String URL)
+    {
+    	mDHCL.postPage(URL, null);
+    	int handled = -1;
+    	try 
+    	{
+			String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+			handled = Utils.checkDiaryUrl(dataPage);
+			
+			if(handled != -1) // Если это страничка дайри
+	    	{
+	    		switch(handled)
+	    		{
+	    			case DIARY_LIST:
+	    			break;
+	    			case POST_LIST:
+	    				serializePostsPage(dataPage, null);
+	    				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
+	    			break;
+	    			case COMMENT_LIST:
+	    				serializeCommentsPage(dataPage, null);
+	    				mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
+	    			break;
+	    		}
+	    	}
+			else
+			{
+				pd.dismiss();
+				Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+				//startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
+				startActivity(sendIntent);
+			}
+		} 
+    	catch (Exception e) 
+		{
+			e.printStackTrace();
+		}
+    	
+    	return;
+    	
     }
 }

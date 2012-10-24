@@ -10,14 +10,13 @@ import android.util.Pair;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
-    ArrayList<Pair<String, String>> communities;
     ArrayList<Diary> favorites;
     ArrayList<Post> currentDiaryPosts;
     ArrayList<Post> currentPostComments;
     ArrayList<Post> favoritePosts;
     ArrayList<Post> ownDiaryPosts;
     String ownDiaryURL = "";
-    String ownProfileURL = "";
+    String ownProfileID = "";
     String userName = "";
     String signature = "";
     String currentDiaryId = "";
@@ -27,7 +26,6 @@ public class UserData implements DiaryList.onUserDataParseListener
         favorites = new ArrayList<Diary>();
         currentDiaryPosts = new ArrayList<Post>();
         currentPostComments = new ArrayList<Post>();
-        communities = new ArrayList<Pair<String, String>>();
         favoritePosts = new ArrayList<Post>();
         ownDiaryPosts = new ArrayList<Post>();
     }
@@ -45,7 +43,10 @@ public class UserData implements DiaryList.onUserDataParseListener
             if(node.getText().toString().equals("Мой дневник"))
                 ownDiaryURL = node.getAttributeByName("href");
             if(node.getText().toString().equals(userName) || node.getText().toString().equals("Мой профиль"))
-                ownProfileURL = node.getAttributeByName("href");
+            {
+            	String Id = node.getAttributeByName("href");
+                ownProfileID = Id.substring(Id.lastIndexOf("?") + 1);
+            }
         }
     }
 
@@ -54,7 +55,7 @@ public class UserData implements DiaryList.onUserDataParseListener
         if(ownDiaryURL.equals(""))
             return true;
         
-        if(ownProfileURL.equals(""))
+        if(ownProfileID.equals(""))
             return true;
         
         if(userName.equals(""))
