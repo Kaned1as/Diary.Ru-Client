@@ -810,7 +810,9 @@ public class DiaryList extends Activity implements OnClickListener
     
     public void onClick(View view)
     {
-        
+    	if(view instanceof TextView)
+    		getWindow().setTitle(((TextView) view).getText());
+    		
         if (view == mExitButton)
         {
             Editor lysosome = Globals.mSharedPrefs.edit();
