@@ -9,7 +9,7 @@ public class LaunchActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Globals.mSharedPrefs = getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         
         if (!Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "").equals("") && 
             !Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "").equals("")) 
