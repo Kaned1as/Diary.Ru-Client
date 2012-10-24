@@ -498,8 +498,12 @@ public class DiaryList extends Activity implements OnClickListener
                     {
                         mUser.favoritePosts.clear();
                         String URL = mUser.ownDiaryURL + "?favorite";
+                        mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
                         
-                        serializePostsPage(URL, mUser.favoritePosts);       
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+                        
+                        serializePostsPage(dataPage, mUser.favoritePosts);       
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                         return true;
