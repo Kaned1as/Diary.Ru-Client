@@ -66,6 +66,7 @@ public class DiaryList extends Activity implements OnClickListener
 {
     // Команды хэндлерам
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
+    private static final int HANDLE_START = 1;
     private static final int HANDLE_SET_HTTP_COOKIE = 2;
     private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 4;
     private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
@@ -187,7 +188,7 @@ public class DiaryList extends Activity implements OnClickListener
                 
                 // explicitly set layout parameters
                 textView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
-                textView.getLayoutParams().width = ViewGroup.LayoutParams.WRAP_CONTENT;
+                textView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
             }
         }
         
@@ -265,10 +266,7 @@ public class DiaryList extends Activity implements OnClickListener
         super.onStart();
 
         if(mUser.updateNeeded())
-        {
-            pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-            mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
-        }
+        	mUiHandler.sendEmptyMessage(HANDLE_START);
     }
     
     @Override
@@ -296,6 +294,10 @@ public class DiaryList extends Activity implements OnClickListener
         {
             switch (message.what)
             {
+            	case HANDLE_START:
+                    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+                    mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
+            	break;
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getResources().getString(R.string.parsing_data));

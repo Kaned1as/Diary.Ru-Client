@@ -15,7 +15,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
-public class DiaryHttpClient {
+public class DiaryHttpClient 
+{
 
 	DefaultHttpClient httpClient = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
@@ -25,23 +26,29 @@ public class DiaryHttpClient {
     HttpPost httpPost = null;
     String lastURL = "";
 
-    public DiaryHttpClient() {
+    public DiaryHttpClient() 
+    {
     	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     	localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
     }
     
-    public void clearCookies() {
+    public void clearCookies()
+    {
     	httpClient.getCookieStore().clear();
     }
 
-    public void abort() {
+    public void abort() 
+    {
 
-    	try {
-    		if(httpClient != null) {
+    	try 
+    	{
+    		if(httpClient != null)
+    		{
     			System.out.println("Abort.");
     			httpPost.abort();
     		}
-    	} catch (Exception e) {
+    	} catch (Exception e) 
+    	{
     		System.out.println("HTTPHelp : Abort Exception : " + e);
     	}
     }
@@ -56,7 +63,8 @@ public class DiaryHttpClient {
     	else
         	lastURL = url;
 
-    	try {
+    	try 
+    	{
     		response = httpClient.execute(httpPost,localContext);
     	} catch (ClientProtocolException e) {
     		System.out.println("HTTPHelp : ClientProtocolException : " + e);
