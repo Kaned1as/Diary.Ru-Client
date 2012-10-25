@@ -482,8 +482,7 @@ public class DiaryList extends Activity implements OnClickListener
                     }
                     case HANDLE_GET_POST_COMMENTS_DATA:
                     {
-                        Post parsingPost = (Post) message.obj;
-                        String URL = parsingPost.get_URL();
+                        String URL = (String)message.obj;
                         
                     	mDHCL.postPage(URL, null);
                         String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
@@ -858,7 +857,7 @@ public class DiaryList extends Activity implements OnClickListener
                 	if(!post.isEpigraph())
                 	{
                 		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post));
+                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post.get_URL()));
                 	}
                 }
                 break;
@@ -916,7 +915,7 @@ public class DiaryList extends Activity implements OnClickListener
     			break;
     		case COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.currentPostComments.get(0)));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mDHCL.lastURL));
     			break;
     	}
     }
@@ -1083,7 +1082,17 @@ public class DiaryList extends Activity implements OnClickListener
 	        {
 	            currentPost.set_text(makeContent(contentNode));
 	        }
-        mUser.currentPostComments.add(currentPost);
+	        TagNode urlNode = postsArea.findElementByAttValue("class", "postLinksBackg", true, true);
+            if (urlNode != null)
+            {
+            	String postURL = urlNode.findElementByName("a", true).getAttributeByName("href");
+                currentPost.set_URL(postURL);
+                currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
+            }
+            if(destination != null)
+                destination.add(currentPost);
+            
+	        mUser.currentPostComments.add(currentPost);
         }
         
         // теперь получаем его комменты
