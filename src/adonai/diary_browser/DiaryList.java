@@ -69,7 +69,8 @@ public class DiaryList extends Activity implements OnClickListener
     {
         public void parseData(TagNode tag);
         public boolean updateNeeded();
-        public void updateIDs(TagNode tag);
+        public void updateCurrentDiary(TagNode tag);
+        public void updateCurrentPost(Post post);
     }
 	
     // Команды хэндлерам
@@ -925,11 +926,11 @@ public class DiaryList extends Activity implements OnClickListener
     	{
     		case POST_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mDHCL.lastURL));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.currentDiaryURL));
     			break;
     		case COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mDHCL.lastURL));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.currentPostURL));
     			break;
     	}
     }
@@ -997,7 +998,7 @@ public class DiaryList extends Activity implements OnClickListener
         
         if(listener != null)
         {
-        	listener.updateIDs(rootNode);
+        	listener.updateCurrentDiary(rootNode);
         	
         	if(listener.updateNeeded())
         		listener.parseData(rootNode);
@@ -1106,6 +1107,9 @@ public class DiaryList extends Activity implements OnClickListener
             if(destination != null)
                 destination.add(currentPost);
             
+            if(listener != null)
+	        	listener.updateCurrentPost(currentPost);
+            
 	        mUser.currentPostComments.add(currentPost);
         }
         
@@ -1178,7 +1182,7 @@ public class DiaryList extends Activity implements OnClickListener
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
     	
-        postIntent.putExtra("PostId", mUser.currentPostComments.get(0).get_ID());
+        postIntent.putExtra("PostId", mUser.currentPostId);
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);

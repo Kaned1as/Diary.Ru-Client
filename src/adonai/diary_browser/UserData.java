@@ -22,6 +22,10 @@ public class UserData implements DiaryList.onUserDataParseListener
     String signature = "";
     
     String currentDiaryId = "";
+    String currentDiaryURL = "";
+    
+    String currentPostId = "";
+    String currentPostURL = "";
     
     UserData()
     {
@@ -69,8 +73,10 @@ public class UserData implements DiaryList.onUserDataParseListener
         return false;
     }
 
-	public void updateIDs(TagNode tag) 
+	public void updateCurrentDiary(TagNode tag) 
 	{
+		currentDiaryURL = Globals.mDHCL.lastURL;
+		
 		TagNode author = tag.findElementByAttValue("id", "authorName", true, true);
         if(author != null)
         {
@@ -79,5 +85,11 @@ public class UserData implements DiaryList.onUserDataParseListener
         }
         else
             currentDiaryId = "";
+	}
+
+	public void updateCurrentPost(Post post) 
+	{
+		currentPostId = post.get_ID();
+		currentPostURL = post.get_URL();
 	}
 }
