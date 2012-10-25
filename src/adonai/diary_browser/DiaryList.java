@@ -1048,6 +1048,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 if(contentNode != null)
                 {
                     currentPost.set_text(makeContent(contentNode));
+                    
+                    // Нет контента - нет поста (от странного бага в "Избранном")
+                    if(currentPost.get_text().length() == 0)
+                    	continue;
                 }
                 TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
