@@ -857,8 +857,6 @@ public class DiaryList extends Activity implements OnClickListener
                 {
                     int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
                     Diary diary = mUser.favorites.get(pos);
-                    // Всегда должно указывать на текущую открытую страницу дневника
-                    mUser.currentDiary = diary;
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.getDiaryUrl()));
@@ -869,8 +867,6 @@ public class DiaryList extends Activity implements OnClickListener
                 {
                 	int pos = mPostBrowser.getPositionForView((View) view.getParent());
                 	Post post = (Post) mPostBrowser.getAdapter().getItem(pos);
-                	// Всегда должно указывать на текущую открытую страницу поста
-                    mUser.currentPost = post;
                 	
                 	if(!post.isEpigraph())
                 	{
@@ -1182,7 +1178,7 @@ public class DiaryList extends Activity implements OnClickListener
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
     	
-        postIntent.putExtra("PostId", mUser.currentPost.get_ID());
+        postIntent.putExtra("PostId", mUser.currentPostComments.get(0).get_ID());
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);
