@@ -133,7 +133,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     Object[] RPCResponse;
     
     SharedPreferences mPreferences = Globals.mSharedPrefs;
-    boolean load_images = false;
+    boolean load_images;
     
     static Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
@@ -145,7 +145,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
         setUserDataListener(mUser);
+        
         mPreferences.registerOnSharedPreferenceChangeListener(this);
+        load_images = mPreferences.getBoolean("images.autoload", false);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
