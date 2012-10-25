@@ -17,7 +17,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.text.Html;
 import android.text.Spannable;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -253,7 +252,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				
 				postParams.add(new BasicNameValuePair("module", "journal"));
 				postParams.add(new BasicNameValuePair("action", "dosend"));
-				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString()));
+				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
 				

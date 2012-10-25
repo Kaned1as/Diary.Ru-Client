@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Diary Browser</string>
+    <string name="app_name">Diary.Ru</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_authorization_form">AuthForm</string>
     <string name="login">Login</string>
@@ -45,4 +45,9 @@
     <string name="message_subscribe">Subscribe</string>
     <string name="new_comment">New comment</string>
     <string name="sorting_data">Sorting data&#8230;</string>
+    <string name="images_autoload">Autoload images</string>
+    <string name="images_autoload_summary">Use with caution! May cause out of memory error on pic heavy!</string>
+    <string name="post_signature">Post Signature</string>
+    <string name="post_signature_summary">Post signature, that will be added to every post you\'re adding via this app. The default value is for default men.</string>
+    <string name="posted_via_client">\n\nPosted via android Diary.Ru client</string>
 </resources>

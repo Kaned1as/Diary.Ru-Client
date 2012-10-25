@@ -6,7 +6,6 @@ import org.htmlcleaner.TagNode;
 
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
-import android.util.Pair;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {

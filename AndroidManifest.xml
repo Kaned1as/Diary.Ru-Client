@@ -37,6 +37,7 @@
                 android:value="adonai.diary_browser.DiaryList" />
         </activity>
         <activity android:name=".MessageSender"></activity>
+        <activity android:name=".preferences.PreferencesScreen"></activity>
     </application>
 
 </manifest>

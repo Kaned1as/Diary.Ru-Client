@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference android:summary="@string/images_autoload_summary" android:key="images.autoload" android:title="@string/images_autoload" android:defaultValue="false"/>
+    <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary" android:defaultValue="@string/posted_via_client"/>
+    
+
+</PreferenceScreen>

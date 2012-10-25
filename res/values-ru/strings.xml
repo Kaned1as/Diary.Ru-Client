@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">Дайри клиент</string>
+    <string name="app_name">Дневники</string>
     <string name="menu_settings">Настройки</string>
     <string name="title_activity_authorization_form">Форма авторизации</string>
     <string name="login">Логин</string>
@@ -45,4 +45,9 @@
     <string name="message_subscribe">Подписаться</string>
     <string name="new_comment">Новый комментарий</string>
     <string name="sorting_data">Сортировка данных…</string>
+    <string name="images_autoload">Автозагрузка изображений</string>
+    <string name="images_autoload_summary">Используйте с осторожностью! Может вызвать переполнение доступной памяти!</string>
+    <string name="post_signature">Подпись к сообщению</string>
+    <string name="post_signature_summary">Подпись, которая будет добавлена к любому сообщению, которое вы добавите через приложение.</string>
+    <string name="posted_via_client">\n\nОпубликовано через клиент Diary.Ru для Android</string>
 </resources>

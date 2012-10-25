@@ -19,6 +19,7 @@ import org.htmlcleaner.TagNode;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.tags.MoreTag;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,7 +31,9 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -63,7 +66,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DiaryList extends Activity implements OnClickListener
+public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener
 {
     public interface onUserDataParseListener
     {
@@ -129,6 +132,9 @@ public class DiaryList extends Activity implements OnClickListener
     DisplayMetrics gMetrics;
     Object[] RPCResponse;
     
+    SharedPreferences mPreferences = Globals.mSharedPrefs;
+    boolean load_images = false;
+    
     static Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
     
@@ -136,11 +142,10 @@ public class DiaryList extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
-
         setUserDataListener(mUser);
+        mPreferences.registerOnSharedPreferenceChangeListener(this);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -265,6 +270,9 @@ public class DiaryList extends Activity implements OnClickListener
                 return true;
             case R.id.menu_new_comment:
             	newCommentPost();
+            	return true;
+            case R.id.menu_settings:
+            	startActivity(new Intent(this, PreferencesScreen.class));
             	return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -656,7 +664,7 @@ public class DiaryList extends Activity implements OnClickListener
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
             
             // Временно отключено - большая потеря памяти
-            if(image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
+            if(load_images || image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
             
             final int start = contentPart.getSpanStart(span);
@@ -1229,4 +1237,12 @@ public class DiaryList extends Activity implements OnClickListener
     	return;
     	
     }
+
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
+	{
+		if(key.equals("images.autoload"))
+		{
+			load_images = sharedPreferences.getBoolean(key, false);
+		}
+	}
 }
