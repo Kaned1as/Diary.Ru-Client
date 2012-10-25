@@ -1,30 +1,58 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/diary_background" >
+    android:background="@drawable/diary_background"
+    android:orientation="vertical" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="5dip"
+        android:layout_weight="2"
+        android:contentDescription="@string/diary_logo"
+        android:src="@drawable/diary_logo" />
+
+    <TextView
+        android:id="@+id/username_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:text="@string/username"
+        android:textSize="24dip"
+        android:textStyle="bold"
+        android:typeface="normal" />
 
     <EditText
         android:id="@+id/login_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="false"
-        android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="150dip"
+        android:layout_margin="10dp"
         android:ems="10"
         android:inputType="textPersonName" />
+
+    <TextView
+        android:id="@+id/password_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:text="@string/password"
+        android:textSize="24dip"
+        android:textStyle="bold"
+        android:typeface="normal" />
 
     <EditText
         android:id="@+id/password_text"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
-        android:layout_below="@+id/login_text"
-        android:layout_marginLeft="10dip"
-        android:layout_marginRight="10dip"
-        android:layout_marginTop="93dp"
+        android:layout_margin="10dp"
         android:ems="10"
         android:inputType="textPassword" />
 
@@ -32,44 +60,9 @@
         android:id="@+id/login_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/password_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dip"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dip"
         android:minWidth="200dip"
         android:text="@string/login" />
 
-    <TextView
-        android:id="@+id/username_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/login_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="61dp"
-        android:text="@string/username"
-        android:textSize="24dip"
-        android:textStyle="bold"
-        android:typeface="normal" />
-
-    <TextView
-        android:id="@+id/password_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/password_text"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="61dp"
-        android:text="@string/password"
-        android:textSize="24dip"
-        android:textStyle="bold"
-        android:typeface="normal" />
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:contentDescription="@string/diary_logo"
-        android:src="@drawable/diary_logo" />
-
-</RelativeLayout>
+</LinearLayout>
