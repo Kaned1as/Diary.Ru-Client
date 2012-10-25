@@ -15,6 +15,10 @@ public class UserData implements DiaryList.onUserDataParseListener
     ArrayList<Post> currentPostComments;
     ArrayList<Post> favoritePosts;
     ArrayList<Post> ownDiaryPosts;
+    
+    Diary currentDiary = null;
+    Post currentPost = null;
+    
     String ownDiaryURL = "";
     String ownProfileID = "";
     String userName = "";

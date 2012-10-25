@@ -8,7 +8,7 @@ public class Diary
     private String _title = "", _url = "";
     private String _author = "", _author_url = "";
     private String _last_post = "", _last_post_url = "";
-    private String _ID;
+    private String _ID = "";
     private ArrayList<Post> _posts = new ArrayList<Post>();
     
     public Diary(String title, String url, String author, String author_url, String last_post, String last_post_url)
@@ -21,17 +21,21 @@ public class Diary
         _last_post_url = last_post_url;
     }
     
-    void setPosts(ArrayList<Post> posts)
+    public Diary() 
+    {
+	}
+
+    public void setPosts(ArrayList<Post> posts)
     {
         _posts = posts;
     }
     
-    ArrayList<Post> getPosts()
+    public ArrayList<Post> getPosts()
     {
         return _posts;
     }
     
-    void setTitle(String title)
+    public void setTitle(String title)
     {
         _title = title;
     }
@@ -41,7 +45,7 @@ public class Diary
         return _title;
     }
     
-    void setDiaryUrl(String url)
+    public void setDiaryUrl(String url)
     {
         _url = url;
     }
@@ -51,7 +55,7 @@ public class Diary
         return _url;
     }
     
-    void setAuthor(String author)
+    public void setAuthor(String author)
     {
         _author = author;
     }
@@ -61,17 +65,17 @@ public class Diary
         return _author;
     }
     
-    void setAuthorUrl(String author_url)
+    public void setAuthorUrl(String author_url)
     {
         _author_url = author_url;
     }
     
-    String getAuthorUrl()
+    public String getAuthorUrl()
     {
         return _author_url;
     }
     
-    void setLastPost(String last_post)
+    public void setLastPost(String last_post)
     {
         _last_post = last_post;
     }
@@ -81,12 +85,12 @@ public class Diary
         return _last_post;
     }
     
-    void setLastPostUrl(String last_post_url)
+    public void setLastPostUrl(String last_post_url)
     {
         _last_post_url = last_post_url;
     }
     
-    String getLastPostUrl()
+    public String getLastPostUrl()
     {
         return _last_post_url;
     }

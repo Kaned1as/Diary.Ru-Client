@@ -451,15 +451,29 @@ public class DiaryList extends Activity implements OnClickListener
                         {
                             if (title == null && rows[i].getAttributeByName("class").equals("l"))
                                 title = rows[i].findElementByAttValue("class", "withfloat", true, false);
+
                             if (author == null)
                                 author = rows[i].findElementByAttValue("target", "_blank", true, false);
+                            
                             if (last_post == null)
                                 if (rows[i].getAttributeByName("class") == null)
                                     last_post = rows[i].findElementByAttValue("class", "withfloat", true, false);
                             
                             if (title != null && author != null && last_post != null)
                             {
-                                mUser.favorites.add(new Diary(Html.fromHtml(title.findElementByName("b", false).getText().toString()).toString(), title.getAttributeByName("href"), author.getText().toString(), author.getAttributeByName("href"), last_post.getText().toString(), last_post.getAttributeByName("href")));
+                            	Diary diary = new Diary();
+                            	diary.setTitle(Html.fromHtml(title.findElementByName("b", false).getText().toString()).toString());
+                                diary.setDiaryUrl(title.getAttributeByName("href"));
+                                
+                                diary.setAuthor(author.getText().toString());
+                                String authorData = author.getAttributeByName("href");
+                                diary.setAuthorUrl(authorData);
+                                diary.set_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
+                                
+                                diary.setLastPost(last_post.getText().toString());
+                                diary.setLastPostUrl(last_post.getAttributeByName("href"));
+                                
+                                mUser.favorites.add(diary);
                                 title = author = last_post = null;
                             }
                         }
@@ -843,6 +857,8 @@ public class DiaryList extends Activity implements OnClickListener
                 {
                     int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
                     Diary diary = mUser.favorites.get(pos);
+                    // Всегда должно указывать на текущую открытую страницу дневника
+                    mUser.currentDiary = diary;
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.getDiaryUrl()));
@@ -853,6 +869,8 @@ public class DiaryList extends Activity implements OnClickListener
                 {
                 	int pos = mPostBrowser.getPositionForView((View) view.getParent());
                 	Post post = (Post) mPostBrowser.getAdapter().getItem(pos);
+                	// Всегда должно указывать на текущую открытую страницу поста
+                    mUser.currentPost = post;
                 	
                 	if(!post.isEpigraph())
                 	{
@@ -1164,7 +1182,7 @@ public class DiaryList extends Activity implements OnClickListener
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
     	
-        postIntent.putExtra("PostId", mUser.currentPostComments.get(0).get_ID());
+        postIntent.putExtra("PostId", mUser.currentPost.get_ID());
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);

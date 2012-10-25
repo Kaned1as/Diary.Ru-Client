@@ -11,7 +11,7 @@ public class Post
     }
     
     // обработка
-    private String _ID;
+    private String _ID = "";
     private String _author = "";
     private String _author_URL = "";
     private String _community = "";
