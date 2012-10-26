@@ -1,5 +1,8 @@
 package adonai.diary_browser;
 
+import android.app.AlertDialog;
+import android.content.Context;
+
 public class Utils 
 {
 	public static int checkDiaryUrl(String response)
@@ -14,5 +17,13 @@ public class Utils
 			return DiaryList.DIARY_LIST;
 		
 		return -1;
+	}
+	
+	public static void showDevelSorry(Context ctx)
+	{
+		AlertDialog.Builder dlg = new AlertDialog.Builder(ctx);
+		dlg.setTitle("Sorry :(");
+		dlg.setMessage("This object is under development now, please, have a patience! ^_^");
+		dlg.create().show();
 	}
 }

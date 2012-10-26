@@ -58,10 +58,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
@@ -186,9 +188,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mTabHost.setup();
         
         // Когда мы добавляем несколько табов с одинаковым содержимым, необходимо в конце сделать нужную видимой.
+        // Я открыл это странное свойство, когда копался в исходниках Андроида
         mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.generic_tab_content));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(R.id.generic_tab_content));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("10").setContent(R.id.generic_tab_content));
+        
+        // Табвиджет наследуется от LinearLayout, значит, можно сделать так...
+        LayoutParams lp = mTabHost.getTabWidget().getChildTabViewAt(4).getLayoutParams();
+        ((LinearLayout.LayoutParams) lp).weight = 0.32f;
+        
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
         
         // UGLY HACK для более тонких табов
@@ -323,18 +333,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	break;
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
-                        pd.setMessage(getResources().getString(R.string.parsing_data));
+                        pd.setMessage(getString(R.string.parsing_data));
                 break;
                 case HANDLE_PROGRESS_2:
                     if(pd != null && pd.isShowing())
-                        pd.setMessage(getResources().getString(R.string.sorting_data));
+                        pd.setMessage(getString(R.string.sorting_data));
                 break;
                 case HANDLE_SERVICE_RELOAD_CONTENT:
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
                     mCommentListAdapter.notifyDataSetChanged();
                 break;
                 case HANDLE_SET_HTTP_COOKIE:
-                    pd.setMessage(getResources().getString(R.string.getting_user_info));
+                    pd.setMessage(getString(R.string.getting_user_info));
                     mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
                     mHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                 break;
@@ -751,7 +761,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             if(!post.isEpigraph())
             {
             	comment_count.setVisibility(View.VISIBLE);
-	            comment_count.setText(getResources().getString(R.string.comments) + " " + post.get_comment_count());
+	            comment_count.setText(getString(R.string.comments) + " " + post.get_comment_count());
 	            comment_count.setOnClickListener(DiaryList.this);
 	            
 	            title.setVisibility(View.VISIBLE);
@@ -886,7 +896,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 }
                 break;
                 default:
-                    Log.i("TODO", "Sorry, this click action is not yet implemented");
+                    Utils.showDevelSorry(this);
                 break;
             }
     }
@@ -913,6 +923,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.ownDiaryURL));
                 break;
                 default:
+                	Utils.showDevelSorry(this);
                 break;
             }
         
@@ -1030,7 +1041,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 {
                     currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
                     if(currentPost.get_title().equals(""))
-                        currentPost.set_title(getResources().getString(R.string.without_title));
+                        currentPost.set_title(getString(R.string.without_title));
                     currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
                 }
                 TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
@@ -1061,7 +1072,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     if(comment_count != null)
                         currentPost.set_comment_count(comment_count.getText().toString());
                     else
-                        currentPost.set_comment_count(getResources().getString(R.string.comments_disabled));
+                        currentPost.set_comment_count(getString(R.string.comments_disabled));
                 }
                 
                 if(destination != null)
@@ -1094,7 +1105,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	        {
 	            currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
 	            if(currentPost.get_title().equals(""))
-	                currentPost.set_title(getResources().getString(R.string.without_title));
+	                currentPost.set_title(getString(R.string.without_title));
 	            currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
 	        }
 	        TagNode authorNode = postsArea.findElementByAttValue("class", "authorName", true, true);
