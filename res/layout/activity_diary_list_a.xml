@@ -61,20 +61,25 @@
                     <ListView
                         android:id="@+id/favourite_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent" >
+                        android:layout_height="fill_parent"
+                        android:cacheColorHint="@android:color/transparent" >
+
                     </ListView>
 
                     <ListView
                         android:id="@+id/post_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent" >
+                        android:layout_height="fill_parent"
+                        android:cacheColorHint="@android:color/transparent" >
 
                     </ListView>
 
                     <ListView
                         android:id="@+id/comment_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent" >
+                        android:layout_height="fill_parent"
+                        android:cacheColorHint="@android:color/transparent" >
+
                     </ListView>
                 </FrameLayout>
             </FrameLayout>

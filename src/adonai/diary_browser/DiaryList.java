@@ -99,6 +99,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
+    public static final int TAB_MY_DIARY_NEW = 3;
+    public static final int TAB_DUSCISSIONS = 4;
+    public static final int TAB_DUSCISSIONS_NEW = 5;
     
     // текущий контекст
     public static final int DIARY_LIST = 0;
@@ -192,11 +195,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.generic_tab_content));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("10").setContent(R.id.generic_tab_content));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));
         
         // Табвиджет наследуется от LinearLayout, значит, можно сделать так...
-        LayoutParams lp = mTabHost.getTabWidget().getChildTabViewAt(4).getLayoutParams();
+        LayoutParams lp = mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
+        ((LinearLayout.LayoutParams) lp).weight = 0.32f;
+        
+        lp = mTabHost.getTabWidget().getChildTabViewAt(TAB_DUSCISSIONS_NEW).getLayoutParams();
         ((LinearLayout.LayoutParams) lp).weight = 0.32f;
         
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
