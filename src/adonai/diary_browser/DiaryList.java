@@ -2,6 +2,8 @@ package adonai.diary_browser;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -837,10 +839,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
     
     public void onClick(View view)
-    {
-    	if(view instanceof TextView)
-    		getWindow().setTitle(((TextView) view).getText());
-    		
+    {	
         if (view == mExitButton)
         {
             Editor lysosome = Globals.mSharedPrefs.edit();
@@ -1018,7 +1017,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         for (TagNode post : postsArea.getAllElements(false))
         {
-            if (post.getAttributeByName("class") != null && post.getAttributeByName("class").contains("singlePost"))
+        	String classAttr = post.getAttributeByName("class");
+            // не парсим пока что ссылки RSS
+        	// TODO: Сделать переходы по страницам (и для комментов в том числе)
+            if (classAttr != null && classAttr.contains("singlePost") && post.hasAttribute("id"))
             {
                 Post currentPost = new Post();
                 
@@ -1048,10 +1050,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 if(contentNode != null)
                 {
                     currentPost.set_text(makeContent(contentNode));
-                    
-                    // Нет контента - нет поста (от странного бага в "Избранном")
-                    if(currentPost.get_text().length() == 0)
-                    	continue;
                 }
                 TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
                 if (urlNode != null)
@@ -1062,7 +1060,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
                     if(comment_count != null)
                         currentPost.set_comment_count(comment_count.getText().toString());
-                    else 
+                    else
                         currentPost.set_comment_count(getResources().getString(R.string.comments_disabled));
                 }
                 
