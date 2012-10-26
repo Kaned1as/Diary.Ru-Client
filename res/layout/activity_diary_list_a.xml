@@ -42,11 +42,18 @@
             android:layout_height="match_parent"
             android:orientation="vertical" >
 
-            <TabWidget
-                android:id="@android:id/tabs"
-                android:layout_width="match_parent"
+            <HorizontalScrollView
+                android:id="@+id/horizontalScrollView1"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content" >
-            </TabWidget>
+
+                <TabWidget
+                    android:id="@android:id/tabs"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
+                </TabWidget>
+
+            </HorizontalScrollView>
 
             <FrameLayout
                 android:id="@android:id/tabcontent"
@@ -83,6 +90,7 @@
                     </ListView>
                 </FrameLayout>
             </FrameLayout>
+
         </LinearLayout>
     </TabHost>
 

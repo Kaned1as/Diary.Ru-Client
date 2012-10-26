@@ -84,13 +84,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     private static final int HANDLE_AUTHORIZATION_ERROR = 0;
     private static final int HANDLE_START = 1;
     private static final int HANDLE_SET_HTTP_COOKIE = 2;
-    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 4;
-    private static final int HANDLE_GET_DIARY_POSTS_DATA = 5;
-    private static final int HANDLE_GET_POST_COMMENTS_DATA = 6;
-    private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 7;
-    private static final int HANDLE_PROGRESS = 8;
-    private static final int HANDLE_PROGRESS_2 = 9;
-    private static final int HANDLE_PICK_URL = 3;
+    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 3;
+    private static final int HANDLE_GET_DIARY_POSTS_DATA = 4;
+    private static final int HANDLE_GET_POST_COMMENTS_DATA = 5;
+    private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 6;
+    private static final int HANDLE_PROGRESS = 7;
+    private static final int HANDLE_PROGRESS_2 = 8;
+    private static final int HANDLE_PICK_URL = 9;
+    private static final int HANDLE_UPDATE_HEADERS = 10;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 100;
@@ -100,8 +101,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
     public static final int TAB_MY_DIARY_NEW = 3;
-    public static final int TAB_DUSCISSIONS = 4;
-    public static final int TAB_DUSCISSIONS_NEW = 5;
+    public static final int TAB_DISCUSSIONS = 4;
+    public static final int TAB_DISCUSSIONS_NEW = 5;
     
     // текущий контекст
     public static final int DIARY_LIST = 0;
@@ -123,6 +124,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     // Видимые объекты
     TextView mLogin;
+    TextView mDiscussNum;
+    TextView mCommentsNum;
     ListView mFavouriteBrowser;
     ListView mPostBrowser;
     ListView mCommentBrowser;
@@ -197,16 +200,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));
-        
-        // Табвиджет наследуется от LinearLayout, значит, можно сделать так...
-        LayoutParams lp = mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
-        ((LinearLayout.LayoutParams) lp).weight = 0.32f;
-        
-        lp = mTabHost.getTabWidget().getChildTabViewAt(TAB_DUSCISSIONS_NEW).getLayoutParams();
-        ((LinearLayout.LayoutParams) lp).weight = 0.32f;
-        
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));       
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
+        
+        mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
+        mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
         
         // UGLY HACK для более тонких табов
         for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
@@ -215,6 +213,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             view.setOnClickListener(this);
             view.setTag(i);
             
+            view.setPadding((int)(20 * gMetrics.density), 0, (int)(20 * gMetrics.density), 0);
             view.getLayoutParams().height *= 0.50;
 
             final View textView = view.findViewById(android.R.id.title);
@@ -240,6 +239,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mTabHost.setCurrentTab(mCurrentTab);
         setCurrentVisibleComponent(mCurrentBrowser);
+        
+        mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
     
     @Override
@@ -320,13 +321,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         	return;
         }
     }
-
-    
-    @Override
-    protected void onResume()
-    {
-    	 super.onResume();
-    }
     
     Handler.Callback UiCallback = new Handler.Callback()
     {
@@ -345,6 +339,31 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 case HANDLE_PROGRESS_2:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getString(R.string.sorting_data));
+                break;
+                case HANDLE_UPDATE_HEADERS:
+                	// обрабатываем обновление контента
+                	mLogin.setText(mUser.userName);
+                    if(mUser.newDiaryCommentsNum != 0)
+                    {
+                    	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
+                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
+                    }
+                    else
+                    {
+                    	mCommentsNum.setText("");
+                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(false);
+                    }
+                    
+                    if(mUser.newDiscussNum != 0)
+                    {
+                    	mDiscussNum.setText(mUser.newDiscussNum.toString());
+                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
+                    }
+                    else
+                    {
+                    	mDiscussNum.setText("");
+                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
+                    }
                 break;
                 case HANDLE_SERVICE_RELOAD_CONTENT:
                     ((PostListArrayAdapter) mPostBrowser.getAdapter()).notifyDataSetChanged();
@@ -417,7 +436,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         pair.first.removeSpan(pair.second);
                         pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));
+                        // Если обрабатываем последний запрос
+                        if(!mHandler.hasMessages(HANDLE_SERVICE_RELOAD_CONTENT))
+                        	mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT));
                     }
                     break;
                     case HANDLE_SET_HTTP_COOKIE:
@@ -470,8 +491,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         
                         TagNode rootNode = postCleaner.clean(favListPage);
                         
-                        if(listener != null && listener.updateNeeded())
+                        if(listener != null)
+                        {
                             listener.parseData(rootNode);
+                            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
+                        }
                             
                         TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
                         TagNode[] rows = table.getElementsByName("td", true);
@@ -929,6 +953,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.ownDiaryURL));
                 break;
+                case TAB_MY_DIARY_NEW:
+                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiaryLink));
+                break;
+                case TAB_DISCUSSIONS_NEW:
+                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiscussLink));
+                break;
                 default:
                 	Utils.showDevelSorry(this);
                 break;
@@ -1027,8 +1059,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
         	listener.updateCurrentDiary(rootNode);
         	
-        	if(listener.updateNeeded())
-        		listener.parseData(rootNode);
+        	listener.parseData(rootNode);
+            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
@@ -1096,8 +1128,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	mUser.currentPostComments.clear();
         TagNode rootNode = postCleaner.clean(dataPage);
         
-        if(listener != null && listener.updateNeeded())
+        if(listener != null)
+        {
             listener.parseData(rootNode);
+            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
+        }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         
