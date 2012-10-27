@@ -88,7 +88,8 @@ public class UserData implements DiaryList.onUserDataParseListener
             }
             
             // дневник
-            if(node.hasAttribute("id") && node.getAttributeByName("id").equals("new_comments_count"))
+            if(node.getParent() != null && node.getParent().getParent() != null && 
+               node.getParent().getParent().hasAttribute("id") && node.getParent().getParent().getAttributeByName("id").equals("new_comments_count"))
             {
             	hasNewDiaryComments = true;
             	newDiaryCommentsNum = Integer.valueOf(node.getText().toString());

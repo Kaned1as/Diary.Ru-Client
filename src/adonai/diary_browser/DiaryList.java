@@ -1,9 +1,9 @@
 package adonai.diary_browser;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
@@ -49,7 +50,6 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.util.Pair;
 import android.view.Gravity;
 import android.view.Menu;
@@ -58,7 +58,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.ArrayAdapter;
@@ -151,13 +150,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);      
+        
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
+        
         setUserDataListener(mUser);
         
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         load_images = mPreferences.getBoolean("images.autoload", false);
+        updateMaxCacheSize(mPreferences);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -167,7 +169,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         CookieSyncManager.createInstance(this);
 
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
@@ -200,7 +201,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(R.id.generic_tab_content));
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));       
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
         
         // Дополнительные настройки для маленьких вкладок отображения новых комментариев
@@ -743,7 +744,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         		return;
                         	
                         	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-                        	Drawable sendDrawable = loadedSpan.getDrawable().getConstantState().newDrawable();
+                        	BitmapDrawable sendDrawable = (BitmapDrawable) loadedSpan.getDrawable().getConstantState().newDrawable();
                         	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
                             Globals.tempDrawable = sendDrawable;
                             startActivity(intent);
@@ -998,13 +999,32 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	}
     }
     
-    private static Drawable loadImage(String url) 
+    private BitmapDrawable loadImage(String url) 
     {
         try 
         {
-            InputStream is = (InputStream) new URL(url).getContent();
-            Drawable d = Drawable.createFromStream(is, "InTextImage");
-            return d;
+        	String filename = url.substring(url.lastIndexOf('/') + 1);
+        	cache_and_load:
+        	{
+        		if(CacheManager.hasData(getApplicationContext(), filename))
+        			break cache_and_load;
+        		
+	            InputStream is = (InputStream) new URL(url).getContent();
+	            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+	            int nRead;
+	            while ((nRead = is.read()) != -1)
+	            	  buffer.write(nRead);
+	            buffer.flush();
+	            CacheManager.cacheData(getApplicationContext(), buffer.toByteArray(), filename);
+	            buffer.close();
+        	}
+
+            InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(getApplicationContext(), filename));
+            Drawable drawable = Drawable.createFromStream(inPic, filename);
+            if(drawable instanceof BitmapDrawable)
+            	return (BitmapDrawable) drawable;
+            
+            return null;
         } 
         catch (Exception e) 
         {
@@ -1298,12 +1318,28 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	return;
     	
     }
+    
+    public void updateMaxCacheSize(SharedPreferences prefs)
+    {
+    	try
+        {
+        	CacheManager.MAX_SIZE = Integer.valueOf(prefs.getString("cache.size", "5")) * 1048576L;
+        }
+        catch (NumberFormatException e)
+        {
+        	CacheManager.MAX_SIZE = 5 * 1048576L;
+        }
+    }
 
 	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
 	{
 		if(key.equals("images.autoload"))
 		{
 			load_images = sharedPreferences.getBoolean(key, false);
+		}
+		else if(key.equals("cache.size"))
+		{
+			updateMaxCacheSize(sharedPreferences);
 		}
 	}
 }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <CheckBoxPreference android:summary="@string/images_autoload_summary" android:key="images.autoload" android:title="@string/images_autoload" android:defaultValue="false"/>
-    <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary" android:defaultValue="@string/posted_via_client"/>
+    <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary"/>
+    <EditTextPreference android:key="post.tags" android:title="@string/post_tags" android:summary="@string/post_tags_summary" android:defaultValue="@string/posted_via_client"/>
+    <EditTextPreference android:key="cache.size" android:summary="@string/cache_size_summary" android:title="@string/cache_size" android:defaultValue="5"/>
     
 
 </PreferenceScreen>

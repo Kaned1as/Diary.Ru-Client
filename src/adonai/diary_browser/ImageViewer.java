@@ -1,13 +1,18 @@
 package adonai.diary_browser;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
 import contrib.gesture.GestureImageView;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.app.Activity;
 import android.graphics.drawable.BitmapDrawable;
 
-public class ImageViewer extends Activity 
+public class ImageViewer extends Activity implements OnClickListener 
 {
 	@Override
     public void onCreate(Bundle savedInstanceState) 
@@ -16,6 +21,7 @@ public class ImageViewer extends Activity
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         GestureImageView view = new GestureImageView(this);
+        view.setOnClickListener(this);
         view.setImageDrawable(Globals.tempDrawable);
         view.setLayoutParams(params);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -28,7 +34,12 @@ public class ImageViewer extends Activity
 	protected void onStart() 
     {
 		super.onStart();
-		if (Globals.tempDrawable == null || !(Globals.tempDrawable instanceof BitmapDrawable))
+		if (Globals.tempDrawable == null)
 			finish();
+	}
+
+	public void onClick(View v) 
+	{
+		
 	}
 }

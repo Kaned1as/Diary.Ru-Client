@@ -252,6 +252,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				
 				postParams.add(new BasicNameValuePair("module", "journal"));
 				postParams.add(new BasicNameValuePair("action", "dosend"));
+				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
@@ -268,7 +269,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("title", mPost.get_title()));
 					if(mShowOptionals.isChecked())
 					{
-						postParams.add(new BasicNameValuePair("themes", mPost.get_themes()));
+						postParams.add(new BasicNameValuePair("themes", mPost.get_themes() + Globals.mSharedPrefs.getString("post.tags", "")));
 						postParams.add(new BasicNameValuePair("current_music", mPost.get_music()));
 						postParams.add(new BasicNameValuePair("current_mood", mPost.get_mood()));
 					}

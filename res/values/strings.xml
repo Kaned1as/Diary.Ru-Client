@@ -50,5 +50,9 @@
     <string name="images_autoload_summary">Use with caution! May cause out of memory error on pic heavy!</string>
     <string name="post_signature">Post Signature</string>
     <string name="post_signature_summary">Post signature, that will be added to every post you\'re adding via this app. The default value is for default men.</string>
-    <string name="posted_via_client">\n\nPosted via android Diary.Ru client</string>
+    <string name="posted_via_client">Posted via android Diary.Ru client;anticitizen.diary.ru</string>
+    <string name="post_tags">Default post tags</string>
+    <string name="post_tags_summary">Tag(s) that will be added to any post you will make via this app</string>
+    <string name="cache_size">Max cache size</string>
+    <string name="cache_size_summary">Amount of cache for images and posts that will be stored in your cache folder, in MBytes</string>
 </resources>
