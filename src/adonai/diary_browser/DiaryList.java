@@ -19,8 +19,11 @@ import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
 
 import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.CommentListArrayAdapter;
 import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.PostListArrayAdapter;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.tags.MoreTag;
 import android.net.Uri;
@@ -31,7 +34,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -44,7 +46,6 @@ import android.graphics.drawable.Drawable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
@@ -60,7 +61,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -760,128 +760,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             contentPart.setSpan(image_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
         }
-    }
-    
-    private class PostListArrayAdapter extends ArrayAdapter<Post>
-    {
-        
-        public PostListArrayAdapter(Context context, int textViewResourceId, List<Post> objects)
-        {
-            super(context, textViewResourceId, objects);
-        }
-        
-        @Override
-        public View getView(int pos, View convertView, ViewGroup parent)
-        {
-            View view;
-            Post post = getItem(pos);
-            if (convertView == null)
-                view = View.inflate(getContext(), R.layout.post_list_item, null);
-            else
-                view = convertView;
-            
-            /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
-            TextView community = (TextView) view.findViewById(R.id.post_community);
-            community.setText(post.get_community());
-            TextView author = (TextView) view.findViewById(R.id.post_author);
-            author.setText(post.get_author());
-            author.setOnClickListener(DiaryList.this);
-            TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date());
-            TextView post_content = (TextView) view.findViewById(R.id.post_content);
-            post_content.setText(post.get_text());
-            post_content.setMovementMethod(LinkMovementMethod.getInstance());
-            
-            TextView title = (TextView) view.findViewById(R.id.post_title);
-            TextView comment_count = (TextView) view.findViewById(R.id.comments_number);
-            if(!post.isEpigraph())
-            {
-            	comment_count.setVisibility(View.VISIBLE);
-	            comment_count.setText(getString(R.string.comments) + " " + post.get_comment_count());
-	            comment_count.setOnClickListener(DiaryList.this);
-	            
-	            title.setVisibility(View.VISIBLE);
-	            title.setText(post.get_title());
-	            title.setOnClickListener(DiaryList.this);
-            }
-            else
-            {
-            	comment_count.setVisibility(View.GONE);
-            	title.setVisibility(View.GONE);
-            }
-            	
-                        
-            return view;
-        }
-        
-    }
-    
-    private class CommentListArrayAdapter extends ArrayAdapter<Post>
-    {
-        
-        public CommentListArrayAdapter(Context context, int textViewResourceId, List<Post> objects)
-        {
-            super(context, textViewResourceId, objects);
-        }
-        
-        @Override
-        public View getView(int pos, View convertView, ViewGroup parent)
-        {
-            View view;
-            Post post = getItem(pos);
-            if (convertView == null)
-                view = View.inflate(getContext(), R.layout.post_list_item, null);
-            else
-                view = convertView;
-            
-            /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
-            TextView title = (TextView) view.findViewById(R.id.post_title);
-            title.setText(post.get_title());
-            TextView author = (TextView) view.findViewById(R.id.post_author);
-            author.setText(post.get_author());
-            TextView post_date = (TextView) view.findViewById(R.id.post_date);
-            post_date.setText(post.get_date());
-            TextView post_content = (TextView) view.findViewById(R.id.post_content);
-            post_content.setText(post.get_text());
-            
-            post_content.setMovementMethod(LinkMovementMethod.getInstance());
-            
-            return view;
-        }
-        
-    }
-    
-    private class DiaryListArrayAdapter extends ArrayAdapter<Diary>
-    {
-        
-        public DiaryListArrayAdapter(Context context, int textViewResourceId, List<Diary> objects)
-        {
-            super(context, textViewResourceId, objects);
-        }
-        
-        @Override
-        public View getView(int pos, View convertView, ViewGroup parent)
-        {
-            View view;
-            Diary diary = getItem(pos);
-            if (convertView == null)
-                view = View.inflate(getContext(), R.layout.diary_list_item, null);
-            else
-                view = convertView;
-            
-            TextView title = (TextView) view.findViewById(R.id.title);
-            title.setText(diary.getTitle());
-            title.setOnClickListener(DiaryList.this);
-            TextView author = (TextView) view.findViewById(R.id.author);
-            author.setText(diary.getAuthor());
-            author.setOnClickListener(DiaryList.this);
-            TextView last_post = (TextView) view.findViewById(R.id.last_post);
-            last_post.setText(diary.getLastPost());
-            last_post.setOnClickListener(DiaryList.this);
-            
-            return view;
-        }
-        
     }
     
     public void onClick(View view)
