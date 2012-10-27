@@ -203,8 +203,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));       
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
         
-        mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
+        // Дополнительные настройки для маленьких вкладок отображения новых комментариев
         mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
+		lp.weight = 0; lp.width = (int)(30 / gMetrics.density);
+		mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
+		lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
+		lp.weight = 0; lp.width = (int)(30 / gMetrics.density);
         
         // UGLY HACK для более тонких табов
         for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
@@ -212,9 +217,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             final View view = mTabHost.getTabWidget().getChildTabViewAt(i);
             view.setOnClickListener(this);
             view.setTag(i);
-            
-            view.setPadding((int)(20 * gMetrics.density), 0, (int)(20 * gMetrics.density), 0);
             view.getLayoutParams().height *= 0.50;
+            view.setPadding((int)(10 / gMetrics.density), 0, (int)(10 / gMetrics.density), 0);
 
             final View textView = view.findViewById(android.R.id.title);
             if (textView instanceof TextView)

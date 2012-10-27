@@ -13,9 +13,9 @@
     <string name="please_wait">Авторизация…</string>
     <string name="title_activity_launch">Дневники</string>
     <string name="loading_data">Загрузка данных…</string>
-    <string name="favourites">Избранное</string>
+    <string name="favourites">Список избранного</string>
     <string name="communities">Сообщества</string>
-    <string name="my_diary">Мой дневник</string>
+    <string name="my_diary">Дневник</string>
     <string name="discussions">Дискуссии</string>
     <string name="author">Автор</string>
     <string name="title">Заголовок</string>
@@ -26,7 +26,7 @@
     <string name="diary_logo">Логотип заголовка Diary.Ru</string>
     <string name="logout_drawable">лого выхода</string>
     <string name="without_title">Без названия</string>
-    <string name="posts">Посты</string>
+    <string name="posts">Избранное</string>
     <string name="getting_user_info">Загрузка данных…</string>
     <string name="comments_disabled">отключены</string>
     <string name="community">Сообщество</string>

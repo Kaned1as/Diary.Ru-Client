@@ -13,9 +13,9 @@
     <string name="please_wait">Please Wait&#8230;</string>
     <string name="title_activity_launch">Diary.Ru</string>
     <string name="loading_data">Loading data&#8230;</string>
-    <string name="favourites">Favourites</string>
+    <string name="favourites">Favorite list</string>
     <string name="communities">Communities</string>
-    <string name="my_diary">My Diary</string>
+    <string name="my_diary">Diary</string>
     <string name="discussions">Discussions</string>
     <string name="author">Author</string>
     <string name="title">Title</string>
@@ -26,7 +26,7 @@
     <string name="diary_logo">Diary.Ru header logo</string>
     <string name="logout_drawable">logout drawable</string>
     <string name="without_title">Without title</string>
-    <string name="posts">Posts</string>
+    <string name="posts">Favorite</string>
     <string name="getting_user_info">Getting user info</string>
     <string name="comments_disabled">disabled</string>
     <string name="community">Community</string>
