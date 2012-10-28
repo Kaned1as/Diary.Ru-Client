@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.NameValuePair;
@@ -28,12 +30,15 @@ import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.tags.MoreTag;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -61,6 +66,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -77,6 +84,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         public boolean updateNeeded();
         public void updateCurrentDiary(TagNode tag);
         public void updateCurrentPost(Post post);
+    }
+    
+    
+    public void setUserDataListener(onUserDataParseListener listener)
+    {
+        this.listener = listener;
     }
 	
     // Команды хэндлерам
@@ -143,6 +156,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     SharedPreferences mPreferences = Globals.mSharedPrefs;
     boolean load_images;
+    boolean load_cached;
     
     static Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
@@ -159,6 +173,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         load_images = mPreferences.getBoolean("images.autoload", false);
+        load_cached = mPreferences.getBoolean("images.autoload.cache", false);
         updateMaxCacheSize(mPreferences);
         
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -429,17 +444,20 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         if(start == -1 || end == -1) // удалена
                             return false;
                         
-                        Drawable loadedPicture = loadImage(pair.second.getSource());
-                        if(loadedPicture == null) // нет такой картинки
+                        Pair<String, BitmapDrawable> result = loadImage(pair.second.getSource());
+                        if(result == null) // нет такой картинки
                             return false;
                         
+                        Drawable loadedPicture = result.second;
+                        String fileName = result.first;
+                        // Масштабируем под экран
                         if(loadedPicture.getIntrinsicWidth() > gMetrics.widthPixels)
                             loadedPicture.setBounds(0, 0, gMetrics.widthPixels, loadedPicture.getIntrinsicHeight() * gMetrics.widthPixels / loadedPicture.getIntrinsicWidth());
                         else
                             loadedPicture.setBounds(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicHeight());
                                                 
                         pair.first.removeSpan(pair.second);
-                        pair.first.setSpan(new ImageSpan(loadedPicture, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                        pair.first.setSpan(new ImageSpan(loadedPicture, fileName, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         
                         // Если обрабатываем последний запрос
                         if(!mHandler.hasMessages(HANDLE_SERVICE_RELOAD_CONTENT))
@@ -714,8 +732,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
             
             // Временно отключено - большая потеря памяти
-            if(load_images || image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
+            if (load_images || 
+            	load_cached && CacheManager.hasData(getApplicationContext(), image_src.substring(image_src.lastIndexOf('/') + 1)) || 
+            	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
+            {
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
+            }
             
             final int start = contentPart.getSpanStart(span);
             final int end = contentPart.getSpanEnd(span);
@@ -737,18 +759,42 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	// вообще она будет одна, но на всякий случай я оставляю цикл
                     	// Мы назначаем картинку туда же, где размещен текущий спан клика, соответственно, это способ ее разыскать.
                         ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
-                        for(ImageSpan loadedSpan : loadedSpans)
+                        for(final ImageSpan loadedSpan : loadedSpans)
                         {
-                        	
-                        	// Если картинка не нуждается в увеличении...
-                        	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
-                        		return;
-                        	
-                        	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-                        	BitmapDrawable sendDrawable = (BitmapDrawable) loadedSpan.getDrawable().getConstantState().newDrawable();
-                        	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
-                            Globals.tempDrawable = sendDrawable;
-                            startActivity(intent);
+                        	final CharSequence[] items = {getString(R.string.image_save), getString(R.string.image_open)};
+
+                        	AlertDialog.Builder builder = new AlertDialog.Builder(DiaryList.this);
+                        	builder.setTitle(R.string.image_action);
+                        	builder.setItems(items, new DialogInterface.OnClickListener() 
+                        	{
+                        	    public void onClick(DialogInterface dialog, int item) 
+                        	    {
+                        	    	switch(item)
+                        	    	{
+                        	    		case 0:
+                        	    			String filename = loadedSpan.getSource();
+                        	    			CacheManager.saveDataToSD(getApplicationContext(), filename.substring(filename.lastIndexOf('/') + 1));
+                        	    		break;
+                        	    		case 1:
+                        	    			// Если картинка не нуждается в увеличении...
+                                        	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
+                                        	{
+                                        		Toast.makeText(DiaryList.this, getString(R.string.image_fullsize), Toast.LENGTH_SHORT).show();
+                                        		return;
+                                        	}
+                                        	
+                                        	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+                                        	BitmapDrawable sendDrawable = (BitmapDrawable) loadedSpan.getDrawable().getConstantState().newDrawable();
+                                        	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+                                            Globals.tempDrawable = sendDrawable;
+                                            startActivity(intent);
+                        	    		break;
+                        	    	}
+                        	    	dialog.dismiss();
+                        	    }
+                        	});
+                        	AlertDialog alert = builder.create();
+                        	alert.show();
                         }
                     }
                 }   
@@ -878,15 +924,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	}
     }
     
-    private BitmapDrawable loadImage(String url) 
+    private Pair<String, BitmapDrawable> loadImage(String url) 
     {
         try 
         {
-        	String filename = url.substring(url.lastIndexOf('/') + 1);
+    		String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
+    		String realName = URLUtil.guessFileName(url, null, fileExtenstion);
         	cache_and_load:
         	{
-        		if(CacheManager.hasData(getApplicationContext(), filename))
+        		
+        		if(CacheManager.hasData(getApplicationContext(), realName))
         			break cache_and_load;
+        		
         		
 	            InputStream is = (InputStream) new URL(url).getContent();
 	            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
@@ -894,15 +943,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	            while ((nRead = is.read()) != -1)
 	            	  buffer.write(nRead);
 	            buffer.flush();
-	            CacheManager.cacheData(getApplicationContext(), buffer.toByteArray(), filename);
+	            CacheManager.cacheData(getApplicationContext(), buffer.toByteArray(), realName);
 	            buffer.close();
         	}
 
-            InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(getApplicationContext(), filename));
-            Drawable drawable = Drawable.createFromStream(inPic, filename);
+            InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(getApplicationContext(), realName));
+            Drawable drawable = Drawable.createFromStream(inPic, realName);
             inPic.close();
             if(drawable instanceof BitmapDrawable)
-            	return (BitmapDrawable) drawable;
+            	return new Pair<String, BitmapDrawable>(realName, (BitmapDrawable) drawable);
             
             return null;
         } 
@@ -1127,11 +1176,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
     }
     
-    public void setUserDataListener(onUserDataParseListener listener)
-    {
-        this.listener = listener;
-    }
-    
     public void newPostPost()
     {
         if(mUser.currentDiaryId.equals(""))
@@ -1220,6 +1264,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		else if(key.equals("cache.size"))
 		{
 			updateMaxCacheSize(sharedPreferences);
+		}
+		else if(key.equals("images.autoload.cache"))
+		{
+			load_cached = sharedPreferences.getBoolean(key, false);
 		}
 	}
 }

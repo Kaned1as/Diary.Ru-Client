@@ -17,8 +17,14 @@
     <string name="communities">Communities</string>
     <string name="my_diary">Diary</string>
     <string name="discussions">Discussions</string>
+    <string name="image_action">Pick an action</string>
+    <string name="image_save">Save</string>
+    <string name="image_open">Open</string>
+    <string name="image_fullsize">Already in full-size</string>
     <string name="author">Author</string>
     <string name="title">Title</string>
+    <string name="file_not_found">File not found</string>
+    <string name="saved_to">Saved to: </string>
     <string name="last_post">Last Post</string>
     <string name="post_date">post date</string>
     <string name="author_avatar">Avatar</string>
@@ -55,4 +61,6 @@
     <string name="post_tags_summary">Tag(s) that will be added to any post you will make via this app</string>
     <string name="cache_size">Max cache size</string>
     <string name="cache_size_summary">Amount of cache for images and posts that will be stored in your cache folder, in MBytes</string>
+    <string name="autoload_cached_images">Autoload cached images</string>
+    <string name="autoload_cached_images_summary">Check to automatically load all pictures that are stored in cache on page load.</string>
 </resources>

@@ -1,5 +1,4 @@
 <resources>
-
     <string name="app_name">Дневники</string>
     <string name="menu_settings">Настройки</string>
     <string name="title_activity_authorization_form">Форма авторизации</string>
@@ -17,6 +16,12 @@
     <string name="communities">Сообщества</string>
     <string name="my_diary">Дневник</string>
     <string name="discussions">Дискуссии</string>
+    <string name="file_not_found">Файл не найден</string>
+    <string name="saved_to">Сохранено: </string>
+    <string name="image_save">Сохранить</string>
+    <string name="image_open">Открыть</string>
+    <string name="image_fullsize">И так все видно!</string>
+    <string name="image_action">Выберите действие</string>
     <string name="author">Автор</string>
     <string name="title">Заголовок</string>
     <string name="last_post">Последний пост</string>
@@ -55,4 +60,6 @@
     <string name="post_tags_summary">Тэги, которые будут добавлены к любому посту, который вы опубликуете</string>
     <string name="cache_size">Максимальный размер кэша</string>
     <string name="cache_size_summary">Размер кэша, используемого для картинок и постов, в МБ</string>
+    <string name="autoload_cached_images">Автозагрузка кэша</string>
+    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из памяти. Выберите, чтобы автоматически загружать все такие изображения при отрисовке страницы.</string>
 </resources>

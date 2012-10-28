@@ -2,10 +2,16 @@ package adonai.diary_browser;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 
 import android.content.Context;
+import android.os.Environment;
+import android.widget.Toast;
 
 public class CacheManager 
 {
@@ -64,7 +70,7 @@ public class CacheManager
         return data;
     }
     
-    public static boolean hasData(Context context, String name) throws IOException 
+    public static boolean hasData(Context context, String name) 
     {
 
         File cacheDir = context.getCacheDir();
@@ -75,6 +81,47 @@ public class CacheManager
             return true;
         
         return false;
+    }
+    
+    public static void saveDataToSD(Context context, String name)
+    {
+    	if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+			return;
+    	
+    	if(!hasData(context, name))
+    	{
+    		Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+    		return;
+    	}
+    	
+    	File cacheDir = context.getCacheDir();
+		File SD = Environment.getExternalStorageDirectory();
+		File externalDir = new File(SD, "Diary.Ru"); 
+		if(!externalDir.exists())
+			externalDir.mkdir();
+    	
+        File internalFile = new File(cacheDir, name);
+		File toFile = new File(externalDir, name);
+		
+		try 
+		{
+			InputStream in = new FileInputStream(internalFile);
+			OutputStream out = new FileOutputStream(toFile);
+
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0)
+			{
+				out.write(buf, 0, len);
+			}
+			in.close();
+			out.close();
+			Toast.makeText(context, context.getResources().getString(R.string.saved_to) + toFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+		}  
+		catch (IOException e) 
+		{
+			Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+		}
     }
 
     private static void cleanDir(File dir, long bytes) 
