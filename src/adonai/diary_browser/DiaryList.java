@@ -171,6 +171,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         setUserDataListener(mUser);
         
+        // Если был простой приложения
+        if(mPreferences == null)
+        	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         load_images = mPreferences.getBoolean("images.autoload", false);
         load_cached = mPreferences.getBoolean("images.autoload.cache", false);
@@ -444,7 +448,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         if(start == -1 || end == -1) // удалена
                             return false;
                         
-                        Pair<String, BitmapDrawable> result = loadImage(pair.second.getSource());
+                        Pair<String, BitmapDrawable> result = Utils.loadImage(DiaryList.this, pair.second.getSource());
                         if(result == null) // нет такой картинки
                             return false;
                         
@@ -923,44 +927,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     			break;
     	}
     }
-    
-    private Pair<String, BitmapDrawable> loadImage(String url) 
-    {
-        try 
-        {
-    		String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
-    		String realName = URLUtil.guessFileName(url, null, fileExtenstion);
-        	cache_and_load:
-        	{
-        		
-        		if(CacheManager.hasData(getApplicationContext(), realName))
-        			break cache_and_load;
-        		
-        		
-	            InputStream is = (InputStream) new URL(url).getContent();
-	            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-	            int nRead;
-	            while ((nRead = is.read()) != -1)
-	            	  buffer.write(nRead);
-	            buffer.flush();
-	            CacheManager.cacheData(getApplicationContext(), buffer.toByteArray(), realName);
-	            buffer.close();
-        	}
 
-            InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(getApplicationContext(), realName));
-            Drawable drawable = Drawable.createFromStream(inPic, realName);
-            inPic.close();
-            if(drawable instanceof BitmapDrawable)
-            	return new Pair<String, BitmapDrawable>(realName, (BitmapDrawable) drawable);
-            
-            return null;
-        } 
-        catch (Exception e) 
-        {
-            return null;
-        }
-    }
-    
     public class DiaryImageGetter implements Html.ImageGetter
 	{
 		public Drawable getDrawable(String source)
