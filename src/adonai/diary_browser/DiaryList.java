@@ -735,7 +735,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     else // если картинки уже нет
                     {
                     	// вообще она будет одна, но на всякий случай я оставляю цикл
-                        ImageSpan[] loadedSpans = container.getSpans(start, end, ImageSpan.class);
+                    	// Мы назначаем картинку туда же, где размещен текущий спан клика, соответственно, это способ ее разыскать.
+                        ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
                         for(ImageSpan loadedSpan : loadedSpans)
                         {
                         	
@@ -899,6 +900,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
             InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(getApplicationContext(), filename));
             Drawable drawable = Drawable.createFromStream(inPic, filename);
+            inPic.close();
             if(drawable instanceof BitmapDrawable)
             	return (BitmapDrawable) drawable;
             
