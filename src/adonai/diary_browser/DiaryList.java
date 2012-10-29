@@ -1,12 +1,6 @@
 package adonai.diary_browser;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.http.NameValuePair;
@@ -30,7 +24,6 @@ import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.tags.MoreTag;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -154,7 +147,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     DisplayMetrics gMetrics;
     Object[] RPCResponse;
     
-    SharedPreferences mPreferences = Globals.mSharedPrefs;
+    SharedPreferences mPreferences;
     boolean load_images;
     boolean load_cached;
     
@@ -172,9 +165,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         setUserDataListener(mUser);
         
         // Если был простой приложения
-        if(mPreferences == null)
+        if(Globals.mSharedPrefs == null)
         	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         
+        mPreferences = Globals.mSharedPrefs;
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         load_images = mPreferences.getBoolean("images.autoload", false);
         load_cached = mPreferences.getBoolean("images.autoload.cache", false);
@@ -749,7 +743,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             final int end = contentPart.getSpanEnd(span);
             
             // делаем каждую картинку кликабельной
-            ClickableSpan image_span = new ClickableSpan()
+            ClickableSpan imageAction = new ClickableSpan()
             {       
                 @Override
                 public void onClick(View widget)
@@ -822,7 +816,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             for (ClickableSpan c_span : click_spans)
                 contentPart.removeSpan(c_span);
             
-            contentPart.setSpan(image_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            contentPart.setSpan(imageAction, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             for (ClickableSpan c_span : click_spans)
                 contentPart.setSpan(c_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
