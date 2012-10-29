@@ -725,6 +725,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         for (final ImageSpan span : imageSpans)
         {            
             final String image_src = span.getSource();
+            final int start = contentPart.getSpanStart(span);
+            final int end = contentPart.getSpanEnd(span);
             
             // Если это смайлик или системное изображение
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
@@ -738,9 +740,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             {						/* Тогда качаем картинку сразу */
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
             }
-            
-            final int start = contentPart.getSpanStart(span);
-            final int end = contentPart.getSpanEnd(span);
             
             // делаем каждую картинку кликабельной
             ClickableSpan imageAction = new ClickableSpan()
