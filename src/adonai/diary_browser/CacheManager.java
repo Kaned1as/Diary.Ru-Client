@@ -90,7 +90,7 @@ public class CacheManager
     	
     	if(!hasData(context, name))
     	{
-    		Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+    		Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_LONG).show();
     		return;
     	}
     	

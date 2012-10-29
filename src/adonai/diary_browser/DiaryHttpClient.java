@@ -53,7 +53,7 @@ public class DiaryHttpClient
     	}
     }
 
-    public String postPage(String url, HttpEntity data) {
+    public HttpResponse postPage(String url, HttpEntity data) {
 
     	httpPost = new HttpPost(url);
     	response = null;
@@ -71,7 +71,6 @@ public class DiaryHttpClient
     	} catch (IOException e) {
     		System.out.println("HTTPHelp : IOException : " + e);
     	} 
-
-  		return response.toString();
+  		return response;
     }
 }

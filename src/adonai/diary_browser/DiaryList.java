@@ -736,10 +736,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
             
             // Временно отключено - большая потеря памяти
-            if (load_images || 
-            	load_cached && CacheManager.hasData(getApplicationContext(), image_src.substring(image_src.lastIndexOf('/') + 1)) || 
-            	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif"))
-            {
+            String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(image_src);
+    		String realName = URLUtil.guessFileName(image_src, null, fileExtenstion);
+            if (load_images ||  																				// Если включена автозагрузка изображений
+            	load_cached && CacheManager.hasData(getApplicationContext(), realName) || 						// если включена автозагрузка из кэша и файл имеется там
+            	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif")) 	// если это смайлик
+            {						/* Тогда качаем картинку сразу */
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
             }
             
@@ -765,8 +767,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
                         for(final ImageSpan loadedSpan : loadedSpans)
                         {
-                        	final CharSequence[] items = {getString(R.string.image_save), getString(R.string.image_open)};
-
+                        	ArrayList<String> itemsBuilder = new ArrayList<String>();
+                        	itemsBuilder.add(getString(R.string.image_save));
+                        	itemsBuilder.add(getString(R.string.image_open));
+                        	
+                        	// Ищем, ссылается ли картинка куда-нибудь
+                        	final URLSpan[] imageURL = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), URLSpan.class);
+                        	if(imageURL.length > 0)
+                        		itemsBuilder.add(getString(R.string.image_open_link));
+                        		
+                        	final String[] items = itemsBuilder.toArray(new String[0]);
                         	AlertDialog.Builder builder = new AlertDialog.Builder(DiaryList.this);
                         	builder.setTitle(R.string.image_action);
                         	builder.setItems(items, new DialogInterface.OnClickListener() 
@@ -775,11 +785,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	    {
                         	    	switch(item)
                         	    	{
-                        	    		case 0:
+                        	    		case 0: // save
                         	    			String filename = loadedSpan.getSource();
-                        	    			CacheManager.saveDataToSD(getApplicationContext(), filename.substring(filename.lastIndexOf('/') + 1));
+                        	    			CacheManager.saveDataToSD(getApplicationContext(), filename);
                         	    		break;
-                        	    		case 1:
+                        	    		case 1: // open
                         	    			// Если картинка не нуждается в увеличении...
                                         	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
                                         	{
@@ -793,6 +803,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                                             Globals.tempDrawable = sendDrawable;
                                             startActivity(intent);
                         	    		break;
+                        	    		case 2: // open Link
+                        	    			imageURL[0].onClick(getCurrentFocus());
+                        	    		break;
                         	    	}
                         	    	dialog.dismiss();
                         	    }
@@ -804,11 +817,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 }   
             };
             
+            // Это хак. Делаем наш кликабельный спэн первым в списке, т.е. более приоритетным
             ClickableSpan[] click_spans = contentPart.getSpans(start, end, ClickableSpan.class);
             for (ClickableSpan c_span : click_spans)
                 contentPart.removeSpan(c_span);
             
             contentPart.setSpan(image_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            for (ClickableSpan c_span : click_spans)
+                contentPart.setSpan(c_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
         }
     }
@@ -1170,7 +1186,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void checkUrlAndHandle(String URL)
     {
-    	mDHCL.postPage(URL, null);
+    	if(mDHCL.postPage(URL, null) == null)
+    	{
+    		pd.dismiss();
+    		return;
+    	}
+    	
     	int handled = -1;
     	try 
     	{

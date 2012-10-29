@@ -21,6 +21,7 @@
     <string name="image_save">Сохранить</string>
     <string name="image_open">Открыть</string>
     <string name="image_fullsize">И так все видно!</string>
+    <string name="image_open_link">Открыть ссылку</string>
     <string name="image_action">Выберите действие</string>
     <string name="author">Автор</string>
     <string name="title">Заголовок</string>
@@ -55,11 +56,11 @@
     <string name="images_autoload_summary">Используйте с осторожностью! Может вызвать переполнение доступной памяти!</string>
     <string name="post_signature">Подпись к сообщению</string>
     <string name="post_signature_summary">Подпись, которая будет добавлена к любому сообщению, которое вы добавите через приложение.</string>
-    <string name="posted_via_client">Android-клиент;anticitizen.diary.ru</string>
+    <string name="posted_via_client">;Android-клиент;anticitizen.diary.ru</string>
     <string name="post_tags">Тэги поста по умолчанию</string>
     <string name="post_tags_summary">Тэги, которые будут добавлены к любому посту, который вы опубликуете</string>
     <string name="cache_size">Максимальный размер кэша</string>
     <string name="cache_size_summary">Размер кэша, используемого для картинок и постов, в МБ</string>
     <string name="autoload_cached_images">Автозагрузка кэша</string>
-    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из памяти. Выберите, чтобы автоматически загружать все такие изображения при отрисовке страницы.</string>
+    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.</string>
 </resources>
