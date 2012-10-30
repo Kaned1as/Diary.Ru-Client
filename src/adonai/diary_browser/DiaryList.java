@@ -16,6 +16,7 @@ import org.htmlcleaner.TagNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentListArrayAdapter;
@@ -511,43 +512,42 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
-                        TagNode rootNode = postCleaner.clean(favListPage);
-                        Document Root = Jsoup.parse(favListPage);
+                        Document rootNode = Jsoup.parse(favListPage);
                         if(listener != null)
                         {
-                            listener.parseData(Root);
+                            listener.parseData(rootNode);
                             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
                         }
                             
-                        TagNode table = rootNode.findElementByAttValue("class", "table r", true, false);
-                        TagNode[] rows = table.getElementsByName("td", true);
+                        Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
+                        Elements rows = table.getElementsByTag("td");
                         mUser.favorites.clear();
-                        TagNode title = null, author = null, last_post = null;
-                        for (int i = 0; i < rows.length; ++i)
+                        Element title = null, author = null, last_post = null;
+                        for (int i = 0; i < rows.size(); ++i)
                         {
-                            if (title == null && rows[i].getAttributeByName("class").equals("l"))
-                                title = rows[i].findElementByAttValue("class", "withfloat", true, false);
+                            if (title == null && rows.get(i).hasClass("l"))
+                                title = rows.get(i).getElementsByClass("withfloat").first();
 
                             if (author == null)
-                                author = rows[i].findElementByAttValue("target", "_blank", true, false);
+                                author = rows.get(i).getElementsByAttributeValue("target", "_blank").first();
                             
                             if (last_post == null)
-                                if (rows[i].getAttributeByName("class") == null)
-                                    last_post = rows[i].findElementByAttValue("class", "withfloat", true, false);
+                                if (rows.get(i).className().equals(""))
+                                    last_post = rows.get(i).getElementsByClass("withfloat").first();
                             
                             if (title != null && author != null && last_post != null)
                             {
                             	Diary diary = new Diary();
-                            	diary.setTitle(Html.fromHtml(title.findElementByName("b", false).getText().toString()).toString());
-                                diary.setDiaryUrl(title.getAttributeByName("href"));
+                            	diary.setTitle(title.getElementsByTag("b").text());
+                                diary.setDiaryUrl(title.attr("href"));
                                 
-                                diary.setAuthor(author.getText().toString());
-                                String authorData = author.getAttributeByName("href");
+                                diary.setAuthor(author.text());
+                                String authorData = author.attr("href");
                                 diary.setAuthorUrl(authorData);
                                 diary.set_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
                                 
-                                diary.setLastPost(last_post.getText().toString());
-                                diary.setLastPostUrl(last_post.getAttributeByName("href"));
+                                diary.setLastPost(last_post.text());
+                                diary.setLastPostUrl(last_post.attr("href"));
                                 
                                 mUser.favorites.add(diary);
                                 title = author = last_post = null;
@@ -639,11 +639,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         MoreTag result = new MoreTag(parent);
         for(; ;)
         {
-        	Element moreNode = contentNode.getElementsByAttribute("ondblclick").first();
-            if (moreNode == null || moreNode == contentNode)
+        	Element moreNode = contentNode.children().select("[ondblclick]").first();
+            if (moreNode == null)
                 break;
             
-            if(moreNode.getElementsByAttribute("ondblclick").first() != null)
+            if(moreNode.children().select("[ondblclick]").first() != null)
                 result.addChild(makeMoreTag(moreNode, result));
                 
             result.add(Html.fromHtml(moreNode.html(), new DiaryImageGetter(), null));
@@ -955,7 +955,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         if (mPostBrowser.getVisibility() == View.VISIBLE && mTabHost.getCurrentTab() == TAB_FAVOURITES)
             setCurrentVisibleComponent(DIARY_LIST);
         else if (mCommentBrowser.getVisibility() == View.VISIBLE)
-            setCurrentVisibleComponent(POST_LIST);
+        {
+        	// TODO: исправить когда придумается что-то получше
+        	// Если мы сразу зашли в список комментов, список постов пустой.
+        	if(mUser.currentDiaryPosts.isEmpty()) 
+        		setCurrentTab(TAB_FAVOURITES);
+        	else
+        		setCurrentVisibleComponent(POST_LIST);
+        }
         else
             super.onBackPressed();
     }
@@ -1001,41 +1008,41 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             {
                 Post currentPost = new Post();
                 
-            	currentPost.setIsEpigraph(!post.attr("id").equals("") && post.attr("id").equals("epigraph"));
+            	currentPost.setIsEpigraph(post.id().equals("epigraph"));
             	
             	Element headerNode = post.getElementsByAttributeValue("class", "postTitle header").first();
                 if (headerNode != null)
                 {
-                    currentPost.set_title(headerNode.getElementsByTag("h2").first().text());
+                    currentPost.set_title(headerNode.getElementsByTag("h2").text());
                     if(currentPost.get_title().equals(""))
                         currentPost.set_title(getString(R.string.without_title));
                     currentPost.set_date(headerNode.getElementsByTag("span").attr("title"));
                 }
-                Element authorNode = post.getElementsByAttributeValue("class", "authorName").first();
+                Element authorNode = post.getElementsByClass("authorName").first();
                 if(authorNode != null)
                 {
                     currentPost.set_author(authorNode.getElementsByTag("a").last().text());
                     currentPost.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
                 }
-                Element communityNode = post.getElementsByAttributeValue("class", "communityName").first();
+                Element communityNode = post.getElementsByClass("communityName").first();
                 if(communityNode != null)
                 {
-                    currentPost.set_community(Html.fromHtml(communityNode.getElementsByTag("a").text()).toString());
+                    currentPost.set_community(communityNode.getElementsByTag("a").text());
                     currentPost.set_community_URL(communityNode.getElementsByTag("a").attr("href"));
                 }
                 
-                Element contentNode = post.getElementsByAttributeValue("class", "paragraph").first();
+                Element contentNode = post.getElementsByClass("paragraph").first();
                 if(contentNode != null)
                 {
                     currentPost.set_text(makeContent(contentNode));
                 }
-                Element urlNode = post.getElementsByAttributeValue("class", "postLinksBackg").first();
+                Element urlNode = post.getElementsByClass("postLinksBackg").first();
                 if (urlNode != null)
                 {
                 	String postURL = urlNode.getElementsByTag("a").attr("href");
                     currentPost.set_URL(postURL);
                     currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
-                    Element comment_count = urlNode.getElementsByAttributeValue("class", "comments_count_link").first();
+                    Element comment_count = urlNode.getElementsByClass("comments_count_link").first();
                     if(comment_count != null)
                         currentPost.set_comment_count(comment_count.text());
                     else
@@ -1054,7 +1061,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
     	mUser.currentPostComments.clear();
-        //TagNode rootNode = postCleaner.clean(dataPage);
         Document rootNode = Jsoup.parse(dataPage);
         
         if(listener != null)
@@ -1163,7 +1169,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void newCommentPost()
     {
-    	if(mUser.currentDiaryId.equals(""))
+    	if(mUser.currentPostId.equals(""))
             return;
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
