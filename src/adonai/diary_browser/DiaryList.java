@@ -13,6 +13,9 @@ import org.htmlcleaner.FastHtmlSerializer;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.SimpleHtmlSerializer;
 import org.htmlcleaner.TagNode;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentListArrayAdapter;
@@ -158,7 +161,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);      
-        
         postCleaner = new HtmlCleaner();
         postCleaner.getProperties().setOmitComments(true);
         
@@ -619,39 +621,34 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
     };
     
-    private PostContentBuilder makeContent(TagNode contentNode) throws IOException
+    private PostContentBuilder makeContent(Element contentNode) throws IOException
     {
-     // То, чем будем выстраивать контент
-        //SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
-        FastHtmlSerializer serializer = new FastHtmlSerializer(postCleaner.getProperties());
-        
         // Ищем тэги MORE
         MoreTag moreTag = null;
         // Есть
-        if(contentNode.findElementHavingAttribute("ondblclick", true) != null)
+        if(contentNode.getElementsByAttribute("ondblclick").size() > 0)
             moreTag = makeMoreTag(contentNode, null);
         
-        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(serializer.getAsString(contentNode), new DiaryImageGetter(), null), moreTag);
+        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(contentNode.html(), new DiaryImageGetter(), null), moreTag);
         formatText(post);
         
         return post;
     }
     
-    private MoreTag makeMoreTag(TagNode contentNode, MoreTag parent) throws IOException
+    private MoreTag makeMoreTag(Element contentNode, MoreTag parent) throws IOException
     {
-        SimpleHtmlSerializer serializer = new SimpleHtmlSerializer(postCleaner.getProperties());
         MoreTag result = new MoreTag(parent);
         for(; ;)
         {
-            TagNode moreNode = contentNode.findElementHavingAttribute("ondblclick", true);
-            if (moreNode == null)
+        	Element moreNode = contentNode.getElementsByAttribute("ondblclick").first();
+            if (moreNode == null || moreNode == contentNode)
                 break;
             
-            if(moreNode.findElementHavingAttribute("ondblclick", true) != null)
+            if(moreNode.getElementsByAttribute("ondblclick").first() != null)
                 result.addChild(makeMoreTag(moreNode, result));
                 
-            result.add(Html.fromHtml(serializer.getAsString(moreNode), new DiaryImageGetter(), null));
-            moreNode.removeFromTree();
+            result.add(Html.fromHtml(moreNode.html(), new DiaryImageGetter(), null));
+            moreNode.remove();
         }
         
         
@@ -981,9 +978,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
     {
-        mUser.currentDiaryPosts.clear();
-        TagNode rootNode = postCleaner.clean(dataPage);
-        
+        //mUser.currentDiaryPosts.clear();
+        //TagNode rootNode = postCleaner.clean(dataPage);
+    	Document rootNode = Jsoup.parse(dataPage);
+
+    	/*
         if(listener != null)
         {
         	listener.updateCurrentDiary(rootNode);
@@ -991,54 +990,56 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         	listener.parseData(rootNode);
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
+        */
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-        for (TagNode post : postsArea.getAllElements(false))
+        //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
+        Element postsArea = rootNode.select("[id=postsArea]").first();
+        for (Element post : postsArea.getElementsByAttributeValueContaining("class", "singlePost"))
         {
-        	String classAttr = post.getAttributeByName("class");
             // не парсим пока что ссылки RSS
         	// TODO: Сделать переходы по страницам (и для комментов в том числе)
-            if (classAttr != null && classAttr.contains("singlePost") && post.hasAttribute("id"))
+            if (post.hasAttr("id"))
             {
                 Post currentPost = new Post();
                 
-            	currentPost.setIsEpigraph(post.getAttributeByName("id") != null && post.getAttributeByName("id").equals("epigraph"));
-                TagNode headerNode = post.findElementByAttValue("class", "postTitle header", false, true);
+            	currentPost.setIsEpigraph(!post.attr("id").equals("") && post.attr("id").equals("epigraph"));
+            	
+            	Element headerNode = post.getElementsByAttributeValue("class", "postTitle header").first();
                 if (headerNode != null)
                 {
-                    currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
+                    currentPost.set_title(headerNode.getElementsByTag("h2").first().text());
                     if(currentPost.get_title().equals(""))
                         currentPost.set_title(getString(R.string.without_title));
-                    currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+                    currentPost.set_date(headerNode.getElementsByTag("span").attr("title"));
                 }
-                TagNode authorNode = post.findElementByAttValue("class", "authorName", false, true);
+                Element authorNode = post.getElementsByAttributeValue("class", "authorName").first();
                 if(authorNode != null)
                 {
-                    currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-                    currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+                    currentPost.set_author(authorNode.getElementsByTag("a").text());
+                    currentPost.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
                 }
-                TagNode communityNode = post.findElementByAttValue("class", "communityName", false, true);
+                Element communityNode = post.getElementsByAttributeValue("class", "communityName").first();
                 if(communityNode != null)
                 {
-                    currentPost.set_community(Html.fromHtml(communityNode.findElementByName("a", false).getText().toString()).toString());
-                    currentPost.set_community_URL(communityNode.findElementByName("a", false).getAttributeByName("href"));
+                    currentPost.set_community(Html.fromHtml(communityNode.getElementsByTag("a").text()).toString());
+                    currentPost.set_community_URL(communityNode.getElementsByTag("a").attr("href"));
                 }
                 
-                TagNode contentNode = post.findElementByAttValue("class", "paragraph", true, true);
+                Element contentNode = post.getElementsByAttributeValue("class", "paragraph").first();
                 if(contentNode != null)
                 {
                     currentPost.set_text(makeContent(contentNode));
                 }
-                TagNode urlNode = post.findElementByAttValue("class", "postLinksBackg", false, true);
+                Element urlNode = post.getElementsByAttributeValue("class", "postLinksBackg").first();
                 if (urlNode != null)
                 {
-                	String postURL = urlNode.findElementByName("a", true).getAttributeByName("href");
+                	String postURL = urlNode.getElementsByTag("a").attr("href");
                     currentPost.set_URL(postURL);
                     currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
-                    TagNode comment_count = urlNode.findElementByAttValue("class", "comments_count_link", true, true);
+                    Element comment_count = urlNode.getElementsByAttributeValue("class", "comments_count_link").first();
                     if(comment_count != null)
-                        currentPost.set_comment_count(comment_count.getText().toString());
+                        currentPost.set_comment_count(comment_count.text());
                     else
                         currentPost.set_comment_count(getString(R.string.comments_disabled));
                 }
@@ -1054,47 +1055,48 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
-    	mUser.currentPostComments.clear();
-        TagNode rootNode = postCleaner.clean(dataPage);
-        
+    	//mUser.currentPostComments.clear();
+        //TagNode rootNode = postCleaner.clean(dataPage);
+        Document rootNode = Jsoup.parse(dataPage);
+        /*
         if(listener != null)
         {
             listener.parseData(rootNode);
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
-        
+        */
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         
         // сначала получаем первый пост
         
-        TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
+        Element postsArea = rootNode.getElementsByAttributeValue("id", "postsArea").first();
         if(postsArea != null)
         {
             Post currentPost = new Post();
-	        TagNode headerNode = postsArea.findElementByAttValue("class", "postTitle header", true, true);
+            Element headerNode = postsArea.getElementsByClass("postTitle header").first();
 	        if (headerNode != null)
 	        {
-	            currentPost.set_title(Html.fromHtml(headerNode.findElementByName("h2", false).getText().toString()).toString());
+	            currentPost.set_title(headerNode.getElementsByTag("h2").text());
 	            if(currentPost.get_title().equals(""))
 	                currentPost.set_title(getString(R.string.without_title));
-	            currentPost.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
+	            currentPost.set_date(headerNode.getElementsByTag("span").attr("title"));
 	        }
-	        TagNode authorNode = postsArea.findElementByAttValue("class", "authorName", true, true);
+	        Element authorNode = postsArea.getElementsByAttributeValue("class", "authorName").first();
 	        if(authorNode != null)
 	        {
-	            currentPost.set_author(authorNode.findElementByName("a", false).getText().toString());
-	            currentPost.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
+	            currentPost.set_author(authorNode.getElementsByTag("a").text());
+	            currentPost.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
 	        }
 	        
-	        TagNode contentNode = postsArea.findElementByAttValue("class", "paragraph", true, true);
+	        Element contentNode = postsArea.getElementsByAttributeValue("class", "paragraph").first();
 	        if(contentNode != null)
 	        {
 	            currentPost.set_text(makeContent(contentNode));
 	        }
-	        TagNode urlNode = postsArea.findElementByAttValue("class", "postLinksBackg", true, true);
+	        Element urlNode = postsArea.getElementsByClass("postLinksBackg").first();
             if (urlNode != null)
             {
-            	String postURL = urlNode.findElementByName("a", true).getAttributeByName("href");
+            	String postURL = urlNode.getElementsByTag("a").attr("href");
                 currentPost.set_URL(postURL);
                 currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
             }
@@ -1109,46 +1111,43 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         // теперь получаем его комменты
         
-        TagNode commentsArea = rootNode.findElementByAttValue("id", "commentsArea", true, true);
+        Element commentsArea = rootNode.getElementsByAttributeValue("id", "commentsArea").first();
         if(commentsArea == null)
         {
             mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
             return;
         }
         
-        for (TagNode comment : commentsArea.getAllElements(false))
+        for (Element comment : commentsArea.getElementsByAttributeValueContaining("class", "singleComment"))
         {
-            if (comment.getAttributeByName("class") != null && comment.getAttributeByName("class").contains("singleComment"))
+            Comment currentComment = new Comment();
+            Element headerNode = comment.getElementsByAttributeValue("class", "postTitle header").first();
+            if (headerNode != null)
             {
-                Comment currentComment = new Comment();
-                TagNode headerNode = comment.findElementByAttValue("class", "postTitle header", false, true);
-                if (headerNode != null)
-                {
-                    currentComment.set_title(headerNode.findElementByName("h2", false).getText().toString());
-                    currentComment.set_date(headerNode.findElementByName("span", false).getAttributeByName("title"));
-                }
-                TagNode authorNode = comment.findElementByAttValue("class", "authorName", false, true);
-                if(authorNode != null)
-                {
-                    currentComment.set_author(authorNode.findElementByName("a", false).getText().toString());
-                    currentComment.set_author_URL(authorNode.findElementByName("a", false).getAttributeByName("href"));
-                }
-                TagNode contentNode = comment.findElementByAttValue("class", "paragraph", true, true);
-                if(contentNode != null)
-                {
-                	currentComment.set_text(makeContent(contentNode));
-                }
-                TagNode urlNode = comment.findElementByAttValue("class", "postLinksBackg", false, true);
-                if (urlNode != null)
-                {
-                	currentComment.set_URL(urlNode.findElementByName("a", true).getAttributeByName("href"));
-                }
-                
-                if(destination != null)
-                    destination.add(currentComment);
-                
-                mUser.currentPostComments.add(currentComment);
-            }   
+                currentComment.set_title(headerNode.getElementsByTag("h2").text());
+                currentComment.set_date(headerNode.getElementsByTag("span").attr("title"));
+            }
+            Element authorNode = comment.getElementsByClass("authorName").first();
+            if(authorNode != null)
+            {
+                currentComment.set_author(authorNode.getElementsByTag("a").text());
+                currentComment.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
+            }
+            Element contentNode = comment.getElementsByClass("paragraph").first();
+            if(contentNode != null)
+            {
+            	currentComment.set_text(makeContent(contentNode));
+            }
+            Element urlNode = comment.getElementsByClass("postLinksBackg").first();
+            if (urlNode != null)
+            {
+            	currentComment.set_URL(urlNode.getElementsByTag("a").attr("href"));
+            }
+            
+            if(destination != null)
+                destination.add(currentComment);
+            
+            mUser.currentPostComments.add(currentComment);
         }
     }
     
