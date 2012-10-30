@@ -3,6 +3,8 @@ package adonai.diary_browser;
 import java.util.ArrayList;
 
 import org.htmlcleaner.TagNode;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.Post;
@@ -53,47 +55,46 @@ public class UserData implements DiaryList.onUserDataParseListener
     }
     
     // обновляем контент
-    public void parseData(TagNode tag)
+    public void parseData(Element tag)
     {
     	// имя пользователя
         userName = Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "");
         
         // цифровая подпись
-        TagNode sigNode = tag.findElementByAttValue("name", "signature", true, true);
+        Element sigNode = tag.getElementsByAttributeValue("name", "signature").first();
         if (sigNode != null)
-            signature = sigNode.getAttributeByName("value");
+            signature = sigNode.attr("value");
 
         // данные о ссылках на свои страницы
-        TagNode[] nodes = tag.getElementsByName("a", true);
+        Elements nodes = tag.getElementsByTag("a");
         boolean hasNewDiscussions = false, hasNewDiaryComments = false;
-        for(TagNode node : nodes)
+        for(Element node : nodes)
         {
         	// ссылка на свой дневник
-            if(node.getText().toString().equals("Мой дневник"))
-                ownDiaryURL = node.getAttributeByName("href");
+            if(node.text().equals("Мой дневник"))
+                ownDiaryURL = node.attr("href");
             
             // идентификатор своего профиля
-            if(node.getText().toString().equals(userName) || node.getText().toString().equals("Мой профиль"))
+            if(node.text().equals(userName) || node.text().equals("Мой профиль"))
             {
-            	String Id = node.getAttributeByName("href");
+            	String Id = node.attr("href");
                 ownProfileID = Id.substring(Id.lastIndexOf("?") + 1);
             }
             
             // дискасс
-            if(node.hasAttribute("id") && node.getAttributeByName("id").equals("menuNewDescussions"))
+            if(node.attr("id").equals("menuNewDescussions"))
             {
             	hasNewDiscussions = true;
-            	newDiscussNum = Integer.valueOf(node.getText().toString());
-            	newDiscussLink = node.getAttributeByName("href");
+            	newDiscussNum = Integer.valueOf(node.text());
+            	newDiscussLink = node.attr("href");
             }
             
             // дневник
-            if(node.getParent() != null && node.getParent().getParent() != null && 
-               node.getParent().getParent().hasAttribute("id") && node.getParent().getParent().getAttributeByName("id").equals("new_comments_count"))
+            if(node.parent() != null && node.parent().parent() != null && node.parent().parent().attr("id").equals("new_comments_count"))
             {
             	hasNewDiaryComments = true;
-            	newDiaryCommentsNum = Integer.valueOf(node.getText().toString());
-                newDiaryLink = node.getAttributeByName("href");
+            	newDiaryCommentsNum = Integer.valueOf(node.text());
+                newDiaryLink = node.attr("href");
             }
         }
         
@@ -120,14 +121,13 @@ public class UserData implements DiaryList.onUserDataParseListener
         return false;
     }
 
-	public void updateCurrentDiary(TagNode tag)
+	public void updateCurrentDiary(Element tag)
 	{
 		currentDiaryURL = Globals.mDHCL.lastURL;
 		
-		TagNode author = tag.findElementByAttValue("id", "authorName", true, true);
-        if(author != null)
+        if(tag != null)
         {
-            String Id = author.getAttributeByName("href");
+            String Id = tag.getElementsByTag("a").last().attr("href");
             currentDiaryId = Id.substring(Id.lastIndexOf("?") + 1);
         }
         else

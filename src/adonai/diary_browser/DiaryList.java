@@ -76,9 +76,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 {
     public interface onUserDataParseListener
     {
-        public void parseData(TagNode tag);
+        public void parseData(Element rootNode);
         public boolean updateNeeded();
-        public void updateCurrentDiary(TagNode tag);
+        public void updateCurrentDiary(Element element);
         public void updateCurrentPost(Post post);
     }
     
@@ -512,10 +512,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         TagNode rootNode = postCleaner.clean(favListPage);
-                        
+                        Document Root = Jsoup.parse(favListPage);
                         if(listener != null)
                         {
-                            listener.parseData(rootNode);
+                            listener.parseData(Root);
                             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
                         }
                             
@@ -978,18 +978,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
     {
         mUser.currentDiaryPosts.clear();
-        //TagNode rootNode = postCleaner.clean(dataPage);
     	Document rootNode = Jsoup.parse(dataPage);
 
-    	/*
+    	
         if(listener != null)
         {
-        	listener.updateCurrentDiary(rootNode);
+        	listener.updateCurrentDiary(rootNode.select("[id=authorName]").first());
         	
         	listener.parseData(rootNode);
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
-        */
+        
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
@@ -1015,8 +1014,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 Element authorNode = post.getElementsByAttributeValue("class", "authorName").first();
                 if(authorNode != null)
                 {
-                    currentPost.set_author(authorNode.getElementsByTag("a").text());
-                    currentPost.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
+                    currentPost.set_author(authorNode.getElementsByTag("a").last().text());
+                    currentPost.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
                 }
                 Element communityNode = post.getElementsByAttributeValue("class", "communityName").first();
                 if(communityNode != null)
@@ -1057,13 +1056,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	mUser.currentPostComments.clear();
         //TagNode rootNode = postCleaner.clean(dataPage);
         Document rootNode = Jsoup.parse(dataPage);
-        /*
+        
         if(listener != null)
         {
             listener.parseData(rootNode);
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
-        */
+        
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         
         // сначала получаем первый пост
@@ -1083,8 +1082,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	        Element authorNode = postsArea.getElementsByAttributeValue("class", "authorName").first();
 	        if(authorNode != null)
 	        {
-	            currentPost.set_author(authorNode.getElementsByTag("a").text());
-	            currentPost.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
+	            currentPost.set_author(authorNode.getElementsByTag("a").last().text());
+	            currentPost.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
 	        }
 	        
 	        Element contentNode = postsArea.getElementsByAttributeValue("class", "paragraph").first();
@@ -1129,8 +1128,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             Element authorNode = comment.getElementsByClass("authorName").first();
             if(authorNode != null)
             {
-                currentComment.set_author(authorNode.getElementsByTag("a").text());
-                currentComment.set_author_URL(authorNode.getElementsByTag("a").attr("href"));
+                currentComment.set_author(authorNode.getElementsByTag("a").last().text());
+                currentComment.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
             }
             Element contentNode = comment.getElementsByClass("paragraph").first();
             if(contentNode != null)
