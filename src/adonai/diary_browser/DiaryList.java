@@ -509,9 +509,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     // столбцам таблицы, идиот!!
                     {
                         mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
-                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
-                        
+                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         TagNode rootNode = postCleaner.clean(favListPage);
                         
                         if(listener != null)
@@ -995,11 +994,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         Element postsArea = rootNode.select("[id=postsArea]").first();
-        for (Element post : postsArea.getElementsByAttributeValueContaining("class", "singlePost"))
+        for (Element post : postsArea.children())
         {
             // не парсим пока что ссылки RSS
         	// TODO: Сделать переходы по страницам (и для комментов в том числе)
-            if (post.hasAttr("id"))
+            if (post.hasAttr("id") && post.className().contains("singlePost"))
             {
                 Post currentPost = new Post();
                 
