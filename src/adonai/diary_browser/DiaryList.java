@@ -977,7 +977,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
     {
-        //mUser.currentDiaryPosts.clear();
+        mUser.currentDiaryPosts.clear();
         //TagNode rootNode = postCleaner.clean(dataPage);
     	Document rootNode = Jsoup.parse(dataPage);
 
@@ -1054,7 +1054,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
-    	//mUser.currentPostComments.clear();
+    	mUser.currentPostComments.clear();
         //TagNode rootNode = postCleaner.clean(dataPage);
         Document rootNode = Jsoup.parse(dataPage);
         /*
