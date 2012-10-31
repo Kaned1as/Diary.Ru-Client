@@ -73,7 +73,9 @@ import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener
 {
-    public interface onUserDataParseListener
+    
+
+	public interface onUserDataParseListener
     {
         public void parseData(Element rootNode);
         public boolean updateNeeded();
@@ -663,33 +665,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             // Если это действительно нужный тэг
             if(span.getURL().contains("#more"))
             {
-            	final int i = effective_index;
+            	int i = effective_index;
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
-                ClickableSpan more_span = new ClickableSpan()
-                {
-                    @Override
-                    public void onClick(View widget)
-                    {
-                    	PostContentBuilder onscreenText = contentPart.getRealContainer();
-                        int start = onscreenText.getSpanStart(this);
-                        int end = onscreenText.getSpanEnd(this);
-                        MoreTag content = contentPart.getMore();
-                        if(content == null)
-                            return;
-                        
-                        PostContentBuilder hiddenText = new PostContentBuilder(content.get(i), content.getChild(i));
-                        formatText(hiddenText);
-                        
-                        // вставляем содержимое тэга после его названия
-                        onscreenText.insert(end, hiddenText);
-                        // удаляем кликабельный текст
-                        onscreenText.removeSpan(this);
-                        // удаляем текст тэга
-                        onscreenText.delete(start, end);
-                        mUiHandler.sendEmptyMessage(HANDLE_SERVICE_RELOAD_CONTENT);
-                    }
-                };
+                ClickableSpan more_span = new MoreTagSpan(contentPart, i);
                 contentPart.removeSpan(span);
                 contentPart.setSpan(more_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             	effective_index++;
@@ -698,15 +677,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             {
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
-                URLSpan url_span = new URLSpan(span.getURL())
-                {
-                    @Override
-                    public void onClick(View widget)
-                    {
-                    	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, getURL()));
-                    }
-                };
+                URLSpan url_span = new UrlTagSpan(span.getURL());
                 contentPart.removeSpan(span);
                 contentPart.setSpan(url_span, url_start, url_end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 if(span.getURL().contains("diary.ru")) // предположительно, наша страничка
@@ -717,9 +688,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	ImageSpan[] imageSpans = contentPart.getSpans(0, contentPart.length(), ImageSpan.class);
         for (final ImageSpan span : imageSpans)
         {            
-            final String image_src = span.getSource();
-            final int start = contentPart.getSpanStart(span);
-            final int end = contentPart.getSpanEnd(span);
+            String image_src = span.getSource();
+            int start = contentPart.getSpanStart(span);
+            int end = contentPart.getSpanEnd(span);
             
             // Если это смайлик или системное изображение
             // загрузка изображений обрабатывается в сервисном потоке - обязательно!
@@ -735,73 +706,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             }
             
             // делаем каждую картинку кликабельной
-            ClickableSpan imageAction = new ClickableSpan()
-            {       
-                @Override
-                public void onClick(View widget)
-                {
-                    PostContentBuilder container = contentPart.getRealContainer();
-                    if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
-                    {
-                        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(container, span)));
-                        Toast.makeText(DiaryList.this, R.string.loading, Toast.LENGTH_SHORT).show();
-                    }
-                    else // если картинки уже нет
-                    {
-                    	// вообще она будет одна, но на всякий случай я оставляю цикл
-                    	// Мы назначаем картинку туда же, где размещен текущий спан клика, соответственно, это способ ее разыскать.
-                        ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
-                        for(final ImageSpan loadedSpan : loadedSpans)
-                        {
-                        	ArrayList<String> itemsBuilder = new ArrayList<String>();
-                        	itemsBuilder.add(getString(R.string.image_save));
-                        	itemsBuilder.add(getString(R.string.image_open));
-                        	
-                        	// Ищем, ссылается ли картинка куда-нибудь
-                        	final URLSpan[] imageURL = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), URLSpan.class);
-                        	if(imageURL.length > 0)
-                        		itemsBuilder.add(getString(R.string.image_open_link));
-                        		
-                        	final String[] items = itemsBuilder.toArray(new String[0]);
-                        	AlertDialog.Builder builder = new AlertDialog.Builder(DiaryList.this);
-                        	builder.setTitle(R.string.image_action);
-                        	builder.setItems(items, new DialogInterface.OnClickListener() 
-                        	{
-                        	    public void onClick(DialogInterface dialog, int item) 
-                        	    {
-                        	    	switch(item)
-                        	    	{
-                        	    		case 0: // save
-                        	    			String filename = loadedSpan.getSource();
-                        	    			CacheManager.saveDataToSD(getApplicationContext(), filename);
-                        	    		break;
-                        	    		case 1: // open
-                        	    			// Если картинка не нуждается в увеличении...
-                                        	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
-                                        	{
-                                        		Toast.makeText(DiaryList.this, getString(R.string.image_fullsize), Toast.LENGTH_SHORT).show();
-                                        		return;
-                                        	}
-                                        	
-                                        	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-                                        	BitmapDrawable sendDrawable = (BitmapDrawable) loadedSpan.getDrawable().getConstantState().newDrawable();
-                                        	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
-                                            Globals.tempDrawable = sendDrawable;
-                                            startActivity(intent);
-                        	    		break;
-                        	    		case 2: // open Link
-                        	    			imageURL[0].onClick(getCurrentFocus());
-                        	    		break;
-                        	    	}
-                        	    	dialog.dismiss();
-                        	    }
-                        	});
-                        	AlertDialog alert = builder.create();
-                        	alert.show();
-                        }
-                    }
-                }   
-            };
+            ClickableSpan imageAction = new ImageTagSpan(contentPart, span);
             
             // Это хак. Делаем наш кликабельный спэн первым в списке, т.е. более приоритетным
             ClickableSpan[] click_spans = contentPart.getSpans(start, end, ClickableSpan.class);
@@ -929,19 +834,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     			break;
     	}
     }
-
-    public class DiaryImageGetter implements Html.ImageGetter
-	{
-		public Drawable getDrawable(String source)
-		{
-			Drawable loader = getResources().getDrawable(R.drawable.load_image);
-            loader.setBounds(0, 0, loader.getIntrinsicWidth(), loader.getIntrinsicHeight());
-
-			return loader;
-		}
-		
-	}
-
 
     /* (non-Javadoc)
      * @see android.app.Activity#onBackPressed()
@@ -1253,4 +1145,151 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 			load_cached = sharedPreferences.getBoolean(key, false);
 		}
 	}
+	
+	
+	
+	/**
+	 * =======================
+	 * Вспомогательные классы
+	 * =======================
+	 */
+	
+	public class MoreTagSpan extends ClickableSpan 
+    {
+		private final PostContentBuilder contentPart;
+		private final int i;
+
+		public MoreTagSpan(PostContentBuilder contentPart, int i) 
+		{
+			this.contentPart = contentPart;
+			this.i = i;
+		}
+
+		@Override
+		public void onClick(View widget)
+		{
+			PostContentBuilder onscreenText = contentPart.getRealContainer();
+		    int start = onscreenText.getSpanStart(this);
+		    int end = onscreenText.getSpanEnd(this);
+		    MoreTag content = contentPart.getMore();
+		    if(content == null)
+		        return;
+		    
+		    PostContentBuilder hiddenText = new PostContentBuilder(content.get(i), content.getChild(i));
+		    formatText(hiddenText);
+		    
+		    // вставляем содержимое тэга после его названия
+		    onscreenText.insert(end, hiddenText);
+		    // удаляем кликабельный текст
+		    onscreenText.removeSpan(this);
+		    // удаляем текст тэга
+		    onscreenText.delete(start, end);
+		    mUiHandler.sendEmptyMessage(HANDLE_SERVICE_RELOAD_CONTENT);
+		}
+	}
+
+	public class UrlTagSpan extends URLSpan 
+	{
+		public UrlTagSpan(String url) 
+		{
+			super(url);
+		}
+
+		@Override
+		public void onClick(View widget)
+		{
+			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+		    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, getURL()));
+		}
+	}
+
+	public class ImageTagSpan extends ClickableSpan 
+    {
+		private final PostContentBuilder contentPart;
+		private final ImageSpan span;
+
+		public ImageTagSpan(PostContentBuilder contentPart, ImageSpan span) 
+		{
+			this.contentPart = contentPart;
+			this.span = span;
+		}
+
+		@Override
+		public void onClick(View widget)
+		{
+		    PostContentBuilder container = contentPart.getRealContainer();
+		    if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
+		    {
+		        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(container, span)));
+		        Toast.makeText(DiaryList.this, R.string.loading, Toast.LENGTH_SHORT).show();
+		    }
+		    else // если картинки уже нет
+		    {
+		    	// вообще она будет одна, но на всякий случай я оставляю цикл
+		    	// Мы назначаем картинку туда же, где размещен текущий спан клика, соответственно, это способ ее разыскать.
+		        ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
+		        for(final ImageSpan loadedSpan : loadedSpans)
+		        {
+		        	ArrayList<String> itemsBuilder = new ArrayList<String>();
+		        	itemsBuilder.add(getString(R.string.image_save));
+		        	itemsBuilder.add(getString(R.string.image_open));
+		        	
+		        	// Ищем, ссылается ли картинка куда-нибудь
+		        	final URLSpan[] imageURL = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), URLSpan.class);
+		        	if(imageURL.length > 0)
+		        		itemsBuilder.add(getString(R.string.image_open_link));
+		        		
+		        	final String[] items = itemsBuilder.toArray(new String[0]);
+		        	AlertDialog.Builder builder = new AlertDialog.Builder(DiaryList.this);
+		        	builder.setTitle(R.string.image_action);
+		        	builder.setItems(items, new DialogInterface.OnClickListener() 
+		        	{
+		        	    public void onClick(DialogInterface dialog, int item) 
+		        	    {
+		        	    	switch(item)
+		        	    	{
+		        	    		case 0: // save
+		        	    			String filename = loadedSpan.getSource();
+		        	    			CacheManager.saveDataToSD(getApplicationContext(), filename);
+		        	    		break;
+		        	    		case 1: // open
+		        	    			// Если картинка не нуждается в увеличении...
+		                        	if(loadedSpan.getDrawable().getIntrinsicWidth() < gMetrics.widthPixels)
+		                        	{
+		                        		Toast.makeText(DiaryList.this, getString(R.string.image_fullsize), Toast.LENGTH_SHORT).show();
+		                        		return;
+		                        	}
+		                        	
+		                        	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+		                        	BitmapDrawable sendDrawable = (BitmapDrawable) loadedSpan.getDrawable().getConstantState().newDrawable();
+		                        	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+		                            Globals.tempDrawable = sendDrawable;
+		                            startActivity(intent);
+		        	    		break;
+		        	    		case 2: // open Link
+		        	    			imageURL[0].onClick(getCurrentFocus());
+		        	    		break;
+		        	    	}
+		        	    	dialog.dismiss();
+		        	    }
+		        	});
+		        	AlertDialog alert = builder.create();
+		        	alert.show();
+		        }
+		    }
+		}
+	}
+	
+	public class DiaryImageGetter implements Html.ImageGetter
+	{
+		public Drawable getDrawable(String source)
+		{
+			Drawable loader = getResources().getDrawable(R.drawable.load_image);
+            loader.setBounds(0, 0, loader.getIntrinsicWidth(), loader.getIntrinsicHeight());
+
+			return loader;
+		}
+		
+	}
+	
 }
