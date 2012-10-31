@@ -863,6 +863,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	
 	public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) 
 	{
+		if(parent.isGroupExpanded(groupPosition))
+		{
+			parent.collapseGroup(groupPosition);
+			return true;
+		}
+		
 		if(((DiscussionList)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
 		{
 			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);

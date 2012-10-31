@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center_vertical"
@@ -10,22 +11,25 @@
 
     <TextView
         android:id="@+id/discussion_title"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_toLeftOf="@+id/discussion_last_post"
         android:background="@android:drawable/list_selector_background"
         android:ellipsize="marquee"
-        android:maxEms="15"
         android:text="@string/title"
         android:textSize="16dip"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/discussion_last_post"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerHorizontal="true"
         android:gravity="right"
         android:minEms="5"
         android:text="@string/last_post"
         android:textSize="12dip" />
 
-</LinearLayout>
+</RelativeLayout>
