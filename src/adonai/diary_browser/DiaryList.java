@@ -33,6 +33,7 @@ import android.os.Message;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -43,6 +44,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.ClipboardManager;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -297,9 +299,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         else
         	menu.findItem(R.id.menu_new_comment).setVisible(false);
         
+        if(mCurrentBrowser != DIARY_LIST)
+        	menu.findItem(R.id.menu_share).setVisible(true);
+        else 
+        	menu.findItem(R.id.menu_share).setVisible(false);
+        
 		return super.onPrepareOptionsMenu(menu);
 	}
 
+    // старые телефоны тоже должны работать
+	@SuppressWarnings("deprecation")
 	@Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -313,6 +322,22 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	return true;
             case R.id.menu_settings:
             	startActivity(new Intent(this, PreferencesScreen.class));
+            	return true;
+            case R.id.menu_share:
+            	ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            	switch(mCurrentBrowser)
+            	{
+            		case POST_LIST:
+            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryURL, Toast.LENGTH_SHORT).show();
+            			clipboard.setText(mUser.currentDiaryURL);
+            		break;
+            		case COMMENT_LIST:
+            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentPostURL, Toast.LENGTH_SHORT).show();
+            			clipboard.setText(mUser.currentPostURL);
+            		break;
+            		default:
+            			return false;
+            	}
             	return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -656,8 +681,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     // форматируем текст перед выведением в TextView в списках
     private void formatText(final PostContentBuilder contentPart)
     {
+    	//обрабатываем разные тэги
+    	
+    	/*
+    	 * ===========
+    	 * Тэги [MORE]
+    	 * ===========
+    	 */
         URLSpan[] urlSpans = contentPart.getSpans(0, contentPart.length(), URLSpan.class);
-        
         // индекс тэга в списке нужных (т.е. только тех, где есть #more)
         int effective_index = 0;
         for (URLSpan span : urlSpans)
@@ -675,6 +706,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             }
             else // если обычный URL
             {
+            	/*
+            	 * ===========
+            	 * Тэги [URL]
+            	 * ===========
+            	 */
                 int url_start = contentPart.getSpanStart(span);
                 int url_end = contentPart.getSpanEnd(span);
                 URLSpan url_span = new UrlTagSpan(span.getURL());
@@ -685,6 +721,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             }
         }
         
+        /*
+    	 * ===========
+    	 * Тэги [IMG]
+    	 * ===========
+    	 */
     	ImageSpan[] imageSpans = contentPart.getSpans(0, contentPart.length(), ImageSpan.class);
         for (final ImageSpan span : imageSpans)
         {            
@@ -710,10 +751,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             
             // Это хак. Делаем наш кликабельный спэн первым в списке, т.е. более приоритетным
             ClickableSpan[] click_spans = contentPart.getSpans(start, end, ClickableSpan.class);
+            // сперва удаляем все
             for (ClickableSpan c_span : click_spans)
                 contentPart.removeSpan(c_span);
-            
+            // добавляем наш
             contentPart.setSpan(imageAction, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            // добавляем удаленные
             for (ClickableSpan c_span : click_spans)
                 contentPart.setSpan(c_span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
             
@@ -1148,7 +1191,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	
 	
 	
-	/**
+	/*
 	 * =======================
 	 * Вспомогательные классы
 	 * =======================

@@ -2,13 +2,10 @@ package adonai.diary_browser;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
-
 import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;

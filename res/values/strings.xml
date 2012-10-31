@@ -64,4 +64,6 @@
     <string name="cache_size_summary">Amount of cache for images and posts that will be stored in your cache folder, in MBytes</string>
     <string name="autoload_cached_images">Autoload cached images</string>
     <string name="autoload_cached_images_summary">Check to automatically load all pictures that are stored in cache on page load.</string>
+    <string name="menu_share">Share</string>
+    <string name="copied">Copied: </string>
 </resources>

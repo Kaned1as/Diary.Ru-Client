@@ -63,4 +63,6 @@
     <string name="cache_size_summary">Размер кэша, используемого для картинок и постов, в МБ</string>
     <string name="autoload_cached_images">Автозагрузка кэша</string>
     <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.</string>
+    <string name="menu_share">Поделиться</string>
+    <string name="copied">Скопировано: </string>
 </resources>
