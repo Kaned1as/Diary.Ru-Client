@@ -3,8 +3,6 @@ package adonai.diary_browser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.net.URL;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
@@ -55,7 +53,7 @@ public class Utils
         			break cache_and_load;
         		
         		
-	            InputStream is = (InputStream) new URL(url).getContent();
+	            InputStream is = (InputStream) Globals.mDHCL.getPage(url).getEntity().getContent();
 	            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 	            int nRead;
 	            while ((nRead = is.read()) != -1)
@@ -63,6 +61,7 @@ public class Utils
 	            buffer.flush();
 	            CacheManager.cacheData(context.getApplicationContext(), buffer.toByteArray(), realName);
 	            buffer.close();
+	            is.close();
         	}
 
             InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(context.getApplicationContext(), realName));

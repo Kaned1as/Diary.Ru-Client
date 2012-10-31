@@ -3,16 +3,14 @@ package adonai.diary_browser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.htmlcleaner.FastHtmlSerializer;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.SimpleHtmlSerializer;
-import org.htmlcleaner.TagNode;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -145,7 +143,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     // Сервисные объекты
     DiaryHttpClient mDHCL = Globals.mDHCL;
-    HtmlCleaner postCleaner;
     UserData mUser = Globals.mUser;
     onUserDataParseListener listener;
     DisplayMetrics gMetrics;
@@ -162,8 +159,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);      
-        postCleaner = new HtmlCleaner();
-        postCleaner.getProperties().setOmitComments(true);
         
         setUserDataListener(mUser);
         
@@ -466,13 +461,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     }
                     break;
                     case HANDLE_SET_HTTP_COOKIE:
+                    {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
                         nameValuePairs.add(new BasicNameValuePair("user_login", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
                         nameValuePairs.add(new BasicNameValuePair("user_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
                         nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
                         
-                        mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
-                        String loginScreen = EntityUtils.toString(mDHCL.response.getEntity());
+                        HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                        String loginScreen = EntityUtils.toString(page.getEntity());
                         
                         if (loginScreen.contains("Если браузер не перенаправляет вас автоматически"))
                         { // login successful
@@ -505,12 +501,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         
                         mUiHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
                         return true;
+                    }
                     case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     // TODO: Исправить все к чертям!! Поставить строгое извлечение по
                     // столбцам таблицы, идиот!!
                     {
-                        mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
-                        String favListPage = EntityUtils.toString(mDHCL.response.getEntity());
+                    	HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
+                        String favListPage = EntityUtils.toString(page.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         Document rootNode = Jsoup.parse(favListPage);
                         if(listener != null)
@@ -560,8 +557,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     case HANDLE_GET_DIARY_POSTS_DATA:
                     {
                         String URL = (String) message.obj;
-                        mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        HttpResponse page = mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(page.getEntity());
                         
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
@@ -574,8 +571,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     {
                         String URL = (String)message.obj;
                         
-                    	mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        HttpResponse page = mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(page.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
                         serializeCommentsPage(dataPage, null);
@@ -587,8 +584,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     {
                         mUser.favoritePosts.clear();
                         String URL = mUser.ownDiaryURL + "?favorite";
-                        mDHCL.postPage(URL, null);
-                        String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+                        HttpResponse page = mDHCL.postPage(URL, null);
+                        String dataPage = EntityUtils.toString(page.getEntity());
                         
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
@@ -1182,7 +1179,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void checkUrlAndHandle(String URL)
     {
-    	if(mDHCL.postPage(URL, null) == null)
+    	HttpResponse page = mDHCL.postPage(URL, null);
+    	if(page == null)
     	{
     		pd.dismiss();
     		return;
@@ -1191,7 +1189,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	int handled = -1;
     	try 
     	{
-			String dataPage = EntityUtils.toString(mDHCL.response.getEntity());
+    		
+			String dataPage = EntityUtils.toString(page.getEntity());
 			handled = Utils.checkDiaryUrl(dataPage);
 			
 			if(handled != -1) // Если это страничка дайри

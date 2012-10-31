@@ -2,7 +2,6 @@ package adonai.diary_browser;
 
 import java.util.ArrayList;
 
-import org.htmlcleaner.TagNode;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 

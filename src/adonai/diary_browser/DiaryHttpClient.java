@@ -1,11 +1,13 @@
 package adonai.diary_browser;
 
 import java.io.IOException;
-
+import java.net.URI;
+import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
@@ -22,8 +24,8 @@ public class DiaryHttpClient
     HttpContext localContext = new BasicHttpContext();
     CookieStore cookieStore = new BasicCookieStore();
 
-    HttpResponse response = null;
-    HttpPost httpPost = null;
+    private HttpPost httpPost = null;
+    private HttpGet httpGet = null;
     String lastURL = "";
 
     public DiaryHttpClient() 
@@ -53,10 +55,11 @@ public class DiaryHttpClient
     	}
     }
 
-    public HttpResponse postPage(String url, HttpEntity data) {
+    public HttpResponse postPage(String url, HttpEntity data) 
+    {
 
     	httpPost = new HttpPost(url);
-    	response = null;
+    	HttpResponse response = null;
     	
     	if(data != null)
     		httpPost.setEntity(data);
@@ -66,11 +69,41 @@ public class DiaryHttpClient
     	try 
     	{
     		response = httpClient.execute(httpPost,localContext);
-    	} catch (ClientProtocolException e) {
+    	} 
+    	catch (ClientProtocolException e) 
+    	{
     		System.out.println("HTTPHelp : ClientProtocolException : " + e);
-    	} catch (IOException e) {
+    	} 
+    	catch (IOException e) 
+    	{
     		System.out.println("HTTPHelp : IOException : " + e);
     	} 
+  		return response;
+    }
+    
+    public HttpResponse getPage(String url) 
+    {
+    	
+    	HttpResponse response = null;
+
+    	try 
+    	{
+    		URI address = new URI(lastURL).resolve(url);
+        	httpGet = new HttpGet(address.toURL().toString());
+    		response = httpClient.execute(httpGet, localContext);
+    	} 
+    	catch (ClientProtocolException e) 
+    	{
+    		System.out.println("HTTPHelp : ClientProtocolException : " + e);
+    	} 
+    	catch (IOException e) 
+    	{
+    		System.out.println("HTTPHelp : IOException : " + e);
+    	} catch (URISyntaxException e) 
+    	{
+			e.printStackTrace();
+		} 
+    	
   		return response;
     }
 }
