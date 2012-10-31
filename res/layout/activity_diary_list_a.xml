@@ -70,9 +70,9 @@
                     android:layout_height="match_parent" >
 
                     <ListView
-                        android:id="@+id/favourite_browser"
+                        android:id="@+id/diary_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent"
+                        android:layout_height="match_parent"
                         android:cacheColorHint="@android:color/transparent" >
 
                     </ListView>
@@ -80,7 +80,7 @@
                     <ListView
                         android:id="@+id/post_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent"
+                        android:layout_height="match_parent"
                         android:cacheColorHint="@android:color/transparent" >
 
                     </ListView>
@@ -88,10 +88,17 @@
                     <ListView
                         android:id="@+id/comment_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="fill_parent"
+                        android:layout_height="match_parent"
                         android:cacheColorHint="@android:color/transparent" >
 
                     </ListView>
+
+                    <ExpandableListView
+                        android:id="@+id/discussion_browser"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" >
+                    </ExpandableListView>
+
                 </FrameLayout>
             </FrameLayout>
 

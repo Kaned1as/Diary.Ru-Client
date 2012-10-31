@@ -20,6 +20,8 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentListArrayAdapter;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
+import adonai.diary_browser.entities.DiscussionList;
+import adonai.diary_browser.entities.DiscussionListArrayAdapter;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.PostListArrayAdapter;
 import adonai.diary_browser.preferences.PreferencesScreen;
@@ -63,6 +65,9 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
+import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -71,7 +76,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener
+public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener
 {
     
 
@@ -101,6 +106,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     private static final int HANDLE_PROGRESS_2 = 8;
     private static final int HANDLE_PICK_URL = 9;
     private static final int HANDLE_UPDATE_HEADERS = 10;
+    private static final int HANDLE_GET_DISCUSSIONS_DATA = 11;
+    private static final int HANDLE_GET_DISCUSSION_LIST_DATA = 12;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 100;
@@ -118,6 +125,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int POST_LIST = 1;
     public static final int COMMENT_LIST = 2;
     public static final int AUTHOR_PAGE = 3;
+    public static final int DISCUSSION_LIST = 4;
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
@@ -130,14 +138,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     PostListArrayAdapter mFavPostListAdapter;
     PostListArrayAdapter mOwnDiaryPostListAdapter;
     CommentListArrayAdapter mCommentListAdapter;
+    DiscussionListArrayAdapter mDiscussionsAdapter;
     
     // Видимые объекты
     TextView mLogin;
     TextView mDiscussNum;
     TextView mCommentsNum;
-    ListView mFavouriteBrowser;
+    ListView mDiaryBrowser;
     ListView mPostBrowser;
     ListView mCommentBrowser;
+    ExpandableListView mDiscussionBrowser;
     
     ImageButton mExitButton;
     TabHost mTabHost;
@@ -192,9 +202,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         
-        mFavouriteBrowser = (ListView) findViewById(R.id.favourite_browser);
+        mDiaryBrowser = (ListView) findViewById(R.id.diary_browser);
         mPostBrowser = (ListView) findViewById(R.id.post_browser);
         mCommentBrowser = (ListView) findViewById(R.id.comment_browser);
+        mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
         mLogin.setText(mUser.userName);
@@ -247,13 +258,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favorites);
-        mFavouriteBrowser.setAdapter(mFavouritesAdapter);
+        mDiaryBrowser.setAdapter(mFavouritesAdapter);
         mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
         mFavPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.favoritePosts);
         mOwnDiaryPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.ownDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
         mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
         mCommentBrowser.setAdapter(mCommentListAdapter);
+        mDiscussionsAdapter = new DiscussionListArrayAdapter(this, mUser.discussions);
+        mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
+        mDiscussionBrowser.setOnChildClickListener(this);
+        mDiscussionBrowser.setOnGroupClickListener(this);
         
         mTabHost.setCurrentTab(mCurrentTab);
         setCurrentVisibleComponent(mCurrentBrowser);
@@ -412,11 +427,20 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mPostBrowser.setAdapter(mFavPostListAdapter);
                     pd.dismiss();
                 break;
+                case HANDLE_GET_DISCUSSIONS_DATA:
+                	setCurrentVisibleComponent(DISCUSSION_LIST);
+                	pd.dismiss();
+                break;
                 case HANDLE_AUTHORIZATION_ERROR:
                     pd.dismiss();
                     Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                     finish();
+                break;
+                case HANDLE_GET_DISCUSSION_LIST_DATA:
+                	int pos = (Integer) message.obj;
+                	mDiscussionBrowser.expandGroup(pos);
+                	pd.dismiss();
                 break;
                 default:
                     return false;
@@ -520,8 +544,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
                         	return false;
                         }
-                    	
                         String favListPage = EntityUtils.toString(page.getEntity());
+                        
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         Document rootNode = Jsoup.parse(favListPage);
                         if(listener != null)
@@ -549,16 +573,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             if (title != null && author != null && last_post != null)
                             {
                             	Diary diary = new Diary();
-                            	diary.setTitle(title.getElementsByTag("b").text());
-                                diary.setDiaryUrl(title.attr("href"));
+                            	diary.set_title(title.getElementsByTag("b").text());
+                                diary.set_URL(title.attr("href"));
                                 
-                                diary.setAuthor(author.text());
+                                diary.set_author(author.text());
                                 String authorData = author.attr("href");
-                                diary.setAuthorUrl(authorData);
+                                diary.set_author_URL(authorData);
                                 diary.set_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
                                 
-                                diary.setLastPost(last_post.text());
-                                diary.setLastPostUrl(last_post.attr("href"));
+                                diary.set_last_post(last_post.text());
+                                diary.set_last_post_URL(last_post.attr("href"));
                                 
                                 mUser.favorites.add(diary);
                                 title = author = last_post = null;
@@ -579,8 +603,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
                         
-                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
-                        
                         serializePostsPage(dataPage, null);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
@@ -597,7 +619,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
-                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
                         serializeCommentsPage(dataPage, null);
                           
@@ -614,15 +635,42 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
                         	return false;
                         }
-                        
                         String dataPage = EntityUtils.toString(page.getEntity());
-                        
-                        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
                         serializePostsPage(dataPage, mUser.favoritePosts);       
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITE_POSTS_DATA);
                         return true;
+                    }
+                    case HANDLE_GET_DISCUSSIONS_DATA:
+                    {
+                    	HttpResponse page = mDHCL.postPage("http://www.diary.ru/discussion/", null);
+                    	if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	return false;
+                        }
+                    	String dataPage = EntityUtils.toString(page.getEntity());
+                    	serializeDiscussionsPage(dataPage, null); 
+                    	
+                    	mUiHandler.sendEmptyMessage(HANDLE_GET_DISCUSSIONS_DATA);
+                    	return true;
+                    }
+                    case HANDLE_GET_DISCUSSION_LIST_DATA:
+                    {
+                    	int pos = (Integer) message.obj;
+                    	DiscussionList dList = (DiscussionList) mDiscussionBrowser.getExpandableListAdapter().getGroup(pos);
+                    	HttpResponse page = mDHCL.postPage(dList.get_URL(), null);
+                        if(page == null)
+                        {
+                        	mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, pos));
+                        	return false;
+                        }
+                        String dataPage = EntityUtils.toString(page.getEntity());
+                        serializeDiscussions(dataPage, dList.getDiscussions());
+                        
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, pos));
+                    	return true;
                     }
                     case HANDLE_PICK_URL:
                     {
@@ -773,15 +821,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         } else
             switch (view.getId())
             {
+            	// Загружаем посты дневника
                 case R.id.title:
                 {
-                    int pos = mFavouriteBrowser.getPositionForView((View) view.getParent());
+                    int pos = mDiaryBrowser.getPositionForView((View) view.getParent());
                     Diary diary = mUser.favorites.get(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.getDiaryUrl()));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.get_URL()));
                 }
                 break;
+                // Загружаем комменты поста
                 case R.id.post_title:
                 case R.id.comments_number:
                 {
@@ -800,6 +850,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
             }
     }
+    
+
+    // Загружаем дискуссии
+	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) 
+	{
+		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+		String link = ((DiscussionList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).get_URL();
+    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, link));
+		return true;
+	}
+	
+	public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) 
+	{
+		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, groupPosition));
+    	return true;
+	}
     
     /*            is.close();
      * (non-Javadoc) Sets the contents to current tab and hides everything other. In addition, refreshes content on
@@ -826,6 +893,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiaryLink));
                 break;
+                case TAB_DISCUSSIONS:
+                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, mUser.newDiscussLink));
+                break;
                 case TAB_DISCUSSIONS_NEW:
                 	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiscussLink));
@@ -841,10 +912,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     private void setCurrentVisibleComponent(int needed)
     {   
-        mFavouriteBrowser.setVisibility(needed == DIARY_LIST ? View.VISIBLE : View.GONE);
+        mDiaryBrowser.setVisibility(needed == DIARY_LIST ? View.VISIBLE : View.GONE);
         mPostBrowser.setVisibility(needed == POST_LIST ? View.VISIBLE : View.GONE);
         mCommentBrowser.setVisibility(needed == COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
+        mDiscussionBrowser.setVisibility(needed == DISCUSSION_LIST ? View.VISIBLE : View.GONE);
         mCurrentBrowser = needed;
     }
     
@@ -869,9 +941,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     @Override
     public void onBackPressed()
     {
-        if (mPostBrowser.getVisibility() == View.VISIBLE && mTabHost.getCurrentTab() == TAB_FAVOURITES)
+        if (mCurrentBrowser == POST_LIST && mCurrentTab == TAB_FAVOURITES)
             setCurrentVisibleComponent(DIARY_LIST);
-        else if (mCommentBrowser.getVisibility() == View.VISIBLE)
+        
+        if(mCurrentBrowser == COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS)
+        	setCurrentVisibleComponent(DISCUSSION_LIST);
+        	
+        else if (mCurrentBrowser == COMMENT_LIST)
         {
         	// TODO: исправить когда придумается что-то получше
         	// Если мы сразу зашли в список комментов, список постов пустой.
@@ -902,6 +978,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
     {
         mUser.currentDiaryPosts.clear();
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
     	Document rootNode = Jsoup.parse(dataPage);
 
     	
@@ -978,6 +1055,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
     	mUser.currentPostComments.clear();
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         
         if(listener != null)
@@ -1071,6 +1149,52 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentPostComments.add(currentComment);
         }
     }
+    
+    public void serializeDiscussionsPage(String dataPage, List<DiscussionList> destination)
+    {
+    	mUser.discussions.clear();
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+        Document rootNode = Jsoup.parse(dataPage);
+        
+        if(listener != null)
+        {
+            listener.parseData(rootNode);
+            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
+        }
+        
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        Element dIndex = rootNode.getElementById("all_bits");
+        for (Element discussion : dIndex.getElementsByTag("h3"))
+        {
+        	DiscussionList currentDisc = new DiscussionList();
+        	String link = discussion.getElementsByAttributeValueStarting("href", "/discussion/?open[]").attr("href") + "&js";
+        	currentDisc.set_URL(link);
+        	String title = discussion.text();
+        	currentDisc.set_title(title);
+        	
+        	mUser.discussions.add(currentDisc);
+        }
+    }
+    
+    public void serializeDiscussions(String dataPage, ArrayList<DiscussionList.Discussion> destination)
+    {
+    	destination.clear();
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+        Document rootNode = Jsoup.parse(dataPage);
+
+        for (Element discussion : rootNode.getElementsByTag("a"))
+        {
+        	DiscussionList.Discussion currentDisc = new DiscussionList.Discussion();
+        	String link = discussion.attr("href").replace("\\\"", "");
+        	currentDisc.set_URL(link);
+        	String title = discussion.text();
+        	currentDisc.set_title(title);
+        	
+        	destination.add(currentDisc);
+        }
+    }
+    
+    
     
     public void newPostPost()
     {
@@ -1319,5 +1443,4 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		}
 		
 	}
-	
 }

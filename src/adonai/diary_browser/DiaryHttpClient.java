@@ -57,18 +57,18 @@ public class DiaryHttpClient
 
     public HttpResponse postPage(String url, HttpEntity data) 
     {
-
-    	httpPost = new HttpPost(url);
     	HttpResponse response = null;
-    	
-    	if(data != null)
-    		httpPost.setEntity(data);
-    	else
-        	lastURL = url;
 
     	try 
     	{
-    		response = httpClient.execute(httpPost,localContext);
+    		URI address = new URI(lastURL).resolve(url);
+        	httpPost = new HttpPost(address.toURL().toString());
+        	if(data != null)
+        		httpPost.setEntity(data);
+        	else
+            	lastURL = address.toURL().toString();
+        	
+    		response = httpClient.execute(httpPost, localContext);
     	}
     	catch (IllegalStateException isex)
     	{
@@ -82,6 +82,10 @@ public class DiaryHttpClient
     	{
     		System.out.println("HTTPHelp : IOException : " + e);
     	} 
+    	catch (URISyntaxException e) 
+    	{
+			e.printStackTrace();
+		}
   		return response;
     }
     

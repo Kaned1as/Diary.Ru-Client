@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:paddingLeft="80dip" >
+
+    <TextView
+        android:id="@+id/discussion_post_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:background="@android:drawable/list_selector_background"
+        android:ellipsize="marquee"
+        android:maxEms="15"
+        android:text="@string/title"
+        android:textSize="12dip" />
+
+    <TextView
+        android:id="@+id/discussion_post_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="right"
+        android:maxEms="20"
+        android:text="@string/last_post"
+        android:textSize="8dip" />
+
+</LinearLayout>

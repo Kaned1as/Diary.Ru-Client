@@ -21,62 +21,62 @@ public class Diary
     {
 	}
     
-    public void setTitle(String title)
+    public void set_title(String title)
     {
         _title = title;
     }
     
-    public String getTitle()
+    public String get_title()
     {
         return _title;
     }
     
-    public void setDiaryUrl(String url)
+    public void set_URL(String url)
     {
         _url = url;
     }
     
-    public String getDiaryUrl()
+    public String get_URL()
     {
         return _url;
     }
     
-    public void setAuthor(String author)
+    public void set_author(String author)
     {
         _author = author;
     }
     
-    public String getAuthor()
+    public String get_author()
     {
         return _author;
     }
     
-    public void setAuthorUrl(String author_url)
+    public void set_author_URL(String author_url)
     {
         _author_url = author_url;
     }
     
-    public String getAuthorUrl()
+    public String get_author_URL()
     {
         return _author_url;
     }
     
-    public void setLastPost(String last_post)
+    public void set_last_post(String last_post)
     {
         _last_post = last_post;
     }
     
-    public String getLastPost()
+    public String get_last_post()
     {
         return _last_post;
     }
     
-    public void setLastPostUrl(String last_post_url)
+    public void set_last_post_URL(String last_post_url)
     {
         _last_post_url = last_post_url;
     }
     
-    public String getLastPostUrl()
+    public String get_last_post_URL()
     {
         return _last_post_url;
     }
