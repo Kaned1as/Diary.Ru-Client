@@ -69,7 +69,11 @@ public class DiaryHttpClient
     	try 
     	{
     		response = httpClient.execute(httpPost,localContext);
-    	} 
+    	}
+    	catch (IllegalStateException isex)
+    	{
+    		System.out.println("HTTPHelp : no such host : " + isex);
+    	}
     	catch (ClientProtocolException e) 
     	{
     		System.out.println("HTTPHelp : ClientProtocolException : " + e);

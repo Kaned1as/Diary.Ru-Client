@@ -470,6 +470,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
                         
                         HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                        if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	return false;
+                        }
+                        	
                         String loginScreen = EntityUtils.toString(page.getEntity());
                         
                         if (loginScreen.contains("Если браузер не перенаправляет вас автоматически"))
@@ -509,6 +515,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     // столбцам таблицы, идиот!!
                     {
                     	HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
+                    	if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
+                        	return false;
+                        }
+                    	
                         String favListPage = EntityUtils.toString(page.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         Document rootNode = Jsoup.parse(favListPage);
@@ -560,6 +572,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     {
                         String URL = (String) message.obj;
                         HttpResponse page = mDHCL.postPage(URL, null);
+                    	if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	return false;
+                        }
                         String dataPage = EntityUtils.toString(page.getEntity());
                         
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
@@ -574,6 +591,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         String URL = (String)message.obj;
                         
                         HttpResponse page = mDHCL.postPage(URL, null);
+                        if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	return false;
+                        }
                         String dataPage = EntityUtils.toString(page.getEntity());
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
                         
@@ -587,6 +609,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         mUser.favoritePosts.clear();
                         String URL = mUser.ownDiaryURL + "?favorite";
                         HttpResponse page = mDHCL.postPage(URL, null);
+                        if(page == null)
+                        {
+                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	return false;
+                        }
+                        
                         String dataPage = EntityUtils.toString(page.getEntity());
                         
                         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
@@ -1198,7 +1226,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		@Override
 		public void onClick(View widget)
 		{
-			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+			pd = ProgressDialog.show(widget.getContext(), getString(R.string.loading), getString(R.string.loading_data), true, true);
 		    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, getURL()));
 		}
 	}
@@ -1221,7 +1249,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		    if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
 		    {
 		        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(container, span)));
-		        Toast.makeText(DiaryList.this, R.string.loading, Toast.LENGTH_SHORT).show();
+		        Toast.makeText(widget.getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
 		    }
 		    else // если картинки уже нет
 		    {
@@ -1240,7 +1268,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		        		itemsBuilder.add(getString(R.string.image_open_link));
 		        		
 		        	final String[] items = itemsBuilder.toArray(new String[0]);
-		        	AlertDialog.Builder builder = new AlertDialog.Builder(DiaryList.this);
+		        	AlertDialog.Builder builder = new AlertDialog.Builder(widget.getContext());
 		        	builder.setTitle(R.string.image_action);
 		        	builder.setItems(items, new DialogInterface.OnClickListener() 
 		        	{

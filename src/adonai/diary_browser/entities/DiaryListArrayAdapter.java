@@ -3,8 +3,6 @@ package adonai.diary_browser.entities;
 import java.util.List;
 
 import adonai.diary_browser.R;
-import adonai.diary_browser.R.id;
-import adonai.diary_browser.R.layout;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
