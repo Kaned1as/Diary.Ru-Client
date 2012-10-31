@@ -2,6 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:minHeight="40dip"
     android:orientation="horizontal"
     android:paddingLeft="50dip"
     android:paddingRight="10dip" >
@@ -10,7 +12,6 @@
         android:id="@+id/discussion_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:background="@android:drawable/list_selector_background"
         android:ellipsize="marquee"
         android:maxEms="15"
@@ -19,22 +20,12 @@
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/discussion_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:gravity="center_horizontal"
-        android:text="@string/author"
-        android:textSize="10dip" />
-
-    <TextView
         android:id="@+id/discussion_last_post"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:gravity="right"
-        android:maxEms="20"
+        android:minEms="5"
         android:text="@string/last_post"
-        android:textSize="8dip" />
+        android:textSize="12dip" />
 
 </LinearLayout>

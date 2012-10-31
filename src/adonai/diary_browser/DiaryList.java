@@ -863,8 +863,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	
 	public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) 
 	{
-		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, groupPosition));
+		if(((DiscussionList)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
+		{
+			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, groupPosition));
+		}
+		else
+			parent.expandGroup(groupPosition);
     	return true;
 	}
     
@@ -1164,22 +1169,25 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
-        for (Element discussion : dIndex.getElementsByTag("h3"))
+        for (Element item : dIndex.getElementsByTag("h3"))
         {
-        	DiscussionList currentDisc = new DiscussionList();
-        	String link = discussion.getElementsByAttributeValueStarting("href", "/discussion/?open[]").attr("href") + "&js";
-        	currentDisc.set_URL(link);
-        	String title = discussion.text();
-        	currentDisc.set_title(title);
+        	DiscussionList currentList = new DiscussionList();
+        	Element newPosts = item.getElementsByTag("em").first();
+        	currentList.set_last_post(newPosts.text());
+        	newPosts.remove();
         	
-        	mUser.discussions.add(currentDisc);
+        	String link = item.getElementsByAttributeValueStarting("href", "/discussion/?open[]").attr("href") + "&js";
+        	currentList.set_URL(link);
+        	String title = item.text();
+        	currentList.set_title(title);
+        	
+        	mUser.discussions.add(currentList);
         }
     }
     
     public void serializeDiscussions(String dataPage, ArrayList<DiscussionList.Discussion> destination)
     {
     	destination.clear();
-        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
 
         for (Element discussion : rootNode.getElementsByTag("a"))
@@ -1189,6 +1197,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         	currentDisc.set_URL(link);
         	String title = discussion.text();
         	currentDisc.set_title(title);
+        	String date = discussion.previousElementSibling().text();
+        	currentDisc.set_date(date);
+        	
         	
         	destination.add(currentDisc);
         }

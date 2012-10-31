@@ -5,7 +5,6 @@ import adonai.diary_browser.R;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
@@ -67,8 +66,8 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
         
         TextView title = (TextView) view.findViewById(R.id.discussion_title);
         title.setText(discussion.get_title());
-        TextView author = (TextView) view.findViewById(R.id.discussion_author);
-        author.setText(discussion.get_author());
+        TextView newPosts = (TextView) view.findViewById(R.id.discussion_last_post);
+        newPosts.setText(discussion.get_last_post());
         
         return view;
 	}
@@ -84,8 +83,8 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
         
         TextView title = (TextView) view.findViewById(R.id.discussion_post_title);
         title.setText(discussion.get_title());
-        TextView author = (TextView) view.findViewById(R.id.discussion_post_date);
-        author.setText(discussion.get_author());
+        TextView date = (TextView) view.findViewById(R.id.discussion_post_date);
+        date.setText(discussion.get_date());
         
         return view;
 	}
