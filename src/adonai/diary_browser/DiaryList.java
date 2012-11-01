@@ -46,7 +46,6 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.text.ClipboardManager;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -340,7 +339,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	startActivity(new Intent(this, PreferencesScreen.class));
             	return true;
             case R.id.menu_share:
-            	ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            	android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
             	switch(mCurrentBrowser)
             	{
             		case POST_LIST:
@@ -632,7 +631,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
-                        
+
                         serializePostsPage(dataPage, null);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
@@ -649,7 +648,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
-                        
+
                         serializeCommentsPage(dataPage, null);
                           
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
