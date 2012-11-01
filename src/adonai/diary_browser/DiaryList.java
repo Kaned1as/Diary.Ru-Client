@@ -97,19 +97,20 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
 	
     // Команды хэндлерам
-    private static final int HANDLE_AUTHORIZATION_ERROR = 0;
-    private static final int HANDLE_START = 1;
-    private static final int HANDLE_SET_HTTP_COOKIE = 2;
-    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA = 3;
-    private static final int HANDLE_GET_DIARY_POSTS_DATA = 4;
-    private static final int HANDLE_GET_POST_COMMENTS_DATA = 5;
-    private static final int HANDLE_GET_FAVORITE_POSTS_DATA = 6;
-    private static final int HANDLE_PROGRESS = 7;
-    private static final int HANDLE_PROGRESS_2 = 8;
-    private static final int HANDLE_PICK_URL = 9;
-    private static final int HANDLE_UPDATE_HEADERS = 10;
-    private static final int HANDLE_GET_DISCUSSIONS_DATA = 11;
-    private static final int HANDLE_GET_DISCUSSION_LIST_DATA = 12;
+    private static final int HANDLE_AUTHORIZATION_ERROR 					=  -1;
+    private static final int HANDLE_CONNECTIVITY_ERROR 						=  -2;
+    private static final int HANDLE_START 									= 	1;
+    private static final int HANDLE_SET_HTTP_COOKIE 						= 	2;
+    private static final int HANDLE_GET_FAVORITES_COMMUNITIES_DATA 			= 	3;
+    private static final int HANDLE_GET_DIARY_POSTS_DATA 					= 	4;
+    private static final int HANDLE_GET_POST_COMMENTS_DATA 					= 	5;
+    private static final int HANDLE_GET_FAVORITE_POSTS_DATA 				= 	6;
+    private static final int HANDLE_PROGRESS 								= 	7;
+    private static final int HANDLE_PROGRESS_2 								= 	8;
+    private static final int HANDLE_PICK_URL 								= 	9;
+    private static final int HANDLE_UPDATE_HEADERS 							= 	10;
+    private static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
+    private static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_RELOAD_CONTENT = 100;
@@ -467,6 +468,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 	mDiscussionBrowser.expandGroup(pos);
                 	pd.dismiss();
                 break;
+                case HANDLE_CONNECTIVITY_ERROR:
+                    pd.dismiss();
+                    Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                break;
                 default:
                     return false;
             }
@@ -521,7 +526,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                         if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         	
@@ -566,7 +571,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
                     	if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_GET_FAVORITES_COMMUNITIES_DATA);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         String favListPage = EntityUtils.toString(page.getEntity());
@@ -623,7 +628,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         HttpResponse page = mDHCL.postPage(URL, null);
                     	if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
@@ -640,7 +645,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         HttpResponse page = mDHCL.postPage(URL, null);
                         if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
@@ -657,7 +662,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         HttpResponse page = mDHCL.postPage(URL, null);
                         if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
@@ -672,7 +677,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	HttpResponse page = mDHCL.postPage("http://www.diary.ru/discussion/", null);
                     	if(page == null)
                         {
-                        	mUiHandler.sendEmptyMessage(HANDLE_AUTHORIZATION_ERROR);
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                     	String dataPage = EntityUtils.toString(page.getEntity());
@@ -688,7 +693,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	HttpResponse page = mDHCL.postPage(dList.get_URL(), null);
                         if(page == null)
                         {
-                        	mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, pos));
+                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                         	return false;
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
@@ -1286,7 +1291,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	HttpResponse page = mDHCL.postPage(URL, null);
     	if(page == null)
     	{
-    		pd.dismiss();
+    		mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
     		return;
     	}
     	
