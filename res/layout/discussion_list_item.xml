@@ -28,7 +28,6 @@
         android:layout_alignParentRight="true"
         android:layout_centerHorizontal="true"
         android:gravity="right"
-        android:minEms="5"
         android:text="@string/last_post"
         android:textSize="12dip" />
 
