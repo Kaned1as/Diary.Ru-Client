@@ -6,12 +6,14 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.DiscussionList;
 import adonai.diary_browser.entities.Post;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
 	// Динамические списки постов
     ArrayList<Diary> favorites;
+    ArrayList<DiscussionList> discussions;
     ArrayList<Post> currentDiaryPosts;
     ArrayList<Post> currentPostComments;
     ArrayList<Post> favoritePosts;
@@ -51,6 +53,7 @@ public class UserData implements DiaryList.onUserDataParseListener
         currentPostComments = new ArrayList<Post>();
         favoritePosts = new ArrayList<Post>();
         ownDiaryPosts = new ArrayList<Post>();
+        discussions = new ArrayList<DiscussionList>();
     }
     
     // обновляем контент
