@@ -1241,12 +1241,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializeDiscussions(String dataPage, ArrayList<DiscussionList.Discussion> destination)
     {
     	destination.clear();
+    	dataPage = dataPage.replace("\\\"", "\"");
         Document rootNode = Jsoup.parse(dataPage);
-
+        Elements tables = rootNode.getElementsByTag("em");
+        tables.remove();
+        
         for (Element discussion : rootNode.getElementsByTag("a"))
         {
         	DiscussionList.Discussion currentDisc = new DiscussionList.Discussion();
-        	String link = discussion.attr("href").replace("\\\"", "");
+        	String link = discussion.attr("href");
         	currentDisc.set_URL(link);
         	String title = discussion.text();
         	currentDisc.set_title(title);
