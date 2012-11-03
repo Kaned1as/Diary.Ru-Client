@@ -434,17 +434,20 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_FAVORITES_COMMUNITIES_DATA:
                     setCurrentVisibleComponent(DIARY_LIST);
-                    mFavouritesAdapter.notifyDataSetChanged();
+                    mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.favorites);
+                    mDiaryBrowser.setAdapter(mFavouritesAdapter);
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DIARY_POSTS_DATA:
                     setCurrentVisibleComponent(POST_LIST);
-                    mPostListAdapter.notifyDataSetChanged();
+                    mPostListAdapter = new PostListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
+                    mPostBrowser.setAdapter(mPostListAdapter);
                     pd.dismiss();
                 break;
                 case HANDLE_GET_POST_COMMENTS_DATA:
                     setCurrentVisibleComponent(COMMENT_LIST);
-                	mCommentListAdapter.notifyDataSetChanged();
+                    mCommentListAdapter = new CommentListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
+                    mCommentBrowser.setAdapter(mCommentListAdapter);
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DISCUSSIONS_DATA:
@@ -577,8 +580,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     }
                     case HANDLE_GET_DIARY_POSTS_DATA:
                     {
-                        String URL = (String) message.obj;
-                        if(mCache.browseCache.containsKey(URL))
+                        String URL = ((Pair<String, Boolean>) message.obj).first;
+                        boolean reload = ((Pair<String, Boolean>) message.obj).second;
+                        
+                        if(mCache.browseCache.containsKey(URL) && !reload)
                             mUser.currentDiaryPosts = (ArrayList<Post>) mCache.browseCache.get(URL);
                         else
                         {
@@ -598,21 +603,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     }
                     case HANDLE_GET_POST_COMMENTS_DATA:
                     {
-                        String URL = (String)message.obj;
-                        if(mCache.browseCache.containsKey(URL))
+                        String URL = ((Pair<String, Boolean>) message.obj).first;
+                        boolean reload = ((Pair<String, Boolean>) message.obj).second;
+                        
+                        if(mCache.browseCache.containsKey(URL) && !reload)
                             mUser.currentPostComments = (ArrayList<Post>) mCache.browseCache.get(URL);
                         else
                         {
-                        HttpResponse page = mDHCL.postPage(URL, null);
-                        if(page == null)
-                        {
-                        	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
-                        	return false;
-                        }
-                        String dataPage = EntityUtils.toString(page.getEntity());
-
-                        serializeCommentsPage(dataPage, null);
-                        mCache.browseCache.put(mDHCL.lastURL, mUser.currentPostComments);
+                            HttpResponse page = mDHCL.postPage(URL, null);
+                            if(page == null)
+                            {
+                            	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
+                            	return false;
+                            }
+                            String dataPage = EntityUtils.toString(page.getEntity());
+    
+                            serializeCommentsPage(dataPage, null);
+                            mCache.browseCache.put(mDHCL.lastURL, mUser.currentPostComments);
                         }
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
@@ -827,7 +834,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     Diary diary = mUser.favorites.get(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, diary.get_URL()));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(diary.get_URL(), false)));
                 }
                 break;
                 // Загружаем комменты поста
@@ -840,7 +847,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 	if(!post.isEpigraph())
                 	{
                 		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, post.get_URL()));
+                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(post.get_URL(), false)));
                 	}
                 }
                 break;
@@ -856,7 +863,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	{
 		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
 		String link = ((DiscussionList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).get_URL();
-    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, link));
+    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(link, false)));
 		return true;
 	}
 	
@@ -913,23 +920,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case TAB_FAV_POSTS:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.ownDiaryURL + "?favorite"));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
                 break;
                 case TAB_MY_DIARY:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.ownDiaryURL));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
                 break;
                 case TAB_MY_DIARY_NEW:
                 	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiaryLink));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
                 break;
                 case TAB_DISCUSSIONS:
                 	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, mUser.newDiscussLink));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, null));
                 break;
                 case TAB_DISCUSSIONS_NEW:
                 	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.newDiscussLink));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
                 break;
                 default:
                 	Utils.showDevelSorry(this);
@@ -956,11 +963,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	{
     		case POST_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, mUser.currentDiaryURL));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryURL, true)));
     			break;
     		case COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, mUser.currentPostURL));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostURL, true)));
     			break;
     	}
     }
@@ -972,12 +979,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void onBackPressed()
     {
         if (mCurrentBrowser == POST_LIST && mCurrentTab == TAB_FAVOURITES)
+        {
             setCurrentVisibleComponent(DIARY_LIST);
+            return;
+        }
         
-        if(mCurrentBrowser == COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS)
+        if (mCurrentBrowser == COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS)
+        {
         	setCurrentVisibleComponent(DISCUSSION_LIST);
+        	return;
+        }
         	
-        else if (mCurrentBrowser == COMMENT_LIST)
+        if (mCurrentBrowser == COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS_NEW)
         {
         	// TODO: исправить когда придумается что-то получше
         	// Если мы сразу зашли в список комментов, список постов пустой.
@@ -985,9 +998,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         		setCurrentTab(TAB_FAVOURITES);
         	else
         		setCurrentVisibleComponent(POST_LIST);
+        	
+        	return;
         }
-        else
-            super.onBackPressed();
+        
+        if (mCurrentBrowser == COMMENT_LIST)
+        {
+            setCurrentVisibleComponent(POST_LIST);
+            return;
+        }
+        
+        super.onBackPressed();
     }
 
     /* (non-Javadoc)

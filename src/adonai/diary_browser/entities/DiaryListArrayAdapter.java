@@ -40,5 +40,4 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Diary>
         
         return view;
     }
-    
 }
