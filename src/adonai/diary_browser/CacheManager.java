@@ -7,9 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Map;
 
-import adonai.diary_browser.entities.Diaries;
-import adonai.diary_browser.entities.Posts;
 import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
@@ -19,9 +18,7 @@ public class CacheManager
 	private static CacheManager mInstance;
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
-    public ArrayList<Posts> cachedPosts = new ArrayList<Posts>();
-    public ArrayList<Posts> cachedComments = new ArrayList<Posts>();
-    public ArrayList<Diaries> cachedDiaries = new ArrayList<Diaries>();
+    public Map<String, ArrayList<? extends Object>> browseCache;
 
     private CacheManager() 
     {
