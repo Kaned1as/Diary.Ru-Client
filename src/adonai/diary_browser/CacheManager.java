@@ -6,21 +6,35 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+
+import adonai.diary_browser.entities.Diaries;
+import adonai.diary_browser.entities.Posts;
 import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
 public class CacheManager 
 {
+	private static CacheManager mInstance;
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
+    public ArrayList<Posts> cachedPosts = new ArrayList<Posts>();
+    public ArrayList<Posts> cachedComments = new ArrayList<Posts>();
+    public ArrayList<Diaries> cachedDiaries = new ArrayList<Diaries>();
 
     private CacheManager() 
     {
-
+    }
+    
+    public static CacheManager getInstance()
+    {
+    	if(mInstance == null)
+    		mInstance = new CacheManager();
+    	return mInstance;
     }
 
-    public static void cacheData(Context context, byte[] data, String name) throws IOException 
+    public void cacheData(Context context, byte[] data, String name) throws IOException 
     {
 
         File cacheDir = context.getCacheDir();
@@ -43,7 +57,7 @@ public class CacheManager
         }
     }
 
-    public static byte[] retrieveData(Context context, String name) throws IOException 
+    public byte[] retrieveData(Context context, String name) throws IOException 
     {
 
         File cacheDir = context.getCacheDir();
@@ -67,7 +81,7 @@ public class CacheManager
         return data;
     }
     
-    public static boolean hasData(Context context, String name) 
+    public boolean hasData(Context context, String name) 
     {
 
         File cacheDir = context.getCacheDir();
@@ -80,7 +94,7 @@ public class CacheManager
         return false;
     }
     
-    public static void saveDataToSD(Context context, String name)
+    public void saveDataToSD(Context context, String name)
     {
     	if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 			return;
@@ -121,7 +135,7 @@ public class CacheManager
 		}
     }
 
-    private static void cleanDir(File dir, long bytes) 
+    private void cleanDir(File dir, long bytes) 
     {
 
         long bytesDeleted = 0;
@@ -137,7 +151,7 @@ public class CacheManager
         }
     }
 
-    private static long getDirSize(File dir) 
+    private long getDirSize(File dir) 
     {
 
         long size = 0;

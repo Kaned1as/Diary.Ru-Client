@@ -49,7 +49,7 @@ public class Utils
         	cache_and_load:
         	{
         		
-        		if(useCache && CacheManager.hasData(context.getApplicationContext(), realName))
+        		if(useCache && CacheManager.getInstance().hasData(context.getApplicationContext(), realName))
         			break cache_and_load;
         		
         		
@@ -59,12 +59,12 @@ public class Utils
 	            while ((nRead = is.read()) != -1)
 	            	  buffer.write(nRead);
 	            buffer.flush();
-	            CacheManager.cacheData(context.getApplicationContext(), buffer.toByteArray(), realName);
+	            CacheManager.getInstance().cacheData(context.getApplicationContext(), buffer.toByteArray(), realName);
 	            buffer.close();
 	            is.close();
         	}
 
-            InputStream inPic = new ByteArrayInputStream(CacheManager.retrieveData(context.getApplicationContext(), realName));
+            InputStream inPic = new ByteArrayInputStream(CacheManager.getInstance().retrieveData(context.getApplicationContext(), realName));
             Drawable drawable = Drawable.createFromStream(inPic, realName);
             inPic.close();
             if(drawable instanceof BitmapDrawable)

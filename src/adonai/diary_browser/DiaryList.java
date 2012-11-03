@@ -16,7 +16,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentListArrayAdapter;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
@@ -820,7 +819,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(image_src);
     		String realName = URLUtil.guessFileName(image_src, null, fileExtenstion);
             if (load_images ||  																				// Если включена автозагрузка изображений
-            	load_cached && CacheManager.hasData(getApplicationContext(), realName) || 						// если включена автозагрузка из кэша и файл имеется там
+            	load_cached && CacheManager.getInstance().hasData(getApplicationContext(), realName) || 						// если включена автозагрузка из кэша и файл имеется там
             	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif")) 	// если это смайлик
             {						/* Тогда качаем картинку сразу */
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_RELOAD_CONTENT, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
@@ -1177,7 +1176,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         for (Element comment : commentsArea.getElementsByAttributeValueContaining("class", "singleComment"))
         {
-            Comment currentComment = new Comment();
+            Post currentComment = new Post();
             Element headerNode = comment.getElementsByAttributeValue("class", "postTitle header").first();
             if (headerNode != null)
             {
@@ -1469,7 +1468,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		        	    	{
 		        	    		case 0: // save
 		        	    			String filename = loadedSpan.getSource();
-		        	    			CacheManager.saveDataToSD(getApplicationContext(), filename);
+		        	    			CacheManager.getInstance().saveDataToSD(getApplicationContext(), filename);
 		        	    		break;
 		        	    		case 1: // open
 		        	    			// Если картинка не нуждается в увеличении...
