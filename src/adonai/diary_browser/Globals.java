@@ -9,4 +9,5 @@ public class Globals
 	public static SharedPreferences mSharedPrefs = null;
 	public static UserData mUser = new UserData();
 	public static DiaryHttpClient mDHCL = new DiaryHttpClient();
+	public static String currentURL = "";
 }

@@ -153,7 +153,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_POST:
 					try 
 					{
-						mDHCL.postPage(mDHCL.lastURL + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(Globals.currentURL + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_POST);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -164,7 +164,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_COMMENT:
 					try 
 					{
-						mDHCL.postPage(mDHCL.lastURL.substring(0, mDHCL.lastURL.lastIndexOf('/') + 1) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -263,7 +263,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("act", "new_post_post"));
 					postParams.add(new BasicNameValuePair("post_id", ""));
 					postParams.add(new BasicNameValuePair("journal_id", mDiaryId));
-					postParams.add(new BasicNameValuePair("referer", mDHCL.lastURL));
+					postParams.add(new BasicNameValuePair("referer", Globals.currentURL));
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
 					postParams.add(new BasicNameValuePair("title", mPost.get_title()));

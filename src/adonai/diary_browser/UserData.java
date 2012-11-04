@@ -125,7 +125,7 @@ public class UserData implements DiaryList.onUserDataParseListener
 
 	public void updateCurrentDiary(Element tag)
 	{
-		currentDiaryURL = Globals.mDHCL.lastURL;
+		currentDiaryURL = Globals.currentURL;
 		
         if(tag != null)
         {
@@ -136,9 +136,11 @@ public class UserData implements DiaryList.onUserDataParseListener
             currentDiaryId = "";
 	}
 
-	public void updateCurrentPost(Post post) 
+	public void updateCurrent(Post post) 
 	{
 		currentPostId = post.get_ID();
 		currentPostURL = post.get_URL();
+		currentDiaryURL = post.get_diary_URL();
+		currentDiaryId = post.get_diary_Id();
 	}
 }

@@ -68,30 +68,25 @@
                     android:id="@+id/generic_tab_content"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
-
-                    <ListView
+                    
+                    <com.handmark.pulltorefresh.library.PullToRefreshListView
                         android:id="@+id/diary_browser"
-                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" >
+                        android:layout_width="match_parent" 
+                        android:cacheColorHint="@android:color/transparent" />
 
-                    </ListView>
-
-                    <ListView
+                    <com.handmark.pulltorefresh.library.PullToRefreshListView
                         android:id="@+id/post_browser"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" >
+                        android:cacheColorHint="@android:color/transparent" />
 
-                    </ListView>
 
-                    <ListView
+                     <com.handmark.pulltorefresh.library.PullToRefreshListView
                         android:id="@+id/comment_browser"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" >
-
-                    </ListView>
+                        android:cacheColorHint="@android:color/transparent" />
 
                     <ExpandableListView
                         android:id="@+id/discussion_browser"
