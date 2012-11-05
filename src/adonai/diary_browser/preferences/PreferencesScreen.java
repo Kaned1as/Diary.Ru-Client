@@ -4,7 +4,6 @@ import adonai.diary_browser.AuthorizationForm;
 import adonai.diary_browser.R;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 
