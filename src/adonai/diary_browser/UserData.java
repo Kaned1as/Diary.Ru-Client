@@ -12,7 +12,7 @@ import adonai.diary_browser.entities.Post;
 public class UserData implements DiaryList.onUserDataParseListener
 {
 	// Динамические списки постов
-    ArrayList<Diary> favorites;
+    ArrayList<Diary> currentDiaries;
     ArrayList<DiscussionList> discussions;
     ArrayList<Post> currentDiaryPosts;
     ArrayList<Post> currentPostComments;
@@ -48,7 +48,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     
     UserData()
     {
-        favorites = new ArrayList<Diary>();
+        currentDiaries = new ArrayList<Diary>();
         currentDiaryPosts = new ArrayList<Post>();
         currentPostComments = new ArrayList<Post>();
         favoritePosts = new ArrayList<Post>();
