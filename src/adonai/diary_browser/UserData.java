@@ -6,37 +6,24 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
-import adonai.diary_browser.entities.Post;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
 	// Динамические списки постов
     ArrayList<Diary> currentDiaries;
     ArrayList<DiscussionList> discussions;
-    ArrayList<Post> currentDiaryPosts;
-    ArrayList<Post> currentPostComments;
-    ArrayList<Post> favoritePosts;
-    ArrayList<Post> ownDiaryPosts;
+    DiaryPage currentDiaryPosts;
+    DiaryPage currentPostComments;
+    DiaryPage favoritePosts;
+    DiaryPage ownDiaryPosts;
     
     // Личные данные
     String ownDiaryURL = "";
     String ownProfileID = "";
     String userName = "";
     String signature = "";
-    
-    /** 
-     * Динамически обновляемый на загрузке странички контент
-     * 
-     */
-    
-    // Текущий дневник
-    String currentDiaryId = "";
-    String currentDiaryURL = "";
-    
-    // Текущий пост
-    String currentPostId = "";
-    String currentPostURL = "";
     
     // число новых постов в дискуссиях
     Integer newDiscussNum = 0;
@@ -49,10 +36,10 @@ public class UserData implements DiaryList.onUserDataParseListener
     UserData()
     {
         currentDiaries = new ArrayList<Diary>();
-        currentDiaryPosts = new ArrayList<Post>();
-        currentPostComments = new ArrayList<Post>();
-        favoritePosts = new ArrayList<Post>();
-        ownDiaryPosts = new ArrayList<Post>();
+        currentDiaryPosts = new DiaryPage();
+        currentPostComments = new DiaryPage();
+        favoritePosts = new DiaryPage();
+        ownDiaryPosts = new DiaryPage();
         discussions = new ArrayList<DiscussionList>();
     }
     
@@ -122,25 +109,4 @@ public class UserData implements DiaryList.onUserDataParseListener
         
         return false;
     }
-
-	public void updateCurrentDiary(Element tag)
-	{
-		currentDiaryURL = Globals.currentURL;
-		
-        if(tag != null)
-        {
-            String Id = tag.getElementsByTag("a").last().attr("href");
-            currentDiaryId = Id.substring(Id.lastIndexOf("?") + 1);
-        }
-        else
-            currentDiaryId = "";
-	}
-
-	public void updateCurrent(Post post) 
-	{
-		currentPostId = post.get_ID();
-		currentPostURL = post.get_URL();
-		currentDiaryURL = post.get_diary_URL();
-		currentDiaryId = post.get_diary_Id();
-	}
 }

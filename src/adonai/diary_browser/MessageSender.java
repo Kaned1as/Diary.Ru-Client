@@ -252,6 +252,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				
 				postParams.add(new BasicNameValuePair("module", "journal"));
 				postParams.add(new BasicNameValuePair("action", "dosend"));
+				postParams.add(new BasicNameValuePair("resulttype", "2"));
 				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
@@ -332,7 +333,6 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					
 					postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
 					postParams.add(new BasicNameValuePair("attachment1", ""));
-					postParams.add(new BasicNameValuePair("resulttype", "2"));
 					
 					mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 				}

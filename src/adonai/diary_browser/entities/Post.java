@@ -18,10 +18,6 @@ public class Post
     private String _community = "";
     // ссылка на комьюнити поста
     private String _community_URL = "";
-    // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
-    private String _diary_URL = ""; 
-    // идентификатор этого же дневника
-    private String _diary_Id = "";
     private String _URL = "";
     private Spanned _text = null;
     private String _date;
@@ -235,24 +231,4 @@ public class Post
 	{
 		return epigraph;
 	}
-
-    public String get_diary_URL()
-    {
-        return _diary_URL;
-    }
-
-    public void set_diary_URL(String _diary_URL)
-    {
-        this._diary_URL = _diary_URL;
-    }
-
-    public String get_diary_Id()
-    {
-        return _diary_Id;
-    }
-
-    public void set_diary_Id(String _diary_Id)
-    {
-        this._diary_Id = _diary_Id;
-    }
 }
