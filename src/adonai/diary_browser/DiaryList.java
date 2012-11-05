@@ -598,6 +598,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             String favListPage = EntityUtils.toString(page.getEntity());
                             
                             serializeDiariesPage(favListPage);
+                            mCache.browseCache.put(Globals.currentURL, mUser.currentDiaries);
                         }
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARIES_DATA);
@@ -1601,7 +1602,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         switch (refreshView.getId())
         {
             case R.id.diary_browser:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", false)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
             break;
             case R.id.post_browser:
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryURL, true)));
