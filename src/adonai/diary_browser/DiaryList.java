@@ -860,8 +860,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 case R.id.title:
                 {
                     // Отнимаем 1 всегда, т.к. верхняя ячейка - обновление
-                    int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent()) -1;
-                    Diary diary = mUser.currentDiaries.get(pos);
+                    int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
+                    Diary diary = (Diary) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(diary.get_URL(), false)));
