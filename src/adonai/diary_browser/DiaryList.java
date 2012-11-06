@@ -440,27 +440,24 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
                 break;
                 case HANDLE_GET_DIARIES_DATA:
+                    setCurrentVisibleComponent(DIARY_LIST);
                     mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
                     mDiaryBrowser.setAdapter(mFavouritesAdapter);
-                    setCurrentVisibleComponent(DIARY_LIST);
-                    if(mDiaryBrowser.isRefreshing())
-                    	mDiaryBrowser.onRefreshComplete();
+                    mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DIARY_POSTS_DATA:
+                    setCurrentVisibleComponent(POST_LIST);
                     mPostListAdapter = new PostListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
                     mPostBrowser.setAdapter(mPostListAdapter);
-                    setCurrentVisibleComponent(POST_LIST);
-                    if(mPostBrowser.isRefreshing())
-                    	mPostBrowser.onRefreshComplete();
+                    mPostBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_POST_COMMENTS_DATA:
+                    setCurrentVisibleComponent(COMMENT_LIST);
                     mCommentListAdapter = new CommentListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
                     mCommentBrowser.setAdapter(mCommentListAdapter);
-                    setCurrentVisibleComponent(COMMENT_LIST);
-                    if(mCommentBrowser.isRefreshing())
-                    	mCommentBrowser.onRefreshComplete();
+                    mCommentBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DISCUSSIONS_DATA:
