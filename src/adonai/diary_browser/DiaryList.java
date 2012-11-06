@@ -1047,6 +1047,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
      */
     public void serializeDiariesPage(String dataPage)
     {
+        mUser.currentDiaries = new ArrayList<Diary>();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         if(mListener != null)
@@ -1056,8 +1057,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
             
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
+        if(table == null) // Нет вообще никаких дневников, заканчиваем
+        	return;
+        
         Elements rows = table.getElementsByTag("td");
-        mUser.currentDiaries = new ArrayList<Diary>();
         Element title = null, author = null, last_post = null;
         for (int i = 0; i < rows.size(); ++i)
         {
@@ -1128,6 +1131,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
         Element postsArea = rootNode.select("[id=postsArea]").first();
+        if(postsArea == null) // Нет вообще никаких постов, заканчиваем
+        	return;
+        
         for (Element post : postsArea.children())
         {
             // не парсим пока что ссылки RSS
@@ -1581,7 +1587,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
 			return loader;
 		}
-		
 	}
 
 
