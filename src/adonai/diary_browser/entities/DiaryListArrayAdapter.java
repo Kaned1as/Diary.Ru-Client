@@ -22,12 +22,15 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Diary>
     public View getView(int pos, View convertView, ViewGroup parent)
     {
         View view;
-        Diary diary = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.diary_list_item, null);
         else
             view = convertView;
         
+        if(pos >= getCount())
+        	return view;
+        
+        Diary diary = getItem(pos);
         TextView title = (TextView) view.findViewById(R.id.title);
         title.setText(diary.get_title());
         title.setOnClickListener((OnClickListener) getContext());

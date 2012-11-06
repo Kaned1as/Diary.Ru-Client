@@ -21,15 +21,17 @@ public class PostListArrayAdapter extends ArrayAdapter<Post>
     
     @Override
     public View getView(int pos, View convertView, ViewGroup parent)
-    {
+    {	
         View view;
-        Post post = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.post_list_item, null);
         else
             view = convertView;
+    	
+        if(pos >= getCount())
+        	return view;
         
-        /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
+        Post post = getItem(pos);
         TextView community = (TextView) view.findViewById(R.id.post_community);
         community.setText(post.get_community());
         TextView author = (TextView) view.findViewById(R.id.post_author);

@@ -22,13 +22,15 @@ public class CommentListArrayAdapter extends ArrayAdapter<Post>
     public View getView(int pos, View convertView, ViewGroup parent)
     {
         View view;
-        Post post = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.post_list_item, null);
         else
             view = convertView;
         
-        /* ImageButton delete = (ImageButton)view.findViewById(R.id.p_delete); */
+        if(pos >= getCount())
+        	return view;
+        
+        Post post = getItem(pos);
         TextView title = (TextView) view.findViewById(R.id.post_title);
         title.setText(post.get_title());
         TextView author = (TextView) view.findViewById(R.id.post_author);
