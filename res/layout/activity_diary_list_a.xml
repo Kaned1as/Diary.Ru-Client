@@ -24,12 +24,15 @@
         <ImageButton
             android:id="@+id/exit_button"
             android:layout_width="30dip"
-            android:layout_height="30dip"
+            android:layout_height="wrap_content"
             android:layout_gravity="right|center_vertical"
             android:layout_marginTop="3dip"
+            android:background="@android:color/transparent"
             android:contentDescription="@string/logout_drawable"
+            android:paddingBottom="5dip"
             android:scaleType="center"
-            android:src="@android:drawable/ic_lock_idle_lock" />
+            android:src="@drawable/user_diary_change" />
+
     </LinearLayout>
 
     <TabHost
