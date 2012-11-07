@@ -58,6 +58,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	
 	EditText mCloseAllowList;
 	EditText mCloseDenyList;
+	EditText mCloseText;
 	
 	RadioGroup mCloseOpts;
 	
@@ -123,6 +124,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	mCloseOpts.setOnCheckedChangeListener(this);
     	mCloseAllowList = (EditText) findViewById(R.id.close_allowed_list);
     	mCloseDenyList = (EditText) findViewById(R.id.close_denied_list);
+    	mCloseText = (EditText) findViewById(R.id.close_text);
     	
     	mShowOptionals = (CheckBox) findViewById(R.id.message_optional);
     	mShowOptionals.setOnCheckedChangeListener(this);
@@ -333,7 +335,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					if(mShowAndClose.isChecked())
 					{
 						postParams.add(new BasicNameValuePair("private_post", "1"));
-						postParams.add(new BasicNameValuePair("close_text", ""));
+						postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
 						
 						switch(mCloseOpts.getCheckedRadioButtonId())
 						{
