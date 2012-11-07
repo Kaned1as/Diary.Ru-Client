@@ -24,35 +24,42 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.TextView;
+import android.widget.EditText;
+import android.widget.RadioGroup;
 
-public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener
+public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
 
 	private static final int HANDLE_DO_POST = 0;
 	private static final int HANDLE_DO_COMMENT = 1;
 	
-	TextView titleText;
-	TextView contentText;
-	TextView themesText;
-	TextView musicText;
-	TextView moodText;
+	EditText titleText;
+	EditText contentText;
+	EditText themesText;
+	EditText musicText;
+	EditText moodText;
 	Button mPublish;
 	CheckBox mShowOptionals;
 	CheckBox mShowPoll;
 	CheckBox mSubscribe;
+	CheckBox mShowAndClose;
 	
-	TextView mPollTitle;
-	TextView mPollChoice1;
-	TextView mPollChoice2;
-	TextView mPollChoice3;
-	TextView mPollChoice4;
-	TextView mPollChoice5;
-	TextView mPollChoice6;
-	TextView mPollChoice7;
-	TextView mPollChoice8;
-	TextView mPollChoice9;
-	TextView mPollChoice10;
+	EditText mPollTitle;
+	EditText mPollChoice1;
+	EditText mPollChoice2;
+	EditText mPollChoice3;
+	EditText mPollChoice4;
+	EditText mPollChoice5;
+	EditText mPollChoice6;
+	EditText mPollChoice7;
+	EditText mPollChoice8;
+	EditText mPollChoice9;
+	EditText mPollChoice10;
+	
+	EditText mCloseAllowList;
+	EditText mCloseDenyList;
+	
+	RadioGroup mCloseOpts;
 	
 	Handler mHandler, mUiHandler;
 	Looper mLooper;
@@ -60,6 +67,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	
 	List<View> optionals = new ArrayList<View>();
 	List<View> pollScheme = new ArrayList<View>();
+	List<View> closeScheme = new ArrayList<View>();
 	List<NameValuePair> postParams;
 	
 	String mSignature = null;
@@ -67,6 +75,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	String mPostId = null;
 	
 	DiaryHttpClient mDHCL;
+	UserData mUser;
 	Post mPost;
 
     /* (non-Javadoc)
@@ -78,6 +87,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         super.onCreate(savedInstanceState);
         
         mDHCL = Globals.mDHCL;
+        mUser = Globals.mUser;
         mPost = new Post();
 		postParams = new ArrayList<NameValuePair>();
         
@@ -89,31 +99,38 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         
         setContentView(R.layout.message_sender_a);
         
-    	titleText = (TextView) findViewById(R.id.message_title);
-    	contentText = (TextView) findViewById(R.id.message_content);
-    	themesText = (TextView) findViewById(R.id.message_themes);
-    	musicText = (TextView) findViewById(R.id.message_music);
-    	moodText = (TextView) findViewById(R.id.message_mood);
-    	mPublish = (Button)findViewById(R.id.message_publish);
+    	titleText = (EditText) findViewById(R.id.message_title);
+    	contentText = (EditText) findViewById(R.id.message_content);
+    	themesText = (EditText) findViewById(R.id.message_themes);
+    	musicText = (EditText) findViewById(R.id.message_music);
+    	moodText = (EditText) findViewById(R.id.message_mood);
+    	mPublish = (Button) findViewById(R.id.message_publish);
     	mPublish.setOnClickListener(this);
     	
-    	mPollTitle = (TextView) findViewById(R.id.message_poll_title);
-    	mPollChoice1 = (TextView) findViewById(R.id.message_poll_1);
-    	mPollChoice2 = (TextView) findViewById(R.id.message_poll_2);
-    	mPollChoice3 = (TextView) findViewById(R.id.message_poll_3);
-    	mPollChoice4 = (TextView) findViewById(R.id.message_poll_4);
-    	mPollChoice5 = (TextView) findViewById(R.id.message_poll_5);
-    	mPollChoice6 = (TextView) findViewById(R.id.message_poll_6);
-    	mPollChoice7 = (TextView) findViewById(R.id.message_poll_7);
-    	mPollChoice8 = (TextView) findViewById(R.id.message_poll_8);
-    	mPollChoice9 = (TextView) findViewById(R.id.message_poll_9);
-    	mPollChoice10 = (TextView) findViewById(R.id.message_poll_10);
+    	mPollTitle = (EditText) findViewById(R.id.message_poll_title);
+    	mPollChoice1 = (EditText) findViewById(R.id.message_poll_1);
+    	mPollChoice2 = (EditText) findViewById(R.id.message_poll_2);
+    	mPollChoice3 = (EditText) findViewById(R.id.message_poll_3);
+    	mPollChoice4 = (EditText) findViewById(R.id.message_poll_4);
+    	mPollChoice5 = (EditText) findViewById(R.id.message_poll_5);
+    	mPollChoice6 = (EditText) findViewById(R.id.message_poll_6);
+    	mPollChoice7 = (EditText) findViewById(R.id.message_poll_7);
+    	mPollChoice8 = (EditText) findViewById(R.id.message_poll_8);
+    	mPollChoice9 = (EditText) findViewById(R.id.message_poll_9);
+    	mPollChoice10 = (EditText) findViewById(R.id.message_poll_10);
+    	
+    	mCloseOpts = (RadioGroup) findViewById(R.id.close_opts);
+    	mCloseOpts.setOnCheckedChangeListener(this);
+    	mCloseAllowList = (EditText) findViewById(R.id.close_allowed_list);
+    	mCloseDenyList = (EditText) findViewById(R.id.close_denied_list);
     	
     	mShowOptionals = (CheckBox) findViewById(R.id.message_optional);
     	mShowOptionals.setOnCheckedChangeListener(this);
     	mShowPoll = (CheckBox) findViewById(R.id.message_poll);
     	mShowPoll.setOnCheckedChangeListener(this);
     	mSubscribe = (CheckBox) findViewById(R.id.message_subscribe);
+    	mShowAndClose = (CheckBox) findViewById(R.id.message_close);
+    	mShowAndClose.setOnCheckedChangeListener(this);
     	
     	optionals.add(findViewById(R.id.message_themes_hint));
     	optionals.add(themesText);
@@ -153,7 +170,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_POST:
 					try 
 					{
-						mDHCL.postPage(Globals.currentURL + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(mUser.currentDiaryPosts.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_POST);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -164,7 +181,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_COMMENT:
 					try 
 					{
-						mDHCL.postPage(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1) + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(mUser.currentPostComments.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -228,6 +245,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         {
         	mShowPoll.setVisibility(View.GONE);
         	mShowOptionals.setVisibility(View.GONE);
+        	mShowAndClose.setVisibility(View.GONE);
         	titleText.setVisibility(View.GONE);
         	
         	mSubscribe.setVisibility(View.VISIBLE);
@@ -361,9 +379,31 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					for(View view : pollScheme)
 						view.setVisibility(View.GONE);
 			break;
+			case R.id.message_close:
+				if(isChecked)
+					mCloseOpts.setVisibility(View.VISIBLE);
+				else
+					mCloseOpts.setVisibility(View.GONE);
 			default:
 			break;
 		}
 	}
-    
+	
+	public void onCheckedChanged(RadioGroup group, int checkedId) 
+	{
+		switch(checkedId)
+		{
+			case R.id.close_for_list:
+				mCloseDenyList.setVisibility(View.VISIBLE);
+			break;
+			case R.id.close_only_list:
+				mCloseAllowList.setVisibility(View.VISIBLE);
+			break;
+			default:
+				mCloseDenyList.setVisibility(View.GONE);
+				mCloseAllowList.setVisibility(View.GONE);
+				
+			break;
+		}
+	}
 }

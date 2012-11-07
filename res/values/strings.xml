@@ -66,4 +66,14 @@
     <string name="autoload_cached_images_summary">Check to automatically load all pictures that are stored in cache on page load.</string>
     <string name="menu_share">Share</string>
     <string name="copied">Copied: </string>
+    <string name="message_close">Closed message</string>
+    <string name="message_close_only_reg">Only for registered users</string>
+    <string name="message_close_only_fav">Only for favorites</string>
+    <string name="message_close_only_sub">Onle for subscribers</string>
+    <string name="message_close_only_white">Only for white-list</string>
+    <string name="message_close_for_list">Only not for list</string>
+    <string name="message_close_only_list">Only for list</string>
+    <string name="message_close_for_all">Closed for all</string>
+    <string name="message_close_denied_list">Denied list</string>
+    <string name="message_close_allowed_list">Allowed list</string>
 </resources>

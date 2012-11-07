@@ -3,18 +3,18 @@
     android:id="@+id/scroll"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content" >
-        
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
 
-    <TextView
-        android:id="@+id/message_title_hint"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/message_title" />
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/message_title_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_title" />
 
     <EditText
         android:id="@+id/message_title"
@@ -22,6 +22,8 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:hint="@string/message_title"
+        android:imeOptions="actionNext"
+        android:inputType="textCapWords"
         android:maxLines="1" />
 
     <TextView
@@ -36,7 +38,8 @@
         android:layout_height="wrap_content"
         android:contentDescription="@string/message_content"
         android:ems="10"
-        android:inputType="textMultiLine"
+        android:imeOptions="actionSend"
+        android:inputType="textCapSentences|textMultiLine"
         android:minLines="2" />
 
     <CheckBox
@@ -100,6 +103,84 @@
         android:hint="@string/message_mood"
         android:maxLines="1"
         android:visibility="gone" />
+
+    <CheckBox
+        android:id="@+id/message_close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/message_close" />
+
+    <RadioGroup
+        android:id="@+id/close_opts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone" >
+
+        <RadioButton
+            android:id="@+id/close_only_reg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/message_close_only_reg" />
+
+        <RadioButton
+            android:id="@+id/close_only_fav"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_only_fav" />
+
+        <RadioButton
+            android:id="@+id/close_only_sub"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_only_sub" />
+
+        <RadioButton
+            android:id="@+id/close_only_white"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_only_white" />
+
+        <RadioButton
+            android:id="@+id/close_for_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_for_list" />
+
+        <EditText
+            android:id="@+id/close_denied_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/message_close_denied_list"
+            android:visibility="gone" >
+
+            <requestFocus />
+        </EditText>
+
+        <RadioButton
+            android:id="@+id/close_only_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_only_list" />
+
+        <EditText
+            android:id="@+id/close_allowed_list"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/message_close_allowed_list"
+            android:visibility="gone" />
+
+        <RadioButton
+            android:id="@+id/close_for_all"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close_for_all" />
+
+    </RadioGroup>
 
     <CheckBox
         android:id="@+id/message_poll"
