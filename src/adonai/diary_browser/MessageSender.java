@@ -433,9 +433,11 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 		{
 			case R.id.close_for_list:
 				mCloseDenyList.setVisibility(View.VISIBLE);
+				mCloseAllowList.setVisibility(View.GONE);
 			break;
 			case R.id.close_only_list:
 				mCloseAllowList.setVisibility(View.VISIBLE);
+				mCloseDenyList.setVisibility(View.GONE);
 			break;
 			default:
 				mCloseDenyList.setVisibility(View.GONE);
