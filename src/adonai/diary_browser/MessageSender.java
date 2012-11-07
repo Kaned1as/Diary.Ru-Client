@@ -300,7 +300,6 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					}
 
 					postParams.add(new BasicNameValuePair("attachment", ""));
-					postParams.add(new BasicNameValuePair("close_text", ""));
 					
 					if(mShowPoll.isChecked())
 					{
@@ -333,7 +332,35 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					
 					if(mShowAndClose.isChecked())
 					{
+						postParams.add(new BasicNameValuePair("private_post", "1"));
+						postParams.add(new BasicNameValuePair("close_text", ""));
 						
+						switch(mCloseOpts.getCheckedRadioButtonId())
+						{
+							case R.id.close_only_reg:
+								postParams.add(new BasicNameValuePair("close_access_mode", "6"));
+							break;
+							case R.id.close_only_fav:
+								postParams.add(new BasicNameValuePair("close_access_mode", "1"));
+							break;
+							case R.id.close_only_sub:
+								postParams.add(new BasicNameValuePair("close_access_mode", "5"));
+							break;
+							case R.id.close_only_white:
+								postParams.add(new BasicNameValuePair("close_access_mode", "4"));
+							break;
+							case R.id.close_for_list:
+								postParams.add(new BasicNameValuePair("close_access_mode", "2"));
+								postParams.add(new BasicNameValuePair("access_list", mCloseDenyList.getText().toString()));
+							break;
+							case R.id.close_only_list:
+								postParams.add(new BasicNameValuePair("close_access_mode", "3"));
+								postParams.add(new BasicNameValuePair("access_list", mCloseAllowList.getText().toString()));
+							break;
+							case R.id.close_for_all:
+								postParams.add(new BasicNameValuePair("close_access_mode", "7"));
+							break;
+						}
 					}
 					
 					postParams.add(new BasicNameValuePair("rewrite", "rewrite"));

@@ -3,6 +3,7 @@ package adonai.diary_browser.entities;
 import java.util.ArrayList;
 import adonai.diary_browser.R;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
@@ -68,6 +69,8 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
         title.setText(discussion.get_title());
         TextView newPosts = (TextView) view.findViewById(R.id.discussion_last_post);
         newPosts.setText(discussion.get_last_post());
+        if(!discussion.get_last_post().contains("/0"))
+        	newPosts.setTextColor(Color.RED);
         
         return view;
 	}
