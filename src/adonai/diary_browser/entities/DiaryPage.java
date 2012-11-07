@@ -1,6 +1,5 @@
 package adonai.diary_browser.entities;
 
-import java.util.ArrayList;
 import java.util.Vector;
 
 public class DiaryPage extends Vector<Post>
