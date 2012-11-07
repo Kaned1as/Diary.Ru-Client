@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Vector;
 
 import android.content.Context;
 import android.os.Environment;
@@ -19,7 +20,7 @@ public class CacheManager
 	private static CacheManager mInstance;
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
-    public Map<String, ArrayList<? extends Object>> browseCache = new HashMap<String, ArrayList<? extends Object>>();
+    public Map<String, Vector<? extends Object>> browseCache = new HashMap<String, Vector<? extends Object>>();
 
     private CacheManager() 
     {

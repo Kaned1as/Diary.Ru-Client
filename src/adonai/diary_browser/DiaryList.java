@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -583,7 +584,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         // Если страничка дневников есть в комментах
                         if(mCache.browseCache.containsKey(URL) && !reload)
                         {
-                            mUser.currentDiaries = (ArrayList<Diary>) mCache.browseCache.get(URL);
+                            mUser.currentDiaries = (Vector<Diary>) mCache.browseCache.get(URL);
                         }
                         else
                         {
@@ -1047,7 +1048,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
      */
     public void serializeDiariesPage(String dataPage)
     {
-        mUser.currentDiaries = new ArrayList<Diary>();
+        mUser.currentDiaries = new Vector<Diary>();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         if(mListener != null)

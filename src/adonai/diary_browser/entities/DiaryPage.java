@@ -1,8 +1,9 @@
 package adonai.diary_browser.entities;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
-public class DiaryPage extends ArrayList<Post>
+public class DiaryPage extends Vector<Post>
 {
     private static final long serialVersionUID = 4399107957675394115L;
 	
