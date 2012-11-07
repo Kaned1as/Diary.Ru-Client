@@ -112,8 +112,9 @@
 
     <RadioGroup
         android:id="@+id/close_opts"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="25dip"
         android:visibility="gone" >
 
         <RadioButton
@@ -149,15 +150,13 @@
 
         <EditText
             android:id="@+id/close_denied_list"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="25dip"
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/message_close_denied_list"
-            android:visibility="gone" >
-
-            <requestFocus />
-        </EditText>
+            android:visibility="gone" />
 
         <RadioButton
             android:id="@+id/close_only_list"
@@ -167,8 +166,9 @@
 
         <EditText
             android:id="@+id/close_allowed_list"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="25dip"
             android:layout_weight="1"
             android:ems="10"
             android:hint="@string/message_close_allowed_list"

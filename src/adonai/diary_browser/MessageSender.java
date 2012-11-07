@@ -331,6 +331,11 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 						postParams.add(new BasicNameValuePair("poll_answer_10", ""));
 					}
 					
+					if(mShowAndClose.isChecked())
+					{
+						
+					}
+					
 					postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
 					postParams.add(new BasicNameValuePair("save_type", "js2"));
 					
@@ -402,7 +407,6 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 			default:
 				mCloseDenyList.setVisibility(View.GONE);
 				mCloseAllowList.setVisibility(View.GONE);
-				
 			break;
 		}
 	}
