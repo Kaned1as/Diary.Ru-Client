@@ -73,7 +73,7 @@
     <string name="message_close_for_list">Закрыто для списка</string>
     <string name="message_close_only_list">Открыто для списка</string>
     <string name="message_close_for_all">Закрыто для всех</string>
-    <string name="message_close_denied_list">Список разрешенных</string>
-    <string name="message_close_allowed_list">Список запрещенных</string>
+    <string name="message_close_denied_list">Список запрещенных</string>
+    <string name="message_close_allowed_list">Список разрешенных</string>
     <string name="message_close_text">Текст уведомления о закрытии</string>
 </resources>

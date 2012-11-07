@@ -335,7 +335,11 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					if(mShowAndClose.isChecked())
 					{
 						postParams.add(new BasicNameValuePair("private_post", "1"));
-						postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
+						if(!mCloseText.getText().equals(""))
+						{
+						    postParams.add(new BasicNameValuePair("check_close_text", "1"));
+						    postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
+						}
 						
 						switch(mCloseOpts.getCheckedRadioButtonId())
 						{
