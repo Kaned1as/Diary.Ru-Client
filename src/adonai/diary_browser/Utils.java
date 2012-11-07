@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.Pair;
@@ -65,12 +66,14 @@ public class Utils
         	}
 
             InputStream inPic = new ByteArrayInputStream(CacheManager.getInstance().retrieveData(context.getApplicationContext(), realName));
-            Drawable drawable = Drawable.createFromStream(inPic, realName);
+            BitmapFactory.Options opts=new BitmapFactory.Options();
+            opts.inDither=false;                     //Disable Dithering mode
+            opts.inPurgeable=true;                   //Tell to gc that whether it needs free memory, the Bitmap can be cleared
+            opts.inInputShareable=true;              //Which kind of reference will be used to recover the Bitmap data after being clear, when it will be used in the future
+            opts.inTempStorage=new byte[32 * 1024];
+            BitmapDrawable drawable = new BitmapDrawable(null, BitmapFactory.decodeStream(inPic, null, opts));
             inPic.close();
-            if(drawable instanceof BitmapDrawable)
-            	return new Pair<String, BitmapDrawable>(realName, (BitmapDrawable) drawable);
-            
-            return null;
+            return new Pair<String, BitmapDrawable>(realName, (BitmapDrawable) drawable);
         } 
         catch (Exception e) 
         {

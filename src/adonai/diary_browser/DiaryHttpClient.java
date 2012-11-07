@@ -73,6 +73,10 @@ public class DiaryHttpClient
     	{
     		System.out.println("HTTPHelp : no such host : " + isex);
     	}
+    	catch (IllegalArgumentException e)
+    	{
+    	    System.out.println("Illegal argument: " + e);
+    	}
     	catch (ClientProtocolException e) 
     	{
     		System.out.println("HTTPHelp : ClientProtocolException : " + e);
