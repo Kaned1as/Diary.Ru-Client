@@ -265,11 +265,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mDiaryBrowser.setAdapter(mFavouritesAdapter);
         mDiaryBrowser.setOnRefreshListener(this);
         
-        mPostListAdapter = new PostListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
+        mPostListAdapter = new PostListArrayAdapter(this, mUser.currentDiaryPosts);
         mPostBrowser.setAdapter(mPostListAdapter);
         mPostBrowser.setOnRefreshListener(this);
         
-        mCommentListAdapter = new CommentListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
+        mCommentListAdapter = new CommentListArrayAdapter(this, mUser.currentPostComments);
         mCommentBrowser.setAdapter(mCommentListAdapter);
         mCommentBrowser.setOnRefreshListener(this);
         
@@ -449,14 +449,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_POSTS_DATA:
                     setCurrentVisibleComponent(POST_LIST);
-                    mPostListAdapter = new PostListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaryPosts);
+                    mPostListAdapter = new PostListArrayAdapter(DiaryList.this, mUser.currentDiaryPosts);
                     mPostBrowser.setAdapter(mPostListAdapter);
                     mPostBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_POST_COMMENTS_DATA:
                     setCurrentVisibleComponent(COMMENT_LIST);
-                    mCommentListAdapter = new CommentListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentPostComments);
+                    mCommentListAdapter = new CommentListArrayAdapter(DiaryList.this, mUser.currentPostComments);
                     mCommentBrowser.setAdapter(mCommentListAdapter);
                     mCommentBrowser.onRefreshComplete();
                     pd.dismiss();
