@@ -1490,7 +1490,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
 	public class ImageTagSpan extends ClickableSpan 
     {
-		private final PostContentBuilder container;
+		private PostContentBuilder container;
 		private final ImageSpan span;
 
 		public ImageTagSpan(PostContentBuilder contentPart, ImageSpan span) 
@@ -1531,6 +1531,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		@Override
 		public void onClick(View widget)
 		{
+			container = container.getRealContainer();
 		    if(container.getSpanStart(span) != -1) // если картинка-образец присутствует
 		    {
 		        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE, new Pair<Spannable, ImageSpan>(container, span)));
