@@ -6,7 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
@@ -27,11 +27,11 @@ public class CacheManager
     // загруженные странички
     private Map<String, Vector<? extends Object>> browseCache = new HashMap<String, Vector<? extends Object>>();
     // загруженные изображения
-    private Map<String, WeakReference<BitmapDrawable>> imageCache = new HashMap<String, WeakReference<BitmapDrawable>>();
+    private Map<String, SoftReference<BitmapDrawable>> imageCache = new HashMap<String, SoftReference<BitmapDrawable>>();
     
     public void saveForReuse(String URL, BitmapDrawable drawable)
     {
-    	imageCache.put(URL, new WeakReference<BitmapDrawable>(drawable));
+    	imageCache.put(URL, new SoftReference<BitmapDrawable>(drawable));
     }
     
     public BitmapDrawable loadToReuse(String URL)
