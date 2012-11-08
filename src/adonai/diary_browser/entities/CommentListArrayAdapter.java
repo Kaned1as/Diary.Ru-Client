@@ -9,7 +9,6 @@ import android.database.DataSetObserver;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -71,7 +70,10 @@ public class CommentListArrayAdapter implements ListAdapter
 
     public long getItemId(int position)
     {
-        return Integer.valueOf(mObjects.get(position).get_ID());
+    	if(mObjects.get(position).get_ID() != "")
+    		return Integer.valueOf(mObjects.get(position).get_ID());
+    	else
+    		return -1; // комментарий
     }
 
     public boolean hasStableIds()

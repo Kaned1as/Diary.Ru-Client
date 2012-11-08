@@ -6,11 +6,16 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
+import adonai.diary_browser.DiaryList.ImageTagSpan;
+import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.Post;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;
 import android.widget.Toast;
 
@@ -19,7 +24,58 @@ public class CacheManager
 	private static CacheManager mInstance;
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
-    public Map<String, Vector<? extends Object>> browseCache = new HashMap<String, Vector<? extends Object>>();
+    // загруженные странички
+    private Map<String, Vector<? extends Object>> browseCache = new HashMap<String, Vector<? extends Object>>();
+    // загруженные изображения
+    private Map<String, WeakReference<BitmapDrawable>> imageCache = new HashMap<String, WeakReference<BitmapDrawable>>();
+    
+    public void saveForReuse(String URL, BitmapDrawable drawable)
+    {
+    	imageCache.put(URL, new WeakReference<BitmapDrawable>(drawable));
+    }
+    
+    public BitmapDrawable loadToReuse(String URL)
+    {
+    	if(imageCache.containsKey(URL) && imageCache.get(URL).get() != null)
+    	{
+    		return imageCache.get(URL).get();
+    	}
+    	return null;
+    }
+    
+    public Vector<? extends Object> loadPageFromCache(String URL, Vector<? extends Object> previousPage)
+    {
+    	if(previousPage != null && previousPage instanceof DiaryPage)
+    	{
+	    	for(Post currentPost : (DiaryPage) previousPage)
+	    	{
+	    		ImageTagSpan[] imageSpans = currentPost.get_text().getSpans(0, currentPost.get_text().length(), ImageTagSpan.class);
+	    		for(ImageTagSpan imageSpan : imageSpans)
+	    			imageSpan.recycleImages();
+	    	}
+    	}
+    	Vector<? extends Object> toPage = browseCache.get(URL);
+    	if(toPage instanceof DiaryPage)
+    	{
+	        for(Post currentPost : (DiaryPage) toPage)
+	    	{
+	    		ImageTagSpan[] imageSpans = currentPost.get_text().getSpans(0, currentPost.get_text().length(), ImageTagSpan.class);
+	    		for(ImageTagSpan imageSpan : imageSpans)
+	    			imageSpan.loadNeeded();
+	    	}
+    	}
+	    return toPage;
+    }
+    
+    public boolean hasPage(String URL)
+    {
+    	return browseCache.containsKey(URL);
+    }
+    
+    public void putPageToCache(String URL, Vector<? extends Object> page)
+    {
+    	browseCache.put(URL, page);
+    }
 
     private CacheManager() 
     {

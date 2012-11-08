@@ -582,9 +582,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         String URL = ((Pair<String, Boolean>) message.obj).first;
                         boolean reload = ((Pair<String, Boolean>) message.obj).second;
                         // Если страничка дневников есть в комментах
-                        if(mCache.browseCache.containsKey(URL) && !reload)
+                        if(mCache.hasPage(URL) && !reload)
                         {
-                            mUser.currentDiaries = (Vector<Diary>) mCache.browseCache.get(URL);
+                            mUser.currentDiaries = (Vector<Diary>) mCache.loadPageFromCache(URL, null);
                         }
                         else
                         {
@@ -597,7 +597,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             String favListPage = EntityUtils.toString(page.getEntity());
                             
                             serializeDiariesPage(favListPage);
-                            mCache.browseCache.put(Globals.currentURL, mUser.currentDiaries);
+                            mCache.putPageToCache(Globals.currentURL, mUser.currentDiaries);
                         }
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARIES_DATA);
@@ -608,9 +608,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         String URL = ((Pair<String, Boolean>) message.obj).first;
                         boolean reload = ((Pair<String, Boolean>) message.obj).second;
                         // Если страничка постов есть в комментах
-                        if(mCache.browseCache.containsKey(URL) && !reload)
+                        if(mCache.hasPage(URL) && !reload)
                         {
-                            mUser.currentDiaryPosts = (DiaryPage) mCache.browseCache.get(URL);
+                        	mUser.currentDiaryPosts = (DiaryPage) mCache.loadPageFromCache(URL, mUser.currentDiaryPosts);
                         }
                         else
                         {
@@ -623,7 +623,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             String dataPage = EntityUtils.toString(page.getEntity());
     
                             serializePostsPage(dataPage, null);
-                            mCache.browseCache.put(Globals.currentURL, mUser.currentDiaryPosts);
+                            mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPosts);
                         }
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
                         return true;
@@ -634,9 +634,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         boolean reload = ((Pair<String, Boolean>) message.obj).second;
                         
                         // Если страничка комментов есть в кэше
-                        if(mCache.browseCache.containsKey(URL) && !reload)
+                        if(mCache.hasPage(URL) && !reload)
                         {
-                            mUser.currentPostComments = (DiaryPage) mCache.browseCache.get(URL);
+                        	mUser.currentPostComments = (DiaryPage) mCache.loadPageFromCache(URL, mUser.currentPostComments);
                         }
                         else
                         {
@@ -649,7 +649,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             String dataPage = EntityUtils.toString(page.getEntity());
     
                             serializeCommentsPage(dataPage, null);
-                            mCache.browseCache.put(Globals.currentURL, mUser.currentPostComments);
+                            mCache.putPageToCache(Globals.currentURL, mUser.currentPostComments);
                         }
                         mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
                     	return true;
@@ -748,7 +748,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
     
     // форматируем текст перед выведением в TextView в списках
-    private void formatText(final PostContentBuilder contentPart)
+    private void formatText(PostContentBuilder contentPart)
     {
     	//обрабатываем разные тэги
     	
@@ -796,27 +796,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	 * ===========
     	 */
     	ImageSpan[] imageSpans = contentPart.getSpans(0, contentPart.length(), ImageSpan.class);
-        for (final ImageSpan span : imageSpans)
+        for (ImageSpan span : imageSpans)
         {            
-            String image_src = span.getSource();
             int start = contentPart.getSpanStart(span);
             int end = contentPart.getSpanEnd(span);
-            
-            // Если это смайлик или системное изображение
-            // загрузка изображений обрабатывается в сервисном потоке - обязательно!
-            
-            // Временно отключено - большая потеря памяти
-            String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(image_src);
-    		String realName = URLUtil.guessFileName(image_src, null, fileExtenstion);
-            if (load_images ||  																				// Если включена автозагрузка изображений
-            	load_cached && CacheManager.getInstance().hasData(getApplicationContext(), realName) || 						// если включена автозагрузка из кэша и файл имеется там
-            	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif")) 	// если это смайлик
-            {						/* Тогда качаем картинку сразу */
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE, new Pair<Spannable, ImageSpan>(contentPart.getRealContainer(), span)));
-            }
-            
             // делаем каждую картинку кликабельной
-            ClickableSpan imageAction = new ImageTagSpan(contentPart, span);
+            ImageTagSpan imageAction = new ImageTagSpan(contentPart, span);
+            imageAction.loadNeeded();
             
             // Это хак. Делаем наш кликабельный спэн первым в списке, т.е. более приоритетным
             ClickableSpan[] click_spans = contentPart.getSpans(start, end, ClickableSpan.class);
@@ -1504,20 +1490,48 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
 	public class ImageTagSpan extends ClickableSpan 
     {
-		private final PostContentBuilder contentPart;
+		private final PostContentBuilder container;
 		private final ImageSpan span;
 
 		public ImageTagSpan(PostContentBuilder contentPart, ImageSpan span) 
 		{
-			this.contentPart = contentPart;
+			this.container = contentPart.getRealContainer();
 			this.span = span;
+		}
+		
+		// освобождаем картинки в памяти для кэшированных страниц
+		public void recycleImages()
+		{
+			// Картинка всегда одна - будь она загружена или еще нет.
+			ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
+			if(loadedSpans.length > 0 && loadedSpans[0] != span) // заменяем на изначальную, если это не она
+			{
+				ImageSpan loadedSpan = loadedSpans[0]; 
+				int start = container.getSpanStart(loadedSpan);
+				int end = container.getSpanEnd(loadedSpan);
+				
+				container.removeSpan(loadedSpan); // освобождаем память
+				container.setSpan(span, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+			}
+		}
+		
+		public void loadNeeded()
+		{
+			String image_src = span.getSource();
+			String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(image_src);
+    		String realName = URLUtil.guessFileName(image_src, null, fileExtenstion);
+            if (load_images ||  																				// Если включена автозагрузка изображений
+            	load_cached && CacheManager.getInstance().hasData(getApplicationContext(), realName) || 		// если включена автозагрузка из кэша и файл имеется там
+            	image_src.contains("static") && !image_src.contains("userdir") && image_src.endsWith("gif")) 	// если это смайлик
+            {						/* Тогда качаем картинку сразу */
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE, new Pair<Spannable, ImageSpan>(container, span)));
+            }
 		}
 
 		@Override
 		public void onClick(View widget)
 		{
-		    PostContentBuilder container = contentPart.getRealContainer();
-		    if(container.getSpanStart(span) != -1) // если картинка - образец присутствует
+		    if(container.getSpanStart(span) != -1) // если картинка-образец присутствует
 		    {
 		        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE, new Pair<Spannable, ImageSpan>(container, span)));
 		        Toast.makeText(widget.getContext(), R.string.loading, Toast.LENGTH_SHORT).show();
@@ -1527,8 +1541,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		    	// вообще она будет одна, но на всякий случай я оставляю цикл
 		    	// Мы назначаем картинку туда же, где размещен текущий спан клика, соответственно, это способ ее разыскать.
 		        ImageSpan[] loadedSpans = container.getSpans(container.getSpanStart(this), container.getSpanEnd(this), ImageSpan.class);
-		        for(final ImageSpan loadedSpan : loadedSpans)
+		        if(loadedSpans.length > 0)
 		        {
+		        	final ImageSpan loadedSpan = loadedSpans[0]; 
 		        	ArrayList<String> itemsBuilder = new ArrayList<String>();
 		        	itemsBuilder.add(getString(R.string.image_save));
 		        	itemsBuilder.add(getString(R.string.image_open));
@@ -1548,8 +1563,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		        	    	switch(item)
 		        	    	{
 		        	    		case 0: // save
-		        	    			String filename = loadedSpan.getSource();
-		        	    			CacheManager.getInstance().saveDataToSD(getApplicationContext(), filename);
+		        	    			CacheManager.getInstance().saveDataToSD(getApplicationContext(), loadedSpan.getSource());
 		        	    		break;
 		        	    		case 1: // open
 		        	    			// Если картинка не нуждается в увеличении...
