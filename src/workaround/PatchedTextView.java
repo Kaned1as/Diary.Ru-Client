@@ -34,6 +34,11 @@ public class PatchedTextView extends TextView
             setText(getText().toString());
             super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         }
+        catch (IndexOutOfBoundsException e)
+        {
+            setText(getText().toString());
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        }
     }
 
     @Override

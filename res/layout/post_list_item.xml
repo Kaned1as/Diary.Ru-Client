@@ -53,7 +53,7 @@
         android:layout_height="fill_parent"
         android:orientation="vertical" >
 
-        <TextView
+        <workaround.PatchedTextView
             android:id="@+id/post_content"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
