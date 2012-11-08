@@ -522,9 +522,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         pair.first.removeSpan(pair.second);
                         pair.first.setSpan(new ImageSpan(loadedPicture, fileName, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         
-                        // Если обрабатываем последний запрос
-                        if(!mHandler.hasMessages(HANDLE_SERVICE_LOAD_PICTURE))
-                        	mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE));
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE));
                     }
                     break;
                     case HANDLE_SET_HTTP_COOKIE:
