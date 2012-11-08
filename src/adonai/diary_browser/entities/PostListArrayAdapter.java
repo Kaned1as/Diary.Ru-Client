@@ -2,6 +2,8 @@ package adonai.diary_browser.entities;
 
 import java.util.List;
 
+import workaround.PatchedTextView;
+
 import adonai.diary_browser.R;
 import android.content.Context;
 import android.database.DataSetObservable;
@@ -41,7 +43,7 @@ public class PostListArrayAdapter implements ListAdapter
         author.setOnClickListener((OnClickListener) ctx);
         TextView post_date = (TextView) view.findViewById(R.id.post_date);
         post_date.setText(post.get_date());
-        TextView post_content = (TextView) view.findViewById(R.id.post_content);
+        PatchedTextView post_content = (PatchedTextView) view.findViewById(R.id.post_content);
         post_content.setText(post.get_text());
         post_content.setMovementMethod(LinkMovementMethod.getInstance());
         
