@@ -51,6 +51,7 @@ public class PostListArrayAdapter implements ListAdapter
         //post_content.setText(post.get_text());
         //post_content.setMovementMethod(LinkMovementMethod.getInstance());
         WebView post_contents = (WebView) view.findViewById(R.id.post_contents);
+        post_contents.setBackgroundColor(0x00000000);
         post_contents.setWebViewClient(new Utils.DiaryWebView());
         WebSettings settings = post_contents.getSettings();
         settings.setDefaultTextEncodingName("utf-8");

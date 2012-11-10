@@ -13,6 +13,7 @@ import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebSettings;
+import android.webkit.WebSettings.RenderPriority;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ListAdapter;
@@ -54,6 +55,8 @@ public class CommentListArrayAdapter implements ListAdapter
         WebSettings settings = post_contents.getSettings();
         settings.setDefaultTextEncodingName("utf-8");
         settings.setJavaScriptEnabled(true);
+        settings.setRenderPriority(RenderPriority.HIGH);
+        settings.setBlockNetworkImage(true);
         post_contents.loadDataWithBaseURL(mObjects.get_diary_URL(), post.get_content().html(), "text/html", "", null);
         
         return view;

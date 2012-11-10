@@ -3,7 +3,6 @@ package adonai.diary_browser.entities;
 import org.jsoup.nodes.Element;
 
 import android.graphics.drawable.Drawable;
-import android.text.Spanned;
 
 public class Post
 {

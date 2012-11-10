@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import adonai.diary_browser.DiaryList.ImageTagSpan;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.Post;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;
