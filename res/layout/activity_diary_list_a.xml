@@ -78,18 +78,16 @@
                         android:layout_width="match_parent" 
                         android:cacheColorHint="@android:color/transparent" />
 
-                    <com.handmark.pulltorefresh.library.PullToRefreshListView
+                    <com.handmark.pulltorefresh.library.PullToRefreshWebView
                         android:id="@+id/post_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" />
+                        android:layout_height="match_parent" />
 
 
-                     <com.handmark.pulltorefresh.library.PullToRefreshListView
+                     <com.handmark.pulltorefresh.library.PullToRefreshWebView
                         android:id="@+id/comment_browser"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" />
+                        android:layout_height="match_parent" />
 
                     <ExpandableListView
                         android:id="@+id/discussion_browser"

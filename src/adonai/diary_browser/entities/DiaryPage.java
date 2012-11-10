@@ -1,15 +1,17 @@
 package adonai.diary_browser.entities;
 
-import java.util.Vector;
+import org.jsoup.select.Elements;
 
-public class DiaryPage extends Vector<Post>
+public class DiaryPage
 {
-    private static final long serialVersionUID = 4399107957675394115L;
-	
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
     private String _diary_URL = ""; 
     // идентификатор этого же дневника
     private String _diary_Id = "";
+    
+    private String _ID;
+    private String _post_URL;
+    private Elements _content;
     
     public String get_diary_URL()
     {
@@ -30,20 +32,34 @@ public class DiaryPage extends Vector<Post>
     {
         this._diary_Id = _diary_Id;
     }
-    
+
+    public Elements get_content()
+    {
+        return _content;
+    }
+
+    public void set_content(Elements _content)
+    {
+        this._content = _content;
+    }
+
     public String get_ID()
     {
-        if(!isEmpty())
-            return get(0).get_ID();
-        
-        return "";
+        return _ID;
     }
-    
-    public String get_URL()
+
+    public void set_ID(String _ID)
     {
-        if(!isEmpty())
-            return get(0).get_URL();
-        
-        return "";
+        this._ID = _ID;
+    }
+
+    public String get_post_URL()
+    {
+        return _post_URL;
+    }
+
+    public void set_post_URL(String _post_URL)
+    {
+        this._post_URL = _post_URL;
     }
 }

@@ -20,15 +20,14 @@ import org.jsoup.select.Elements;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 
-import adonai.diary_browser.entities.CommentListArrayAdapter;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
 import adonai.diary_browser.entities.DiscussionListArrayAdapter;
 import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.PostListArrayAdapter;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.tags.MoreTag;
 import android.net.Uri;
@@ -139,9 +138,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
-    PostListArrayAdapter mPostListAdapter;
-    PostListArrayAdapter mOwnDiaryPostListAdapter;
-    CommentListArrayAdapter mCommentListAdapter;
     DiscussionListArrayAdapter mDiscussionsAdapter;
     
     // Видимые объекты
@@ -149,8 +145,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     TextView mDiscussNum;
     TextView mCommentsNum;
     PullToRefreshListView mDiaryBrowser;
-    PullToRefreshListView mPostBrowser;
-    PullToRefreshListView mCommentBrowser;
+    PullToRefreshWebView mPostBrowser;
+    PullToRefreshWebView mCommentBrowser;
     ExpandableListView mDiscussionBrowser;
     
     ImageButton mExitButton;
@@ -207,8 +203,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
-        mPostBrowser = (PullToRefreshListView) findViewById(R.id.post_browser);
-        mCommentBrowser = (PullToRefreshListView) findViewById(R.id.comment_browser);
+        mPostBrowser = (PullToRefreshWebView) findViewById(R.id.post_browser);
+        mCommentBrowser = (PullToRefreshWebView) findViewById(R.id.comment_browser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
@@ -264,14 +260,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
         mDiaryBrowser.setAdapter(mFavouritesAdapter);
         mDiaryBrowser.setOnRefreshListener(this);
-        
-        mPostListAdapter = new PostListArrayAdapter(this, mUser.currentDiaryPosts);
-        mPostBrowser.setAdapter(mPostListAdapter);
-        mPostBrowser.setOnRefreshListener(this);
-        
-        mCommentListAdapter = new CommentListArrayAdapter(this, mUser.currentPostComments);
-        mCommentBrowser.setAdapter(mCommentListAdapter);
-        mCommentBrowser.setOnRefreshListener(this);
         
         mDiscussionsAdapter = new DiscussionListArrayAdapter(this, mUser.discussions);
         mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
@@ -355,8 +343,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             			clipboard.setText(mUser.currentDiaryPosts.get_diary_URL());
             		break;
             		case COMMENT_LIST:
-            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentPostComments.get_URL(), Toast.LENGTH_SHORT).show();
-            			clipboard.setText(mUser.currentPostComments.get_URL());
+            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentPostComments.get_post_URL(), Toast.LENGTH_SHORT).show();
+            			clipboard.setText(mUser.currentPostComments.get_post_URL());
             		break;
             		default:
             			return false;
@@ -432,8 +420,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     }
                 break;
                 case HANDLE_SERVICE_LOAD_PICTURE:
-                    mPostListAdapter.notifyDataSetChanged();
-                    mCommentListAdapter.notifyDataSetChanged();
+
                 break;
                 case HANDLE_SET_HTTP_COOKIE:
                     pd.setMessage(getString(R.string.getting_user_info));
@@ -449,15 +436,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_POSTS_DATA:
                     setCurrentVisibleComponent(POST_LIST);
-                    mPostListAdapter = new PostListArrayAdapter(DiaryList.this, mUser.currentDiaryPosts);
-                    mPostBrowser.setAdapter(mPostListAdapter);
+
                     mPostBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_POST_COMMENTS_DATA:
                     setCurrentVisibleComponent(COMMENT_LIST);
-                    mCommentListAdapter = new CommentListArrayAdapter(DiaryList.this, mUser.currentPostComments);
-                    mCommentBrowser.setAdapter(mCommentListAdapter);
+                    
                     mCommentBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -711,40 +696,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
     };
     
-    private PostContentBuilder makeContent(Element contentNode) throws IOException
-    {
-        // Ищем тэги MORE
-        MoreTag moreTag = null;
-        // Есть
-        if(contentNode.getElementsByAttribute("ondblclick").size() > 0)
-            moreTag = makeMoreTag(contentNode, null);
-        
-        PostContentBuilder post = new PostContentBuilder(Html.fromHtml(contentNode.html(), new DiaryImageGetter(), null), moreTag);
-        formatText(post);
-        
-        return post;
-    }
-    
-    private MoreTag makeMoreTag(Element contentNode, MoreTag parent) throws IOException
-    {
-        MoreTag result = new MoreTag(parent);
-        for(; ;)
-        {
-        	Element moreNode = contentNode.children().select("[ondblclick]").first();
-            if (moreNode == null)
-                break;
-            
-            if(moreNode.children().select("[ondblclick]").first() != null)
-                result.addChild(makeMoreTag(moreNode, result));
-                
-            result.add(Html.fromHtml(moreNode.html(), new DiaryImageGetter(), null));
-            moreNode.remove();
-        }
-        
-        
-        return result;
-    }
-    
     // форматируем текст перед выведением в TextView в списках
     private void formatText(PostContentBuilder contentPart)
     {
@@ -844,26 +795,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	// Загружаем посты дневника
                 case R.id.title:
                 {
-                    // Отнимаем 1 всегда, т.к. верхняя ячейка - обновление
                     int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
                     Diary diary = (Diary) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(diary.get_URL(), false)));
-                }
-                break;
-                // Загружаем комменты поста
-                case R.id.post_title:
-                case R.id.comments_number:
-                {
-                	int pos = mPostBrowser.getRefreshableView().getPositionForView((View) view.getParent());
-                	Post post = (Post) mPostBrowser.getRefreshableView().getAdapter().getItem(pos);
-                	
-                	if(!post.isEpigraph())
-                	{
-                		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                		mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(post.get_URL(), false)));
-                	}
                 }
                 break;
                 default:
@@ -983,7 +919,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     			break;
     		case COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_URL(), true)));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
     			break;
     	}
     }
@@ -1010,10 +946,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
         	// TODO: исправить когда придумается что-то получше
         	// Если мы сразу зашли в список комментов, список постов пустой.
-        	if(mUser.currentDiaryPosts.isEmpty()) 
-        		setCurrentTab(TAB_FAVOURITES);
-        	else
-        		setCurrentVisibleComponent(POST_LIST);
+        	setCurrentVisibleComponent(POST_LIST);
         	
         	return;
         }
@@ -1115,68 +1048,21 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-        Element postsArea = rootNode.select("[id=postsArea]").first();
+        Elements postsArea = rootNode.select("[id=postsArea]");
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
-        Elements scripts = rootNode.select("script[src]");
-        for (Element post : postsArea.children())
+        Element urlNode = postsArea.first().getElementsByClass("postLinksBackg").first();
+        if (urlNode != null)
         {
-            // не парсим пока что ссылки RSS
-        	// TODO: Сделать переходы по страницам (и для комментов в том числе)
-            if (post.hasAttr("id") && post.className().contains("singlePost"))
-            {
-                Post currentPost = new Post();
-                
-            	currentPost.setIsEpigraph(post.id().equals("epigraph"));
-            	
-            	Element headerNode = post.getElementsByAttributeValue("class", "postTitle header").first();
-                if (headerNode != null)
-                {
-                    currentPost.set_title(headerNode.getElementsByTag("h2").text());
-                    if(currentPost.get_title().equals(""))
-                        currentPost.set_title(getString(R.string.without_title));
-                    currentPost.set_date(headerNode.getElementsByTag("span").attr("title"));
-                }
-                Element authorNode = post.getElementsByClass("authorName").first();
-                if(authorNode != null)
-                {
-                    currentPost.set_author(authorNode.getElementsByTag("a").last().text());
-                    currentPost.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
-                }
-                Element communityNode = post.getElementsByClass("communityName").first();
-                if(communityNode != null)
-                {
-                    currentPost.set_community(communityNode.getElementsByTag("a").text());
-                    currentPost.set_community_URL(communityNode.getElementsByTag("a").attr("href"));
-                }
-                
-                Element contentNode = post.getElementsByClass("paragraph").first();
-                if(contentNode != null)
-                {
-                    //currentPost.set_text(makeContent(contentNode));
-                    currentPost.set_content(contentNode.clone().append(scripts.outerHtml()));
-                }
-                Element urlNode = post.getElementsByClass("postLinksBackg").first();
-                if (urlNode != null)
-                {
-                	String postURL = urlNode.getElementsByTag("a").attr("href");
-                    currentPost.set_URL(postURL);
-                    currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
-                    Element comment_count = urlNode.getElementsByClass("comments_count_link").first();
-                    if(comment_count != null)
-                        currentPost.set_comment_count(comment_count.text());
-                    else
-                        currentPost.set_comment_count(getString(R.string.comments_disabled));
-                }
-                
-                if(destination != null)
-                    destination.add(currentPost);
-                
-                // Всегда заполняем текущие посты
-                mUser.currentDiaryPosts.add(currentPost);
-            }
+            String postURL = urlNode.getElementsByTag("a").attr("href");
+            mUser.currentDiaryPosts.set_post_URL(postURL);
+            mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
+        
+        Elements scripts = rootNode.select("script[src]");
+        Elements result = postsArea.clone().append(scripts.outerHtml());
+        mUser.currentDiaryPosts.set_content(result);
     }
     
     public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
@@ -1192,89 +1078,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        Elements effectiveAreas = rootNode.select("[id=postsArea],[id=commentsArea]");
+        if(effectiveAreas == null) // Нет вообще никаких постов, заканчиваем
+            return;
+        
+        
+        Element urlNode = effectiveAreas.first().getElementsByClass("postLinksBackg").first();
+        if (urlNode != null)
+        {
+            String postURL = urlNode.getElementsByTag("a").attr("href");
+            mUser.currentDiaryPosts.set_post_URL(postURL);
+            mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
+        }
+        
         Elements scripts = rootNode.select("script[src]");
         
-        // сначала получаем первый пост
-        
-        Element postsArea = rootNode.getElementsByAttributeValue("id", "postsArea").first();
-        if(postsArea != null)
-        {
-            Post currentPost = new Post();
-            Element headerNode = postsArea.getElementsByClass("postTitle header").first();
-	        if (headerNode != null)
-	        {
-	            currentPost.set_title(headerNode.getElementsByTag("h2").text());
-	            if(currentPost.get_title().equals(""))
-	                currentPost.set_title(getString(R.string.without_title));
-	            currentPost.set_date(headerNode.getElementsByTag("span").attr("title"));
-	        }
-	        Element authorNode = postsArea.getElementsByAttributeValue("class", "authorName").first();
-	        if(authorNode != null)
-	        {
-	            currentPost.set_author(authorNode.getElementsByTag("a").last().text());
-	            currentPost.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
-	        }
-	        
-	        Element contentNode = postsArea.getElementsByAttributeValue("class", "paragraph").first();
-	        if(contentNode != null)
-	        {
-	            //currentPost.set_text(makeContent(contentNode));
-	            currentPost.set_content(contentNode.clone().append(scripts.outerHtml()));
-	        }
-	        Element urlNode = postsArea.getElementsByClass("postLinksBackg").first();
-            if (urlNode != null)
-            {
-            	String postURL = urlNode.getElementsByTag("a").attr("href");
-                currentPost.set_URL(postURL);
-                currentPost.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
-            }
-            if(destination != null)
-                destination.add(currentPost);
-            
-	        mUser.currentPostComments.add(currentPost);
-        }
-        
-        // теперь получаем его комменты
-        
-        Element commentsArea = rootNode.getElementsByAttributeValue("id", "commentsArea").first();
-        if(commentsArea == null)
-        {
-            mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
-            return;
-        }
-        
-        for (Element comment : commentsArea.getElementsByAttributeValueContaining("class", "singleComment"))
-        {
-            Post currentComment = new Post();
-            Element headerNode = comment.getElementsByAttributeValue("class", "postTitle header").first();
-            if (headerNode != null)
-            {
-                currentComment.set_title(headerNode.getElementsByTag("h2").text());
-                currentComment.set_date(headerNode.getElementsByTag("span").attr("title"));
-            }
-            Element authorNode = comment.getElementsByClass("authorName").first();
-            if(authorNode != null)
-            {
-                currentComment.set_author(authorNode.getElementsByTag("a").last().text());
-                currentComment.set_author_URL(authorNode.getElementsByTag("a").last().attr("href"));
-            }
-            Element contentNode = comment.getElementsByClass("paragraph").first();
-            if(contentNode != null)
-            {
-            	//currentComment.set_text(makeContent(contentNode));
-                currentComment.set_content(contentNode.clone().append(scripts.outerHtml()));
-            }
-            Element urlNode = comment.getElementsByClass("postLinksBackg").first();
-            if (urlNode != null)
-            {
-            	currentComment.set_URL(urlNode.getElementsByTag("a").attr("href"));
-            }
-            
-            if(destination != null)
-                destination.add(currentComment);
-            
-            mUser.currentPostComments.add(currentComment);
-        }
+        Elements result = effectiveAreas.clone().append(scripts.outerHtml());
+        mUser.currentDiaryPosts.set_content(result);
     }
     
     public void serializeDiscussionsPage(String dataPage, List<DiscussionList> destination)
@@ -1620,7 +1440,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryPosts.get_diary_URL(), true)));
             break;
             case R.id.comment_browser:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_URL(), true)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
             break;
         }
     }

@@ -9,8 +9,6 @@ import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
-
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;
@@ -22,7 +20,7 @@ public class CacheManager
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
     // загруженные странички
-    private Map<String, Vector<? extends Object>> browseCache = new HashMap<String, Vector<? extends Object>>();
+    private Map<String, Object> browseCache = new HashMap<String, Object>();
     // загруженные изображения
     private Map<String, SoftReference<BitmapDrawable>> imageCache = new HashMap<String, SoftReference<BitmapDrawable>>();
     
@@ -40,9 +38,9 @@ public class CacheManager
     	return null;
     }
     
-    public Vector<? extends Object> loadPageFromCache(String URL)
+    public Object loadPageFromCache(String URL)
     {
-    	Vector<? extends Object> toPage = browseCache.get(URL);
+    	Object toPage = browseCache.get(URL);
 	    return toPage;
     }
     
@@ -51,7 +49,7 @@ public class CacheManager
     	return browseCache.containsKey(URL);
     }
     
-    public void putPageToCache(String URL, Vector<? extends Object> page)
+    public void putPageToCache(String URL, Object page)
     {
     	browseCache.put(URL, page);
     }
