@@ -11,6 +11,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 public class Utils 
 {
@@ -90,6 +92,15 @@ public class Utils
         catch (Exception e) 
         {
             return null;
+        }
+	}
+	
+	public static class DiaryWebView extends WebViewClient
+	{  //HERE IS THE MAIN CHANGE. 
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) 
+        {
+            return (false);
         }
 	}
 }

@@ -1,5 +1,7 @@
 package adonai.diary_browser.entities;
 
+import org.jsoup.nodes.Element;
+
 import android.graphics.drawable.Drawable;
 import android.text.Spanned;
 
@@ -10,27 +12,47 @@ public class Post
         
     }
     
-    // обработка
+    /*
+     * обработка
+     */
+    
+    // Идентификатор поста
     private String _ID = "";
+    // Автор поста
     private String _author = "";
+    // ССылка на страничку автора
     private String _author_URL = "";
     //  название комьюнити поста
     private String _community = "";
     // ссылка на комьюнити поста
     private String _community_URL = "";
+    // ссылка на пост
     private String _URL = "";
-    private Spanned _text = null;
+    // Содержимое поста
+    private Element _content = null;
+    // Дата размещения поста
     private String _date;
+    // Заголовок поста
     private String _title = "";
+    // Число комментариев к посту
     private String _comment_count = "";
+    // Аватарка автора ^_^
     private Drawable _author_avatar = null;
     
-    // постинг
+    /*
+     * постинг
+     */
+    
+    // Настроение
     private String _mood = "";
+    // Темы
     private String _themes = "";
+    // Тэги
     private String _tags = "";
+    // Музыка
     private String _music = "";
     
+    // Является ли пост эпиграфом?
     private boolean epigraph = false;
     
     /**
@@ -65,23 +87,6 @@ public class Post
     public void set_URL(String _URL)
     {
         this._URL = _URL;
-    }
-    
-    /**
-     * @return the _text
-     */
-    public Spanned get_text()
-    {
-        return _text;
-    }
-    
-    /**
-     * @param spanned
-     *            the _text to set
-     */
-    public void set_text(Spanned spanned)
-    {
-        this._text = spanned;
     }
     
     /**
@@ -231,4 +236,14 @@ public class Post
 	{
 		return epigraph;
 	}
+
+    public Element get_content()
+    {
+        return _content;
+    }
+
+    public void set_content(Element _content)
+    {
+        this._content = _content;
+    }
 }

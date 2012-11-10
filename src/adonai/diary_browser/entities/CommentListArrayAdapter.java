@@ -5,12 +5,16 @@ import java.util.List;
 import workaround.PatchedTextView;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.Utils;
 import android.content.Context;
 import android.database.DataSetObservable;
 import android.database.DataSetObserver;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
@@ -18,9 +22,9 @@ public class CommentListArrayAdapter implements ListAdapter
 {
     private final DataSetObservable mDataSetObservable = new DataSetObservable();
     private Context ctx;
-    private List<Post> mObjects;
+    private DiaryPage mObjects;
 
-    public CommentListArrayAdapter(Context context, List<Post> objects)
+    public CommentListArrayAdapter(Context context, DiaryPage objects)
     {
         ctx = context;
         mObjects = objects;
@@ -42,10 +46,15 @@ public class CommentListArrayAdapter implements ListAdapter
         author.setText(post.get_author());
         TextView post_date = (TextView) view.findViewById(R.id.post_date);
         post_date.setText(post.get_date());
-        PatchedTextView post_content = (PatchedTextView) view.findViewById(R.id.post_content);
-        post_content.setText(post.get_text());
-        
-        post_content.setMovementMethod(LinkMovementMethod.getInstance());
+        //PatchedTextView post_content = (PatchedTextView) view.findViewById(R.id.post_content);
+        //post_content.setText(post.get_text());
+        //post_content.setMovementMethod(LinkMovementMethod.getInstance());
+        WebView post_contents = (WebView) view.findViewById(R.id.post_contents);
+        post_contents.setWebViewClient(new Utils.DiaryWebView());
+        WebSettings settings = post_contents.getSettings();
+        settings.setDefaultTextEncodingName("utf-8");
+        settings.setJavaScriptEnabled(true);
+        post_contents.loadDataWithBaseURL(mObjects.get_diary_URL(), post.get_content().html(), "text/html", "", null);
         
         return view;
     }

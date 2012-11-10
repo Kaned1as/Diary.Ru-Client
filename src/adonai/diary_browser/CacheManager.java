@@ -43,27 +43,9 @@ public class CacheManager
     	return null;
     }
     
-    public Vector<? extends Object> loadPageFromCache(String URL, Vector<? extends Object> previousPage)
+    public Vector<? extends Object> loadPageFromCache(String URL)
     {
-    	if(previousPage != null && previousPage instanceof DiaryPage)
-    	{
-	    	for(Post currentPost : (DiaryPage) previousPage)
-	    	{
-	    		ImageTagSpan[] imageSpans = currentPost.get_text().getSpans(0, currentPost.get_text().length(), ImageTagSpan.class);
-	    		for(ImageTagSpan imageSpan : imageSpans)
-	    			imageSpan.recycleImages();
-	    	}
-    	}
     	Vector<? extends Object> toPage = browseCache.get(URL);
-    	if(toPage instanceof DiaryPage)
-    	{
-	        for(Post currentPost : (DiaryPage) toPage)
-	    	{
-	    		ImageTagSpan[] imageSpans = currentPost.get_text().getSpans(0, currentPost.get_text().length(), ImageTagSpan.class);
-	    		for(ImageTagSpan imageSpan : imageSpans)
-	    			imageSpan.loadNeeded();
-	    	}
-    	}
 	    return toPage;
     }
     

@@ -582,7 +582,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         // Если страничка дневников есть в комментах
                         if(mCache.hasPage(URL) && !reload)
                         {
-                            mUser.currentDiaries = (Vector<Diary>) mCache.loadPageFromCache(URL, null);
+                            mUser.currentDiaries = (Vector<Diary>) mCache.loadPageFromCache(URL);
                         }
                         else
                         {
@@ -608,7 +608,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         // Если страничка постов есть в комментах
                         if(mCache.hasPage(URL) && !reload)
                         {
-                        	mUser.currentDiaryPosts = (DiaryPage) mCache.loadPageFromCache(URL, mUser.currentDiaryPosts);
+                        	mUser.currentDiaryPosts = (DiaryPage) mCache.loadPageFromCache(URL);
                         }
                         else
                         {
@@ -634,7 +634,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         // Если страничка комментов есть в кэше
                         if(mCache.hasPage(URL) && !reload)
                         {
-                        	mUser.currentPostComments = (DiaryPage) mCache.loadPageFromCache(URL, mUser.currentPostComments);
+                        	mUser.currentPostComments = (DiaryPage) mCache.loadPageFromCache(URL);
                         }
                         else
                         {
@@ -1119,6 +1119,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
+        Elements scripts = rootNode.select("script[src]");
         for (Element post : postsArea.children())
         {
             // не парсим пока что ссылки RSS
@@ -1153,7 +1154,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 Element contentNode = post.getElementsByClass("paragraph").first();
                 if(contentNode != null)
                 {
-                    currentPost.set_text(makeContent(contentNode));
+                    //currentPost.set_text(makeContent(contentNode));
+                    currentPost.set_content(contentNode.clone().append(scripts.outerHtml()));
                 }
                 Element urlNode = post.getElementsByClass("postLinksBackg").first();
                 if (urlNode != null)
@@ -1190,6 +1192,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        Elements scripts = rootNode.select("script[src]");
         
         // сначала получаем первый пост
         
@@ -1215,7 +1218,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	        Element contentNode = postsArea.getElementsByAttributeValue("class", "paragraph").first();
 	        if(contentNode != null)
 	        {
-	            currentPost.set_text(makeContent(contentNode));
+	            //currentPost.set_text(makeContent(contentNode));
+	            currentPost.set_content(contentNode.clone().append(scripts.outerHtml()));
 	        }
 	        Element urlNode = postsArea.getElementsByClass("postLinksBackg").first();
             if (urlNode != null)
@@ -1257,7 +1261,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             Element contentNode = comment.getElementsByClass("paragraph").first();
             if(contentNode != null)
             {
-            	currentComment.set_text(makeContent(contentNode));
+            	//currentComment.set_text(makeContent(contentNode));
+                currentComment.set_content(contentNode.clone().append(scripts.outerHtml()));
             }
             Element urlNode = comment.getElementsByClass("postLinksBackg").first();
             if (urlNode != null)

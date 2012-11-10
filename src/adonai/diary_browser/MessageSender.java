@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.jsoup.Jsoup;
 
 import adonai.diary_browser.entities.Post;
 import android.app.Activity;
@@ -17,7 +18,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.text.Spannable;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -265,7 +265,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				// TODO: Сохранение в черновики
 				// Задел на будущее - для сохранения в черновики
 				mPost.set_title(titleText.getText().toString());
-				mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
+				//mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
+				mPost.set_content(Jsoup.parse(contentText.getText().toString()));
 				mPost.set_themes(themesText.getText().toString());
 				mPost.set_music(musicText.getText().toString());
 				mPost.set_mood(moodText.getText().toString());
@@ -274,7 +275,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				postParams.add(new BasicNameValuePair("action", "dosend"));
 				postParams.add(new BasicNameValuePair("resulttype", "2"));
 				// Добавляем параметры из настроек
-				postParams.add(new BasicNameValuePair("message", mPost.get_text().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
+				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
 				
