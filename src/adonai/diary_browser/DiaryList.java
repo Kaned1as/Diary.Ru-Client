@@ -36,6 +36,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -70,6 +71,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.webkit.WebSettings;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView;
@@ -167,6 +169,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
     
+    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -194,6 +197,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
+        
+        WebSettings settings = mPostBrowser.getRefreshableView().getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDefaultTextEncodingName("utf-8");
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        
+        WebSettings settings2 = mCommentBrowser.getRefreshableView().getSettings();
+        settings2.setJavaScriptEnabled(true);
+        settings2.setDefaultTextEncodingName("utf-8");
+        settings2.setJavaScriptCanOpenWindowsAutomatically(false);
     }
     
     public void initializeUI()
@@ -436,13 +449,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_POSTS_DATA:
                     setCurrentVisibleComponent(POST_LIST);
-
+                    mPostBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPosts.get_diary_URL(), mUser.currentDiaryPosts.get_content().html(), null, "", null);
                     mPostBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_POST_COMMENTS_DATA:
                     setCurrentVisibleComponent(COMMENT_LIST);
-                    
+                    mCommentBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentPostComments.get_diary_URL(), mUser.currentPostComments.get_content().html(), null, "", null);
                     mCommentBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -1047,8 +1060,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        //TagNode postsArea = rootNode.findElementByAttValue("id", "postsArea", true, true);
-        Elements postsArea = rootNode.select("[id=postsArea]");
+        Elements postsArea = rootNode.select("[id=postsArea] > [id^=post]");
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
@@ -1077,8 +1089,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
         
+        mUser.currentPostComments.set_diary_URL(Globals.currentURL);
+        Element diaryTag = rootNode.select("[id=authorName]").first();
+        if(diaryTag != null)
+        {
+            String Id = diaryTag.getElementsByTag("a").last().attr("href");
+            mUser.currentPostComments.set_diary_Id(Id.substring(Id.lastIndexOf("?") + 1));
+        }
+        
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        Elements effectiveAreas = rootNode.select("[id=postsArea],[id=commentsArea]");
+        Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment]");
         if(effectiveAreas == null) // Нет вообще никаких постов, заканчиваем
             return;
         
@@ -1087,14 +1107,14 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         if (urlNode != null)
         {
             String postURL = urlNode.getElementsByTag("a").attr("href");
-            mUser.currentDiaryPosts.set_post_URL(postURL);
-            mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
+            mUser.currentPostComments.set_post_URL(postURL);
+            mUser.currentPostComments.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
         Elements scripts = rootNode.select("script[src]");
         
         Elements result = effectiveAreas.clone().append(scripts.outerHtml());
-        mUser.currentDiaryPosts.set_content(result);
+        mUser.currentPostComments.set_content(result);
     }
     
     public void serializeDiscussionsPage(String dataPage, List<DiscussionList> destination)
