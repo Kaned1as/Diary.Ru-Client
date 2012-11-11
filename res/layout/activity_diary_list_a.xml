@@ -67,37 +67,31 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" >
 
-                <FrameLayout
-                    android:id="@+id/generic_tab_content"
+                <com.handmark.pulltorefresh.library.PullToRefreshListView
+                    android:id="@+id/diary_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:cacheColorHint="@android:color/transparent" >
+                </com.handmark.pulltorefresh.library.PullToRefreshListView>
+
+                <adonai.diary_browser.DiaryWebView
+                    android:id="@+id/post_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
-                    
-                    <com.handmark.pulltorefresh.library.PullToRefreshListView
-                        android:id="@+id/diary_browser"
-                        android:layout_height="match_parent"
-                        android:layout_width="match_parent" 
-                        android:cacheColorHint="@android:color/transparent" />
+                </adonai.diary_browser.DiaryWebView>
 
-                    <adonai.diary_browser.DiaryWebView
-                        android:id="@+id/post_browser"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
+                <adonai.diary_browser.DiaryWebView
+                    android:id="@+id/comment_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </adonai.diary_browser.DiaryWebView>
 
-
-                     <adonai.diary_browser.DiaryWebView
-                        android:id="@+id/comment_browser"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent" />
-
-                    <ExpandableListView
-                        android:id="@+id/discussion_browser"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:cacheColorHint="@android:color/transparent" >
-
-                    </ExpandableListView>
-
-                </FrameLayout>
+                <ExpandableListView
+                    android:id="@+id/discussion_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:cacheColorHint="@android:color/transparent" >
+                </ExpandableListView>
             </FrameLayout>
 
         </LinearLayout>

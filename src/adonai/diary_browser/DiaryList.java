@@ -191,7 +191,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPostBrowser = (DiaryWebView) findViewById(R.id.post_browser);
+        mPostBrowser.setDefaultSettings();
         mCommentBrowser = (DiaryWebView) findViewById(R.id.comment_browser);
+        mCommentBrowser.setDefaultSettings();
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
@@ -207,12 +209,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         // Когда мы добавляем несколько табов с одинаковым содержимым, необходимо в конце сделать нужную видимой.
         // Я открыл это странное свойство, когда копался в исходниках Андроида
-        mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(R.id.generic_tab_content));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(R.id.generic_tab_content));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(android.R.id.tabcontent));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(android.R.id.tabcontent));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(android.R.id.tabcontent));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(android.R.id.tabcontent));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(android.R.id.tabcontent));
+        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(android.R.id.tabcontent));
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
         
         // Дополнительные настройки для маленьких вкладок отображения новых комментариев
@@ -945,7 +947,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mUser.currentDiaryPosts = new DiaryPage();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
     	Document rootNode = Jsoup.parse(dataPage);
-
     	
         if(mListener != null)
         {       	
@@ -961,7 +962,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentDiaryPosts.set_diary_Id(Id.substring(Id.lastIndexOf("?") + 1));
         }
         
-        
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id=postsArea] > [id^=post]");
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
@@ -975,8 +975,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
-        Elements scripts = rootNode.select("script[src]");
-        Elements result = postsArea.clone().append(scripts.outerHtml());
+        Elements result = postsArea.clone().append(Utils.javascriptContent);
         mUser.currentDiaryPosts.set_content(result);
     }
     
@@ -1014,9 +1013,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentPostComments.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
-        Elements scripts = rootNode.select("script[src]");
-        
-        Elements result = effectiveAreas.clone().append(scripts.outerHtml());
+        Elements result = effectiveAreas.clone().append(Utils.javascriptContent);
         mUser.currentPostComments.set_content(result);
     }
     
