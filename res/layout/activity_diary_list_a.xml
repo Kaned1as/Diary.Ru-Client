@@ -78,13 +78,13 @@
                         android:layout_width="match_parent" 
                         android:cacheColorHint="@android:color/transparent" />
 
-                    <com.handmark.pulltorefresh.library.PullToRefreshWebView
+                    <adonai.diary_browser.DiaryWebView
                         android:id="@+id/post_browser"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />
 
 
-                     <com.handmark.pulltorefresh.library.PullToRefreshWebView
+                     <adonai.diary_browser.DiaryWebView
                         android:id="@+id/comment_browser"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent" />

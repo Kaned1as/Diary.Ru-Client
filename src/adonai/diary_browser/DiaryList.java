@@ -20,8 +20,6 @@ import org.jsoup.select.Elements;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
-
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.DiaryPage;
@@ -35,7 +33,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -61,9 +58,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView;
@@ -79,8 +73,6 @@ import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener
 {
-    
-
 	public interface onUserDataParseListener
     {
         public void parseData(Element rootNode);
@@ -93,19 +85,19 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
 	
     // Команды хэндлерам
-    private static final int HANDLE_AUTHORIZATION_ERROR 					=  -1;
-    private static final int HANDLE_CONNECTIVITY_ERROR 						=  -2;
-    private static final int HANDLE_START 									= 	1;
-    private static final int HANDLE_SET_HTTP_COOKIE 						= 	2;
-    private static final int HANDLE_GET_DIARIES_DATA 			= 	3;
-    private static final int HANDLE_GET_DIARY_POSTS_DATA 					= 	4;
-    private static final int HANDLE_GET_POST_COMMENTS_DATA 					= 	5;
-    private static final int HANDLE_PROGRESS 								= 	7;
-    private static final int HANDLE_PROGRESS_2 								= 	8;
-    private static final int HANDLE_PICK_URL 								= 	9;
-    private static final int HANDLE_UPDATE_HEADERS 							= 	10;
-    private static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
-    private static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
+    static final int HANDLE_AUTHORIZATION_ERROR 					=  -1;
+    static final int HANDLE_CONNECTIVITY_ERROR 						=  -2;
+    static final int HANDLE_START 									= 	1;
+    static final int HANDLE_SET_HTTP_COOKIE 						= 	2;
+    static final int HANDLE_GET_DIARIES_DATA 		             	= 	3;
+    static final int HANDLE_GET_DIARY_POSTS_DATA 					= 	4;
+    static final int HANDLE_GET_POST_COMMENTS_DATA 					= 	5;
+    static final int HANDLE_PROGRESS 								= 	7;
+    static final int HANDLE_PROGRESS_2 								= 	8;
+    static final int HANDLE_PICK_URL 								= 	9;
+    static final int HANDLE_UPDATE_HEADERS 							= 	10;
+    static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
+    static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_LOAD_PICTURE = 100;
@@ -139,8 +131,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     TextView mDiscussNum;
     TextView mCommentsNum;
     PullToRefreshListView mDiaryBrowser;
-    PullToRefreshWebView mPostBrowser;
-    PullToRefreshWebView mCommentBrowser;
+    DiaryWebView mPostBrowser;
+    DiaryWebView mCommentBrowser;
     ExpandableListView mDiscussionBrowser;
     
     ImageButton mExitButton;
@@ -161,12 +153,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
     
-    @SuppressLint("SetJavaScriptEnabled")
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);      
-        
+        super.onCreate(savedInstanceState);
+        // Оповещаем остальных, что мы создались
+        Globals.mMain = this;
         setUserDataListener(mUser);
         // Если был простой приложения
         if(Globals.mSharedPrefs == null)
@@ -189,22 +181,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
-        
-        WebSettings settings = mPostBrowser.getRefreshableView().getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDefaultTextEncodingName("utf-8");
-        settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        mPostBrowser.getRefreshableView().setWebViewClient(DiaryWebClient);
-        mPostBrowser.getRefreshableView().setBackgroundColor(0x00000000);
-        mPostBrowser.setOnRefreshListener(new WebPageRefresher());
-        
-        WebSettings settings2 = mCommentBrowser.getRefreshableView().getSettings();
-        settings2.setJavaScriptEnabled(true);
-        settings2.setDefaultTextEncodingName("utf-8");
-        settings2.setJavaScriptCanOpenWindowsAutomatically(false);
-        mCommentBrowser.getRefreshableView().setWebViewClient(DiaryWebClient);
-        mCommentBrowser.getRefreshableView().setBackgroundColor(0x00000000);
-        mCommentBrowser.setOnRefreshListener(new WebPageRefresher());
     }
     
     public void initializeUI()
@@ -214,8 +190,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
-        mPostBrowser = (PullToRefreshWebView) findViewById(R.id.post_browser);
-        mCommentBrowser = (PullToRefreshWebView) findViewById(R.id.comment_browser);
+        mPostBrowser = (DiaryWebView) findViewById(R.id.post_browser);
+        mCommentBrowser = (DiaryWebView) findViewById(R.id.comment_browser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         
         mLogin = (TextView) findViewById(R.id.login_name);
@@ -1210,40 +1186,4 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             break;
         }
     }
-	
-	public class WebPageRefresher implements OnRefreshListener<WebView>
-	{
-
-        public void onRefresh(PullToRefreshBase<WebView> refreshView)
-        {
-            switch (refreshView.getId())
-            {
-                case R.id.post_browser:
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryPosts.get_diary_URL(), true)));
-                break;
-                case R.id.comment_browser:
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
-                break;
-            }
-        }
-	    
-	}
-    
-    WebViewClient DiaryWebClient = new WebViewClient()
-    {
-        // Override page so it's load on my view only
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView  view, String  url)
-        {
-         if ( url.contains("diary.ru"))
-         {
-            pd = ProgressDialog.show(view.getContext(), getString(R.string.loading), getString(R.string.loading_data), true, true);
-            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, url));
-            return true;
-         }
-          
-         // Return true to override url loading (In this case do nothing).
-         return true;
-        }
-    };
 }
