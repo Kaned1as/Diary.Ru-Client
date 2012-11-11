@@ -189,20 +189,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         
+        mLogin = (TextView) findViewById(R.id.login_name);
+        mLogin.setText(mUser.userName);
+        
+        mExitButton = (ImageButton) findViewById(R.id.exit_button);
+        mExitButton.setOnClickListener(this);
+        
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPostBrowser = (DiaryWebView) findViewById(R.id.post_browser);
         mPostBrowser.setDefaultSettings();
         mCommentBrowser = (DiaryWebView) findViewById(R.id.comment_browser);
         mCommentBrowser.setDefaultSettings();
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
-        
-        mLogin = (TextView) findViewById(R.id.login_name);
-        mLogin.setText(mUser.userName);
-        
-        // Также устаревший код, оставлен в целях тестирования
-        
-        mExitButton = (ImageButton) findViewById(R.id.exit_button);
-        mExitButton.setOnClickListener(this);
         
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup();
@@ -266,8 +264,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void onConfigurationChanged(Configuration newConfig) 
     {
         super.onConfigurationChanged(newConfig);
-        setContentView(R.layout.activity_diary_list_a);
-        initializeUI();
     }
     
     @Override
@@ -975,7 +971,31 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
-        Elements result = postsArea.clone().append(Utils.javascriptContent);
+        Elements result = postsArea.clone();
+        
+        if(!load_images)
+        {
+            Elements images = result.select("img[src^=http]");
+            int i = 0;
+            for(Element image : images)
+            {
+                String width = image.attr("width");
+                String height = image.attr("height");
+                if(width.equals("") && height.equals("") && !image.parent().className().equals("avatar"))
+                {
+                    String jsButton = "<a href=\"#\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\">" +
+                                        "<img name=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" alt=\"javascript button\"" +
+                                        "/>" +
+                                      "</a>";
+                    
+                    image.after(jsButton);
+                    image.remove();
+                    i++;
+                }
+            }
+        }
+        
+        result.append(Utils.javascriptContent);
         mUser.currentDiaryPosts.set_content(result);
     }
     

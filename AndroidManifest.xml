@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="020"
-    android:versionName="Alpha-0.2.0" android:installLocation="auto">
+    android:versionCode="030"
+    android:versionName="Alpha-0.3.0" android:installLocation="auto">
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -20,7 +20,7 @@
         </activity>
         <activity
             android:name=".DiaryList"
-            android:label="@string/title_activity_diary_list" android:configChanges="keyboardHidden|orientation|screenSize">
+            android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
         </activity>
         <activity
             android:name=".LaunchActivity"
