@@ -48,12 +48,12 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("utf-8");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        getRefreshableView().setWebViewClient(DiaryWebClient);
+        getRefreshableView().setWebViewClient(new DiaryWebClient());
         getRefreshableView().setBackgroundColor(0x00000000);
         setOnRefreshListener(new WebPageRefresher());
     }
 
-    WebViewClient DiaryWebClient = new WebViewClient()
+    private class DiaryWebClient extends WebViewClient
     {
         // Override page so it's load on my view only
         @Override

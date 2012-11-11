@@ -1033,7 +1033,31 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentPostComments.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
-        Elements result = effectiveAreas.clone().append(Utils.javascriptContent);
+        Elements result = effectiveAreas.clone();
+        
+        if(!load_images)
+        {
+            Elements images = result.select("img[src^=http]");
+            int i = 0;
+            for(Element image : images)
+            {
+                String width = image.attr("width");
+                String height = image.attr("height");
+                if(width.equals("") && height.equals("") && !image.parent().className().equals("avatar"))
+                {
+                    String jsButton = "<a href=\"#\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\">" +
+                                        "<img name=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" alt=\"javascript button\"" +
+                                        "/>" +
+                                      "</a>";
+                    
+                    image.after(jsButton);
+                    image.remove();
+                    i++;
+                }
+            }
+        }
+        
+        result.append(Utils.javascriptContent);
         mUser.currentPostComments.set_content(result);
     }
     
