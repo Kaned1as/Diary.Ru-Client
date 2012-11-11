@@ -61,7 +61,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -197,6 +196,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         mPostBrowser.getRefreshableView().setWebViewClient(DiaryWebClient);
         mPostBrowser.getRefreshableView().setBackgroundColor(0x00000000);
+        mPostBrowser.setOnRefreshListener(new WebPageRefresher());
         
         WebSettings settings2 = mCommentBrowser.getRefreshableView().getSettings();
         settings2.setJavaScriptEnabled(true);
@@ -204,6 +204,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         settings2.setJavaScriptCanOpenWindowsAutomatically(false);
         mCommentBrowser.getRefreshableView().setWebViewClient(DiaryWebClient);
         mCommentBrowser.getRefreshableView().setBackgroundColor(0x00000000);
+        mCommentBrowser.setOnRefreshListener(new WebPageRefresher());
     }
     
     public void initializeUI()
@@ -1207,14 +1208,26 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             case R.id.diary_browser:
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
             break;
-            case R.id.post_browser:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryPosts.get_diary_URL(), true)));
-            break;
-            case R.id.comment_browser:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
-            break;
         }
     }
+	
+	public class WebPageRefresher implements OnRefreshListener<WebView>
+	{
+
+        public void onRefresh(PullToRefreshBase<WebView> refreshView)
+        {
+            switch (refreshView.getId())
+            {
+                case R.id.post_browser:
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryPosts.get_diary_URL(), true)));
+                break;
+                case R.id.comment_browser:
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
+                break;
+            }
+        }
+	    
+	}
     
     WebViewClient DiaryWebClient = new WebViewClient()
     {
