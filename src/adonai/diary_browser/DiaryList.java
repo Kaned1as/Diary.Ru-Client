@@ -959,7 +959,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        Elements postsArea = rootNode.select("[id=postsArea] > [id^=post]");
+        Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post]");
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
@@ -973,7 +973,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         Elements result = postsArea.clone();
         
-        if(!load_images)
+        parseContent(result);
+        
+        result.append(Utils.javascriptContent);
+        mUser.currentDiaryPosts.set_content(result);
+    }
+    
+    private void parseContent(Elements result)
+	{
+    	if(!load_images)
         {
             Elements images = result.select("img[src^=http]");
             int i = 0;
@@ -983,23 +991,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 String height = image.attr("height");
                 if(width.equals("") && height.equals("") && !image.parent().className().equals("avatar"))
                 {
-                    String jsButton = "<a href=\"#\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\">" +
-                                        "<img name=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" alt=\"javascript button\"" +
-                                        "/>" +
-                                      "</a>";
+                    String jsButton = "<input type=\"image\" id=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\"/>";
                     
                     image.after(jsButton);
                     image.remove();
+
                     i++;
                 }
             }
         }
-        
-        result.append(Utils.javascriptContent);
-        mUser.currentDiaryPosts.set_content(result);
-    }
-    
-    public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
+	}
+
+	public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
     {
     	mUser.currentPostComments = new DiaryPage();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
@@ -1035,27 +1038,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         Elements result = effectiveAreas.clone();
         
-        if(!load_images)
-        {
-            Elements images = result.select("img[src^=http]");
-            int i = 0;
-            for(Element image : images)
-            {
-                String width = image.attr("width");
-                String height = image.attr("height");
-                if(width.equals("") && height.equals("") && !image.parent().className().equals("avatar"))
-                {
-                    String jsButton = "<a href=\"#\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\">" +
-                                        "<img name=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" alt=\"javascript button\"" +
-                                        "/>" +
-                                      "</a>";
-                    
-                    image.after(jsButton);
-                    image.remove();
-                    i++;
-                }
-            }
-        }
+        parseContent(result);
         
         result.append(Utils.javascriptContent);
         mUser.currentPostComments.set_content(result);
