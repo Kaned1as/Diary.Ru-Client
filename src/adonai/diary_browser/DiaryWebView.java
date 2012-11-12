@@ -49,8 +49,11 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("utf-8");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setSupportZoom(true);
+        settings.setUseWideViewPort(false);
+        settings.setLightTouchEnabled(true);
+        settings.setBuiltInZoomControls(true);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
-        getRefreshableView().setWebChromeClient(new DiaryChromeClient());
         getRefreshableView().setBackgroundColor(0xFFF7F2EE);
         setOnRefreshListener(new WebPageRefresher());
     }
@@ -88,10 +91,5 @@ public class DiaryWebView extends PullToRefreshWebView
                 break;
             }
         }
-    }
-    
-    public class DiaryChromeClient extends WebChromeClient
-    {
-    	
     }
 }
