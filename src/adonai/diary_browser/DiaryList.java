@@ -116,6 +116,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int COMMENT_LIST = 2;
     public static final int AUTHOR_PAGE = 3;
     public static final int DISCUSSION_LIST = 4;
+    public static final int PAGE_NOT_PROCESSED = -1;
+    public static final int PAGE_NOT_RECOGNIZED = -2;
     
     // TODO: доделать обновление текущего контента по запросу
     boolean mNeedsRefresh = true;
@@ -1125,33 +1127,57 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
     
     public void checkUrlAndHandle(String URL)
-    {
-    	HttpResponse page = mDHCL.postPage(URL, null);
-    	if(page == null)
-    	{
-    		mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
-    		return;
-    	}
+    {   
+    	int handled = PAGE_NOT_PROCESSED;
+    	DiaryPage cachedPage = null;
+    	String dataPage = null;
     	
-    	int handled = -1;
     	try 
     	{
-    		
-			String dataPage = EntityUtils.toString(page.getEntity());
-			handled = Utils.checkDiaryUrl(dataPage);
-			
-			if(handled != -1) // Если это страничка дайри
+	    	check_and_load_page:
+	    	{
+		    	if(mCache.hasPage(URL))
+		    	{
+		    		cachedPage = (DiaryPage) mCache.loadPageFromCache(URL);
+		    		handled = Utils.checkDiaryUrl(cachedPage);
+		    		break check_and_load_page;
+		    	}
+		    	
+		    	HttpResponse page = mDHCL.postPage(URL, null);
+		    	if(page == null)
+		    	{
+		    		mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
+		    		return;
+		    	}
+		    	
+		    	dataPage = EntityUtils.toString(page.getEntity());
+				handled = Utils.checkDiaryUrl(dataPage);
+	    	}
+
+			if(handled != PAGE_NOT_RECOGNIZED) // Если это страничка дайри
 	    	{
 	    		switch(handled)
 	    		{
 	    			case DIARY_LIST:
 	    			break;
 	    			case POST_LIST:
-	    				serializePostsPage(dataPage, null);
+	    				if(cachedPage != null)
+                        	mUser.currentDiaryPosts = (DiaryPage) mCache.loadPageFromCache(URL);
+	    				else
+	    				{
+		    				serializePostsPage(dataPage, null);
+		    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPosts);
+	    				}
 	    				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_POSTS_DATA);
 	    			break;
 	    			case COMMENT_LIST:
-	    				serializeCommentsPage(dataPage, null);
+	    				if(cachedPage != null)
+                        	mUser.currentPostComments = (DiaryPage) mCache.loadPageFromCache(URL);
+	    				else
+	    				{
+		    				serializeCommentsPage(dataPage, null);
+		    				mCache.putPageToCache(Globals.currentURL, mUser.currentPostComments);
+	    				}
 	    				mUiHandler.sendEmptyMessage(HANDLE_GET_POST_COMMENTS_DATA);
 	    			break;
 	    		}
@@ -1170,7 +1196,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		}
     	
     	return;
-    	
     }
     
     public void updateMaxCacheSize(SharedPreferences prefs)

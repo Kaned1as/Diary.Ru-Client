@@ -3,6 +3,10 @@ package adonai.diary_browser;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+
+import org.jsoup.select.Elements;
+
+import adonai.diary_browser.entities.DiaryPage;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -32,7 +36,24 @@ public class Utils
 		if(response.contains("table r"))
 			return DiaryList.DIARY_LIST;
 		
-		return -1;
+		return DiaryList.PAGE_NOT_RECOGNIZED; // not found
+	}
+	
+
+	public static int checkDiaryUrl(DiaryPage page)
+	{
+		Elements content = page.get_content();
+		if(content.select("[id^=comment]").first() != null)
+			return DiaryList.COMMENT_LIST;
+		
+		if(content.select("[id^=post]").first() != null)
+			return DiaryList.POST_LIST;
+		
+		// Пока что отсутствует
+		//if(content.select("[class=table r]").first() != null)
+		//	return DiaryList.DIARY_LIST;
+		
+		return DiaryList.PAGE_NOT_RECOGNIZED; // not found
 	}
 	
 	public static void showDevelSorry(Context ctx)
