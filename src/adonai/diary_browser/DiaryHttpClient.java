@@ -16,6 +16,7 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+import ru.diary.antic1tizen.R;
 
 public class DiaryHttpClient 
 {

@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="adonai.diary_browser"
+    package="ru.diary.antic1tizen"
     android:versionCode="030"
     android:versionName="Alpha-0.3.0" android:installLocation="auto">
 
@@ -15,15 +15,15 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".AuthorizationForm"
+            android:name="adonai.diary_browser.AuthorizationForm"
             android:label="@string/title_activity_authorization_form" >
         </activity>
         <activity
-            android:name=".DiaryList"
+            android:name="adonai.diary_browser.DiaryList"
             android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
         </activity>
         <activity
-            android:name=".LaunchActivity"
+            android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,13 +32,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ImageViewer">
+            android:name="adonai.diary_browser.ImageViewer">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="adonai.diary_browser.DiaryList" />
         </activity>
-        <activity android:name=".MessageSender"></activity>
-        <activity android:name=".preferences.PreferencesScreen"></activity>
+        <activity android:name="adonai.diary_browser.MessageSender"></activity>
+        <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"></activity>
     </application>
 
 </manifest>

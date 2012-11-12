@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.Map;
+import ru.diary.antic1tizen.R;
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;

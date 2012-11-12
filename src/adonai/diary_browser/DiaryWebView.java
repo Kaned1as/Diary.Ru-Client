@@ -2,6 +2,7 @@ package adonai.diary_browser;
 
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+import ru.diary.antic1tizen.R;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;

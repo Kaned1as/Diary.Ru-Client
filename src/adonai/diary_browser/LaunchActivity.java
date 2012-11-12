@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import ru.diary.antic1tizen.R;
 
 public class LaunchActivity extends Activity {
 

@@ -8,6 +8,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
+import ru.diary.antic1tizen.R;
 
 import adonai.diary_browser.entities.Post;
 import android.app.Activity;

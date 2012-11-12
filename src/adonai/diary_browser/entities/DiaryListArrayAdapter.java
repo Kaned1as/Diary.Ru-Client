@@ -2,7 +2,7 @@ package adonai.diary_browser.entities;
 
 import java.util.List;
 
-import adonai.diary_browser.R;
+import ru.diary.antic1tizen.R;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
