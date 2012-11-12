@@ -9,7 +9,6 @@ function handleIMGDown(index, source)
   
   source_input.parentNode.insertBefore(image, source_input);
   source_input.parentNode.removeChild(source_input);
-  //document.write("clicked!");
-  alert(image.parentNode.innerHTML);
+  //alert(image.parentNode.innerHTML);
   return true;
 }

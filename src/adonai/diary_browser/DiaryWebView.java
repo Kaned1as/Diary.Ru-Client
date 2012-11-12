@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -49,7 +50,8 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setDefaultTextEncodingName("utf-8");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
-        getRefreshableView().setBackgroundColor(0x00000000);
+        getRefreshableView().setWebChromeClient(new DiaryChromeClient());
+        getRefreshableView().setBackgroundColor(0xFFF7F2EE);
         setOnRefreshListener(new WebPageRefresher());
     }
 
@@ -86,6 +88,10 @@ public class DiaryWebView extends PullToRefreshWebView
                 break;
             }
         }
-        
+    }
+    
+    public class DiaryChromeClient extends WebChromeClient
+    {
+    	
     }
 }

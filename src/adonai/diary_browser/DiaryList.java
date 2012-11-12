@@ -1134,22 +1134,19 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	
     	try 
     	{
-	    	check_and_load_page:
+	    	if(mCache.hasPage(URL))
 	    	{
-		    	if(mCache.hasPage(URL))
-		    	{
-		    		cachedPage = (DiaryPage) mCache.loadPageFromCache(URL);
-		    		handled = Utils.checkDiaryUrl(cachedPage);
-		    		break check_and_load_page;
-		    	}
-		    	
+	    		cachedPage = (DiaryPage) mCache.loadPageFromCache(URL);
+	    		handled = Utils.checkDiaryUrl(cachedPage);
+	    	}
+	    	else
+	    	{
 		    	HttpResponse page = mDHCL.postPage(URL, null);
 		    	if(page == null)
 		    	{
 		    		mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
 		    		return;
 		    	}
-		    	
 		    	dataPage = EntityUtils.toString(page.getEntity());
 				handled = Utils.checkDiaryUrl(dataPage);
 	    	}
@@ -1192,6 +1189,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		} 
     	catch (Exception e) 
 		{
+    		mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
 			e.printStackTrace();
 		}
     	
