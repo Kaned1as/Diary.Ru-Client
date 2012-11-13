@@ -966,7 +966,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
-        Element urlNode = postsArea.first().getElementsByClass("postLinksBackg").first();
+        Elements result = postsArea.clone();
+        Element urlNode = result.first().getElementsByClass("postLinksBackg").first();
         if (urlNode != null)
         {
             String postURL = urlNode.getElementsByTag("a").attr("href");
@@ -974,19 +975,24 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentDiaryPosts.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         
-        Elements result = postsArea.clone();
+
+        Document resultPage = Document.createShell(Globals.currentURL);
+        for(Element to : result)
+        {
+            resultPage.body().appendChild(to);
+        }
         
-        parseContent(result);
+        parseContent(resultPage);
         
-        result.append(Utils.javascriptContent);
-        mUser.currentDiaryPosts.set_content(result);
+        mUser.currentDiaryPosts.set_content(resultPage);
     }
     
-    private void parseContent(Elements result)
+    private void parseContent(Document resultPage)
 	{
+        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
     	if(!load_images)
         {
-            Elements images = result.select("img[src^=http]");
+            Elements images = resultPage.select("img[src^=http]");
             int i = 0;
             for(Element image : images)
             {
@@ -1003,6 +1009,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 }
             }
         }
+    	resultPage.body().append(Utils.javascriptContent);
 	}
 
 	public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
@@ -1030,21 +1037,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         if(effectiveAreas == null) // Нет вообще никаких постов, заканчиваем
             return;
         
-        
-        Element urlNode = effectiveAreas.first().getElementsByClass("postLinksBackg").first();
+        Elements result = effectiveAreas.clone();
+        Element urlNode = result.first().getElementsByClass("postLinksBackg").first();
         if (urlNode != null)
         {
             String postURL = urlNode.getElementsByTag("a").attr("href");
             mUser.currentPostComments.set_post_URL(postURL);
             mUser.currentPostComments.set_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
+        Document resultPage = Document.createShell(Globals.currentURL);
+        for(Element to : result)
+        {
+            resultPage.body().appendChild(to);
+        }
         
-        Elements result = effectiveAreas.clone();
+        parseContent(resultPage);
         
-        parseContent(result);
-        
-        result.append(Utils.javascriptContent);
-        mUser.currentPostComments.set_content(result);
+        mUser.currentPostComments.set_content(resultPage);
     }
     
     public void serializeDiscussionsPage(String dataPage, List<DiscussionList> destination)

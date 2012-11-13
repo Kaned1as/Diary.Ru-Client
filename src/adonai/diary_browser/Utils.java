@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import ru.diary.antic1tizen.R;
 
@@ -43,7 +44,7 @@ public class Utils
 
 	public static int checkDiaryUrl(DiaryPage page)
 	{
-		Elements content = page.get_content();
+		Document content = page.get_content();
 		if(content.select("[id^=comment]").first() != null)
 			return DiaryList.COMMENT_LIST;
 		

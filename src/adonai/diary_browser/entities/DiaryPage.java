@@ -1,5 +1,6 @@
 package adonai.diary_browser.entities;
 
+import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 public class DiaryPage
@@ -11,7 +12,7 @@ public class DiaryPage
     
     private String _ID;
     private String _post_URL;
-    private Elements _content;
+    private Document _content;
     
     public String get_diary_URL()
     {
@@ -33,14 +34,14 @@ public class DiaryPage
         this._diary_Id = _diary_Id;
     }
 
-    public Elements get_content()
+    public Document get_content()
     {
         return _content;
     }
 
-    public void set_content(Elements _content)
+    public void set_content(Document resultPage)
     {
-        this._content = _content;
+        this._content = resultPage;
     }
 
     public String get_ID()
