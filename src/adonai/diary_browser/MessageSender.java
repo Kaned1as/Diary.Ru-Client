@@ -386,8 +386,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("open_uri", ""));
 					
 					postParams.add(new BasicNameValuePair("write_from", "0"));
-					postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
-					postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
+					//postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
+					//postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
 					
 					postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
 					postParams.add(new BasicNameValuePair("attachment1", ""));

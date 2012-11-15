@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import contrib.gesture.GestureImageView;
-import ru.diary.antic1tizen.R;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;

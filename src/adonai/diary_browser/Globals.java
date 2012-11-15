@@ -2,7 +2,6 @@ package adonai.diary_browser;
 
 import android.content.SharedPreferences;
 import android.graphics.drawable.BitmapDrawable;
-import ru.diary.antic1tizen.R;
 
 public class Globals 
 {

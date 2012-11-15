@@ -5,9 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import ru.diary.antic1tizen.R;
-
 import adonai.diary_browser.entities.DiaryPage;
 import android.app.AlertDialog;
 import android.content.Context;

@@ -5,8 +5,6 @@ import java.util.Vector;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import ru.diary.antic1tizen.R;
-
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;

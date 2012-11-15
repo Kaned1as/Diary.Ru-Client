@@ -1024,7 +1024,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
         
-        mUser.currentPostComments.set_diary_URL(Globals.currentURL);
+        mUser.currentPostComments.set_diary_URL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
