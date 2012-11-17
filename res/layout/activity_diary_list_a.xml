@@ -75,13 +75,7 @@
                 </com.handmark.pulltorefresh.library.PullToRefreshListView>
 
                 <adonai.diary_browser.DiaryWebView
-                    android:id="@+id/post_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
-                </adonai.diary_browser.DiaryWebView>
-
-                <adonai.diary_browser.DiaryWebView
-                    android:id="@+id/comment_browser"
+                    android:id="@+id/page_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" >
                 </adonai.diary_browser.DiaryWebView>

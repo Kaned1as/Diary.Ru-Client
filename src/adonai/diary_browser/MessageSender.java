@@ -173,7 +173,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_POST:
 					try 
 					{
-						mDHCL.postPage(mUser.currentDiaryPosts.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(mUser.currentDiaryPage.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_POST);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -184,7 +184,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_COMMENT:
 					try 
 					{
-						mDHCL.postPage(mUser.currentPostComments.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mDHCL.postPage(mUser.currentDiaryPage.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 					} 
 					catch (UnsupportedEncodingException e) 

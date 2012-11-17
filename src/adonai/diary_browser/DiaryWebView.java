@@ -83,11 +83,11 @@ public class DiaryWebView extends PullToRefreshWebView
         {
             switch (refreshView.getId())
             {
-                case R.id.post_browser:
-                    mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_DIARY_POSTS_DATA, new Pair<String, Boolean>(mUser.currentDiaryPosts.get_diary_URL(), true)));
-                break;
-                case R.id.comment_browser:
-                    mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_POST_COMMENTS_DATA, new Pair<String, Boolean>(mUser.currentPostComments.get_post_URL(), true)));
+                case R.id.page_browser:
+                    if(mUser.currentDiaryPage.get_post_URL().equals("")) // если это страничка постов
+                        mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
+                    else // если это страничка комментариев
+                        mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
                 break;
             }
         }

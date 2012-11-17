@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
-import org.jsoup.nodes.Document;
 import adonai.diary_browser.entities.DiaryPage;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -27,32 +26,15 @@ public class Utils
 	public static int checkDiaryUrl(String response)
 	{
 		if(response.contains("commentsArea"))
-			return DiaryList.COMMENT_LIST;
+			return DiaryPage.COMMENT_LIST;
 		
 		if(response.contains("postsArea"))
-			return DiaryList.POST_LIST;
+			return DiaryPage.POST_LIST;
 		
 		if(response.contains("table r"))
-			return DiaryList.DIARY_LIST;
+			return DiaryPage.DIARY_LIST;
 		
-		return DiaryList.PAGE_NOT_RECOGNIZED; // not found
-	}
-	
-
-	public static int checkDiaryUrl(DiaryPage page)
-	{
-		Document content = page.get_content();
-		if(content.select("[id^=comment]").first() != null)
-			return DiaryList.COMMENT_LIST;
-		
-		if(content.select("[id^=post]").first() != null)
-			return DiaryList.POST_LIST;
-		
-		// Пока что отсутствует
-		//if(content.select("[class=table r]").first() != null)
-		//	return DiaryList.DIARY_LIST;
-		
-		return DiaryList.PAGE_NOT_RECOGNIZED; // not found
+		return DiaryPage.PAGE_NOT_RECOGNIZED; // not found
 	}
 	
 	public static void showDevelSorry(Context ctx)

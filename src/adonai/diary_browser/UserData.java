@@ -14,10 +14,7 @@ public class UserData implements DiaryList.onUserDataParseListener
 	// Динамические списки постов
     Vector<Diary> currentDiaries;
     ArrayList<DiscussionList> discussions;
-    DiaryPage currentDiaryPosts;
-    DiaryPage currentPostComments;
-    DiaryPage favoritePosts;
-    DiaryPage ownDiaryPosts;
+    DiaryPage currentDiaryPage;
     
     // Личные данные
     String ownDiaryURL = "";
@@ -36,10 +33,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     UserData()
     {
         currentDiaries = new Vector<Diary>();
-        currentDiaryPosts = new DiaryPage();
-        currentPostComments = new DiaryPage();
-        favoritePosts = new DiaryPage();
-        ownDiaryPosts = new DiaryPage();
+        currentDiaryPage = new DiaryPage();
         discussions = new ArrayList<DiscussionList>();
     }
     
