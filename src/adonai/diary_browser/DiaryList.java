@@ -3,8 +3,6 @@ package adonai.diary_browser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -23,6 +21,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import adonai.diary_browser.entities.Diary;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
+import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
 import adonai.diary_browser.entities.DiscussionListArrayAdapter;
@@ -45,11 +44,13 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -70,6 +71,7 @@ import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
+import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener
@@ -404,7 +406,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARIES_DATA:
                     setCurrentVisibleComponent(DiaryPage.DIARY_LIST);
+                    mDiaryBrowser.setAdapter(null);
                     mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
+                    /*if(mUser.currentDiaries.getPageLinks() != null)
+                    {
+                        Spanned pageLinks = mUser.currentDiaries.getPageLinks(); 
+                        links.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+                        links.setText(mUser.currentDiaries.getPageLinks(), BufferType.SPANNABLE);
+                        mDiaryBrowser.getRefreshableView().addFooterView(links);
+                    }*/
                     mDiaryBrowser.setAdapter(mFavouritesAdapter);
                     mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
@@ -416,6 +426,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DISCUSSIONS_DATA:
+                    mDiscussionsAdapter.notifyDataSetChanged();
                 	setCurrentVisibleComponent(DiaryPage.DISCUSSION_LIST);
                 	pd.dismiss();
                 break;
@@ -535,7 +546,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         // Если страничка дневников есть в комментах
                         if(mCache.hasPage(URL) && !reload)
                         {
-                            mUser.currentDiaries = (Vector<Diary>) mCache.loadPageFromCache(URL);
+                            mUser.currentDiaries = (DiaryListPage) mCache.loadPageFromCache(URL);
                         }
                         else
                         {
@@ -846,7 +857,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
      */
     public void serializeDiariesPage(String dataPage)
     {
-        mUser.currentDiaries = new Vector<Diary>();
+        mUser.currentDiaries = new DiaryListPage();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         if(mListener != null)
@@ -858,6 +869,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
         if(table == null) // Нет вообще никаких дневников, заканчиваем
         	return;
+        
+        Element pages = rootNode.select("table.pages").first();
+        if(pages != null)
+            mUser.currentDiaries.setPageLinks(Html.fromHtml(pages.outerHtml()));
         
         Elements rows = table.getElementsByTag("td");
         Element title = null, author = null, last_post = null;
@@ -928,7 +943,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post]");
+        Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post], div.pageBar");
         if(postsArea == null) // Нет вообще никаких постов, заканчиваем
         	return;
         
@@ -992,7 +1007,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
-        Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment]");
+        Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment], div.pageBar");
         if(effectiveAreas == null) // Нет вообще никаких постов, заканчиваем
             return;
         

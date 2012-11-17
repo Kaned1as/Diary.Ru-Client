@@ -1,18 +1,16 @@
 package adonai.diary_browser;
 
 import java.util.ArrayList;
-import java.util.Vector;
-
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
 	// Динамические списки постов
-    Vector<Diary> currentDiaries;
+    DiaryListPage currentDiaries;
     ArrayList<DiscussionList> discussions;
     DiaryPage currentDiaryPage;
     
@@ -32,7 +30,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     
     UserData()
     {
-        currentDiaries = new Vector<Diary>();
+        currentDiaries = new DiaryListPage();
         currentDiaryPage = new DiaryPage();
         discussions = new ArrayList<DiscussionList>();
     }
