@@ -42,6 +42,7 @@ public class CacheManager
     public Object loadPageFromCache(String URL)
     {
     	Object toPage = browseCache.get(URL);
+    	Globals.currentURL = URL;
 	    return toPage;
     }
     

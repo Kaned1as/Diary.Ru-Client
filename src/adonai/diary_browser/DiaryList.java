@@ -48,9 +48,9 @@ import android.text.Html;
 import android.text.Spannable;
 import android.text.Spanned;
 import android.text.style.ImageSpan;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,16 +62,17 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import android.widget.TextView.BufferType;
 import android.widget.Toast;
 
 public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener
@@ -407,14 +408,28 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 case HANDLE_GET_DIARIES_DATA:
                     setCurrentVisibleComponent(DiaryPage.DIARY_LIST);
                     mDiaryBrowser.setAdapter(null);
+                    mDiaryBrowser.getRefreshableView().removeFooterView(mDiaryBrowser.getRefreshableView().findViewWithTag("footer"));
                     mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
-                    /*if(mUser.currentDiaries.getPageLinks() != null)
+                    if(mUser.currentDiaries.getPageLinks() != null)
                     {
-                        Spanned pageLinks = mUser.currentDiaries.getPageLinks(); 
-                        links.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
-                        links.setText(mUser.currentDiaries.getPageLinks(), BufferType.SPANNABLE);
-                        mDiaryBrowser.getRefreshableView().addFooterView(links);
-                    }*/
+                        LinearLayout LL = new LinearLayout(mDiaryBrowser.getContext());
+                        LL.setTag("footer");
+                        Spanned pageLinks = mUser.currentDiaries.getPageLinks();
+                        URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
+                        for(URLSpan url : URLs)
+                        {
+                            Button click = new Button(LL.getContext());
+                            click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
+                            click.setTag(url.getURL());
+                            click.setOnClickListener(DiaryList.this);
+                            LL.addView(click);
+                            
+                            LayoutParams LP = (LayoutParams) click.getLayoutParams();
+                            LP.width = LayoutParams.MATCH_PARENT;
+                            LP.weight = 1.0f;
+                        }
+                        mDiaryBrowser.getRefreshableView().addFooterView(LL);
+                    }
                     mDiaryBrowser.setAdapter(mFavouritesAdapter);
                     mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
@@ -559,7 +574,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             String favListPage = EntityUtils.toString(page.getEntity());
                             
                             serializeDiariesPage(favListPage);
-                            mCache.putPageToCache(Globals.currentURL, mUser.currentDiaries);
+                            mCache.putPageToCache(URL, mUser.currentDiaries);
                         }
                         
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARIES_DATA);
@@ -675,10 +690,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
             finish();
         } 
-        else if (view.getTag() != null && view.getParent() instanceof TabWidget)
+        else if (view.getTag() != null)
         {
-            int i = (Integer) view.getTag();
-            setCurrentTab(i);
+            if(view.getParent() instanceof TabWidget)
+            {
+                int i = (Integer) view.getTag();
+                setCurrentTab(i);
+            }
+            if(view instanceof Button) // нижние панельки
+            {
+                pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false)));
+            }
         } else
             switch (view.getId())
             {
