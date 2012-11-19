@@ -19,27 +19,27 @@ function checkResult()
 				if(result == null)
 				{
 					ShowDiv('autosave_err');
-					if (get('autosave_err_img')!=null) get('autosave_err_img').title='Неизвестная ошибка';
+					if (get('autosave_err_img')!=null) get('autosave_err_img').title='РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°';
 				}
 			}
 			catch(err)
 			{
 				ShowDiv('autosave_err');
-				if (get('autosave_err_img')!=null) get('autosave_err_img').title='Неизвестная ошибка';
+				if (get('autosave_err_img')!=null) get('autosave_err_img').title='РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°';
 			}
 			return;
 		}
 	}
 	catch(err)
 	{
-//		showMsg("alert","Ошибка","<b>Описание:</b> " + err.description);
+//		showMsg("alert","РћС€РёР±РєР°","<b>РћРїРёСЃР°РЅРёРµ:</b> " + err.description);
 	}
 	
 	try
 	{
 		result = NewContentFrame.document.getElementById("result");
 //		alert(result);
-		if(result == null) showMsg("alert","Ошибка #42","Неизвестная ошибка,<br> попробуйте через 20 секунд");
+		if(result == null) showMsg("alert","РћС€РёР±РєР° #42","РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°,<br> РїРѕРїСЂРѕР±СѓР№С‚Рµ С‡РµСЂРµР· 20 СЃРµРєСѓРЅРґ");
 		else if(result.value==1)
 		{
 			obj=document.getElementById('message');
@@ -48,8 +48,8 @@ function checkResult()
 	}
 	catch(err)
 	{
-		showMsg("alert","Ошибка #51","Неизвестная ошибка,<br> попробуйте через 20 секунд");
-//		showMsg("alert","Ошибка","<b>Описание:</b> " + err.description);
+		showMsg("alert","РћС€РёР±РєР° #51","РќРµРёР·РІРµСЃС‚РЅР°СЏ РѕС€РёР±РєР°,<br> РїРѕРїСЂРѕР±СѓР№С‚Рµ С‡РµСЂРµР· 20 СЃРµРєСѓРЅРґ");
+//		showMsg("alert","РћС€РёР±РєР°","<b>РћРїРёСЃР°РЅРёРµ:</b> " + err.description);
 	}
 }
 //=====================================================================================================================================================

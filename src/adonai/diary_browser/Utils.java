@@ -21,6 +21,7 @@ public class Utils
     public static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
+                                             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/select.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
     
 	public static int checkDiaryUrl(String response)

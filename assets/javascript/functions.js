@@ -216,7 +216,7 @@ function setOpacity(elem, nOpacity)
 
     var oAlpha = elem.filters['DXImageTransform.Microsoft.alpha'] || elem.filters.alpha;
     if (oAlpha) oAlpha.opacity = nOpacity;
-    else elem.style.filter += "progid:DXImageTransform.Microsoft.Alpha(opacity="+nOpacity+")"; // Для того чтобы не затереть другие фильтры используем "+="
+    else elem.style.filter += "progid:DXImageTransform.Microsoft.Alpha(opacity="+nOpacity+")"; // Р”Р»СЏ С‚РѕРіРѕ С‡С‚РѕР±С‹ РЅРµ Р·Р°С‚РµСЂРµС‚СЊ РґСЂСѓРіРёРµ С„РёР»СЊС‚СЂС‹ РёСЃРїРѕР»СЊР·СѓРµРј "+="
   }
   else elem.style[opacityProp] = nOpacity;
 }
@@ -225,14 +225,14 @@ function getOpacityProperty()
 {
   if (typeof document.body.style.opacity == 'string') // CSS3 compliant (Moz 1.7+, Safari 1.2+, Opera 9)
     return 'opacity';
-  else if (typeof document.body.style.MozOpacity == 'string') // Mozilla 1.6 и младше, Firefox 0.8
+  else if (typeof document.body.style.MozOpacity == 'string') // Mozilla 1.6 Рё РјР»Р°РґС€Рµ, Firefox 0.8
     return 'MozOpacity';
   else if (typeof document.body.style.KhtmlOpacity == 'string') // Konqueror 3.1, Safari 1.1
     return 'KhtmlOpacity';
   else if (document.body.filters && navigator.appVersion.match(/MSIE ([\d.]+);/)[1]>=5.5) // Internet Exploder 5.5+
     return 'filter';
 
-  return false; //нет прозрачности
+  return false; //РЅРµС‚ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 }
 /**/
 //=====================================================================================================================================================
@@ -297,13 +297,13 @@ var uploadObject = new clUploadData();
 
 function loadV(theparams, nocash)
 {
-//	window.status = 'загрузка...';
+//	window.status = 'Р·Р°РіСЂСѓР·РєР°...';
 	uploadObject.upload(theparams, nocash);
 }
 
 function loadV2(link)
 {
-//	window.status = 'загрузка...';
+//	window.status = 'Р·Р°РіСЂСѓР·РєР°...';
 	var script = document.createElement('script');
 	script.defer = false;
 	script.src = link;
@@ -313,7 +313,7 @@ function loadV2(link)
 
 function LoadData(theparams,window_status)
 {
-	window.status = window_status || 'загрузка...';
+	window.status = window_status || 'Р·Р°РіСЂСѓР·РєР°...';
 	Busy = true;
 	uploadObject.upload(theparams);
 }
@@ -329,10 +329,10 @@ function showMsg(type,title,text)
 //		if (document.getElementById("message")!=null)
 //		{
 			var ndiv = document.createElement('div');
-			ndiv.innerHTML = '<div id="msgWin" style="FILTER:progid:DXImageTransform.Microsoft.shadow(direction=135,color=#666666,strength=3);"><table id="msgTitle"><tr><td id="msgTitleText">Ошибка</td><td style="width:1%;padding:3px;"><input type="button" onclick="hide(\'msgWin\');" class="std_submit" value="X" style="font-size:70%;width:15px;heigth:15px;margin:-1px;padding:0;"/></td></tr></table><em id="msgText"><table width=100% height=100% cellpadding=0 cellspacing=0><tr><td id="msgTextContent" valign=top></td></tr><tr><td valign="bottom" align="right"><input type="button" onclick="hide(\'msgWin\');" class="std_submit" value="Ok" id="msgWinCloseBt" style="width:70px; margin-top: 5px;"/></td></tr></table></em></div>';
+			ndiv.innerHTML = '<div id="msgWin" style="FILTER:progid:DXImageTransform.Microsoft.shadow(direction=135,color=#666666,strength=3);"><table id="msgTitle"><tr><td id="msgTitleText">РћС€РёР±РєР°</td><td style="width:1%;padding:3px;"><input type="button" onclick="hide(\'msgWin\');" class="std_submit" value="X" style="font-size:70%;width:15px;heigth:15px;margin:-1px;padding:0;"/></td></tr></table><em id="msgText"><table width=100% height=100% cellpadding=0 cellspacing=0><tr><td id="msgTextContent" valign=top></td></tr><tr><td valign="bottom" align="right"><input type="button" onclick="hide(\'msgWin\');" class="std_submit" value="Ok" id="msgWinCloseBt" style="width:70px; margin-top: 5px;"/></td></tr></table></em></div>';
 			document.getElementsByTagName('body')[0].appendChild(ndiv);
 
-//			document.getElementsByTagName('body')[0].innerHTML = '<div id="msgWin"><table id="msgTitle"><tr><td id="msgTitleText">+шибка<td style="width:1%;padding:3px;"><input type="button" id="msgWinCloseBt" onclick="hide(\'msgWin\');" class="submit" value="X" style="font-size:70%;width:15px;heigth:15px;margin:-1px;padding:0;"/></table></strong><em id="msgText"></em></div>' + document.getElementsByTagName('body')[0].innerHTML;
+//			document.getElementsByTagName('body')[0].innerHTML = '<div id="msgWin"><table id="msgTitle"><tr><td id="msgTitleText">+С€РёР±РєР°<td style="width:1%;padding:3px;"><input type="button" id="msgWinCloseBt" onclick="hide(\'msgWin\');" class="submit" value="X" style="font-size:70%;width:15px;heigth:15px;margin:-1px;padding:0;"/></table></strong><em id="msgText"></em></div>' + document.getElementsByTagName('body')[0].innerHTML;
 			obj = document.getElementById("msgWin");
 //		}
 	}
@@ -353,15 +353,15 @@ function showMsg(type,title,text)
 	else alert(text.replace( "<br>", "\r\n" ));
 }
 //=====================================================================================================================================================
-//Устанавливает cookie
-// name - имя cookie
-// value - значение cookie
-// [expires] - дата окончания действия cookie (по умолчанию - конец текущей  сессии)
-// [path] - путь, где cookie верны (по умолчанию - путь к текущему документу)
-// [domain] - домен, где cookie верны (по умолчанию - домен вызываемого документа)
-// [secure] - бинарная переменная, показывающая, что cookie должны передаваться через защищённое соединение
-// * по умолчанию аргументу присвоено значение null
-// * нулевое значение не требуется присваивать пропущенным переменным
+//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ cookie
+// name - РёРјСЏ cookie
+// value - Р·РЅР°С‡РµРЅРёРµ cookie
+// [expires] - РґР°С‚Р° РѕРєРѕРЅС‡Р°РЅРёСЏ РґРµР№СЃС‚РІРёСЏ cookie (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - РєРѕРЅРµС† С‚РµРєСѓС‰РµР№  СЃРµСЃСЃРёРё)
+// [path] - РїСѓС‚СЊ, РіРґРµ cookie РІРµСЂРЅС‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - РїСѓС‚СЊ Рє С‚РµРєСѓС‰РµРјСѓ РґРѕРєСѓРјРµРЅС‚Сѓ)
+// [domain] - РґРѕРјРµРЅ, РіРґРµ cookie РІРµСЂРЅС‹ (РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ - РґРѕРјРµРЅ РІС‹Р·С‹РІР°РµРјРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°)
+// [secure] - Р±РёРЅР°СЂРЅР°СЏ РїРµСЂРµРјРµРЅРЅР°СЏ, РїРѕРєР°Р·С‹РІР°СЋС‰Р°СЏ, С‡С‚Рѕ cookie РґРѕР»Р¶РЅС‹ РїРµСЂРµРґР°РІР°С‚СЊСЃСЏ С‡РµСЂРµР· Р·Р°С‰РёС‰С‘РЅРЅРѕРµ СЃРѕРµРґРёРЅРµРЅРёРµ
+// * РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ Р°СЂРіСѓРјРµРЅС‚Сѓ РїСЂРёСЃРІРѕРµРЅРѕ Р·РЅР°С‡РµРЅРёРµ null
+// * РЅСѓР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ РїСЂРёСЃРІР°РёРІР°С‚СЊ РїСЂРѕРїСѓС‰РµРЅРЅС‹Рј РїРµСЂРµРјРµРЅРЅС‹Рј
 function setCookie(name, value, expires, path, domain, secure) {
 	var curCookie = name + "=" + escape(value) +
 	((expires) ? "; expires=" + expires.toGMTString() : "") +
@@ -371,8 +371,8 @@ function setCookie(name, value, expires, path, domain, secure) {
 	document.cookie = curCookie;
 }
 
-// name - имя cookie
-// * строка возврата содержит значения необходимого cookie или null при его отсутствии
+// name - РёРјСЏ cookie
+// * СЃС‚СЂРѕРєР° РІРѕР·РІСЂР°С‚Р° СЃРѕРґРµСЂР¶РёС‚ Р·РЅР°С‡РµРЅРёСЏ РЅРµРѕР±С…РѕРґРёРјРѕРіРѕ cookie РёР»Рё null РїСЂРё РµРіРѕ РѕС‚СЃСѓС‚СЃС‚РІРёРё
 function getCookie(name) {
 	var dc = document.cookie;
 	var prefix = name + "=";
@@ -388,10 +388,10 @@ function getCookie(name) {
 	return unescape(dc.substring(begin + prefix.length, end));
 }
 
-// name - имя cookie
-// [path] - путь, где cookie верны (должен быть тем же, что и путь при создании cookie)
-// [domain] - домен, где cookie верны (должен быть тем же, что и домен при создании cookie
-// * путь и домен по умолчанию присвоены в null и не требуется присваивать этого значения
+// name - РёРјСЏ cookie
+// [path] - РїСѓС‚СЊ, РіРґРµ cookie РІРµСЂРЅС‹ (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚РµРј Р¶Рµ, С‡С‚Рѕ Рё РїСѓС‚СЊ РїСЂРё СЃРѕР·РґР°РЅРёРё cookie)
+// [domain] - РґРѕРјРµРЅ, РіРґРµ cookie РІРµСЂРЅС‹ (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ С‚РµРј Р¶Рµ, С‡С‚Рѕ Рё РґРѕРјРµРЅ РїСЂРё СЃРѕР·РґР°РЅРёРё cookie
+// * РїСѓС‚СЊ Рё РґРѕРјРµРЅ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РїСЂРёСЃРІРѕРµРЅС‹ РІ null Рё РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ РїСЂРёСЃРІР°РёРІР°С‚СЊ СЌС‚РѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ
 function deleteCookie(name, path, domain) {
   if (getCookie(name)) {
 	document.cookie = name + "=" +
@@ -401,9 +401,9 @@ function deleteCookie(name, path, domain) {
   }
 }
 
-// date - экземпляр объекта Date
-// * все экземпляры объекта Date передаются этой функции "для
-// ремонта"
+// date - СЌРєР·РµРјРїР»СЏСЂ РѕР±СЉРµРєС‚Р° Date
+// * РІСЃРµ СЌРєР·РµРјРїР»СЏСЂС‹ РѕР±СЉРµРєС‚Р° Date РїРµСЂРµРґР°СЋС‚СЃСЏ СЌС‚РѕР№ С„СѓРЅРєС†РёРё "РґР»СЏ
+// СЂРµРјРѕРЅС‚Р°"
 function fixDate(date) {
 	var base = new Date(0);
 	var skew = base.getTime();
@@ -411,7 +411,7 @@ function fixDate(date) {
 		date.setTime(date.getTime() - skew);
 }
 //=====================================================================================================================================================
-// Возвращает координаты объекта
+// Р’РѕР·РІСЂР°С‰Р°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕР±СЉРµРєС‚Р°
 function get_pos(obj){
 	var left = 0;
 	var top  = 0;
@@ -439,7 +439,7 @@ function SaveOptionStatus(name, value)
 	fixDate(now);
 	now.setTime(now.getTime() + 365 * 24 * 60 * 60 * 1000);
 	deleteCookie(name);
-	setCookie(name, value, now, "/", "diary.ru");//Устанавливаем cookie
+	setCookie(name, value, now, "/", "diary.ru");//РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј cookie
 }
 //=====================================================================================================================================================
 function ord(chr)
@@ -505,16 +505,16 @@ wwww.tigir.com - 06.07.2006
 
 Source: http://www.tigir.com/js/opacity.js
 
-Библиотека opacity.js к статье "CSS прозрачность (css opacity, javascript opacity)" - http://www.tigir.com/opacity.htm
+Р‘РёР±Р»РёРѕС‚РµРєР° opacity.js Рє СЃС‚Р°С‚СЊРµ "CSS РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ (css opacity, javascript opacity)" - http://www.tigir.com/opacity.htm
 
-setElementOpacity - установка прозрачности
-getOpacityProperty - проверка, есть ли возможность менять прозрачность
-fadeOpacity - плавное изменение прозрачности
+setElementOpacity - СѓСЃС‚Р°РЅРѕРІРєР° РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
+getOpacityProperty - РїСЂРѕРІРµСЂРєР°, РµСЃС‚СЊ Р»Рё РІРѕР·РјРѕР¶РЅРѕСЃС‚СЊ РјРµРЅСЏС‚СЊ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ
+fadeOpacity - РїР»Р°РІРЅРѕРµ РёР·РјРµРЅРµРЅРёРµ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 */
 
-/* Функция кроссбраузерной установки прозрачности
+/* Р¤СѓРЅРєС†РёСЏ РєСЂРѕСЃСЃР±СЂР°СѓР·РµСЂРЅРѕР№ СѓСЃС‚Р°РЅРѕРІРєРё РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 
-Пример: setElementOpacity(document.body, 0.5); //сделать документ прозрачным на половину
+РџСЂРёРјРµСЂ: setElementOpacity(document.body, 0.5); //СЃРґРµР»Р°С‚СЊ РґРѕРєСѓРјРµРЅС‚ РїСЂРѕР·СЂР°С‡РЅС‹Рј РЅР° РїРѕР»РѕРІРёРЅСѓ
 */
 function setElementOpacity(oElem, nOpacity)
 {
@@ -522,7 +522,7 @@ function setElementOpacity(oElem, nOpacity)
 	(setElementOpacity = p=="filter"?new Function('oElem', 'nOpacity', 'nOpacity *= 100;	var oAlpha = oElem.filters["DXImageTransform.Microsoft.alpha"] || oElem.filters.alpha;	if (oAlpha) oAlpha.opacity = nOpacity; else oElem.style.filter += "progid:DXImageTransform.Microsoft.Alpha(opacity="+nOpacity+")";'):p?new Function('oElem', 'nOpacity', 'oElem.style.'+p+' = nOpacity;'):new Function)(oElem, nOpacity);
 }
 
-// Функция getOpacityProperty() возвращает свойство которое используется для смены прозрачности или undefined, и может использоваться для проверки возможности изменения прозрачности
+// Р¤СѓРЅРєС†РёСЏ getOpacityProperty() РІРѕР·РІСЂР°С‰Р°РµС‚ СЃРІРѕР№СЃС‚РІРѕ РєРѕС‚РѕСЂРѕРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ СЃРјРµРЅС‹ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё РёР»Рё undefined, Рё РјРѕР¶РµС‚ РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊСЃСЏ РґР»СЏ РїСЂРѕРІРµСЂРєРё РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РёР·РјРµРЅРµРЅРёСЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 function getOpacityProperty()
 {
 	var p;
@@ -534,11 +534,11 @@ function getOpacityProperty()
 	return (getOpacityProperty = new Function("return '"+p+"';"))();
 }
 
-/* Функции для плавного изменения прозрачности:
+/* Р¤СѓРЅРєС†РёРё РґР»СЏ РїР»Р°РІРЅРѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё:
 
-1) fadeOpacity.addRule('opacityRule1', 1, 0.5, 30); //вначале создаем правило, задаем имя правила, начальную прозрачность и конечную, необязательный параметр задержки, влийяющий на скорость смены прозрачности
-2) fadeOpacity('elemID', 'opacityRule1'); // выполнить плавную смену прозрачности элемента с id равным elemID, по правилу opacityRule1
-3) fadeOpacity.back('elemID'); //вернуться в исходное сотояние прозрачности
+1) fadeOpacity.addRule('opacityRule1', 1, 0.5, 30); //РІРЅР°С‡Р°Р»Рµ СЃРѕР·РґР°РµРј РїСЂР°РІРёР»Рѕ, Р·Р°РґР°РµРј РёРјСЏ РїСЂР°РІРёР»Р°, РЅР°С‡Р°Р»СЊРЅСѓСЋ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚СЊ Рё РєРѕРЅРµС‡РЅСѓСЋ, РЅРµРѕР±СЏР·Р°С‚РµР»СЊРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ Р·Р°РґРµСЂР¶РєРё, РІР»РёР№СЏСЋС‰РёР№ РЅР° СЃРєРѕСЂРѕСЃС‚СЊ СЃРјРµРЅС‹ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
+2) fadeOpacity('elemID', 'opacityRule1'); // РІС‹РїРѕР»РЅРёС‚СЊ РїР»Р°РІРЅСѓСЋ СЃРјРµРЅСѓ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё СЌР»РµРјРµРЅС‚Р° СЃ id СЂР°РІРЅС‹Рј elemID, РїРѕ РїСЂР°РІРёР»Сѓ opacityRule1
+3) fadeOpacity.back('elemID'); //РІРµСЂРЅСѓС‚СЊСЃСЏ РІ РёСЃС…РѕРґРЅРѕРµ СЃРѕС‚РѕСЏРЅРёРµ РїСЂРѕР·СЂР°С‡РЅРѕСЃС‚Рё
 */
 function fadeOpacity(sElemId, sRuleName, bBackward)
 {

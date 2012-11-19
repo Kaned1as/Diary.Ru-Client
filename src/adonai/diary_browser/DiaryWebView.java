@@ -58,7 +58,7 @@ public class DiaryWebView extends PullToRefreshWebView
     {
         WebSettings settings = getRefreshableView().getSettings();
         settings.setJavaScriptEnabled(true);
-        settings.setDefaultTextEncodingName("utf-8");
+        settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setSupportZoom(true);
         settings.setUseWideViewPort(false);

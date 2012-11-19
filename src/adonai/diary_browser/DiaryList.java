@@ -457,7 +457,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_PAGE_DATA:
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
-                    mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "", null);
+                    mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", null);
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
