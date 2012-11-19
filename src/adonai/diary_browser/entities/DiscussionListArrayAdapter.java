@@ -71,6 +71,8 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
         newPosts.setText(discussion.get_last_post());
         if(!discussion.get_last_post().contains("/0"))
         	newPosts.setTextColor(Color.RED);
+        else
+            newPosts.setTextColor(Color.BLACK);
         
         return view;
 	}
