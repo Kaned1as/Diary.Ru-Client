@@ -1,5 +1,7 @@
 package adonai.diary_browser;
 
+import java.io.File;
+
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import ru.diary.antic1tizen.R;
@@ -8,16 +10,25 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.view.MenuItem;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends PullToRefreshWebView
 {
+ // текущий контекст
+    public static final int IMAGE_SAVE = 0;
+    public static final int IMAGE_COPY_URL = 1;
+    public static final int IMAGE_OPEN = 2;
 
     DiaryList mActivity;
     UserData mUser;
+    public imageLoader loaderHelper = new imageLoader();
     
     public DiaryWebView(Context context, AttributeSet attrs)
     {
@@ -91,5 +102,42 @@ public class DiaryWebView extends PullToRefreshWebView
                 break;
             }
         }
+    }
+    
+    public class imageLoader implements MenuItem.OnMenuItemClickListener
+    {
+        @SuppressWarnings("deprecation")
+        public boolean onMenuItemClick(MenuItem item)
+        {
+            switch (item.getItemId())
+            {
+                case IMAGE_SAVE:
+                {
+                    String url = item.getTitleCondensed().toString();
+                    String hashCode = String.format("%08x", url.hashCode());
+                    File file = new File(new File(DiaryWebView.this.getContext().getCacheDir(), "webviewCache"), hashCode);
+                    if(file.exists())
+                    {
+                        String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(url);
+                        String realName = URLUtil.guessFileName(url, null, fileExtenstion);
+                        CacheManager.saveDataToSD(getContext(), realName, file);
+                    }
+                }
+                break;
+                case IMAGE_COPY_URL:
+                {
+                    String url = item.getTitleCondensed().toString();
+                    android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    Toast.makeText(getContext(), getContext().getString(R.string.copied) + " " + url, Toast.LENGTH_SHORT).show();
+                    clipboard.setText(url);
+                }
+                break;
+                case IMAGE_OPEN:
+                    
+                break;
+            }
+            return false;
+        }
+        
     }
 }

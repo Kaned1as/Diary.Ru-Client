@@ -127,24 +127,16 @@ public class CacheManager
         return false;
     }
     
-    public void saveDataToSD(Context context, String name)
+    public static void saveDataToSD(Context context, String name, File internalFile)
     {
     	if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
 			return;
     	
-    	if(!hasData(context, name))
-    	{
-    		Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_LONG).show();
-    		return;
-    	}
-    	
-    	File cacheDir = context.getCacheDir();
 		File SD = Environment.getExternalStorageDirectory();
 		File externalDir = new File(SD, "Diary.Ru"); 
 		if(!externalDir.exists())
 			externalDir.mkdir();
     	
-        File internalFile = new File(cacheDir, name);
 		File toFile = new File(externalDir, name);
 		
 		try 

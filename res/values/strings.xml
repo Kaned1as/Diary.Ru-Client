@@ -20,6 +20,7 @@
     <string name="image_action">Pick an action</string>
     <string name="image_save">Save</string>
     <string name="image_open">Open</string>
+    <string name="image_copy_url">Copy URL</string>
     <string name="image_fullsize">Already in full-size</string>
     <string name="image_open_link">Open link</string>
     <string name="author">Author</string>

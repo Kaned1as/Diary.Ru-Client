@@ -51,6 +51,8 @@ import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -60,6 +62,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebView.HitTestResult;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -193,6 +196,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
+        registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
@@ -211,10 +215,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         // Дополнительные настройки для маленьких вкладок отображения новых комментариев
         mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
-		lp.weight = 0; lp.width = (int)(30 / gMetrics.density);
+		lp.weight = 0; lp.width = (int)(50 / gMetrics.density);
 		mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
 		lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
-		lp.weight = 0; lp.width = (int)(30 / gMetrics.density);
+		lp.weight = 0; lp.width = (int)(50 / gMetrics.density);
         
         // UGLY HACK для более тонких табов
         for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
@@ -333,6 +337,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
     }
     
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
+    {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        
+        if(v.getId() == R.id.page_browser)
+        {
+            HitTestResult itemClicked = mPageBrowser.getRefreshableView().getHitTestResult();
+            if(itemClicked.getType() == HitTestResult.IMAGE_TYPE || itemClicked.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)
+            {
+                menu.setHeaderTitle(R.string.image_action);
+                menu.add(0, DiaryWebView.IMAGE_SAVE, 0, R.string.image_save).setTitleCondensed(itemClicked.getExtra()).setOnMenuItemClickListener(mPageBrowser.loaderHelper);
+                menu.add(0, DiaryWebView.IMAGE_COPY_URL, 0, R.string.image_copy_url).setTitleCondensed(itemClicked.getExtra()).setOnMenuItemClickListener(mPageBrowser.loaderHelper);
+            }
+        }
+    }
+
     @Override
     protected void onStart()
     {
