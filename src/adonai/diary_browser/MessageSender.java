@@ -9,11 +9,19 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import ru.diary.antic1tizen.R;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 import adonai.diary_browser.entities.Post;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -26,6 +34,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.RadioGroup;
 
 public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
@@ -33,6 +42,10 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 
 	private static final int HANDLE_DO_POST = 0;
 	private static final int HANDLE_DO_COMMENT = 1;
+	
+	ImageButton mLeftGradient;
+	ImageButton mRightGradient;
+	Button mSetGradient;
 	
 	EditText titleText;
 	EditText contentText;
@@ -108,6 +121,13 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	moodText = (EditText) findViewById(R.id.message_mood);
     	mPublish = (Button) findViewById(R.id.message_publish);
     	mPublish.setOnClickListener(this);
+    	
+    	mLeftGradient = (ImageButton) findViewById(R.id.left_gradient);
+    	mLeftGradient.setOnClickListener(this);
+    	mRightGradient = (ImageButton) findViewById(R.id.right_gradient);
+    	mRightGradient.setOnClickListener(this);
+    	mSetGradient = (Button) findViewById(R.id.set_gradient);
+    	mSetGradient.setOnClickListener(this);
     	
     	mPollTitle = (EditText) findViewById(R.id.message_poll_title);
     	mPollChoice1 = (EditText) findViewById(R.id.message_poll_1);
@@ -396,7 +416,56 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				}
 			break;
 			}
+			case R.id.left_gradient:
+			case R.id.right_gradient:
+			{
+			    int oldColor = getColorFromPicture((ImageButton) view);
+			    final ImageButton imgbutton = (ImageButton) view;
+			    AmbilWarnaDialog dialog = new AmbilWarnaDialog(MessageSender.this, oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener() 
+			    {
+			        public void onOk(AmbilWarnaDialog dialog, int color) 
+			        {
+			            ColorDrawable newColor = new ColorDrawable(color);
+			            ((ImageButton) imgbutton).setImageDrawable(newColor);
+			        }
+			                
+			        public void onCancel(AmbilWarnaDialog dialog) 
+			        {
+			        }
+			    });
+			    dialog.show();
+			}
+			break;
+			case R.id.set_gradient:
+			{
+			    int startColor = getColorFromPicture(mLeftGradient);
+			    int endColor = getColorFromPicture(mRightGradient);
+			    
+			    CharSequence text = contentText.getText();
+			    String newText = "";
+			    int length = text.length();
+			    for(int i = 0; i < text.length(); i++)
+			    {
+			        char current = text.charAt(i);
+			        String red = String.format("%02X", ((Color.red(startColor) - Color.red(startColor) * i / length) + (Color.red(endColor) - Color.red(endColor) * (length - i) / text.length())));
+			        String green = String.format("%02X", ((Color.green(startColor) - Color.green(startColor) * i / length) + (Color.green(endColor) - Color.green(endColor) * (length - i) / text.length())));
+			        String blue = String.format("%02X", ((Color.blue(startColor) - Color.blue(startColor) * i / length) + (Color.blue(endColor) - Color.blue(endColor) * (length - i) / text.length())));
+			        String addiction = "<span style=\"color: #" + red + green + blue + "\">" + current + "</span>";
+			        newText += addiction;
+			    }
+			    contentText.setText(newText);
+			}
+		    break;
 		}
+	}
+	
+	public int getColorFromPicture(ImageButton view)
+	{
+	    Drawable old = ((ImageButton) view).getDrawable();
+        Bitmap example = Bitmap.createBitmap(1, 1, Config.ARGB_8888);
+        Canvas tCanvas = new Canvas(example);
+        old.draw(tCanvas);
+        return example.getPixel(0, 0);
 	}
 
 	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) 

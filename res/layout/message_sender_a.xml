@@ -32,6 +32,40 @@
         android:layout_height="wrap_content"
         android:text="@string/message_content" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical" >
+
+        <ImageButton
+            android:id="@+id/left_gradient"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:contentDescription="@string/gradient_button"
+            android:cropToPadding="true"
+            android:src="@android:color/white" />
+
+        <Button
+            android:id="@+id/set_gradient"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:contentDescription="@string/gradient_button"
+            android:text="" />
+
+        <ImageButton
+            android:id="@+id/right_gradient"
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="50dip"
+            android:layout_height="50dip"
+            android:contentDescription="@string/gradient_button"
+            android:cropToPadding="true"
+            android:scaleType="center"
+            android:src="@android:color/black" />
+
+    </LinearLayout>
+
     <EditText
         android:id="@+id/message_content"
         android:layout_width="match_parent"

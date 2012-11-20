@@ -1,3 +1,6 @@
 This program uses native html parsing with data retrieved from site. It is in early-early alpha right now.
 
 License: GPLv3
+
+Used programs:
+git clone https://github.com/brk3/android-color-picker.git Android-ColorPicker
