@@ -1,5 +1,6 @@
 package adonai.diary_browser;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -62,7 +65,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.WebView.HitTestResult;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -101,9 +105,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     static final int HANDLE_PROGRESS 								= 	7;
     static final int HANDLE_PROGRESS_2 								= 	8;
     static final int HANDLE_PICK_URL 								= 	9;
-    static final int HANDLE_UPDATE_HEADERS 							= 	10;
     static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
     static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
+    
+    // Команды хэндлеру вида
+    static final int HANDLE_IMAGE_CLICK 							=   20;
+    static final int HANDLE_UPDATE_HEADERS 							= 	21;
+    
     
     // дополнительные команды хэндлерам
     private static final int HANDLE_SERVICE_LOAD_PICTURE = 100;
@@ -344,13 +352,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         if(v.getId() == R.id.page_browser)
         {
-            HitTestResult itemClicked = mPageBrowser.getRefreshableView().getHitTestResult();
-            if(itemClicked.getType() == HitTestResult.IMAGE_TYPE || itemClicked.getType() == HitTestResult.SRC_IMAGE_ANCHOR_TYPE)
-            {
-                menu.setHeaderTitle(R.string.image_action);
-                menu.add(0, DiaryWebView.IMAGE_SAVE, 0, R.string.image_save).setTitleCondensed(itemClicked.getExtra()).setOnMenuItemClickListener(mPageBrowser.loaderHelper);
-                menu.add(0, DiaryWebView.IMAGE_COPY_URL, 0, R.string.image_copy_url).setTitleCondensed(itemClicked.getExtra()).setOnMenuItemClickListener(mPageBrowser.loaderHelper);
-            }
+        	Message msg = Message.obtain(mUiHandler, HANDLE_IMAGE_CLICK);
+        	mPageBrowser.getRefreshableView().requestImageRef(msg);
         }
     }
 
@@ -483,6 +486,68 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     pd.dismiss();
                     Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
                 break;
+                case HANDLE_IMAGE_CLICK:
+                {
+                	final String src = message.getData().getString("url");
+                	if(src == null) // нет картинки!
+                		return false;
+                	
+                    ArrayList<String> itemsBuilder = new ArrayList<String>();
+		        	itemsBuilder.add(getString(R.string.image_save));
+		        	itemsBuilder.add(getString(R.string.image_copy_url));
+		        	itemsBuilder.add(getString(R.string.image_open));
+
+		        	final String[] items = itemsBuilder.toArray(new String[0]);
+		        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+		        	builder.setTitle(R.string.image_action);
+		        	builder.setItems(items, new DialogInterface.OnClickListener() 
+		        	{
+		        	    @SuppressWarnings("deprecation")
+						public void onClick(DialogInterface dialog, int item) 
+		        	    {
+		        	    	switch(item)
+		        	    	{
+		        	    		case DiaryWebView.IMAGE_SAVE: // save
+		        	    		{	        	    			
+		                            String hashCode = String.format("%08x", src.hashCode());
+		                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+		                            if(file.exists())
+		                            {
+		                                String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(src);
+		                                String realName = URLUtil.guessFileName(src, null, fileExtenstion);
+		                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
+		                            }
+		        	    		}
+		        	    		break;
+		        	    		case DiaryWebView.IMAGE_COPY_URL: // copy
+		        	    		{
+		                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+		                            Toast.makeText(DiaryList.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
+		                            clipboard.setText(src);
+		        	    		}
+		        	    		break;
+		        	    		case DiaryWebView.IMAGE_OPEN: // open Link
+		        	    		{
+		                        	String hashCode = String.format("%08x", src.hashCode());
+		                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+		                            if(file.exists())
+		                            {
+		                            	BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
+		                            	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+		                            	Globals.tempDrawable = sendDrawable;
+		                            	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+		                                startActivity(intent);
+		                            }
+		        	    		}
+		        	    		break;
+		        	    	}
+		        	    	dialog.dismiss();
+		        	    }
+		        	});
+		        	AlertDialog alert = builder.create();
+		        	alert.show();
+		        }
+            	break;
                 default:
                     return false;
             }
