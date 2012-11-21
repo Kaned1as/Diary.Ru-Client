@@ -17,7 +17,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -447,9 +446,18 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 			    for(int i = 0; i < text.length(); i++)
 			    {
 			        char current = text.charAt(i);
-			        String red = String.format("%02X", ((Color.red(startColor) - Color.red(startColor) * i / length) + (Color.red(endColor) - Color.red(endColor) * (length - i) / text.length())));
-			        String green = String.format("%02X", ((Color.green(startColor) - Color.green(startColor) * i / length) + (Color.green(endColor) - Color.green(endColor) * (length - i) / text.length())));
-			        String blue = String.format("%02X", ((Color.blue(startColor) - Color.blue(startColor) * i / length) + (Color.blue(endColor) - Color.blue(endColor) * (length - i) / text.length())));
+			        if (current == ' ' || current == '\n')
+			        {
+			            newText += current;
+			            continue;
+			        }
+			        int newRed = ((Color.red(startColor) - Color.red(startColor) * i / length) + (Color.red(endColor) - Color.red(endColor) * (length - i) / text.length()));
+			        int newGreen = ((Color.green(startColor) - Color.green(startColor) * i / length) + (Color.green(endColor) - Color.green(endColor) * (length - i) / text.length()));
+			        int newBlue = ((Color.blue(startColor) - Color.blue(startColor) * i / length) + (Color.blue(endColor) - Color.blue(endColor) * (length - i) / text.length()));
+			        String red = String.format("%02X", newRed > 0xFF ? 0xFF : newRed);
+			        String green = String.format("%02X", newGreen > 0xFF ? 0xFF : newGreen);
+			        String blue = String.format("%02X", newBlue > 0xFF ? 0xFF : newBlue);
+			        
 			        String addiction = "<span style=\"color: #" + red + green + blue + "\">" + current + "</span>";
 			        newText += addiction;
 			    }

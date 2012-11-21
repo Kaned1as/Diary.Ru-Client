@@ -78,5 +78,5 @@
     <string name="message_close_denied_list">Denied list</string>
     <string name="message_close_allowed_list">Allowed list</string>
     <string name="message_close_text">Text of closed notification</string>
-    <string name="gradient_button">Gradient implement button</string>
+    <string name="gradient_button">Make gradient</string>
 </resources>

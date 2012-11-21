@@ -52,10 +52,11 @@ body {
 	float:right;  
 }
 h2,h3,h4 {  
-	margin:0;  
+	margin:0;
 }
 .header h2,.header h3 ,.header h4 {  
 	display:inline;  
+	font-size: 120%;
 }
 .aleft {
 	text-align:left;
@@ -106,7 +107,8 @@ h2,h3,h4 {
 	float:right;  
 	position:relative;
 }
-.postActionLinks li {  
+.postActionLinks li { 
+	display: none;
 	float:left;  
 	list-style:none;  
 	margin:0 0 0 5px;  
@@ -139,7 +141,7 @@ h2,h3,h4 {
 .postLinks {  
 /*	float:right;  */
 	display:inline;  
-	font-size:100%;  
+	font-size:150%;  
 	margin:0 0 1px 0;  
 	padding:0;  
 }
@@ -258,7 +260,12 @@ a:hover {
 }
 .singlePost, .menuSection, #side h1, .header, .postContent, .singleComment, .section, .postDate{
 	margin-bottom:1px;
+	border: 1px dotted black;
 }
+.singlePost {
+      	margin-top: 20px;
+}
+
 .postContent, .menuSection, .bordered{
 //	height: 1%;
 }
@@ -1137,6 +1144,8 @@ blockquote, .paragraph li, .paragraph ul {
 	padding-top:0;
 }
 .Attention a, .urlLink a{
+	font-size: 150%;
+	font-weight: bold;
 	text-decoration:none !important;
 }
 .Attention a:hover, .urlLink a:hover{

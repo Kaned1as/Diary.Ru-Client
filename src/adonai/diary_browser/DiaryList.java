@@ -1077,9 +1077,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             int i = 0;
             for(Element image : images)
             {
-                String width = image.attr("width");
-                String height = image.attr("height");
-                if(width.equals("") && height.equals("") && !image.parent().className().equals("avatar"))
+                //String width = image.attr("width");
+                //String height = image.attr("height");
+                String src = image.attr("src");
+                if(!src.contains("diary.ru") && !image.parent().className().equals("avatar"))
                 {
                     String jsButton = "<input type=\"image\" id=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\"/>";
                     

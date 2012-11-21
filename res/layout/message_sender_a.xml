@@ -49,10 +49,10 @@
         <Button
             android:id="@+id/set_gradient"
             style="?android:attr/buttonStyleSmall"
-            android:layout_width="50dip"
+            android:layout_width="wrap_content"
             android:layout_height="50dip"
             android:contentDescription="@string/gradient_button"
-            android:text="" />
+            android:text="@string/gradient_button" />
 
         <ImageButton
             android:id="@+id/right_gradient"
