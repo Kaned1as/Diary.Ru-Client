@@ -56,6 +56,7 @@ import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -67,6 +68,7 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.webkit.WebBackForwardList;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -940,34 +942,31 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     @Override
     public void onBackPressed()
     {
-        if (mCurrentBrowser == DiaryPage.POST_LIST && mCurrentTab == TAB_FAVOURITES)
+        if(mCurrentBrowser == DiaryPage.POST_LIST || mCurrentBrowser == DiaryPage.COMMENT_LIST)
         {
-            setCurrentVisibleComponent(DiaryPage.DIARY_LIST);
-            return;
+        	ArrayList<String> urls = new ArrayList<String>();
+        	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
+        	for(int i = 0; i < browseHistory.getSize(); i++)
+        	{
+        		String url =browseHistory.getItemAtIndex(i).getUrl();
+        		if(!url.equals("about:blank")); // ну да, это тупо. Но что делать?
+        			urls.add(url);
+        	}
+        	AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Widget_ListView));
+        	builder.setTitle(R.string.image_action);
+        	final String[] items = urls.toArray(new String[0]);
+        	builder.setItems(items, new DialogInterface.OnClickListener() 
+        	{
+				public void onClick(DialogInterface dialog, int item) 
+        	    {
+        	    	String url = items[item];
+        	    	checkUrlAndHandle(url);
+        	    }
+        	});
+        	builder.create().show();
         }
-        
-        if (mCurrentBrowser == DiaryPage.COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS)
-        {
-        	setCurrentVisibleComponent(DiaryPage.DISCUSSION_LIST);
-        	return;
-        }
-        	
-        if (mCurrentBrowser == DiaryPage.COMMENT_LIST && mCurrentTab == TAB_DISCUSSIONS_NEW)
-        {
-        	// TODO: исправить когда придумается что-то получше
-        	// Если мы сразу зашли в список комментов, список постов пустой.
-        	setCurrentVisibleComponent(DiaryPage.POST_LIST);
-        	
-        	return;
-        }
-        
-        if (mCurrentBrowser == DiaryPage.COMMENT_LIST)
-        {
-            setCurrentVisibleComponent(DiaryPage.POST_LIST);
-            return;
-        }
-        
-        super.onBackPressed();
+        else
+        	super.onBackPressed();
     }
 
     /* (non-Javadoc)
