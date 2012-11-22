@@ -3,7 +3,10 @@ package adonai.diary_browser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -462,7 +465,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_PAGE_DATA:
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
-                    mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", null);
+                    switch(mUser.currentDiaryPage.getType())
+                    {
+                    case DiaryPage.POST_LIST: 
+                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL());
+                    break;
+                    case DiaryPage.COMMENT_LIST: 
+                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
+                    break;
+                    }
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -944,22 +955,22 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         if(mCurrentBrowser == DiaryPage.POST_LIST || mCurrentBrowser == DiaryPage.COMMENT_LIST)
         {
-        	ArrayList<String> urls = new ArrayList<String>();
+        	final Map<String, String> urls = new HashMap<String, String>();
         	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
         	for(int i = 0; i < browseHistory.getSize(); i++)
         	{
-        		String url =browseHistory.getItemAtIndex(i).getUrl();
+        		String url = browseHistory.getItemAtIndex(i).getUrl();
         		if(!url.equals("about:blank")); // ну да, это тупо. Но что делать?
-        			urls.add(url);
+        			urls.put(browseHistory.getItemAtIndex(i).getTitle(), url);
         	}
         	AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Widget_ListView));
         	builder.setTitle(R.string.image_action);
-        	final String[] items = urls.toArray(new String[0]);
+        	final String[] items = urls.keySet().toArray(new String[0]);
         	builder.setItems(items, new DialogInterface.OnClickListener() 
         	{
 				public void onClick(DialogInterface dialog, int item) 
         	    {
-        	    	String url = items[item];
+        	    	String url = urls.get(items[item]);
         	    	checkUrlAndHandle(url);
         	    }
         	});
@@ -1066,6 +1077,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         Elements result = postsArea.clone();
         Document resultPage = Document.createShell(Globals.currentURL);
+        resultPage.title(rootNode.title());
         for(Element to : result)
         {
             resultPage.body().appendChild(to);
@@ -1138,6 +1150,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUser.currentDiaryPage.set_post_ID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         Document resultPage = Document.createShell(Globals.currentURL);
+        resultPage.title(rootNode.title());
         for(Element to : result)
         {
             resultPage.body().appendChild(to);
