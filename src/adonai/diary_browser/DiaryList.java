@@ -541,7 +541,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		        	    		}
 		        	    		break;
 		        	    	}
-		        	    	dialog.dismiss();
 		        	    }
 		        	});
 		        	AlertDialog alert = builder.create();
@@ -762,19 +761,29 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {	
         if (view == mExitButton)
         {
-            Editor lysosome = Globals.mSharedPrefs.edit();
-            lysosome.remove(AuthorizationForm.KEY_USERNAME);
-            lysosome.remove(AuthorizationForm.KEY_PASSWORD);
-            lysosome.commit();
-            
-            CookieManager cookieManager = CookieManager.getInstance();
-            cookieManager.removeSessionCookie();
-            CookieSyncManager.getInstance().sync();
-            Globals.mUser = new UserData();
-            
-            //TODO: просмотр без логина тоже еще не введен
-            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
-            finish();
+        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+        	builder.setTitle(R.string.really_exit);
+        	builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
+        	{
+				public void onClick(DialogInterface dialog, int item) 
+        	    {
+					Editor lysosome = Globals.mSharedPrefs.edit();
+		            lysosome.remove(AuthorizationForm.KEY_USERNAME);
+		            lysosome.remove(AuthorizationForm.KEY_PASSWORD);
+		            lysosome.commit();
+		            
+		            CookieManager cookieManager = CookieManager.getInstance();
+		            cookieManager.removeSessionCookie();
+		            CookieSyncManager.getInstance().sync();
+		            Globals.mUser = new UserData();
+		            
+		            //TODO: просмотр без логина тоже еще не введен
+		            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+		            finish();
+        	    }
+        	});
+        	builder.setNegativeButton(android.R.string.no, null);
+        	builder.create().show();
         } 
         else if (view.getTag() != null)
         {

@@ -20,6 +20,7 @@
     <string name="saved_to">Сохранено: </string>
     <string name="image_save">Сохранить</string>
     <string name="image_open">Открыть</string>
+    <string name="really_exit">Правда выйти?</string>
     <string name="image_copy_url">Скопировать ссылку</string>
     <string name="image_fullsize">И так все видно!</string>
     <string name="image_open_link">Открыть ссылку</string>

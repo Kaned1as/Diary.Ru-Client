@@ -38,6 +38,7 @@
     <string name="getting_user_info">Getting user info</string>
     <string name="comments_disabled">disabled</string>
     <string name="community">Community</string>
+    <string name="really_exit">Really quit?</string>
     <string name="new_post">New Post</string>
     <string name="parsing_data">Parsing data&#8230;</string>
     <string name="message_title">Message title</string>
