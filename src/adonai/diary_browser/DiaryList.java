@@ -966,7 +966,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         			TextView tmpTxt = new TextView(ctw);
         			tmpTxt.setText(browseHistory.getItemAtIndex(i).getTitle());
         			tmpTxt.setTag(url);
-        			tmpTxt.setTextAppearance(ctw, android.R.attr.textAppearanceLarge);
+        			tmpTxt.setPadding(5, 5, 5, 5);
+        			tmpTxt.setTextAppearance(ctw, android.R.style.TextAppearance_Large);
         			tmpTxt.setOnClickListener(new OnClickListener()
 					{
 						
