@@ -3,10 +3,7 @@ package adonai.diary_browser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -208,6 +205,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
+        mPageBrowser.getRefreshableView().clearHistory();
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
@@ -955,25 +953,38 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         if(mCurrentBrowser == DiaryPage.POST_LIST || mCurrentBrowser == DiaryPage.COMMENT_LIST)
         {
-        	final Map<String, String> urls = new HashMap<String, String>();
         	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
+        	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
+        	LinearLayout LL = new LinearLayout(ctw);
+        	LL.setOrientation(LinearLayout.VERTICAL);
+        	
         	for(int i = 0; i < browseHistory.getSize(); i++)
         	{
         		String url = browseHistory.getItemAtIndex(i).getUrl();
         		if(!url.equals("about:blank")); // ну да, это тупо. Но что делать?
-        			urls.put(browseHistory.getItemAtIndex(i).getTitle(), url);
+        		{
+        			TextView tmpTxt = new TextView(ctw);
+        			tmpTxt.setText(browseHistory.getItemAtIndex(i).getTitle());
+        			tmpTxt.setTag(url);
+        			tmpTxt.setTextAppearance(ctw, android.R.attr.textAppearanceLarge);
+        			tmpTxt.setOnClickListener(new OnClickListener()
+					{
+						
+						public void onClick(View v)
+						{
+							String url = (String) v.getTag();
+		        	    	checkUrlAndHandle(url);
+						}
+					});
+        			TextView tmpDescTxt = new TextView(ctw);
+        			tmpDescTxt.setText(url);
+        			LL.addView(tmpTxt);
+        			LL.addView(tmpDescTxt);
+        		}
         	}
-        	AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Widget_ListView));
+        	AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
         	builder.setTitle(R.string.image_action);
-        	final String[] items = urls.keySet().toArray(new String[0]);
-        	builder.setItems(items, new DialogInterface.OnClickListener() 
-        	{
-				public void onClick(DialogInterface dialog, int item) 
-        	    {
-        	    	String url = urls.get(items[item]);
-        	    	checkUrlAndHandle(url);
-        	    }
-        	});
+        	builder.setView(LL);
         	builder.create().show();
         }
         else
