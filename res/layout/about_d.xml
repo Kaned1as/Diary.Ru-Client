@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:stretchColumns="*" >
+
+<TableRow>
+
+<ImageView
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="left|center"
+    android:contentDescription="@string/app_name"
+    android:src="@drawable/ic_launcher" />
+
+<TextView
+    android:id="@+id/app_info"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center"
+    android:gravity="center"
+    android:text="@string/app_name" />
+
+</TableRow>
+
+<TableRow android:id="@+id/TableRow" >
+
+    <ImageView
+        android:id="@+id/imageView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:contentDescription="@string/author_avatar"
+        android:src="@drawable/adonai" />
+
+    <TextView
+        android:id="@+id/author_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/author" />
+
+</TableRow>
+
+<TableRow>
+<TextView
+android:id="@+id/legal_text"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:textSize="10dip"
+android:textStyle="italic"
+android:layout_span="2"
+android:layout_margin="8dip"
+android:textColor="#cccccc" />
+</TableRow>
+
+</TableLayout>

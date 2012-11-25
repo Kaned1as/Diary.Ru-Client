@@ -262,7 +262,7 @@ a:hover {
 	margin-bottom:1px;
 	border: 1px dotted black;
 }
-.singlePost {
+.singlePost, .singleComment {
       	margin-top: 20px;
 }
 

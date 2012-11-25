@@ -80,4 +80,7 @@
     <string name="message_close_allowed_list">Allowed list</string>
     <string name="message_close_text">Text of closed notification</string>
     <string name="gradient_button">Make gradient</string>
+    <string name="application_description">&lt;b>Diary.Ru&lt;/b>&lt;br/>This program cannot be run in DOS mode&lt;br/>Version: &lt;b>Alpha-0.3.0&lt;/b>&lt;br/>Website: &lt;a href=\"http://Antic1tizen.diary.ru\">Android &amp; Diary.Ru&lt;/a></string>
+    <string name="author_description">Author: &lt;b>Adonai&lt;/b>&lt;br/>Blog: &lt;a href=\"http://dron01.diary.ru\">Not an Option&lt;/a>&lt;br/> If you want to participate or help me, please mail to mailto:adonai@xaker.ru</string>
+    <string name="app_about">About</string>
 </resources>

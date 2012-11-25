@@ -46,11 +46,8 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.Spanned;
-import android.text.style.ImageSpan;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -79,6 +76,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.TabHost;
 import android.widget.TabWidget;
 import android.widget.TextView;
@@ -116,7 +114,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     
     // дополнительные команды хэндлерам
-    private static final int HANDLE_SERVICE_LOAD_PICTURE = 100;
     
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
@@ -126,8 +123,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int TAB_DISCUSSIONS = 4;
     public static final int TAB_DISCUSSIONS_NEW = 5;
     
-    // TODO: доделать обновление текущего контента по запросу
-    boolean mNeedsRefresh = true;
     int mCurrentBrowser = 0;
     int mCurrentTab = 0;
     
@@ -343,6 +338,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             			return false;
             	}
             	return true;
+            case R.id.menu_about:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.app_about);
+                builder.setView(View.inflate(this, R.layout.about_d, null));
+                builder.create().show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -424,9 +425,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
                     }
                 break;
-                case HANDLE_SERVICE_LOAD_PICTURE:
-
-                break;
                 case HANDLE_SET_HTTP_COOKIE:
                     pd.setMessage(getString(R.string.getting_user_info));
                     mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
@@ -469,7 +467,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL());
                     break;
                     case DiaryPage.COMMENT_LIST: 
-                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
+                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_post_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
                     break;
                     }
                     mPageBrowser.onRefreshComplete();
@@ -574,32 +572,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             {
                 switch (message.what)
                 {
-                    case HANDLE_SERVICE_LOAD_PICTURE:
-                    {
-                        Pair<Spannable, ImageSpan> pair = (Pair<Spannable, ImageSpan>)message.obj;
-                        final int start = pair.first.getSpanStart(pair.second);
-                        final int end = pair.first.getSpanEnd(pair.second);
-                        if(start == -1 || end == -1) // удалена
-                            return false;
-                        
-                        Pair<String, BitmapDrawable> result = Utils.loadImage(DiaryList.this, pair.second.getSource());
-                        if(result == null) // нет такой картинки
-                            return false;
-                        
-                        Drawable loadedPicture = result.second;
-                        String fileName = result.first;
-                        // Масштабируем под экран
-                        if(loadedPicture.getIntrinsicWidth() > gMetrics.widthPixels)
-                            loadedPicture.setBounds(0, 0, gMetrics.widthPixels, loadedPicture.getIntrinsicHeight() * gMetrics.widthPixels / loadedPicture.getIntrinsicWidth());
-                        else
-                            loadedPicture.setBounds(0, 0, loadedPicture.getIntrinsicWidth(), loadedPicture.getIntrinsicHeight());
-                                                
-                        pair.first.removeSpan(pair.second);
-                        pair.first.setSpan(new ImageSpan(loadedPicture, fileName, ImageSpan.ALIGN_BASELINE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_SERVICE_LOAD_PICTURE));
-                    }
-                    break;
                     case HANDLE_SET_HTTP_COOKIE:
                     {
                         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -882,37 +854,36 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
      */
     private void setCurrentTab(int index)
     {
-        if (mNeedsRefresh)
-            switch (index)
-            {
-                case TAB_FAVOURITES:
-                    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", false)));
-                break;
-                case TAB_FAV_POSTS:
-                    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
-                break;
-                case TAB_MY_DIARY:
-                    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
-                break;
-                case TAB_MY_DIARY_NEW:
-                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
-                break;
-                case TAB_DISCUSSIONS:
-                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, null));
-                break;
-                case TAB_DISCUSSIONS_NEW:
-                	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
-                break;
-                default:
-                	Utils.showDevelSorry(this);
-                break;
-            }
+        switch (index)
+        {
+            case TAB_FAVOURITES:
+                pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", false)));
+            break;
+            case TAB_FAV_POSTS:
+                pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
+            break;
+            case TAB_MY_DIARY:
+                pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
+            break;
+            case TAB_MY_DIARY_NEW:
+            	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
+            break;
+            case TAB_DISCUSSIONS:
+            	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, null));
+            break;
+            case TAB_DISCUSSIONS_NEW:
+            	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
+            break;
+            default:
+            	Utils.showDevelSorry(this);
+            break;
+        }
         
         mCurrentTab = index;
         mTabHost.setCurrentTab(index);
@@ -955,37 +926,40 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
         	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
+        	ScrollView dialogView = new ScrollView(ctw);
         	LinearLayout LL = new LinearLayout(ctw);
         	LL.setOrientation(LinearLayout.VERTICAL);
         	
         	for(int i = 0; i < browseHistory.getSize(); i++)
         	{
         		String url = browseHistory.getItemAtIndex(i).getUrl();
-        		if(!url.equals("about:blank")); // ну да, это тупо. Но что делать?
-        		{
-        			TextView tmpTxt = new TextView(ctw);
-        			tmpTxt.setText(browseHistory.getItemAtIndex(i).getTitle());
-        			tmpTxt.setTag(url);
-        			tmpTxt.setPadding(5, 5, 5, 5);
-        			tmpTxt.setTextAppearance(ctw, android.R.style.TextAppearance_Large);
-        			tmpTxt.setOnClickListener(new OnClickListener()
+        		if(url.equals("about:blank")) // ну да, это тупо. Но что делать?
+        		    continue;
+        		    
+    			TextView tmpTxt = new TextView(ctw);
+    			tmpTxt.setText(i + ") " + browseHistory.getItemAtIndex(i).getTitle());
+    			tmpTxt.setTag(url);
+    			tmpTxt.setMaxLines(1);
+    			tmpTxt.setPadding(5, 5, 5, 5);
+    			tmpTxt.setTextAppearance(ctw, android.R.style.TextAppearance_Large);
+    			tmpTxt.setOnClickListener(new OnClickListener()
+				{
+					
+					public void onClick(View v)
 					{
-						
-						public void onClick(View v)
-						{
-							String url = (String) v.getTag();
-		        	    	checkUrlAndHandle(url);
-						}
-					});
-        			TextView tmpDescTxt = new TextView(ctw);
-        			tmpDescTxt.setText(url);
-        			LL.addView(tmpTxt);
-        			LL.addView(tmpDescTxt);
-        		}
+						String url = (String) v.getTag();
+	        	    	checkUrlAndHandle(url);
+					}
+				});
+    			TextView tmpDescTxt = new TextView(ctw);
+    			tmpDescTxt.setText(url);
+    			LL.addView(tmpTxt);
+    			LL.addView(tmpDescTxt);
         	}
+        	dialogView.addView(LL);
         	AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
         	builder.setTitle(R.string.image_action);
-        	builder.setView(LL);
+        	builder.setView(dialogView);
         	builder.create().show();
         }
         else

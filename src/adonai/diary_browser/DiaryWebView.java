@@ -64,6 +64,13 @@ public class DiaryWebView extends PullToRefreshWebView
 
     private class DiaryWebClient extends WebViewClient
     {
+        @Override
+        public void onPageFinished(WebView view, String url)
+        {
+            super.onPageFinished(view, url);
+            mActivity.setTitle(view.getTitle());
+        }
+
         // Override page so it's load on my view only
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
