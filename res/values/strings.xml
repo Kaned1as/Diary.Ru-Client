@@ -80,8 +80,8 @@
     <string name="message_close_allowed_list">Allowed list</string>
     <string name="message_close_text">Text of closed notification</string>
     <string name="gradient_button">Make gradient</string>
-    <string name="application_description">&lt;b>Diary.Ru&lt;/b>&lt;br/>This program cannot be run in DOS mode&lt;br/>Version: &lt;b>Alpha-0.3.0&lt;/b>&lt;br/>Website: &lt;a href=\"http://Antic1tizen.diary.ru\">Android &amp; Diary.Ru&lt;/a></string>
-    <string name="author_description">Author: &lt;b>Adonai&lt;/b>&lt;br/>Blog: &lt;a href=\"http://dron01.diary.ru\">Not an Option&lt;/a>&lt;br/> If you want to participate or help me, please mail to mailto:adonai@xaker.ru</string>
-    <string name="app_about">About</string>
+    <string name="application_description">&lt;b>Diary.Ru&lt;/b>&lt;br/>This program cannot &lt;br/> be run in DOS mode&lt;br/>Version: &lt;b>Alpha-0.3.0&lt;/b>&lt;br/>Website: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a></string>
+    <string name="author_description">Author: &lt;b>Adonai&lt;/b>&lt;br/>Blog: &lt;a href="http://dron01.diary.ru">Not an Option&lt;/a>&lt;br/> If you want to participate&lt;br/> or help me, please mail to &lt;br/>&lt;a href="mailto:adonai@xaker.ru">adonai@xaker.ru&lt;/a></string>
+    <string name="about">About</string>
     <string name="gpl_notice">This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. \n This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details. \n You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/</string>
 </resources>

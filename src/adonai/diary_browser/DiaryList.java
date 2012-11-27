@@ -48,7 +48,9 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -340,8 +342,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	return true;
             case R.id.menu_about:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle(R.string.app_about);
-                builder.setView(View.inflate(this, R.layout.about_d, null));
+                builder.setTitle(R.string.about);
+                View aboutContent = View.inflate(this, R.layout.about_d, null);
+                TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
+                author.setText(Html.fromHtml(getString(R.string.author_description)));
+                author.setMovementMethod(LinkMovementMethod.getInstance());
+                TextView app = (TextView) aboutContent.findViewById(R.id.app_info);
+                app.setText(Html.fromHtml(getString(R.string.application_description)));
+                app.setMovementMethod(LinkMovementMethod.getInstance());
+                builder.setView(aboutContent);
                 builder.create().show();
                 return true;
             default:
