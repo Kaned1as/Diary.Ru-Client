@@ -9,6 +9,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.webkit.WebSettings;
+import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -57,6 +58,7 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setUseWideViewPort(false);
         settings.setLightTouchEnabled(true);
         settings.setBuiltInZoomControls(true);
+        settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
         getRefreshableView().setBackgroundColor(0xFFF7F2EE);
         setOnRefreshListener(new WebPageRefresher());
