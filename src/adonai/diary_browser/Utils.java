@@ -26,6 +26,9 @@ public class Utils
     
 	public static int checkDiaryUrl(String response)
 	{
+		if(response.contains("tags_ul_all"))
+			return DiaryPage.TAG_LIST;
+		
 		if(response.contains("commentsArea"))
 			return DiaryPage.COMMENT_LIST;
 		

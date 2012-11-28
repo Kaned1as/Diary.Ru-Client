@@ -108,6 +108,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     static final int HANDLE_PICK_URL 								= 	9;
     static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
     static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
+    static final int HANDLE_GET_TAG_LIST_DATA 						= 	13;
     
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK 							=   20;
@@ -291,9 +292,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	public boolean onPrepareOptionsMenu(Menu menu) 
     {
         if(mUser.currentDiaryPage.getType() == DiaryPage.POST_LIST)
+        {
+        	menu.findItem(R.id.menu_tags).setVisible(true);
         	menu.findItem(R.id.menu_new_post).setVisible(true);
+        }
         else
+        {
+        	menu.findItem(R.id.menu_tags).setVisible(false);
         	menu.findItem(R.id.menu_new_post).setVisible(false);
+        }
         
         if(mUser.currentDiaryPage.getType() == DiaryPage.COMMENT_LIST)
         	menu.findItem(R.id.menu_new_comment).setVisible(true);
@@ -353,6 +360,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 builder.setView(aboutContent);
                 builder.create().show();
                 return true;
+            case R.id.menu_tags:
+            	pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+            	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", false)));
+            	return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -477,6 +488,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     break;
                     case DiaryPage.COMMENT_LIST: 
                         mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_post_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
+                    break;
+                    case DiaryPage.TAG_LIST: 
+                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL() + "?tags");
                     break;
                     }
                     mPageBrowser.onRefreshComplete();
@@ -657,39 +671,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         mUiHandler.sendEmptyMessage(HANDLE_GET_DIARIES_DATA);
                         return true;
                     }
-                    case HANDLE_GET_DIARY_PAGE_DATA:
-                    {
-                        String URL = ((Pair<String, Boolean>) message.obj).first;
-                        boolean reload = ((Pair<String, Boolean>) message.obj).second;
-                        // Если страничка постов есть в комментах
-                        if(mCache.hasPage(URL) && !reload)
-                        {
-                        	mUser.currentDiaryPage = (DiaryPage) mCache.loadPageFromCache(URL);
-                        }
-                        else
-                        {
-                            HttpResponse page = mDHCL.postPage(URL, null);
-                        	if(page == null)
-                            {
-                            	mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
-                            	return false;
-                            }
-                            String dataPage = EntityUtils.toString(page.getEntity());
-                            int detected = Utils.checkDiaryUrl(dataPage);
-                            if(detected == DiaryPage.PAGE_NOT_RECOGNIZED)
-                            {
-                                mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
-                                return false;
-                            }
-                            if(detected == DiaryPage.POST_LIST)
-                                serializePostsPage(dataPage, null);
-                            else if (detected == DiaryPage.COMMENT_LIST)
-                                serializeCommentsPage(dataPage, null);
-                            mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
-                        }
-                        mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_PAGE_DATA);
-                        return true;
-                    }
                     case HANDLE_GET_DISCUSSIONS_DATA:
                     {
                     	HttpResponse page = mDHCL.postPage("http://www.diary.ru/discussion/", null);
@@ -728,8 +709,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     }
                     case HANDLE_PICK_URL:
                     {
-                    	String URL = (String) message.obj;
-                    	checkUrlAndHandle(URL);
+                    	String URL = ((Pair<String, Boolean>) message.obj).first;
+                        boolean reload = ((Pair<String, Boolean>) message.obj).second;
+                    	checkUrlAndHandle(URL, reload);
                     	return true;
                     }
                     default:
@@ -799,7 +781,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     Diary diary = (Diary) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(diary.get_URL(), false)));
+                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(diary.get_URL(), false)));
                 }
                 break;
                 default:
@@ -814,7 +796,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	{
 		pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
 		String link = ((DiscussionList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).get_URL();
-    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(link, false)));
+    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(link, false)));
 		return true;
 	}
 	
@@ -871,15 +853,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             break;
             case TAB_FAV_POSTS:
                 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
             break;
             case TAB_MY_DIARY:
                 pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
             break;
             case TAB_MY_DIARY_NEW:
             	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
             break;
             case TAB_DISCUSSIONS:
             	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
@@ -887,7 +869,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             break;
             case TAB_DISCUSSIONS_NEW:
             	pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
             break;
             default:
             	Utils.showDevelSorry(this);
@@ -916,11 +898,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
     		case DiaryPage.POST_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
     			break;
     		case DiaryPage.COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
     			break;
     	}
     }
@@ -957,7 +939,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 					public void onClick(View v)
 					{
 						String url = (String) v.getTag();
-	        	    	checkUrlAndHandle(url);
+	        	    	checkUrlAndHandle(url, false);
 	        	    	if(ad.isShowing())
 	        	    		ad.dismiss();
 					}
@@ -1053,7 +1035,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         return super.onSearchRequested();
     }
     
-    public void serializePostsPage(String dataPage, List<Post> destination) throws IOException
+    public void serializePostsPage(String dataPage) throws IOException
     {
         mUser.currentDiaryPage = new DiaryPage();
         mUser.currentDiaryPage.setType(DiaryPage.POST_LIST);
@@ -1067,7 +1049,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
         
-        mUser.currentDiaryPage.set_diary_URL(Globals.currentURL);
+        mUser.currentDiaryPage.set_diary_URL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
@@ -1077,7 +1059,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post], div.pageBar");
-        if(postsArea == null) // Нет вообще никаких постов, заканчиваем
+        if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
         	return;
         
         Elements result = postsArea.clone();
@@ -1119,7 +1101,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	resultPage.body().append(Utils.javascriptContent);
 	}
 
-	public void serializeCommentsPage(String dataPage, List<Post> destination) throws IOException
+	public void serializeCommentsPage(String dataPage) throws IOException
     {
     	mUser.currentDiaryPage = new DiaryPage();
     	mUser.currentDiaryPage.setType(DiaryPage.COMMENT_LIST);
@@ -1143,7 +1125,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment], div.pageBar");
-        if(effectiveAreas == null) // Нет вообще никаких постов, заканчиваем
+        if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
         
         Elements result = effectiveAreas.clone();
@@ -1163,6 +1145,47 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         parseContent(resultPage);
         
+        mUser.currentDiaryPage.set_content(resultPage);
+    }
+	
+	public void serializeTagsPage(String dataPage) throws IOException
+    {
+    	mUser.currentDiaryPage = new DiaryPage();
+    	mUser.currentDiaryPage.setType(DiaryPage.TAG_LIST);
+    	
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+        Document rootNode = Jsoup.parse(dataPage);
+        
+        if(mListener != null)
+        {
+            mListener.parseData(rootNode);
+            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
+        }
+        
+        mUser.currentDiaryPage.set_diary_URL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
+        Element diaryTag = rootNode.select("[id=authorName]").first();
+        if(diaryTag != null)
+        {
+            String Id = diaryTag.getElementsByTag("a").last().attr("href");
+            mUser.currentDiaryPage.set_diary_Id(Id.substring(Id.lastIndexOf("?") + 1));
+        }
+        
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        Elements effectiveAreas = rootNode.select("ul.tags_ul_all");
+        if(effectiveAreas.isEmpty()) // Нет вообще никаких тэгов, заканчиваем
+            return;
+        
+        Elements result = effectiveAreas.clone();
+        result.select("input[type=checkbox]").remove();
+        
+        Document resultPage = Document.createShell(Globals.currentURL);
+        resultPage.title(rootNode.title());
+        for(Element to : result)
+        {
+            resultPage.body().appendChild(to);
+        }
+        
+        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
         mUser.currentDiaryPage.set_content(resultPage);
     }
     
@@ -1246,7 +1269,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         startActivity(postIntent);
     }
     
-    public void checkUrlAndHandle(String URL)
+    public void checkUrlAndHandle(String URL, boolean reload)
     {   
     	int handled = DiaryPage.PAGE_NOT_PROCESSED;
     	DiaryPage cachedPage = null;
@@ -1254,7 +1277,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	
     	try 
     	{
-	    	if(mCache.hasPage(URL))
+	    	if(mCache.hasPage(URL) && !reload)
 	    	{
 	    		cachedPage = (DiaryPage) mCache.loadPageFromCache(URL);
 	    		handled = cachedPage.getType();
@@ -1278,21 +1301,31 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	    			case DiaryPage.DIARY_LIST:
 	    			break;
 	    			case DiaryPage.POST_LIST:
-	    				if(cachedPage != null)
+	    				if(cachedPage != null && !reload)
                         	mUser.currentDiaryPage = (DiaryPage) mCache.loadPageFromCache(URL);
 	    				else
 	    				{
-		    				serializePostsPage(dataPage, null);
+		    				serializePostsPage(dataPage);
 		    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
 	    				}
 	    				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_PAGE_DATA);
 	    			break;
 	    			case DiaryPage.COMMENT_LIST:
-	    				if(cachedPage != null)
+	    				if(cachedPage != null && !reload)
                         	mUser.currentDiaryPage = (DiaryPage) mCache.loadPageFromCache(URL);
 	    				else
 	    				{
-		    				serializeCommentsPage(dataPage, null);
+		    				serializeCommentsPage(dataPage);
+		    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
+	    				}
+	    				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_PAGE_DATA);
+	    			break;
+	    			case DiaryPage.TAG_LIST:
+	    				if(cachedPage != null && !reload)
+                        	mUser.currentDiaryPage = (DiaryPage) mCache.loadPageFromCache(URL);
+	    				else
+	    				{
+		    				serializeTagsPage(dataPage);
 		    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
 	    				}
 	    				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_PAGE_DATA);

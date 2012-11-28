@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import ru.diary.antic1tizen.R;
+import adonai.diary_browser.entities.DiaryPage;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -78,7 +79,7 @@ public class DiaryWebView extends PullToRefreshWebView
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
             mActivity.pd = ProgressDialog.show(view.getContext(), mActivity.getString(R.string.loading), mActivity.getString(R.string.loading_data), true, true);
-            mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, url));
+            mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false)));
             return true;
         }
     };
@@ -91,10 +92,12 @@ public class DiaryWebView extends PullToRefreshWebView
             switch (refreshView.getId())
             {
                 case R.id.page_browser:
-                    if(mUser.currentDiaryPage.get_post_URL().equals("")) // если это страничка постов
-                        mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
-                    else // если это страничка комментариев
-                        mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_GET_DIARY_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
+                    if(mUser.currentDiaryPage.getType() == DiaryPage.POST_LIST) // если это страничка постов
+                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
+                    else if (mUser.currentDiaryPage.getType() == DiaryPage.COMMENT_LIST)// если это страничка комментариев
+                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
+                    else
+                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", true)));
                 break;
             }
         }
