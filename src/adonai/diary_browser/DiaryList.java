@@ -50,7 +50,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.text.util.Linkify;
 import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.ContextMenu;
@@ -143,6 +142,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     ImageButton mExitButton;
     TabHost mTabHost;
     ProgressDialog pd;
+    AlertDialog ad;
     
     // Сервисные объекты
     DiaryHttpClient mDHCL = Globals.mDHCL;
@@ -935,7 +935,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
         	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-        	ScrollView dialogView = new ScrollView(ctw);
+        	final ScrollView dialogView = new ScrollView(ctw);
         	LinearLayout LL = new LinearLayout(ctw);
         	LL.setOrientation(LinearLayout.VERTICAL);
         	
@@ -958,6 +958,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 					{
 						String url = (String) v.getTag();
 	        	    	checkUrlAndHandle(url);
+	        	    	if(ad.isShowing())
+	        	    		ad.dismiss();
 					}
 				});
     			TextView tmpDescTxt = new TextView(ctw);
@@ -969,7 +971,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         	AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
         	builder.setTitle(R.string.image_action);
         	builder.setView(dialogView);
-        	builder.create().show();
+        	ad = builder.create();
+        	ad.show();
+        	dialogView.post(new Runnable() 
+        	{
+				public void run()
+				{
+					dialogView.fullScroll(ScrollView.FOCUS_DOWN);
+				}
+        	});
         }
         else
         	super.onBackPressed();

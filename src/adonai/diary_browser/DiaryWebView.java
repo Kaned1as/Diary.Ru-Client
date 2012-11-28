@@ -77,15 +77,9 @@ public class DiaryWebView extends PullToRefreshWebView
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
-         if ( url.contains("diary.ru"))
-         {
             mActivity.pd = ProgressDialog.show(view.getContext(), mActivity.getString(R.string.loading), mActivity.getString(R.string.loading_data), true, true);
             mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, url));
             return true;
-         }
-          
-         // Return true to override url loading (In this case do nothing).
-         return true;
         }
     };
     
