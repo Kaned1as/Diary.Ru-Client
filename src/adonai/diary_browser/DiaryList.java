@@ -362,7 +362,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 return true;
             case R.id.menu_tags:
             	pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-            	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", false)));
+            	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags", false)));
             	return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -490,7 +490,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_post_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
                     break;
                     case DiaryPage.TAG_LIST: 
-                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL() + "?tags");
+                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags");
                     break;
                     }
                     mPageBrowser.onRefreshComplete();
@@ -1049,7 +1049,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
         }
         
-        mUser.currentDiaryPage.set_diary_URL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
+        mUser.currentDiaryPage.set_diary_URL(Globals.currentURL);
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
