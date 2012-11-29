@@ -332,19 +332,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	return true;
             case R.id.menu_share:
             	android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-            	switch(mUser.currentDiaryPage.getType())
-            	{
-            		case DiaryPage.POST_LIST:
-            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.get_diary_URL(), Toast.LENGTH_SHORT).show();
-            			clipboard.setText(mUser.currentDiaryPage.get_diary_URL());
-            		break;
-            		case DiaryPage.COMMENT_LIST:
-            			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.get_post_URL(), Toast.LENGTH_SHORT).show();
-            			clipboard.setText(mUser.currentDiaryPage.get_post_URL());
-            		break;
-            		default:
-            			return false;
-            	}
+    			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.get_page_URL(), Toast.LENGTH_SHORT).show();
+    			clipboard.setText(mUser.currentDiaryPage.get_page_URL());
             	return true;
             case R.id.menu_about:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -361,6 +350,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 return true;
             case R.id.menu_tags:
             	pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+            	// Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
             	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags", false)));
             	return true;
             default:
@@ -480,18 +470,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 break;
                 case HANDLE_GET_DIARY_PAGE_DATA:
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
-                    switch(mUser.currentDiaryPage.getType())
-                    {
-                    case DiaryPage.POST_LIST: 
-                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL());
-                    break;
-                    case DiaryPage.COMMENT_LIST: 
-                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_post_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_post_URL());
-                    break;
-                    case DiaryPage.TAG_LIST: 
-                        mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_diary_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags");
-                    break;
-                    }
+                    mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_page_URL());
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -896,12 +875,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	        pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
     	        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
     		case DiaryPage.POST_LIST:
-    			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
-    			break;
     		case DiaryPage.COMMENT_LIST:
     			pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
+    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_page_URL(), true)));
     			break;
     	}
     }
@@ -1036,8 +1012,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void serializePostsPage(String dataPage) throws IOException
     {
-        mUser.currentDiaryPage = new DiaryPage();
-        mUser.currentDiaryPage.setType(DiaryPage.POST_LIST);
+        mUser.currentDiaryPage = new DiaryPage(DiaryPage.POST_LIST);
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
     	Document rootNode = Jsoup.parse(dataPage);
@@ -1107,8 +1082,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
 	public void serializeCommentsPage(String dataPage) throws IOException
     {
-    	mUser.currentDiaryPage = new DiaryPage();
-    	mUser.currentDiaryPage.setType(DiaryPage.COMMENT_LIST);
+    	mUser.currentDiaryPage = new DiaryPage(DiaryPage.COMMENT_LIST);
     	
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -1154,8 +1128,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	
 	public void serializeTagsPage(String dataPage) throws IOException
     {
-    	mUser.currentDiaryPage = new DiaryPage();
-    	mUser.currentDiaryPage.setType(DiaryPage.TAG_LIST);
+    	mUser.currentDiaryPage = new DiaryPage(DiaryPage.TAG_LIST);
     	
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);

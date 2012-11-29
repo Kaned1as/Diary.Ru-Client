@@ -2,7 +2,7 @@ package adonai.diary_browser.entities;
 
 import org.jsoup.nodes.Document;
 
-public class DiaryPage implements PageDescriber
+public class DiaryPage
 {
     // текущий контекст
     public static final int DIARY_LIST = 0;
@@ -23,6 +23,11 @@ public class DiaryPage implements PageDescriber
     private String _post_URL = "";
     private Document _content;
     private int mType = PAGE_NOT_RECOGNIZED;
+    
+    public DiaryPage(int pageType)
+    {
+    	mType = pageType;
+    }
     
     public String get_diary_URL()
     {
@@ -78,9 +83,19 @@ public class DiaryPage implements PageDescriber
     {
         return mType;
     }
-
-    public void setType(int mType)
+    
+    public String get_page_URL()
     {
-        this.mType = mType;
+    	assert(!_diary_URL.equals(""));
+    	switch(mType)
+    	{
+	    	case POST_LIST:
+	    		return _diary_URL;
+	    	case COMMENT_LIST:
+	    		return _post_URL;
+	    	case TAG_LIST:
+	    		return _diary_URL + "?tags";
+    	}
+    	return "";
     }
 }

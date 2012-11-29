@@ -31,7 +31,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     UserData()
     {
         currentDiaries = new DiaryListPage();
-        currentDiaryPage = new DiaryPage();
+        currentDiaryPage = new DiaryPage(DiaryPage.PAGE_NOT_PROCESSED);
         discussions = new ArrayList<DiscussionList>();
     }
     
