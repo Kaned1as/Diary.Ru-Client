@@ -61,7 +61,6 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setBuiltInZoomControls(true);
         settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
-        getRefreshableView().setBackgroundColor(0xFFF7F2EE);
         setOnRefreshListener(new WebPageRefresher());
     }
 

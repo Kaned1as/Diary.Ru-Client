@@ -26,7 +26,6 @@ import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
 import adonai.diary_browser.entities.DiscussionListArrayAdapter;
-import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import android.net.Uri;
 import android.os.Bundle;
@@ -1084,16 +1083,21 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             int i = 0;
             for(Element image : images)
             {
-                //String width = image.attr("width");
-                //String height = image.attr("height");
                 String src = image.attr("src");
                 if(!src.contains("diary.ru") && !image.parent().className().equals("avatar"))
                 {
+                	if(load_cached)
+                	{
+	                	String hashCode = String.format("%08x", src.hashCode());
+	                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+	                    if(file.exists())
+	                    	continue;
+                	}
+                    
                     String jsButton = "<input type=\"image\" id=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\"/>";
                     
                     image.after(jsButton);
                     image.remove();
-
                     i++;
                 }
             }
