@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="ru.diary.antic1tizen"
+    package="adonai.diary_browser"
     android:versionCode="030"
     android:versionName="Alpha-0.3.0" android:installLocation="auto">
 

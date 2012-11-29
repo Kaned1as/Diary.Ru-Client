@@ -10,7 +10,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import ru.diary.antic1tizen.R;
+import adonai.diary_browser.R;
 
 public class AuthorizationForm extends Activity implements OnClickListener {
 

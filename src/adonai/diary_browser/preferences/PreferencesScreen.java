@@ -1,7 +1,7 @@
 package adonai.diary_browser.preferences;
 
 import adonai.diary_browser.AuthorizationForm;
-import ru.diary.antic1tizen.R;
+import adonai.diary_browser.R;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;

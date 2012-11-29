@@ -1,7 +1,7 @@
 package adonai.diary_browser.entities;
 
 import java.util.ArrayList;
-import ru.diary.antic1tizen.R;
+import adonai.diary_browser.R;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
