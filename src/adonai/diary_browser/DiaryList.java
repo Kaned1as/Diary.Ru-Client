@@ -38,6 +38,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -306,10 +307,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         else
         	menu.findItem(R.id.menu_new_comment).setVisible(false);
         
-        if(mCurrentBrowser != DiaryPage.DIARY_LIST)
-        	menu.findItem(R.id.menu_share).setVisible(true);
-        else 
+        if(mCurrentBrowser == DiaryPage.DIARY_LIST)
+        {
         	menu.findItem(R.id.menu_share).setVisible(false);
+        	menu.findItem(R.id.menu_subscr_list).setVisible(true);
+        }
+        else
+        {
+        	menu.findItem(R.id.menu_share).setVisible(true);
+        	menu.findItem(R.id.menu_subscr_list).setVisible(false);
+        }
         
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -353,6 +360,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	// Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
             	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags", false)));
             	return true;
+            case R.id.menu_subscr_list:
+                pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false)));
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -948,6 +959,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public void serializeDiariesPage(String dataPage)
     {
         mUser.currentDiaries = new DiaryListPage();
+        mUser.currentDiaries.set_URL(Globals.currentURL);
+        
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         if(mListener != null)
@@ -1359,8 +1372,21 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         switch (refreshView.getId())
         {
             case R.id.diary_browser:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.currentDiaries.get_URL(), true)));
             break;
         }
     }
+	
+	public void progressShow()
+	{
+	    pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+	    pd.setOnCancelListener(new OnCancelListener() 
+	    {
+
+            public void onCancel(DialogInterface dialog)
+            {
+                mDHCL.abort();
+            }
+	    });
+	}
 }

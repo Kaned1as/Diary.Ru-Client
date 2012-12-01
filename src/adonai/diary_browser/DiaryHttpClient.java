@@ -43,9 +43,8 @@ public class DiaryHttpClient
 
     	try 
     	{
-    		if(httpClient != null)
+    		if(httpClient != null && httpPost != null)
     		{
-    			System.out.println("Abort.");
     			httpPost.abort();
     		}
     	} catch (Exception e) 
@@ -57,7 +56,6 @@ public class DiaryHttpClient
     public HttpResponse postPage(String url, HttpEntity data) 
     {
     	HttpResponse response = null;
-
     	try 
     	{
     		URI address = new URI(Globals.currentURL).resolve(url);

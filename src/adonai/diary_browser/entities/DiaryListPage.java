@@ -9,6 +9,7 @@ public class DiaryListPage extends Vector<Diary>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
+    private String _URL = null;
     
     public Spanned getPageLinks()
     {
@@ -17,5 +18,13 @@ public class DiaryListPage extends Vector<Diary>
     public void setPageLinks(Spanned pageLinks)
     {
         this.pageLinks = pageLinks;
+    }
+    public String get_URL()
+    {
+        return _URL;
+    }
+    public void set_URL(String _URL)
+    {
+        this._URL = _URL;
     }
 }

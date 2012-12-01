@@ -10,8 +10,11 @@
         android:title="@string/new_comment" 
         android:icon="@android:drawable/ic_menu_add"
         android:showAsAction="never" />
-    <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"></item>
-    <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share"></item>
-    <item android:id="@+id/menu_about" android:title="@string/about" android:icon="@android:drawable/ic_menu_help"></item>
     <item android:id="@+id/menu_tags" android:title="@string/diary_tags" android:icon="@android:drawable/ic_menu_agenda"></item>
+    <group android:id="@+id/group_all" android:menuCategory="container">
+        <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share"></item>
+        <item android:id="@+id/menu_about" android:title="@string/about" android:icon="@android:drawable/ic_menu_help"></item>
+        <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"></item>
+    </group>
+    <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@android:drawable/ic_menu_agenda"></item>
 </menu>
