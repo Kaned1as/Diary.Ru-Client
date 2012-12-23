@@ -5,7 +5,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import adonai.diary_browser.R;
 import adonai.diary_browser.entities.DiaryPage;
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -22,7 +21,7 @@ public class DiaryWebView extends PullToRefreshWebView
     public static final int IMAGE_COPY_URL = 1;
     public static final int IMAGE_OPEN = 2;
 
-    DiaryList mActivity;
+    IRequestHandler mActivity;
     UserData mUser;
     
     public DiaryWebView(Context context, AttributeSet attrs)
@@ -45,8 +44,8 @@ public class DiaryWebView extends PullToRefreshWebView
     
     public void init()
     {
-        if(getContext() instanceof DiaryList) 
-            mActivity = (DiaryList) getContext();
+        if(getContext() instanceof IRequestHandler) 
+            mActivity = (IRequestHandler) getContext();
         mUser = Globals.mUser;
     }
     
@@ -67,19 +66,11 @@ public class DiaryWebView extends PullToRefreshWebView
 
     private class DiaryWebClient extends WebViewClient
     {
-        @Override
-        public void onPageFinished(WebView view, String url)
-        {
-            super.onPageFinished(view, url);
-            mActivity.setTitle(view.getTitle());
-        }
-
         // Override page so it's load on my view only
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
-            mActivity.pd = ProgressDialog.show(view.getContext(), getContext().getString(R.string.loading), getContext().getString(R.string.loading_data), true, true);
-            mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false)));
+            mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;
         }
     };
@@ -93,11 +84,11 @@ public class DiaryWebView extends PullToRefreshWebView
             {
                 case R.id.page_browser:
                     if(mUser.currentDiaryPage.getType() == DiaryPage.POST_LIST) // если это страничка постов
-                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true)));
+                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true));
                     else if (mUser.currentDiaryPage.getType() == DiaryPage.COMMENT_LIST)// если это страничка комментариев
-                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true)));
+                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true));
                     else
-                    	mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", true)));
+                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", true));
                 break;
             }
         }

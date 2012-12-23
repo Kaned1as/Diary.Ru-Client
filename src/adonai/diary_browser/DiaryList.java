@@ -69,7 +69,6 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.webkit.WebBackForwardList;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -86,7 +85,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener
+public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, IRequestHandler
 {
 	public interface onUserDataParseListener
     {
@@ -144,6 +143,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     ExpandableListView mDiscussionBrowser;
     
     ImageButton mExitButton;
+    ImageButton mQuotesButton;
+    ImageButton mUmailButton;
     TabHost mTabHost;
     ProgressDialog pd;
     AlertDialog ad;
@@ -204,6 +205,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mExitButton = (ImageButton) findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
+        mQuotesButton = (ImageButton) findViewById(R.id.quotes_button);
+        mQuotesButton.setOnClickListener(this);
+        mUmailButton = (ImageButton) findViewById(R.id.umail_button);
+        mUmailButton.setOnClickListener(this);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
@@ -347,9 +352,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     			clipboard.setText(mUser.currentDiaryPage.get_page_URL());
             	return true;
             case R.id.menu_about:
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
                 builder.setTitle(R.string.about);
-                View aboutContent = View.inflate(this, R.layout.about_d, null);
+                View aboutContent = View.inflate(ctw, R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
                 author.setText(Html.fromHtml(getString(R.string.author_description)));
                 author.setMovementMethod(LinkMovementMethod.getInstance());
@@ -488,10 +494,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
-                case HANDLE_GET_DIARY_PAGE_DATA:
+                case HANDLE_GET_DIARY_PAGE_DATA: // the mos important part!
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
                     mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_page_URL());
+                    
                     browserHistory.put(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().title());
+                    setTitle(mUser.currentDiaryPage.get_content().title());
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -757,10 +765,21 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         	});
         	builder.setNegativeButton(android.R.string.no, null);
         	builder.create().show();
-        } 
+        }
+        else if (view == mQuotesButton)
+        {
+            pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?quote", false)));
+        }
+        else if (view == mUmailButton)
+        {
+            //Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
+            //startActivity(postIntent);
+            Utils.showDevelSorry(this);
+        }
         else if (view.getTag() != null)
         {
-            if(view.getParent() instanceof TabWidget)
+            if(view.getParent() instanceof TabWidget) // Если это кнопка табов
             {
                 int i = (Integer) view.getTag();
                 setCurrentTab(i);
@@ -1399,4 +1418,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             }
 	    });
 	}
+
+    @Override
+    public void handleBackground(int opCode, Object body)
+    {
+        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
+    }
+
+    @Override
+    public void handleUi(int opCode, Object body)
+    {
+        mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
+    }
 }

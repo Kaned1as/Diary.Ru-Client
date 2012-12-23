@@ -39,6 +39,7 @@
         </activity>
         <activity android:name="adonai.diary_browser.MessageSender"></activity>
         <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"></activity>
+        <activity android:name="adonai.diary_browser.UmailList"></activity>
     </application>
 
 </manifest>

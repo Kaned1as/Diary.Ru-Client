@@ -2,31 +2,47 @@ package adonai.diary_browser;
 
 import java.util.Map;
 
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+
+import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.TabHost;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
+import android.widget.ExpandableListView;
 
-public class UmailList extends DiaryList
+public class UmailList extends Activity implements IRequestHandler
 {
-    
+    DiaryHttpClient mDHCL = Globals.mDHCL;
+    UserData mUser = Globals.mUser;
     Map<String, String> namesUrls;
+    
+    DiaryWebView mMessageBrowser;
+    PullToRefreshListView mFolderBrowser;
+    ProgressDialog pd;
+    
+    Handler mHandler, mUiHandler;
+    Looper mLooper; // петля времени
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.diary_list_item);
-        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mTabHost.setup();
+        HandlerThread thr = new HandlerThread("ServiceThread");
+        thr.start();
+        mLooper = thr.getLooper();
+        mHandler = new Handler(mLooper, WorkerCallback);
+        mUiHandler = new Handler(UiCallback);
         
-        mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(android.R.id.tabcontent));
-        mTabHost.getCurrentView().setVisibility(View.VISIBLE);
+        setContentView(R.layout.umail_list_a);
+        mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
+        mMessageBrowser.setDefaultSettings();
+        
+        mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
+        
     }
 
     @Override
@@ -45,4 +61,33 @@ public class UmailList extends DiaryList
         finish();
     }
     
+    Handler.Callback UiCallback = new Handler.Callback()
+    {
+        public boolean handleMessage(Message message)
+        {
+            return false;
+        }
+    };
+    
+    
+    Handler.Callback WorkerCallback = new Handler.Callback()
+    {
+        public boolean handleMessage(Message message)
+        {
+            return false;
+        }
+    };
+    
+    @Override
+    public void handleBackground(int opCode, Object body)
+    {
+        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
+    }
+
+    @Override
+    public void handleUi(int opCode, Object body)
+    {
+        mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
+    }
 }
