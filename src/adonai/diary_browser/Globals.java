@@ -10,5 +10,4 @@ public class Globals
 	public static UserData mUser = new UserData();
 	public static DiaryHttpClient mDHCL = new DiaryHttpClient();
 	public static String currentURL = "";
-	public static DiaryList mMain = null;
 }

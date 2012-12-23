@@ -45,7 +45,8 @@ public class DiaryWebView extends PullToRefreshWebView
     
     public void init()
     {
-        mActivity = Globals.mMain;
+        if(getContext() instanceof DiaryList) 
+            mActivity = (DiaryList) getContext();
         mUser = Globals.mUser;
     }
     
@@ -77,7 +78,7 @@ public class DiaryWebView extends PullToRefreshWebView
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
-            mActivity.pd = ProgressDialog.show(view.getContext(), mActivity.getString(R.string.loading), mActivity.getString(R.string.loading_data), true, true);
+            mActivity.pd = ProgressDialog.show(view.getContext(), getContext().getString(R.string.loading), getContext().getString(R.string.loading_data), true, true);
             mActivity.mHandler.sendMessage(mActivity.mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false)));
             return true;
         }

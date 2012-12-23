@@ -6,25 +6,28 @@
     android:background="@drawable/diary_background"
     android:orientation="vertical" >
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="right" >
 
-        <TextView
-            android:id="@+id/login_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="right|center_vertical"
-            android:layout_marginRight="10dip"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
+        <ImageButton
+            android:id="@+id/quotes_button"
+            android:layout_width="30dip"
+            android:layout_height="30dip"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:background="#00FFFFFF"
+            android:scaleType="center"
+            android:src="@drawable/diary_b" />
 
         <ImageButton
             android:id="@+id/exit_button"
             android:layout_width="30dip"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
             android:layout_gravity="right|center_vertical"
             android:layout_marginTop="3dip"
             android:background="@android:color/transparent"
@@ -32,8 +35,30 @@
             android:paddingBottom="5dip"
             android:scaleType="center"
             android:src="@drawable/user_diary_change" />
+        
+         <TextView
+            android:id="@+id/login_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_gravity="right|center_vertical"
+            android:layout_marginRight="10dip"
+            android:layout_toLeftOf="@id/exit_button"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textStyle="bold" />
 
-    </LinearLayout>
+        <ImageButton
+            android:id="@+id/umail_button"
+            android:layout_width="30dip"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dip"
+            android:layout_toRightOf="@+id/quotes_button"
+            android:background="#00FFFFFF"
+            android:scaleType="center"
+            android:src="@drawable/umail" />
+
+    </RelativeLayout>
 
     <TabHost
         android:id="@android:id/tabhost"
@@ -57,9 +82,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:measureWithLargestChild="false" >
-
                 </TabWidget>
-
             </HorizontalScrollView>
 
             <FrameLayout
@@ -87,7 +110,6 @@
                     android:cacheColorHint="@android:color/transparent" >
                 </ExpandableListView>
             </FrameLayout>
-
         </LinearLayout>
     </TabHost>
 

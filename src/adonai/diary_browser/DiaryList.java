@@ -3,7 +3,10 @@ package adonai.diary_browser;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -153,6 +156,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     CacheManager mCache;
     
     SharedPreferences mPreferences;
+    Map<String, String> browserHistory;
     boolean load_images;
     boolean load_cached;
     
@@ -164,12 +168,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         super.onCreate(savedInstanceState);
         // Оповещаем остальных, что мы создались
-        Globals.mMain = this;
         setUserDataListener(mUser);
         // Если был простой приложения
         if(Globals.mSharedPrefs == null)
         	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         
+        browserHistory = new HashMap<String, String>();
         mPreferences = Globals.mSharedPrefs;
         mCache = CacheManager.getInstance();
         mPreferences.registerOnSharedPreferenceChangeListener(this);
@@ -464,6 +468,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         for(URLSpan url : URLs)
                         {
                             Button click = new Button(LL.getContext());
+                            click.setMaxLines(1);
                             click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
                             click.setTag(url.getURL());
                             click.setOnClickListener(DiaryList.this);
@@ -475,13 +480,18 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                         }
                         mDiaryBrowser.getRefreshableView().addFooterView(LL);
                     }
+                    mCurrentTab = TAB_FAVOURITES;
+                    mTabHost.setCurrentTab(TAB_FAVOURITES);
+                    
                     mDiaryBrowser.setAdapter(mFavouritesAdapter);
+                    browserHistory.put(mUser.currentDiaries.get_URL(), getString(R.string.favourites));
                     mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
                 case HANDLE_GET_DIARY_PAGE_DATA:
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
                     mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_page_URL());
+                    browserHistory.put(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().title());
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
                 break;
@@ -901,20 +911,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         if(mCurrentBrowser == DiaryPage.POST_LIST || mCurrentBrowser == DiaryPage.COMMENT_LIST)
         {
-        	WebBackForwardList browseHistory = mPageBrowser.getRefreshableView().copyBackForwardList();
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
         	final ScrollView dialogView = new ScrollView(ctw);
         	LinearLayout LL = new LinearLayout(ctw);
         	LL.setOrientation(LinearLayout.VERTICAL);
         	
-        	for(int i = 0; i < browseHistory.getSize(); i++)
+        	for(String url : browserHistory.keySet())
         	{
-        		String url = browseHistory.getItemAtIndex(i).getUrl();
-        		if(url.equals("about:blank")) // ну да, это тупо. Но что делать?
-        		    continue;
-        		    
     			TextView tmpTxt = new TextView(ctw);
-    			tmpTxt.setText(i + ") " + browseHistory.getItemAtIndex(i).getTitle());
+    			tmpTxt.setText(browserHistory.get(url));
     			tmpTxt.setTag(url);
     			tmpTxt.setMaxLines(1);
     			tmpTxt.setPadding(5, 5, 5, 5);
@@ -1269,6 +1274,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	{
 	    	if(mCache.hasPage(URL) && !reload)
 	    	{
+	    	    // Особый обработчик для случая с списками
+	    	    if(mCache.loadPageFromCache(URL) instanceof DiaryListPage)
+	    	    {
+	    	        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(URL, false)));
+	    	        return;
+	    	    }
+	    	    
 	    		cachedPage = (DiaryPage) mCache.loadPageFromCache(URL);
 	    		handled = cachedPage.getType();
 	    	}
@@ -1288,8 +1300,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	    	{
 	    		switch(handled)
 	    		{
-	    			case DiaryPage.DIARY_LIST:
-	    			break;
 	    			case DiaryPage.POST_LIST:
 	    				if(cachedPage != null && !reload)
                         	mUser.currentDiaryPage = (DiaryPage) mCache.loadPageFromCache(URL);
