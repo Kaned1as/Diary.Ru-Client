@@ -374,6 +374,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false)));
                 return true;
+            case R.id.menu_close_app:
+                finish();
+                System.exit(0);
             default:
                 return super.onOptionsItemSelected(item);
         }

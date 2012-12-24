@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.widget.ExpandableListView;
 
 public class UmailList extends Activity implements IRequestHandler
 {
