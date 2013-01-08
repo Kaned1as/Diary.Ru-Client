@@ -1,0 +1,58 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/diary_background"
+    android:orientation="vertical" >
+
+   
+
+       
+
+    <TabWidget
+        android:id="@android:id/tabs"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:measureWithLargestChild="false" >
+
+        <TextView
+            android:id="@+id/incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/incoming_mail" />
+
+        <TextView
+            android:id="@+id/outcoming"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/outcoming_mail" />
+
+    </TabWidget>
+
+    <FrameLayout
+        android:id="@android:id/tabcontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.handmark.pulltorefresh.library.PullToRefreshListView
+            android:id="@+id/ufolder_browser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent" >
+        </com.handmark.pulltorefresh.library.PullToRefreshListView>
+
+        <adonai.diary_browser.DiaryWebView
+            android:id="@+id/umessage_browser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </adonai.diary_browser.DiaryWebView>
+    </FrameLayout>
+
+  
+
+</LinearLayout>
