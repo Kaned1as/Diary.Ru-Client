@@ -12,9 +12,16 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.TabWidget;
+import android.widget.TextView;
 
-public class UmailList extends Activity implements IRequestHandler
+public class UmailList extends Activity implements IRequestHandler, OnClickListener
 {
+	public static final int TAB_INCOMING = 0;
+	public static final int TAB_OUTCOMING = 1;
+	
     DiaryHttpClient mDHCL = Globals.mDHCL;
     UserData mUser = Globals.mUser;
     Map<String, String> namesUrls;
@@ -22,6 +29,9 @@ public class UmailList extends Activity implements IRequestHandler
     DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
     ProgressDialog pd;
+    TabWidget mTabs;
+    TextView mIncoming;
+    TextView mOutcoming;
     
     Handler mHandler, mUiHandler;
     Looper mLooper; // петля времени
@@ -39,9 +49,12 @@ public class UmailList extends Activity implements IRequestHandler
         setContentView(R.layout.umail_list_a);
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
-        
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
-        
+        mTabs = (TabWidget) findViewById(R.id.folder_selector);
+        mIncoming = (TextView) findViewById(R.id.incoming);
+        mOutcoming = (TextView) findViewById(R.id.outcoming);
+        mIncoming.setOnClickListener(this);
+        mOutcoming.setOnClickListener(this);
     }
 
     @Override
@@ -77,16 +90,27 @@ public class UmailList extends Activity implements IRequestHandler
         }
     };
     
-    @Override
     public void handleBackground(int opCode, Object body)
     {
         pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
         mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
     }
 
-    @Override
     public void handleUi(int opCode, Object body)
     {
         mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
     }
+
+	public void onClick(View v)
+	{
+		switch (v.getId())
+		{
+		case R.id.incoming:
+			mTabs.setCurrentTab(TAB_INCOMING);
+			break;
+		case R.id.outcoming:
+			mTabs.setCurrentTab(TAB_OUTCOMING);
+			break;
+		}
+	}
 }

@@ -89,4 +89,5 @@
     <string name="incoming_mail">Incoming</string>
     <string name="outcoming_mail">Outcoming</string>
     <string name="menu_close">Exit</string>
+    <string name="umail_activity_title">U-Mail Folder</string>
 </resources>

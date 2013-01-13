@@ -776,9 +776,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         else if (view == mUmailButton)
         {
-            //Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
-            //startActivity(postIntent);
-            Utils.showDevelSorry(this);
+            Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
+            startActivity(postIntent);
+            //Utils.showDevelSorry(this);
         }
         else if (view.getTag() != null)
         {
@@ -1422,14 +1422,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	    });
 	}
 
-    @Override
     public void handleBackground(int opCode, Object body)
     {
         pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
         mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
     }
 
-    @Override
     public void handleUi(int opCode, Object body)
     {
         mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));

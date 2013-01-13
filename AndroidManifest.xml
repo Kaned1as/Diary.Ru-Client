@@ -22,7 +22,7 @@
             android:name="adonai.diary_browser.DiaryList"
             android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize">
         </activity>
-        <activity
+        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title"></activity><activity
             android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >
             <intent-filter>
@@ -39,7 +39,7 @@
         </activity>
         <activity android:name="adonai.diary_browser.MessageSender"></activity>
         <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"></activity>
-        <activity android:name="adonai.diary_browser.UmailList"></activity>
+        
     </application>
 
 </manifest>

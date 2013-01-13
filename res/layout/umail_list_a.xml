@@ -6,30 +6,29 @@
     android:background="@drawable/diary_background"
     android:orientation="vertical" >
 
-   
-
-       
-
     <TabWidget
-        android:id="@android:id/tabs"
+        android:id="@+id/folder_selector"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:measureWithLargestChild="false" >
+        android:measureWithLargestChild="false"
+        android:minHeight="30dip" >
 
         <TextView
             android:id="@+id/incoming"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:tag="0"
             android:text="@string/incoming_mail" />
 
         <TextView
             android:id="@+id/outcoming"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
+            android:tag="0"
             android:text="@string/outcoming_mail" />
 
     </TabWidget>
