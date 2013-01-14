@@ -2,7 +2,7 @@ package adonai.diary_browser.entities;
 
 import java.util.ArrayList;
 
-public class DiscussionList extends Diary
+public class DiscussionList extends Openable
 {
 	private ArrayList<Discussion> discussions;
 	 

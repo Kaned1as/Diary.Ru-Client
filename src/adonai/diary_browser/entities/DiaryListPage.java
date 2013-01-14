@@ -5,7 +5,7 @@ import java.util.Vector;
 import android.text.Spanned;
 
 
-public class DiaryListPage extends Vector<Diary>
+public class DiaryListPage extends Vector<Openable>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;

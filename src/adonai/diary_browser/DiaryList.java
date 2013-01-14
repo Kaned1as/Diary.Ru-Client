@@ -23,7 +23,7 @@ import adonai.diary_browser.R;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
-import adonai.diary_browser.entities.Diary;
+import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
@@ -424,15 +424,15 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             	case HANDLE_START:
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
                     mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
-            	break;
+                    return true;
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getString(R.string.parsing_data));
-                break;
+                    return true;
                 case HANDLE_PROGRESS_2:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getString(R.string.sorting_data));
-                break;
+                    return true;
                 case HANDLE_UPDATE_HEADERS:
                 	// обрабатываем обновление контента
                 	mLogin.setText(mUser.userName);
@@ -457,12 +457,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     	mDiscussNum.setText("");
                     	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
                     }
-                break;
+                    return true;
                 case HANDLE_SET_HTTP_COOKIE:
                     pd.setMessage(getString(R.string.getting_user_info));
                     mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
-                break;
+                    return true;
                 case HANDLE_GET_DIARIES_DATA:
                     setCurrentVisibleComponent(DiaryPage.DIARY_LIST);
                     mDiaryBrowser.setAdapter(null);
@@ -470,7 +470,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
                     if(mUser.currentDiaries.getPageLinks() != null)
                     {
-                        LinearLayout LL = new LinearLayout(mDiaryBrowser.getContext());
+                        LinearLayout LL = new LinearLayout(mDiaryBrowser.getRefreshableView().getContext());
                         LL.setTag("footer");
                         Spanned pageLinks = mUser.currentDiaries.getPageLinks();
                         URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
@@ -496,7 +496,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     browserHistory.put(mUser.currentDiaries.get_URL(), getString(R.string.favourites));
                     mDiaryBrowser.onRefreshComplete();
                     pd.dismiss();
-                break;
+                    return true;
                 case HANDLE_GET_DIARY_PAGE_DATA: // the mos important part!
                     setCurrentVisibleComponent(DiaryPage.POST_LIST);
                     mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.get_page_URL(), mUser.currentDiaryPage.get_content().html(), null, "utf-8", mUser.currentDiaryPage.get_page_URL());
@@ -505,12 +505,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     setTitle(mUser.currentDiaryPage.get_content().title());
                     mPageBrowser.onRefreshComplete();
                     pd.dismiss();
-                break;
+                    return true;
                 case HANDLE_GET_DISCUSSIONS_DATA:
                     mDiscussionsAdapter.notifyDataSetChanged();
                 	setCurrentVisibleComponent(DiaryPage.DISCUSSION_LIST);
                 	pd.dismiss();
-                break;
+                	return true;
                 case HANDLE_AUTHORIZATION_ERROR:
                     pd.dismiss();
                     mPageBrowser.onRefreshComplete();
@@ -523,7 +523,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 	int pos = (Integer) message.obj;
                 	mDiscussionBrowser.expandGroup(pos);
                 	pd.dismiss();
-                break;
+                	return true;
                 case HANDLE_CONNECTIVITY_ERROR:
                     pd.dismiss();
                     Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
@@ -588,11 +588,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		        	AlertDialog alert = builder.create();
 		        	alert.show();
 		        }
-            	break;
+                return true;
                 default:
                     return false;
             }
-            return true;
+            return false;
         }
     };
     
@@ -799,7 +799,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 case R.id.title:
                 {
                     int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
-                    Diary diary = (Diary) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
+                    Openable diary = (Openable) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
                     
                     pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.loading_data), true, true);
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(diary.get_URL(), false)));
@@ -1020,7 +1020,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             
             if (title != null && author != null && last_post != null)
             {
-                Diary diary = new Diary();
+                Openable diary = new Openable();
                 diary.set_title(title.getElementsByTag("b").text());
                 diary.set_URL(title.attr("href"));
                 

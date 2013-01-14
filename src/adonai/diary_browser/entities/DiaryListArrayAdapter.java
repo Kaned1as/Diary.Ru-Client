@@ -10,10 +10,10 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class DiaryListArrayAdapter extends ArrayAdapter<Diary>
+public class DiaryListArrayAdapter extends ArrayAdapter<Openable>
 {
     
-    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<Diary> objects)
+    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<Openable> objects)
     {
         super(context, textViewResourceId, objects);
     }
@@ -22,7 +22,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Diary>
     public View getView(int pos, View convertView, ViewGroup parent)
     {
         View view;
-        Diary diary = getItem(pos);
+        Openable diary = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.diary_list_item, null);
         else
