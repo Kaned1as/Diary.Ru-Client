@@ -20,7 +20,9 @@ import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.UmailListArrayAdapter;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -44,6 +46,13 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     public void handleBackground(int opCode, Object body)
     {
         pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        pd.setOnCancelListener(new OnCancelListener() 
+        {
+            public void onCancel(DialogInterface dialog)
+            {
+                mDHCL.abort();
+            }
+        });
         mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
     }
 
@@ -103,8 +112,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     {
         super.onStart();
         
-        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1"));
+        handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1");
     }
 
     @Override
@@ -209,20 +217,17 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 		{
 		case R.id.incoming:
 			mTabs.setCurrentTab(TAB_INCOMING);
-			pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1"));
+			handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1");
 			break;
 		case R.id.outcoming:
 			mTabs.setCurrentTab(TAB_OUTCOMING);
-			pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=2"));
+			handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=2");
 			break;
 		}
 		
 		if(view instanceof Button) // нижние панельки
         {
-		    pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_OPEN_FOLDER, view.getTag()));
+		    handleBackground(HANDLE_OPEN_FOLDER, view.getTag());
         }
 	}
 	

@@ -365,13 +365,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 builder.create().show();
                 return true;
             case R.id.menu_tags:
-            	progressShow();
-            	// Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
-            	mHandler.sendMessage(mHandler.obtainMessage(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags", false)));
+                // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
+                handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL().substring(0, mUser.currentDiaryPage.get_diary_URL().lastIndexOf('/') + 1) + "?tags", false));
             	return true;
             case R.id.menu_subscr_list:
-            	progressShow();
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false)));
+                handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
                 return true;
             case R.id.menu_close_app:
                 finish();
@@ -421,7 +419,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             switch (message.what)
             {
             	case HANDLE_START:
-            		progressShow();
+            	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
                     mHandler.sendEmptyMessage(HANDLE_SET_HTTP_COOKIE);
                     return true;
                 case HANDLE_PROGRESS:
@@ -770,8 +768,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
         else if (view == mQuotesButton)
         {
-        	progressShow();
-            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?quote", false)));
+            handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?quote", false));
         }
         else if (view == mUmailButton)
         {
@@ -788,8 +785,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             }
             if(view instanceof Button) // нижние панельки
             {
-            	progressShow();
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false)));
+                handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
             }
         } else
             switch (view.getId())
@@ -800,8 +796,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
                     Openable diary = (Openable) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
                     
-                    progressShow();
-                    mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(diary.get_URL(), false)));
+                    handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(diary.get_URL(), false));
                 }
                 break;
                 default:
@@ -814,9 +809,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     // Загружаем дискуссии
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) 
 	{
-		progressShow();
 		String link = ((DiscussionList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).get_URL();
-    	mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(link, false)));
+	    handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(link, false));
 		return true;
 	}
 	
@@ -830,8 +824,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 		
 		if(((DiscussionList)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
 		{
-			progressShow();
-			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, new Pair<Integer, Boolean>(groupPosition, false)));
+		    handleBackground(HANDLE_GET_DISCUSSION_LIST_DATA, new Pair<Integer, Boolean>(groupPosition, false));
 		}
 		else
 			parent.expandGroup(groupPosition);
@@ -852,8 +845,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 elv.collapseGroup(groupPosition);
                 return true;
             }
-            progressShow();
-            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSION_LIST_DATA, new Pair<Integer, Boolean>(groupPosition, true)));
+            handleBackground(HANDLE_GET_DISCUSSION_LIST_DATA, new Pair<Integer, Boolean>(groupPosition, true));
             return true;
         }
         return false;
@@ -865,26 +857,25 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
      */
     private void setCurrentTab(int index)
     {
-    	progressShow();
         switch (index)
         {
             case TAB_FAVOURITES:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", false)));
+                handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", false));
             break;
             case TAB_FAV_POSTS:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false)));
+                handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false));
             break;
             case TAB_MY_DIARY:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false)));
+                handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false));
             break;
             case TAB_MY_DIARY_NEW:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, false)));
+                handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, false));
             break;
             case TAB_DISCUSSIONS:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DISCUSSIONS_DATA, null));
+                handleBackground(HANDLE_GET_DISCUSSIONS_DATA, null);
             break;
             case TAB_DISCUSSIONS_NEW:
-                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, false)));
+                handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, false));
             break;
             default:
             	Utils.showDevelSorry(this);
@@ -908,12 +899,10 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	switch(mUser.currentDiaryPage.getType())
     	{
     	    case DiaryPage.PAGE_LIST:
-            	progressShow();
-    	        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
+    	        handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
     		case DiaryPage.POST_LIST:
     		case DiaryPage.COMMENT_LIST:
-            	progressShow();
-    			mHandler.sendMessage(mHandler.obtainMessage(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_page_URL(), true)));
+    		    handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_page_URL(), true));
     			break;
     	}
     }
@@ -1402,22 +1391,16 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         }
     }
 	
-	public void progressShow()
-	{
-	    pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-	    pd.setOnCancelListener(new OnCancelListener() 
-	    {
-
+    public void handleBackground(int opCode, Object body)
+    {
+        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        pd.setOnCancelListener(new OnCancelListener() 
+        {
             public void onCancel(DialogInterface dialog)
             {
                 mDHCL.abort();
             }
-	    });
-	}
-
-    public void handleBackground(int opCode, Object body)
-    {
-    	progressShow();
+        });
         mHandler.sendMessage(mHandler.obtainMessage(opCode, body));
     }
 
