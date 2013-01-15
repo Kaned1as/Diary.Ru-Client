@@ -21,20 +21,20 @@ public class UmailListArrayAdapter extends ArrayAdapter<Openable>
     public View getView(int pos, View convertView, ViewGroup parent)
     {
         View view;
-        Openable diary = getItem(pos);
+        Openable mail = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.diary_list_item, null);
         else
             view = convertView;
         
         TextView title = (TextView) view.findViewById(R.id.title);
-        title.setText(diary.get_title());
+        title.setText(mail.get_title());
         title.setOnClickListener((OnClickListener) getContext());
         TextView author = (TextView) view.findViewById(R.id.author);
-        author.setText(diary.get_author());
+        author.setText(mail.get_author());
         author.setOnClickListener((OnClickListener) getContext());
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
-        last_post.setText(diary.get_last_post());
+        last_post.setText(mail.get_last_post());
         last_post.setOnClickListener((OnClickListener) getContext());
         
         return view;

@@ -14,8 +14,10 @@ import org.jsoup.select.Elements;
 
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
+import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.UmailListArrayAdapter;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -58,6 +60,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     
     DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
+    UmailListArrayAdapter mFolderAdapter;
     ProgressDialog pd;
     TabWidget mTabs;
     TextView mIncoming;
@@ -80,6 +83,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
+        mFolderAdapter = new UmailListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentUmail);
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
         
         mIncoming = (TextView) findViewById(R.id.incoming);
@@ -113,6 +117,11 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         {
             switch (message.what)
             {
+            	case HANDLE_INCOME:
+            		mFolderAdapter = new UmailListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmail);
+            		mFolderBrowser.setAdapter(mFolderAdapter);
+            		pd.dismiss();
+            	return true;
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getString(R.string.parsing_data));
