@@ -26,7 +26,7 @@ public class Utils
 			return DiaryPage.POST_LIST;
 		
 		if(response.contains("table r"))
-			return DiaryPage.DIARY_LIST;
+			return DiaryPage.PAGE_LIST;
 		
 		return DiaryPage.PAGE_NOT_RECOGNIZED; // not found
 	}

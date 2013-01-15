@@ -127,7 +127,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     public static final int TAB_DISCUSSIONS = 4;
     public static final int TAB_DISCUSSIONS_NEW = 5;
     
-    int mCurrentBrowser = 0;
     int mCurrentTab = 0;
     
     // Адаптеры типов
@@ -270,7 +269,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         mDiscussionBrowser.setOnItemLongClickListener(this);
         
         mTabHost.setCurrentTab(mCurrentTab);
-        setCurrentVisibleComponent(mCurrentBrowser);
+        setCurrentVisibleComponent(0);
         
         mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
@@ -316,7 +315,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         else
         	menu.findItem(R.id.menu_new_comment).setVisible(false);
         
-        if(mCurrentBrowser == DiaryPage.DIARY_LIST)
+        if(mUser.currentDiaryPage.getType() == DiaryPage.PAGE_LIST)
         {
         	menu.findItem(R.id.menu_share).setVisible(false);
         	menu.findItem(R.id.menu_subscr_list).setVisible(true);
@@ -464,7 +463,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
                     return true;
                 case HANDLE_GET_DIARIES_DATA:
-                    setCurrentVisibleComponent(DiaryPage.DIARY_LIST);
+                    setCurrentVisibleComponent(DiaryPage.PAGE_LIST);
                     mDiaryBrowser.setAdapter(null);
                     mDiaryBrowser.getRefreshableView().removeFooterView(mDiaryBrowser.getRefreshableView().findViewWithTag("footer"));
                     mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
@@ -898,18 +897,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     private void setCurrentVisibleComponent(int needed)
     {   
-        mDiaryBrowser.setVisibility(needed == DiaryPage.DIARY_LIST ? View.VISIBLE : View.GONE);
+        mDiaryBrowser.setVisibility(needed == DiaryPage.PAGE_LIST ? View.VISIBLE : View.GONE);
         mPageBrowser.setVisibility(needed == DiaryPage.POST_LIST || needed == DiaryPage.COMMENT_LIST ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
         mDiscussionBrowser.setVisibility(needed == DiaryPage.DISCUSSION_LIST ? View.VISIBLE : View.GONE);
-        mCurrentBrowser = needed;
     }
     
     private void reloadContent()
     {
     	switch(mUser.currentDiaryPage.getType())
     	{
-    	    case DiaryPage.DIARY_LIST:
+    	    case DiaryPage.PAGE_LIST:
             	progressShow();
     	        mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true)));
     		case DiaryPage.POST_LIST:
@@ -926,7 +924,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     @Override
     public void onBackPressed()
     {
-        if(mCurrentBrowser == DiaryPage.POST_LIST || mCurrentBrowser == DiaryPage.COMMENT_LIST)
+        if(mUser.currentDiaryPage.getType() == DiaryPage.POST_LIST || mUser.currentDiaryPage.getType() == DiaryPage.COMMENT_LIST)
         {
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
         	final ScrollView dialogView = new ScrollView(ctw);

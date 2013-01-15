@@ -11,7 +11,7 @@ public class UserData implements DiaryList.onUserDataParseListener
 {
 	// Динамические списки постов
     DiaryListPage currentDiaries;
-    DiaryListPage currentUmail;
+    DiaryListPage currentUmails;
     ArrayList<DiscussionList> discussions;
     DiaryPage currentDiaryPage;
     
@@ -32,7 +32,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     UserData()
     {
         currentDiaries = new DiaryListPage();
-        currentUmail = new DiaryListPage();
+        currentUmails = new DiaryListPage();
         currentDiaryPage = new DiaryPage(DiaryPage.PAGE_NOT_PROCESSED);
         discussions = new ArrayList<DiscussionList>();
     }

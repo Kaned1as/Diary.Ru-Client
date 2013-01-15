@@ -3,7 +3,6 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/diary_background"
     android:orientation="vertical" >
 
     <TabWidget
@@ -18,6 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
             android:gravity="center"
             android:tag="0"
             android:text="@string/incoming_mail" />
@@ -27,6 +27,7 @@
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
             android:gravity="center"
             android:tag="0"
             android:text="@string/outcoming_mail" />

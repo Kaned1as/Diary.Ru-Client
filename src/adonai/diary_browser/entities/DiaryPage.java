@@ -5,12 +5,12 @@ import org.jsoup.nodes.Document;
 public class DiaryPage
 {
     // текущий контекст
-    public static final int DIARY_LIST = 0;
+    public static final int PAGE_LIST = 0;
     public static final int POST_LIST = 1;
     public static final int COMMENT_LIST = 2;
-    public static final int TAG_LIST = 5;
     public static final int AUTHOR_PAGE = 3;
     public static final int DISCUSSION_LIST = 4;
+    public static final int TAG_LIST = 5;
     public static final int PAGE_NOT_PROCESSED = -1;
     public static final int PAGE_NOT_RECOGNIZED = -2;
     
