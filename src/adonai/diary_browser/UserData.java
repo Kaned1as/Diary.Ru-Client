@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscussionList;
+import adonai.diary_browser.entities.PostsPage;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
@@ -33,7 +34,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     {
         currentDiaries = new DiaryListPage();
         currentUmails = new DiaryListPage();
-        currentDiaryPage = new DiaryPage(DiaryPage.PAGE_NOT_PROCESSED);
+        currentDiaryPage = new PostsPage();
         discussions = new ArrayList<DiscussionList>();
     }
     

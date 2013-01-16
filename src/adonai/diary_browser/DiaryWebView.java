@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import adonai.diary_browser.R;
-import adonai.diary_browser.entities.DiaryPage;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -83,12 +82,7 @@ public class DiaryWebView extends PullToRefreshWebView
             switch (refreshView.getId())
             {
                 case R.id.page_browser:
-                    if(mUser.currentDiaryPage.getType() == DiaryPage.POST_LIST) // если это страничка постов
-                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL(), true));
-                    else if (mUser.currentDiaryPage.getType() == DiaryPage.COMMENT_LIST)// если это страничка комментариев
-                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_post_URL(), true));
-                    else
-                        mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_diary_URL() + "?tags", true));
+                    mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_page_URL(), true));
                 break;
             }
         }

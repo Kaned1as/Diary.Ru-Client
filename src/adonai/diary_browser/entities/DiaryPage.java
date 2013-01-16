@@ -2,7 +2,7 @@ package adonai.diary_browser.entities;
 
 import org.jsoup.nodes.Document;
 
-public class DiaryPage
+public abstract class DiaryPage
 {
     // текущий контекст
     public static final int PAGE_LIST = 0;
@@ -14,41 +14,9 @@ public class DiaryPage
     public static final int PAGE_NOT_PROCESSED = -1;
     public static final int PAGE_NOT_RECOGNIZED = -2;
     
-    // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
-    private String _diary_URL = ""; 
-    // идентификатор этого же дневника
-    private String _diary_ID = "";
-    
-    private String _post_ID = "";
-    private String _post_URL = "";
     private Document _content;
     private int mType = PAGE_NOT_RECOGNIZED;
     
-    public DiaryPage(int pageType)
-    {
-    	mType = pageType;
-    }
-    
-    public String get_diary_URL()
-    {
-        return _diary_URL;
-    }
-    
-    public void set_diary_URL(String _diary_URL)
-    {
-        this._diary_URL = _diary_URL;
-    }
-    
-    public String get_diary_Id()
-    {
-        return _diary_ID;
-    }
-    
-    public void set_diary_Id(String _diary_Id)
-    {
-        this._diary_ID = _diary_Id;
-    }
-
     public Document get_content()
     {
         return _content;
@@ -59,43 +27,15 @@ public class DiaryPage
         this._content = resultPage;
     }
 
-    public String get_post_ID()
+    protected void set_type(int type)
     {
-        return _post_ID;
+        this.mType = type;
     }
-
-    public void set_post_ID(String _ID)
-    {
-        this._post_ID = _ID;
-    }
-
-    public String get_post_URL()
-    {
-        return _post_URL;
-    }
-
-    public void set_post_URL(String _post_URL)
-    {
-        this._post_URL = _post_URL;
-    }
-
-    public int getType()
+    
+    public int get_type()
     {
         return mType;
     }
     
-    public String get_page_URL()
-    {
-    	assert(!_diary_URL.equals(""));
-    	switch(mType)
-    	{
-	    	case POST_LIST:
-	    		return _diary_URL;
-	    	case COMMENT_LIST:
-	    		return _post_URL;
-	    	case TAG_LIST:
-	    		return _diary_URL + "?tags";
-    	}
-    	return "";
-    }
+    public abstract String get_page_URL();
 }

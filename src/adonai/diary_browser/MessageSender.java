@@ -12,6 +12,7 @@ import adonai.diary_browser.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.PostsPage;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -192,7 +193,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_POST:
 					try 
 					{
-						mDHCL.postPage(mUser.currentDiaryPage.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+					    assert(mUser.currentDiaryPage instanceof PostsPage);
+						mDHCL.postPage(((PostsPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_POST);
 					} 
 					catch (UnsupportedEncodingException e) 
@@ -203,7 +205,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		case HANDLE_DO_COMMENT:
 					try 
 					{
-						mDHCL.postPage(mUser.currentDiaryPage.get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+					    assert(mUser.currentDiaryPage instanceof PostsPage);
+						mDHCL.postPage(((PostsPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 					} 
 					catch (UnsupportedEncodingException e) 
