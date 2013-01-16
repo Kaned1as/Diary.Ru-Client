@@ -14,7 +14,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/title"
-            android:textSize="24dip"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
     </LinearLayout>
@@ -29,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/author"
-            android:textSize="16dip" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/last_post"

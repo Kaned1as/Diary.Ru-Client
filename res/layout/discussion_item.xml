@@ -16,7 +16,7 @@
         android:background="@android:drawable/list_selector_background"
         android:ellipsize="marquee"
         android:text="@string/title"
-        android:textSize="12dip" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/discussion_post_date"
@@ -26,6 +26,6 @@
         android:layout_centerHorizontal="true"
         android:gravity="right"
         android:text="@string/last_post"
-        android:textSize="10dip" />
+        android:textSize="10sp" />
 
 </RelativeLayout>

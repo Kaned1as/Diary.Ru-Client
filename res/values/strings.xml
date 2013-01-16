@@ -90,4 +90,6 @@
     <string name="outcoming_mail">Outcoming</string>
     <string name="menu_close">Exit</string>
     <string name="umail_activity_title">U-Mail Folder</string>
+    <string name="umail_description">UMail Postbox</string>
+    <string name="quotes_decription">User\'s quotes collection</string>
 </resources>

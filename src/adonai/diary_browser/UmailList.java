@@ -13,7 +13,6 @@ import org.jsoup.select.Elements;
 
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
@@ -31,7 +30,6 @@ import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.style.URLSpan;
-import android.util.Pair;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
