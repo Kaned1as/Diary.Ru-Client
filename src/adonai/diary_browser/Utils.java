@@ -1,6 +1,9 @@
 package adonai.diary_browser;
 
-import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.CommentsPage;
+import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.PostsPage;
+import adonai.diary_browser.entities.TagsPage;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.webkit.WebView;
@@ -14,21 +17,21 @@ public class Utils
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/select.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
     
-	public static int checkDiaryUrl(String response)
+	public static Class<?> checkDiaryUrl(String response)
 	{
 		if(response.contains("tags_ul_all"))
-			return DiaryPage.TAG_LIST;
+			return TagsPage.class;
 		
 		if(response.contains("commentsArea"))
-			return DiaryPage.COMMENT_LIST;
+			return CommentsPage.class;
 		
 		if(response.contains("postsArea"))
-			return DiaryPage.POST_LIST;
+			return PostsPage.class;
 		
 		if(response.contains("table r"))
-			return DiaryPage.PAGE_LIST;
+			return DiaryListPage.class;
 		
-		return DiaryPage.PAGE_NOT_RECOGNIZED; // not found
+		return null; // not found
 	}
 	
 	public static void showDevelSorry(Context ctx)

@@ -1,16 +1,11 @@
 package adonai.diary_browser.entities;
 
-public class PostsPage extends DiaryPage
+public class PostsPage extends DiaryWebPage
 {
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
     private String _diary_URL = ""; 
     // идентификатор этого же дневника
     private String _diary_ID = "";
-    
-    public PostsPage()
-    {
-    	set_type(POST_LIST);
-    }
     
     public String get_diary_URL()
     {
@@ -32,11 +27,6 @@ public class PostsPage extends DiaryPage
         this._diary_ID = _diary_Id;
     }
 
-    public int get_type()
-    {
-        return super.get_type();
-    }
-    
     public String get_page_URL()
     {
     	return _diary_URL;

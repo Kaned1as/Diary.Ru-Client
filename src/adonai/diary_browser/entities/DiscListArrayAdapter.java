@@ -9,12 +9,12 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
+public class DiscListArrayAdapter extends BaseExpandableListAdapter
 {
-	ArrayList<DiscussionList> discussions;
+	ArrayList<DiscList> discussions;
 	Context context;
     
-    public DiscussionListArrayAdapter(Context ctx, ArrayList<DiscussionList> discussions)
+    public DiscListArrayAdapter(Context ctx, ArrayList<DiscList> discussions)
     {
     	this.discussions = discussions;
     	this.context = ctx;
@@ -59,7 +59,7 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) 
 	{
 		View view;
-        DiscussionList discussion = (DiscussionList) getGroup(groupPosition);
+        DiscList discussion = (DiscList) getGroup(groupPosition);
         if (convertView == null)
             view = View.inflate(context, R.layout.discussion_list_item, null);
         else
@@ -80,7 +80,7 @@ public class DiscussionListArrayAdapter extends BaseExpandableListAdapter
 	public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) 
 	{
 		View view;
-        DiscussionList.Discussion discussion = (DiscussionList.Discussion) getChild(groupPosition, childPosition);
+        DiscList.Discussion discussion = (DiscList.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
             view = View.inflate(context, R.layout.discussion_item, null);
         else

@@ -13,10 +13,9 @@ import org.jsoup.select.Elements;
 
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
-import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
-import adonai.diary_browser.entities.UmailListArrayAdapter;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -43,6 +42,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 {
     public void handleBackground(int opCode, Object body)
     {
+    	mMessageBrowser.getRefreshableView().stopLoading();
         pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
         pd.setOnCancelListener(new OnCancelListener() 
         {
@@ -66,6 +66,9 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     static final int HANDLE_PROGRESS                                =   7;
     static final int HANDLE_PROGRESS_2                              =   8;
     static final int HANDLE_CONNECTIVITY_ERROR                      = -20;
+    
+    private static final int PART_WEB = 0;
+    private static final int PART_LIST = 1;
 	
     DiaryHttpClient mDHCL = Globals.mDHCL;
     UserData mUser = Globals.mUser;
@@ -73,7 +76,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     
     DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
-    UmailListArrayAdapter mFolderAdapter;
+    DiaryListArrayAdapter mFolderAdapter;
     ProgressDialog pd;
     TabWidget mTabs;
     TextView mIncoming;
@@ -96,7 +99,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
-        mFolderAdapter = new UmailListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentUmails);
+        mFolderAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentUmails);
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
         
         mIncoming = (TextView) findViewById(R.id.incoming);
@@ -130,8 +133,8 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
             switch (message.what)
             {
             	case HANDLE_OPEN_FOLDER:
-            	    setCurrentVisibleComponent(DiaryPage.PAGE_LIST);
-            		mFolderAdapter = new UmailListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
+            	    setCurrentVisibleComponent(PART_LIST);
+            		mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
             		mFolderBrowser.getRefreshableView().removeFooterView(mFolderBrowser.getRefreshableView().findViewWithTag("footer"));
                     if(mUser.currentUmails.getPageLinks() != null)
                     {
@@ -231,8 +234,8 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 	
 	private void setCurrentVisibleComponent(int needed)
     {   
-	    mFolderBrowser.setVisibility(needed == DiaryPage.PAGE_LIST ? View.VISIBLE : View.GONE);
-	    mMessageBrowser.setVisibility(needed == DiaryPage.COMMENT_LIST ? View.VISIBLE : View.GONE);
+	    mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
+	    mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
     }
 
     void serializeUmailPage(String dataPage)

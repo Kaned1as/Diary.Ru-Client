@@ -6,11 +6,6 @@ import android.graphics.drawable.Drawable;
 
 public class Post
 {
-    public Post()
-    {
-        
-    }
-    
     /*
      * обработка
      */

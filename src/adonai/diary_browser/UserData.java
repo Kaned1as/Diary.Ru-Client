@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import adonai.diary_browser.entities.DiaryListPage;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiscussionList;
+import adonai.diary_browser.entities.DiaryWebPage;
+import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.PostsPage;
 
 public class UserData implements DiaryList.onUserDataParseListener
@@ -13,8 +13,8 @@ public class UserData implements DiaryList.onUserDataParseListener
 	// Динамические списки постов
     DiaryListPage currentDiaries;
     DiaryListPage currentUmails;
-    ArrayList<DiscussionList> discussions;
-    DiaryPage currentDiaryPage;
+    ArrayList<DiscList> discussions;
+    DiaryWebPage currentDiaryPage;
     
     // Личные данные
     String ownDiaryURL = "";
@@ -35,7 +35,7 @@ public class UserData implements DiaryList.onUserDataParseListener
         currentDiaries = new DiaryListPage();
         currentUmails = new DiaryListPage();
         currentDiaryPage = new PostsPage();
-        discussions = new ArrayList<DiscussionList>();
+        discussions = new ArrayList<DiscList>();
     }
     
     // обновляем контент
