@@ -16,6 +16,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.UmailPage;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -63,12 +64,15 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 	static final int TAB_OUTCOMING                                  =   1;
 	
 	static final int HANDLE_OPEN_FOLDER                             =   0;
+	static final int HANDLE_OPEN_MAIL                               =   1;
     static final int HANDLE_PROGRESS                                =   7;
     static final int HANDLE_PROGRESS_2                              =   8;
     static final int HANDLE_CONNECTIVITY_ERROR                      = -20;
     
     private static final int PART_WEB = 0;
     private static final int PART_LIST = 1;
+    
+    private int mCurrentComponent = 1;
 	
     DiaryHttpClient mDHCL = Globals.mDHCL;
     UserData mUser = Globals.mUser;
@@ -119,11 +123,15 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     @Override
     public void onBackPressed()
     {
-        super.onBackPressed();
-        Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
-        returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        startActivity(returnIntent);
-        finish();
+        if(mCurrentComponent == PART_WEB)
+            setCurrentVisibleComponent(PART_LIST);
+        else
+        {
+            Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+            startActivity(returnIntent);
+            finish();
+        }
     }
     
     Handler.Callback UiCallback = new Handler.Callback()
@@ -160,6 +168,13 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
             		mFolderBrowser.setAdapter(mFolderAdapter);
             		pd.dismiss();
             	return true;
+            	case HANDLE_OPEN_MAIL:
+            	    setCurrentVisibleComponent(PART_WEB);
+            	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.get_page_URL(), mUser.currentUmailPage.get_content().html(), null, "utf-8", mUser.currentUmailPage.get_page_URL());
+                    setTitle(mUser.currentUmailPage.get_content().title());
+                    mMessageBrowser.onRefreshComplete();
+                    pd.dismiss();
+                return true;
                 case HANDLE_PROGRESS:
                     if(pd != null && pd.isShowing())
                         pd.setMessage(getString(R.string.parsing_data));
@@ -192,12 +207,25 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                             mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
                             return false;
                         }
-                        String incFolder = EntityUtils.toString(page.getEntity());
-                        serializeUmailPage(incFolder);
+                        String uFolder = EntityUtils.toString(page.getEntity());
+                        serializeUmailListPage(uFolder);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_OPEN_FOLDER);
                     }
                     return true;
+                    case HANDLE_OPEN_MAIL:
+                    {
+                        HttpResponse page = mDHCL.postPage((String)message.obj, null);
+                        if(page == null)
+                        {
+                            mUiHandler.sendEmptyMessage(HANDLE_CONNECTIVITY_ERROR);
+                            return false;
+                        }
+                        String uMail = EntityUtils.toString(page.getEntity());
+                        serializeUmailPage(uMail);
+                        
+                        mUiHandler.sendEmptyMessage(HANDLE_OPEN_MAIL);
+                    }
                 }
             }
             catch (ParseException e)
@@ -224,6 +252,12 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 			mTabs.setCurrentTab(TAB_OUTCOMING);
 			handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=2");
 			break;
+		case R.id.title:
+		    int pos = mFolderBrowser.getRefreshableView().getPositionForView((View) view.getParent());
+            Openable uMail = (Openable) mFolderBrowser.getRefreshableView().getAdapter().getItem(pos);
+            
+		    handleBackground(HANDLE_OPEN_MAIL, uMail.get_URL());
+		    break;
 		}
 		
 		if(view instanceof Button) // нижние панельки
@@ -236,9 +270,10 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     {   
 	    mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
 	    mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
+	    mCurrentComponent = needed;
     }
 
-    void serializeUmailPage(String dataPage)
+    void serializeUmailListPage(String dataPage)
     {
         mUser.currentUmails = new DiaryListPage();
         mUser.currentUmails.set_URL(Globals.currentURL);
@@ -286,5 +321,31 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                 title = author = last_post = null;
             }
         }
+    }
+    
+    public void serializeUmailPage(String dataPage) throws IOException
+    {
+        UmailPage scannedUmail = new UmailPage();
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
+        
+        Document rootNode = Jsoup.parse(dataPage);
+        scannedUmail.setUmail_URL(Globals.currentURL);
+        scannedUmail.setUmail_ID(scannedUmail.getUmail_URL().substring(scannedUmail.getUmail_URL().lastIndexOf('=') + 1));
+        mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
+        
+        Elements postsArea = rootNode.select("table.box, table.box + div");
+        if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
+            return;
+        
+        Elements result = postsArea.clone();
+        Document resultPage = Document.createShell(Globals.currentURL);
+        resultPage.title(rootNode.title());
+        for(Element to : result)
+        {
+            resultPage.body().appendChild(to);
+        }
+        
+        scannedUmail.set_content(resultPage);
+        mUser.currentUmailPage = scannedUmail;
     }
 }

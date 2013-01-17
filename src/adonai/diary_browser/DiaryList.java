@@ -33,7 +33,7 @@ import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.DiscListArrayAdapter;
 import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import adonai.diary_browser.entities.PostsPage;
+import adonai.diary_browser.entities.DiaryPage;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -309,7 +309,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	public boolean onPrepareOptionsMenu(Menu menu) 
     {
     	// Только если это дневник
-        if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(PostsPage.class))
+        if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
         {
         	menu.findItem(R.id.menu_tags).setVisible(true);
         	menu.findItem(R.id.menu_new_post).setVisible(true);
@@ -378,8 +378,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 return true;
             case R.id.menu_tags:
                 // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
-                assert(mUser.currentDiaryPage instanceof PostsPage); // следим чтобы текущая страничка обязательно была в пределах иерархии
-                handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(((PostsPage)mUser.currentDiaryPage).get_diary_URL().substring(0, ((PostsPage)mUser.currentDiaryPage).get_diary_URL().lastIndexOf('/') + 1) + "?tags", false));
+                assert(mUser.currentDiaryPage instanceof DiaryPage); // следим чтобы текущая страничка обязательно была в пределах иерархии
+                handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage)mUser.currentDiaryPage).get_diary_URL().substring(0, ((DiaryPage)mUser.currentDiaryPage).get_diary_URL().lastIndexOf('/') + 1) + "?tags", false));
             	return true;
             case R.id.menu_subscr_list:
                 handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
@@ -684,7 +684,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                             }
                             String favListPage = EntityUtils.toString(page.getEntity());
                             
-                            serializeDiariesPage(favListPage);
+                            serializeDiaryListPage(favListPage);
                             mCache.putPageToCache(URL, mUser.currentDiaries);
                         }
                         
@@ -923,7 +923,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     @Override
     public void onBackPressed()
     {
-        if(mUser.currentDiaryPage instanceof PostsPage)
+        if(mUser.currentDiaryPage instanceof DiaryPage)
         {
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
         	final ScrollView dialogView = new ScrollView(ctw);
@@ -975,7 +975,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     /* (non-Javadoc)
      * @see android.app.Activity#onSearchRequested()
      */
-    public void serializeDiariesPage(String dataPage)
+    public void serializeDiaryListPage(String dataPage)
     {
         mUser.currentDiaries = new DiaryListPage();
         mUser.currentDiaries.set_URL(Globals.currentURL);
@@ -1042,9 +1042,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         return super.onSearchRequested();
     }
     
-    public void serializePostsPage(String dataPage) throws IOException
+    public void serializeDiaryPage(String dataPage) throws IOException
     {
-        PostsPage scannedDiary = new PostsPage();
+        DiaryPage scannedDiary = new DiaryPage();
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
     	Document rootNode = Jsoup.parse(dataPage);
@@ -1257,13 +1257,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     
     public void newPostPost()
     {
-        assert(mUser.currentDiaryPage instanceof PostsPage);
+        assert(mUser.currentDiaryPage instanceof DiaryPage);
         
-        if(((PostsPage)mUser.currentDiaryPage).get_diary_Id().equals(""))
+        if(((DiaryPage)mUser.currentDiaryPage).get_diary_Id().equals(""))
             return;
         
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-        postIntent.putExtra("DiaryId", ((PostsPage)mUser.currentDiaryPage).get_diary_Id());
+        postIntent.putExtra("DiaryId", ((DiaryPage)mUser.currentDiaryPage).get_diary_Id());
         postIntent.putExtra("signature", mUser.signature);
         
         startActivity(postIntent);
@@ -1318,13 +1318,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
 			if(handled != null) // Если это страничка дайри
 	    	{
-	    		if(handled == PostsPage.class)
+	    		if(handled == DiaryPage.class)
     			{
     				if(cachedPage != null && !reload)
                     	mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
     				else
     				{
-	    				serializePostsPage(dataPage);
+	    				serializeDiaryPage(dataPage);
 	    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
     				}
     				mUiHandler.sendEmptyMessage(HANDLE_GET_DIARY_PAGE_DATA);

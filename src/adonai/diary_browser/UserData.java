@@ -6,7 +6,7 @@ import org.jsoup.select.Elements;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryWebPage;
 import adonai.diary_browser.entities.DiscList;
-import adonai.diary_browser.entities.PostsPage;
+import adonai.diary_browser.entities.DiaryPage;
 
 public class UserData implements DiaryList.onUserDataParseListener
 {
@@ -15,6 +15,7 @@ public class UserData implements DiaryList.onUserDataParseListener
     DiaryListPage currentUmails;
     ArrayList<DiscList> discussions;
     DiaryWebPage currentDiaryPage;
+    DiaryWebPage currentUmailPage;
     
     // Личные данные
     String ownDiaryURL = "";
@@ -34,7 +35,8 @@ public class UserData implements DiaryList.onUserDataParseListener
     {
         currentDiaries = new DiaryListPage();
         currentUmails = new DiaryListPage();
-        currentDiaryPage = new PostsPage();
+        currentDiaryPage = new DiaryPage();
+        currentUmailPage = new DiaryPage();
         discussions = new ArrayList<DiscList>();
     }
     

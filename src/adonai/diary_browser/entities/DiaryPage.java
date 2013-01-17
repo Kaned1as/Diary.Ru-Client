@@ -1,6 +1,6 @@
 package adonai.diary_browser.entities;
 
-public class PostsPage extends DiaryWebPage
+public class DiaryPage extends DiaryWebPage
 {
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
     private String _diary_URL = ""; 

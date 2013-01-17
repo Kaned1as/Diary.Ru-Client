@@ -1,6 +1,6 @@
 package adonai.diary_browser.entities;
 
-public class CommentsPage extends PostsPage
+public class CommentsPage extends DiaryPage
 {
     private String _post_ID = "";
     private String _post_URL = "";

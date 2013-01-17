@@ -2,7 +2,7 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
-import adonai.diary_browser.entities.PostsPage;
+import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.TagsPage;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -26,7 +26,7 @@ public class Utils
 			return CommentsPage.class;
 		
 		if(response.contains("postsArea"))
-			return PostsPage.class;
+			return DiaryPage.class;
 		
 		if(response.contains("table r"))
 			return DiaryListPage.class;
