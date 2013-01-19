@@ -96,4 +96,6 @@
     <string name="message_copy">Сохранить сообщение</string>
     <string name="new_umail">Новый U-Mail</string>
     <string name="reply_umail">Ответить</string>
+    <string name="message_send_error">Ошибка отправки сообщения</string>
+    <string name="message_send_ok">Сообщение успено отправлено</string>
 </resources>

@@ -126,8 +126,20 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     protected void onStart()
     {
         super.onStart();
-        
-        handleBackground(HANDLE_OPEN_FOLDER, inFolderAddress);
+        if(getIntent() != null && getIntent().getBooleanExtra("sendCompleted", false))
+        {
+            handleBackground(HANDLE_OPEN_FOLDER, outFolderAddress);
+            return;
+        }
+        else // стартуем в первый раз
+            handleBackground(HANDLE_OPEN_FOLDER, inFolderAddress);
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) 
+    {
+        super.onNewIntent(intent);
+        this.setIntent(intent);
     }
 
     @Override

@@ -1,24 +1,33 @@
 package adonai.diary_browser;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import adonai.diary_browser.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import adonai.diary_browser.entities.Post;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -28,9 +37,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Toast;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -42,6 +54,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	private static final int HANDLE_DO_POST = 0;
 	private static final int HANDLE_DO_COMMENT = 1;
 	private static final int HANDLE_DO_UMAIL = 2;
+	private static final int HANDLE_UMAIL_ACK = 3;
+	private static final int HANDLE_UMAIL_REJ = 4;
 	
 	ImageButton mLeftGradient;
 	ImageButton mRightGradient;
@@ -219,24 +233,31 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     {
         public boolean handleMessage(Message message)
         {
-        	switch (message.what)
-        	{
-        		case HANDLE_DO_POST:
-        		case HANDLE_DO_COMMENT:
-        		case HANDLE_DO_UMAIL:
-					try 
-					{
+            try
+            {
+            	switch (message.what)
+            	{
+            		case HANDLE_DO_POST:
+            		case HANDLE_DO_COMMENT:
 						mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(message.what);
-					} 
-					catch (UnsupportedEncodingException e) 
-					{
-						e.printStackTrace();
-					}
-        			return true;
-        		default:
-        			break;
-        	}
+            			return true;
+                    case HANDLE_DO_UMAIL:
+                        HttpResponse page = mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        String result = EntityUtils.toString(page.getEntity());
+                        if(result.contains("Письмо отправлено"))
+                            mUiHandler.sendEmptyMessage(HANDLE_UMAIL_ACK);
+                        else
+                            mUiHandler.sendEmptyMessage(HANDLE_UMAIL_REJ);
+                        return true;
+            		default:
+            			break;
+            	}
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         	
         	return false;
         }
@@ -261,15 +282,47 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					finish();
 					break;
         		}
-        		case HANDLE_DO_UMAIL:
+        		case HANDLE_UMAIL_ACK:
         		{
-        		    pd.dismiss();
-        		    Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
-                    returnIntent.putExtra("reloadContent", true);
-                    returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(returnIntent);
+                    pd.dismiss();
+        		    AlertDialog.Builder builder = new AlertDialog.Builder(MessageSender.this);
+                    builder.setTitle(android.R.string.ok).setCancelable(false).setMessage(R.string.message_send_ok);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+                    {
+                        
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
+                            returnIntent.putExtra("sendCompleted", true);
+                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(returnIntent);
+                            finish();
+                        }
+                    });
+                    builder.create().show();
         		    break;
         		}
+        		case HANDLE_UMAIL_REJ:
+                {
+                    pd.dismiss();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageSender.this);
+                    builder.setTitle(android.R.string.no).setCancelable(false).setMessage(R.string.message_send_error);
+                    builder.setPositiveButton(android.R.string.no, new DialogInterface.OnClickListener()
+                    {
+                        
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
+                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            startActivity(returnIntent);
+                            finish();
+                        }
+                    });
+                    builder.create().show();
+                    break;
+                }
         		default:
         			break;
         	}

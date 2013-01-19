@@ -97,4 +97,6 @@
     <string name="message_copy">Copy message to store</string>
     <string name="new_umail">New U-Mail</string>
     <string name="reply_umail">Reply to sender</string>
+    <string name="message_send_error">Error occurred while sending message</string>
+    <string name="message_send_ok">Successfully sent</string>
 </resources>
