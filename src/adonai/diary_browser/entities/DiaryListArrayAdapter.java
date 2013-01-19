@@ -4,6 +4,7 @@ import java.util.List;
 
 import adonai.diary_browser.R;
 import android.content.Context;
+import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -37,6 +38,9 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Openable>
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
         last_post.setOnClickListener((OnClickListener) getContext());
+        
+        if(diary instanceof Umail)
+            title.setTextColor(((Umail)diary).isRead() ? Color.BLACK : Color.RED);
         
         return view;
     }

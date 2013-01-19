@@ -4,7 +4,7 @@ public class Openable
 {
     private String pageTitle = "", pageUrl = "";
     private String pageAuthor = "", pageAuthorURL = "";
-    private String lastPost = "", lastPostURL = "";
+    private String lastUpdate = "", lastUpdateURL = "";
     private String authorDiaryID = "";
     private String pageHint = "";
     
@@ -14,8 +14,8 @@ public class Openable
         pageUrl = url;
         pageAuthor = author;
         pageAuthorURL = author_url;
-        lastPost = last_post;
-        lastPostURL = last_post_url;
+        lastUpdate = last_post;
+        lastUpdateURL = last_post_url;
     }
     
     public Openable() 
@@ -62,24 +62,24 @@ public class Openable
         return pageAuthorURL;
     }
     
-    public void setLastPost(String last_post)
+    public void setLastUpdate(String last_update)
     {
-        lastPost = last_post;
+        lastUpdate = last_update;
     }
     
     public String getLastPost()
     {
-        return lastPost;
+        return lastUpdate;
     }
     
-    public void setLastPostURL(String last_post_url)
+    public void setLastUpdateURL(String last_update_url)
     {
-        lastPostURL = last_post_url;
+        lastUpdateURL = last_update_url;
     }
     
     public String getLastPostURL()
     {
-        return lastPostURL;
+        return lastUpdateURL;
     }
 
 	public String getAuthorID() 

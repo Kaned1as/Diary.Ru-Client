@@ -1,11 +1,10 @@
 package adonai.diary_browser.entities;
 
-import java.util.Vector;
-
+import java.util.ArrayList;
 import android.text.Spanned;
 
 
-public class DiaryListPage extends Vector<Openable>
+public class DiaryListPage extends ArrayList<Openable>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;

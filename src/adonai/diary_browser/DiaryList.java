@@ -1021,8 +1021,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 diary.setAuthorURL(authorData);
                 diary.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
                 
-                diary.setLastPost(last_post.text());
-                diary.setLastPostURL(last_post.attr("href"));
+                diary.setLastUpdate(last_post.text());
+                diary.setLastUpdateURL(last_post.attr("href"));
                 
                 mUser.currentDiaries.add(diary);
                 title = author = last_post = null;
@@ -1218,7 +1218,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
         	DiscList currentList = new DiscList();
         	Element newPosts = item.getElementsByTag("em").first();
-        	currentList.setLastPost(newPosts.text());
+        	currentList.setLastUpdate(newPosts.text());
         	newPosts.remove();
         	
         	String link = item.getElementsByAttributeValueStarting("href", "/discussion/?open[]").attr("href") + "&js";

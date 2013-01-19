@@ -16,6 +16,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import android.app.Activity;
@@ -382,23 +383,22 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         if(pages != null)
             mUser.currentUmails.setPageLinks(Html.fromHtml(pages.outerHtml()));
         
-        Elements rows = table.getElementsByTag("td");
+        Elements rows = table.select("tr[id]");
         Element title = null, author = null, last_post = null;
-        for (int i = 0; i < rows.size(); ++i)
+        for (Element row : rows)
         {
             if (title == null)
-                title = rows.get(i).getElementsByClass("withfloat").first();
+                title = row.getElementsByClass("withfloat").first();
 
             if(author == null)
-                author = rows.get(i).select("[target=_blank]").first();
+                author = row.select("[target=_blank]").first();
             
             if (last_post == null)
-                if (rows.get(i).className().equals("r"))
-                    last_post = rows.get(i);
+                last_post = row.getElementsByClass("r").first();
             
             if (title != null && author != null && last_post != null)
             {
-                Openable mail = new Openable();
+                Umail mail = new Umail();
                 mail.setTitle(title.getElementsByTag("b").text());
                 mail.setURL(title.attr("href"));
                 
@@ -407,8 +407,10 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                 mail.setAuthorURL(authorData);
                 mail.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
                 
-                mail.setLastPost(last_post.text());
-                mail.setLastPostURL(last_post.attr("href"));
+                mail.setLastUpdate(last_post.text());
+                mail.setLastUpdateURL(last_post.attr("href"));
+                
+                mail.setRead(!row.hasClass("not_readed_umail"));
                 
                 mUser.currentUmails.add(mail);
                 title = author = last_post = null;
