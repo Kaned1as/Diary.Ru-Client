@@ -45,7 +45,7 @@
     <string name="message_themes">Темы</string>
     <string name="message_music">Музыка</string>
     <string name="message_mood">Настроение</string>
-    <string name="message_publish">Опубликовать</string>
+    <string name="message_publish">Отправить</string>
     <string name="message_optional">Дополнительно</string>
     <string name="message_poll">Опрос</string>
     <string name="message_poll_title">Название вопроса</string>
@@ -91,4 +91,8 @@
     <string name="umail_activity_title">U-Mail Папки</string>
     <string name="umail_description">Почтовая служба UMail</string>
     <string name="quotes_decription">Цитатник пользователя</string>
+    <string name="message_to">Получатель</string>
+    <string name="message_need_receipt">Подтверждение о прочтении</string>
+    <string name="message_copy">Сохранить сообщение</string>
+    <string name="new_umail">Новый U-Mail</string>
 </resources>

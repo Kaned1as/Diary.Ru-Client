@@ -17,7 +17,9 @@ import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.UmailPage;
+import adonai.diary_browser.preferences.PreferencesScreen;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,7 +31,12 @@ import android.os.Looper;
 import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.view.ContextThemeWrapper;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -266,7 +273,59 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         }
 	}
 	
-	private void setCurrentVisibleComponent(int needed)
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.umail_list_a, menu);
+        
+        return super.onCreateOptionsMenu(menu);
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.menu_new_umail:
+                newUmail(null);
+                return true;
+            case R.id.menu_settings:
+                startActivity(new Intent(this, PreferencesScreen.class));
+                return true;
+            case R.id.menu_about:
+                ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
+                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+                builder.setTitle(R.string.about);
+                View aboutContent = View.inflate(ctw, R.layout.about_d, null);
+                TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
+                author.setText(Html.fromHtml(getString(R.string.author_description)));
+                author.setMovementMethod(LinkMovementMethod.getInstance());
+                TextView app = (TextView) aboutContent.findViewById(R.id.app_info);
+                app.setText(Html.fromHtml(getString(R.string.application_description)));
+                app.setMovementMethod(LinkMovementMethod.getInstance());
+                builder.setView(aboutContent);
+                builder.create().show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+	
+	private void newUmail(String receiver)
+    {
+	    Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+        
+        postIntent.putExtra("TypeId", "umailTo");
+        postIntent.putExtra("umailTo", receiver);
+        
+        postIntent.putExtra("signature", mUser.signature);
+        postIntent.putExtra("sendURL", "http://www.diary.ru/diary.php");
+        
+        startActivity(postIntent);
+    }
+
+    private void setCurrentVisibleComponent(int needed)
     {   
 	    mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
 	    mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);

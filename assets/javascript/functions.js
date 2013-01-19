@@ -155,7 +155,7 @@ function Show2Div(id)
 function show3(id)
 {
 	var obj = get(id);
-	if(obj==null || obj.style.display!="none") return false;
+	if(obj==null || obj.style.display!="none" && obj.className != 'hidden') return false;
 	if(obj.className == 'hidden') obj.className = null;
         obj.style.display = "";
         obj.style.visibility = "visible";

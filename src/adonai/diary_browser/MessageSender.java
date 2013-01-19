@@ -12,7 +12,6 @@ import adonai.diary_browser.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.DiaryPage;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -42,11 +41,13 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 
 	private static final int HANDLE_DO_POST = 0;
 	private static final int HANDLE_DO_COMMENT = 1;
+	private static final int HANDLE_DO_UMAIL = 2;
 	
 	ImageButton mLeftGradient;
 	ImageButton mRightGradient;
 	Button mSetGradient;
 	
+	EditText toText;
 	EditText titleText;
 	EditText contentText;
 	EditText themesText;
@@ -57,6 +58,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	CheckBox mShowPoll;
 	CheckBox mSubscribe;
 	CheckBox mShowAndClose;
+	CheckBox mGetReceipt;
+	CheckBox mCopyMessage;
 	
 	EditText mPollTitle;
 	EditText mPollChoice1;
@@ -80,17 +83,20 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	Looper mLooper;
 	ProgressDialog pd = null;
 	
+	List<View> postElements = new ArrayList<View>();
+	List<View> commentElements = new ArrayList<View>();
+	List<View> umailElements = new ArrayList<View>();
+	
 	List<View> optionals = new ArrayList<View>();
 	List<View> pollScheme = new ArrayList<View>();
-	List<View> closeScheme = new ArrayList<View>();
 	List<NameValuePair> postParams;
 	
 	String mSignature = null;
-	String mDiaryId = null;
-	String mPostId = null;
+	String mId = null;
+	String mTypeId = null;
 	
 	DiaryHttpClient mDHCL;
-	UserData mUser;
+	String mSendURL;
 	Post mPost;
 
     /* (non-Javadoc)
@@ -102,7 +108,6 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         super.onCreate(savedInstanceState);
         
         mDHCL = Globals.mDHCL;
-        mUser = Globals.mUser;
         mPost = new Post();
 		postParams = new ArrayList<NameValuePair>();
         
@@ -113,6 +118,10 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         mUiHandler = new Handler(UiCallback);
         
         setContentView(R.layout.message_sender_a);
+        
+        toText = (EditText) findViewById(R.id.message_to);
+        mGetReceipt = (CheckBox) findViewById(R.id.message_getreceipt);
+        mCopyMessage = (CheckBox) findViewById(R.id.message_copy);
         
     	titleText = (EditText) findViewById(R.id.message_title);
     	contentText = (EditText) findViewById(R.id.message_content);
@@ -174,7 +183,29 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	pollScheme.add(mPollChoice9);
     	pollScheme.add(mPollChoice10);
     	
+        commentElements.add(findViewById(R.id.message_content_hint));
+        commentElements.add(findViewById(R.id.message_specials));
+    	commentElements.add(contentText);
+    	commentElements.add(mSubscribe);
+
+    	postElements.add(findViewById(R.id.message_title_hint));
+    	postElements.add(titleText);
+    	postElements.add(findViewById(R.id.message_content_hint));
+    	postElements.add(findViewById(R.id.message_specials));
+    	postElements.add(contentText);
+    	postElements.add(mShowOptionals);
+    	postElements.add(mShowAndClose);
+    	postElements.add(mShowPoll);
     	
+    	umailElements.add(findViewById(R.id.message_to_hint));
+    	umailElements.add(toText);
+        umailElements.add(findViewById(R.id.message_title_hint));
+    	umailElements.add(titleText);
+    	umailElements.add(findViewById(R.id.message_content_hint));
+    	umailElements.add(findViewById(R.id.message_specials));
+    	umailElements.add(contentText);
+    	umailElements.add(mGetReceipt);
+    	umailElements.add(mCopyMessage);
     }
     
 	@Override
@@ -191,23 +222,12 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         	switch (message.what)
         	{
         		case HANDLE_DO_POST:
-					try 
-					{
-					    assert(mUser.currentDiaryPage instanceof DiaryPage);
-						mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
-						mUiHandler.sendEmptyMessage(HANDLE_DO_POST);
-					} 
-					catch (UnsupportedEncodingException e) 
-					{
-						e.printStackTrace();
-					}
-        			return true;
         		case HANDLE_DO_COMMENT:
+        		case HANDLE_DO_UMAIL:
 					try 
 					{
-					    assert(mUser.currentDiaryPage instanceof DiaryPage);
-						mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
-						mUiHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
+						mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+						mUiHandler.sendEmptyMessage(message.what);
 					} 
 					catch (UnsupportedEncodingException e) 
 					{
@@ -230,6 +250,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         	{
         		case HANDLE_DO_POST:
         		case HANDLE_DO_COMMENT:
+        		{
         			// Пост опубликован, возвращаемся
         			pd.dismiss();
         			
@@ -238,6 +259,17 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     				returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     				startActivity(returnIntent);
 					finish();
+					break;
+        		}
+        		case HANDLE_DO_UMAIL:
+        		{
+        		    pd.dismiss();
+        		    Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
+                    returnIntent.putExtra("reloadContent", true);
+                    returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(returnIntent);
+        		    break;
+        		}
         		default:
         			break;
         	}
@@ -260,20 +292,49 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         
         // обязательно
         mSignature = intent.getStringExtra("signature");
+        mSendURL = intent.getStringExtra("sendURL");
         
         // одно из двух
-        mDiaryId = intent.getStringExtra("DiaryId");
-        mPostId = intent.getStringExtra("PostId");
+        mTypeId = intent.getStringExtra("TypeId");
+        mId = intent.getStringExtra(mTypeId);
         
-        // если это комментарий
-        if (mDiaryId == null)
+        // Если это пост
+        if(mTypeId.equals("DiaryId"))
         {
-        	mShowPoll.setVisibility(View.GONE);
-        	mShowOptionals.setVisibility(View.GONE);
-        	mShowAndClose.setVisibility(View.GONE);
-        	titleText.setVisibility(View.GONE);
-        	
-        	mSubscribe.setVisibility(View.VISIBLE);
+            for(View v : umailElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : commentElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : postElements)
+                v.setVisibility(View.VISIBLE);
+        }
+        else if (mTypeId.equals("PostId")) // если это комментарий
+        {
+            for(View v : umailElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : postElements)
+                v.setVisibility(View.GONE);
+            
+            
+            for(View v : commentElements)
+                v.setVisibility(View.VISIBLE);
+        }
+        else if(mTypeId.equals("umailTo")) // Если почта
+        {
+            for(View v : commentElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : postElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : umailElements)
+                v.setVisibility(View.VISIBLE);
+            
+            if(mId != null)
+                toText.setText(mId);
         }
         
         super.onStart();
@@ -293,21 +354,23 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				mPost.set_themes(themesText.getText().toString());
 				mPost.set_music(musicText.getText().toString());
 				mPost.set_mood(moodText.getText().toString());
-				
-				postParams.add(new BasicNameValuePair("module", "journal"));
-				postParams.add(new BasicNameValuePair("action", "dosend"));
-				postParams.add(new BasicNameValuePair("resulttype", "2"));
+
 				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
+                postParams.add(new BasicNameValuePair("action", "dosend"));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
 				
 				// Если пост
-				if(mDiaryId != null)
+				if(mTypeId.equals("DiaryId"))
 				{
+	                
+	                postParams.add(new BasicNameValuePair("module", "journal"));
+	                postParams.add(new BasicNameValuePair("resulttype", "2"));
+	                
 					postParams.add(new BasicNameValuePair("act", "new_post_post"));
 					postParams.add(new BasicNameValuePair("post_id", ""));
-					postParams.add(new BasicNameValuePair("journal_id", mDiaryId));
+					postParams.add(new BasicNameValuePair("journal_id", mId));
 					postParams.add(new BasicNameValuePair("referer", Globals.currentURL));
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
@@ -398,10 +461,14 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					
 					mHandler.sendEmptyMessage(HANDLE_DO_POST);
 				}
-				else // если коммент
+				else if(mTypeId.equals("PostId"))  // если коммент
 				{
+	                
+	                postParams.add(new BasicNameValuePair("module", "journal"));
+	                postParams.add(new BasicNameValuePair("resulttype", "2"));
+				    
 					postParams.add(new BasicNameValuePair("act", "new_comment_post"));
-					postParams.add(new BasicNameValuePair("post_id", mPostId));
+					postParams.add(new BasicNameValuePair("post_id", mId));
 					postParams.add(new BasicNameValuePair("commentid", ""));
 					postParams.add(new BasicNameValuePair("referer", ""));
 					postParams.add(new BasicNameValuePair("page", "last"));
@@ -415,6 +482,18 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("attachment1", ""));
 					
 					mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
+				}
+				else if(mTypeId.equals("umailTo"))  // если почта
+				{
+				    postParams.add(new BasicNameValuePair("module", "umail"));
+				    postParams.add(new BasicNameValuePair("act", "umail_send"));
+				    postParams.add(new BasicNameValuePair("from_folder", ""));
+				    postParams.add(new BasicNameValuePair("to_user", toText.getText().toString()));
+				    postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+				    postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
+				    postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
+				    
+				    mHandler.sendEmptyMessage(HANDLE_DO_UMAIL);
 				}
 			break;
 			}

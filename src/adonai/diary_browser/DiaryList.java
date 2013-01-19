@@ -1263,8 +1263,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
             return;
         
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+        
+        postIntent.putExtra("TypeId", "DiaryId");
         postIntent.putExtra("DiaryId", ((DiaryPage)mUser.currentDiaryPage).get_diary_Id());
+        
         postIntent.putExtra("signature", mUser.signature);
+        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php");
         
         startActivity(postIntent);
     }
@@ -1278,8 +1282,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	
     	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
     	
+    	postIntent.putExtra("TypeId", "PostId");
         postIntent.putExtra("PostId", ((CommentsPage)mUser.currentDiaryPage).get_post_ID());
+        
         postIntent.putExtra("signature", mUser.signature);
+        postIntent.putExtra("sendURL", ((CommentsPage)mUser.currentDiaryPage).get_diary_URL() + "diary.php");
         
         startActivity(postIntent);
     }
@@ -1409,7 +1416,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 	
     public void handleBackground(int opCode, Object body)
     {
-    	mPageBrowser.getRefreshableView().stopLoading();
+        // WebView hack. It is the only way to stop it.
+    	mPageBrowser.getRefreshableView().loadData("<html><body>dummy</body></html>", null, null);
         pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
         pd.setOnCancelListener(new OnCancelListener() 
         {

@@ -83,9 +83,10 @@ public class DiaryWebView extends PullToRefreshWebView
             {
                 case R.id.page_browser:
                     mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.get_page_URL(), true));
+                    break;
                 case R.id.umessage_browser:
                     mActivity.handleBackground(UmailList.HANDLE_OPEN_MAIL, mUser.currentUmailPage.get_page_URL());
-                break;
+                    break;
             }
         }
     }

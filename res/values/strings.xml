@@ -46,7 +46,7 @@
     <string name="message_themes">Message themes</string>
     <string name="message_music">Current music</string>
     <string name="message_mood">Current mood</string>
-    <string name="message_publish">Publish</string>
+    <string name="message_publish">Send</string>
     <string name="message_optional">Optional</string>
     <string name="message_poll">Poll</string>
     <string name="message_poll_title">Poll title</string>
@@ -92,4 +92,8 @@
     <string name="umail_activity_title">U-Mail Folder</string>
     <string name="umail_description">UMail Postbox</string>
     <string name="quotes_decription">User\'s quotes collection</string>
+    <string name="message_to">Receiver</string>
+    <string name="message_need_receipt">Get receipt confirmation</string>
+    <string name="message_copy">Copy message to store</string>
+    <string name="new_umail">New U-Mail</string>
 </resources>
