@@ -5,7 +5,7 @@ public class Openable
     private String _title = "", _url = "";
     private String _author = "", _author_url = "";
     private String _last_post = "", _last_post_url = "";
-    private String _ID = "";
+    private String _author_diary_ID = "";
     private String _hint = "";
     
     public Openable(String title, String url, String author, String author_url, String last_post, String last_post_url)
@@ -82,14 +82,14 @@ public class Openable
         return _last_post_url;
     }
 
-	public String get_ID() 
+	public String get_author_ID() 
 	{
-		return _ID;
+		return _author_diary_ID;
 	}
 
-	public void set_ID(String _ID) 
+	public void set_author_ID(String _ID) 
 	{
-		this._ID = _ID;
+		this._author_diary_ID = _ID;
 	}
 
     public String get_hint()

@@ -4,7 +4,9 @@ public class UmailPage extends DiaryWebPage
 {
     private String umail_ID = "";
     private String umail_URL = "";
-
+    private String sender_Name = "";
+    
+    
     @Override
     public String get_page_URL()
     {
@@ -29,5 +31,15 @@ public class UmailPage extends DiaryWebPage
     public void setUmail_URL(String umail_URL)
     {
         this.umail_URL = umail_URL;
+    }
+
+    public String getSender_Name()
+    {
+        return sender_Name;
+    }
+
+    public void setSender_Name(String sender_Name)
+    {
+        this.sender_Name = sender_Name;
     }
 }

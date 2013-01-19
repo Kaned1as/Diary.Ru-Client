@@ -67,6 +67,9 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
     }
     
+    private final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
+    private final String outFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=2";
+    
 	static final int TAB_INCOMING                                   =   0;
 	static final int TAB_OUTCOMING                                  =   1;
 	
@@ -124,7 +127,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     {
         super.onStart();
         
-        handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1");
+        handleBackground(HANDLE_OPEN_FOLDER, inFolderAddress);
     }
 
     @Override
@@ -253,11 +256,11 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 		{
 		case R.id.incoming:
 			mTabs.setCurrentTab(TAB_INCOMING);
-			handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=1");
+			handleBackground(HANDLE_OPEN_FOLDER, inFolderAddress);
 			break;
 		case R.id.outcoming:
 			mTabs.setCurrentTab(TAB_OUTCOMING);
-			handleBackground(HANDLE_OPEN_FOLDER, "http://www.diary.ru/u-mail/folder/?f_id=2");
+			handleBackground(HANDLE_OPEN_FOLDER, outFolderAddress);
 			break;
 		case R.id.title:
 		    int pos = mFolderBrowser.getRefreshableView().getPositionForView((View) view.getParent());
@@ -283,12 +286,31 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     }
     
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu) 
+    {
+        // Только если это письмо из папки входящих
+        if(mCurrentComponent == PART_WEB && mUser.currentUmails.get_URL().equals(inFolderAddress)) // Если мы в папке "входящие"
+        {
+            menu.findItem(R.id.menu_reply_umail).setVisible(true);
+        }
+        else
+        {
+            menu.findItem(R.id.menu_reply_umail).setVisible(false);
+        }
+        
+        return super.onPrepareOptionsMenu(menu);
+    }
+    
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch(item.getItemId())
         {
             case R.id.menu_new_umail:
                 newUmail(null);
+                return true;
+            case R.id.menu_reply_umail:
+                newUmail(((UmailPage)mUser.currentUmailPage).getSender_Name());
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
@@ -364,19 +386,19 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
             
             if (title != null && author != null && last_post != null)
             {
-                Openable diary = new Openable();
-                diary.set_title(title.getElementsByTag("b").text());
-                diary.set_URL(title.attr("href"));
+                Openable mail = new Openable();
+                mail.set_title(title.getElementsByTag("b").text());
+                mail.set_URL(title.attr("href"));
                 
-                diary.set_author(author.text());
+                mail.set_author(author.text());
                 String authorData = author.attr("href");
-                diary.set_author_URL(authorData);
-                diary.set_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
+                mail.set_author_URL(authorData);
+                mail.set_author_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
                 
-                diary.set_last_post(last_post.text());
-                diary.set_last_post_URL(last_post.attr("href"));
+                mail.set_last_post(last_post.text());
+                mail.set_last_post_URL(last_post.attr("href"));
                 
-                mUser.currentUmails.add(diary);
+                mUser.currentUmails.add(mail);
                 title = author = last_post = null;
             }
         }
@@ -392,17 +414,19 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         scannedUmail.setUmail_ID(scannedUmail.getUmail_URL().substring(scannedUmail.getUmail_URL().lastIndexOf('=') + 1));
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         
-        Elements postsArea = rootNode.select("table.box, table.box + div");
-        if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
+        Elements mailArea = rootNode.select("table.box, table.box + div");
+        if(mailArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
         
-        Elements result = postsArea.clone();
+        Element sender = mailArea.select("div[style^=float:left] > b").first();
+        if(sender != null)
+            scannedUmail.setSender_Name(sender.text());
+        
+        Elements result = mailArea.clone();
         Document resultPage = Document.createShell(Globals.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
-        {
             resultPage.body().appendChild(to);
-        }
         
         scannedUmail.set_content(resultPage);
         mUser.currentUmailPage = scannedUmail;

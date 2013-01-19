@@ -95,4 +95,5 @@
     <string name="message_need_receipt">Подтверждение о прочтении</string>
     <string name="message_copy">Сохранить сообщение</string>
     <string name="new_umail">Новый U-Mail</string>
+    <string name="reply_umail">Ответить</string>
 </resources>

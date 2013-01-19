@@ -1019,7 +1019,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 diary.set_author(author.text());
                 String authorData = author.attr("href");
                 diary.set_author_URL(authorData);
-                diary.set_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
+                diary.set_author_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
                 
                 diary.set_last_post(last_post.text());
                 diary.set_last_post_URL(last_post.attr("href"));
