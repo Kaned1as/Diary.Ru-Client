@@ -66,10 +66,10 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
             view = convertView;
         
         TextView title = (TextView) view.findViewById(R.id.discussion_title);
-        title.setText(discussion.get_title());
+        title.setText(discussion.getTitle());
         TextView newPosts = (TextView) view.findViewById(R.id.discussion_last_post);
-        newPosts.setText(discussion.get_last_post());
-        if(!discussion.get_last_post().contains("/0"))
+        newPosts.setText(discussion.getLastPost());
+        if(!discussion.getLastPost().contains("/0"))
         	newPosts.setTextColor(Color.RED);
         else
             newPosts.setTextColor(Color.BLACK);

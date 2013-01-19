@@ -2,32 +2,32 @@ package adonai.diary_browser.entities;
 
 public class CommentsPage extends DiaryPage
 {
-    private String _post_ID = "";
-    private String _post_URL = "";
+    private String postID = "";
+    private String postURL = "";
     
-    public String get_post_ID()
+    public String getPostID()
     {
-        return _post_ID;
+        return postID;
     }
 
-    public void set_post_ID(String _ID) 
+    public void setPostID(String _ID) 
     {
-        this._post_ID = _ID;
+        this.postID = _ID;
     }
 
-    public String get_post_URL()
+    public String getPostURL()
     {
-        return _post_URL;
+        return postURL;
     }
 
-    public void set_post_URL(String _post_URL)
+    public void setPostURL(String _post_URL)
     {
-        this._post_URL = _post_URL;
+        this.postURL = _post_URL;
     }
     
     @Override
-    public String get_page_URL()
+    public String getPageURL()
     {
-        return _post_URL;
+        return postURL;
     }
 }

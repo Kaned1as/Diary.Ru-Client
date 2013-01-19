@@ -8,7 +8,7 @@ public class UmailPage extends DiaryWebPage
     
     
     @Override
-    public String get_page_URL()
+    public String getPageURL()
     {
         return umail_URL;
     }

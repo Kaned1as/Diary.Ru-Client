@@ -4,17 +4,17 @@ import org.jsoup.nodes.Document;
 
 public abstract class DiaryWebPage
 {
-    private Document _content;
+    private Document content;
     
-    public Document get_content()
+    public Document getContent()
     {
-        return _content;
+        return content;
     }
 
-    public void set_content(Document resultPage)
+    public void setContent(Document resultPage)
     {
-        this._content = resultPage;
+        this.content = resultPage;
     }
 
-    public abstract String get_page_URL();
+    public abstract String getPageURL();
 }

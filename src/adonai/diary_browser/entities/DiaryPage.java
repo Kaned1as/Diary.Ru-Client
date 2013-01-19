@@ -3,32 +3,32 @@ package adonai.diary_browser.entities;
 public class DiaryPage extends DiaryWebPage
 {
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
-    private String _diary_URL = ""; 
+    private String diaryURL = ""; 
     // идентификатор этого же дневника
-    private String _diary_ID = "";
+    private String diaryID = "";
     
-    public String get_diary_URL()
+    public String getDiaryURL()
     {
-        return _diary_URL;
+        return diaryURL;
     }
     
-    public void set_diary_URL(String _diary_URL)
+    public void setDiaryURL(String _diary_URL)
     {
-        this._diary_URL = _diary_URL;
+        this.diaryURL = _diary_URL;
     }
     
-    public String get_diary_Id()
+    public String getDiaryID()
     {
-        return _diary_ID;
+        return diaryID;
     }
     
-    public void set_diary_Id(String _diary_Id)
+    public void setDiaryID(String _diary_Id)
     {
-        this._diary_ID = _diary_Id;
+        this.diaryID = _diary_Id;
     }
 
-    public String get_page_URL()
+    public String getPageURL()
     {
-    	return _diary_URL;
+    	return diaryURL;
     }
 }

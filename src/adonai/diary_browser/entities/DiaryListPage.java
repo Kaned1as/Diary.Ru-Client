@@ -9,7 +9,7 @@ public class DiaryListPage extends Vector<Openable>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
-    private String _URL = null;
+    private String pageURL = null;
     
     public Spanned getPageLinks()
     {
@@ -19,12 +19,12 @@ public class DiaryListPage extends Vector<Openable>
     {
         this.pageLinks = pageLinks;
     }
-    public String get_URL()
+    public String getURL()
     {
-        return _URL;
+        return pageURL;
     }
-    public void set_URL(String _URL)
+    public void setURL(String _URL)
     {
-        this._URL = _URL;
+        this.pageURL = _URL;
     }
 }

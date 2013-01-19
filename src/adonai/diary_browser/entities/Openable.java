@@ -2,103 +2,103 @@ package adonai.diary_browser.entities;
 
 public class Openable
 {
-    private String _title = "", _url = "";
-    private String _author = "", _author_url = "";
-    private String _last_post = "", _last_post_url = "";
-    private String _author_diary_ID = "";
-    private String _hint = "";
+    private String pageTitle = "", pageUrl = "";
+    private String pageAuthor = "", pageAuthorURL = "";
+    private String lastPost = "", lastPostURL = "";
+    private String authorDiaryID = "";
+    private String pageHint = "";
     
     public Openable(String title, String url, String author, String author_url, String last_post, String last_post_url)
     {
-        _title = title;
-        _url = url;
-        _author = author;
-        _author_url = author_url;
-        _last_post = last_post;
-        _last_post_url = last_post_url;
+        pageTitle = title;
+        pageUrl = url;
+        pageAuthor = author;
+        pageAuthorURL = author_url;
+        lastPost = last_post;
+        lastPostURL = last_post_url;
     }
     
     public Openable() 
     {
 	}
     
-    public void set_title(String title)
+    public void setTitle(String title)
     {
-        _title = title;
+        pageTitle = title;
     }
     
-    public String get_title()
+    public String getTitle()
     {
-        return _title;
+        return pageTitle;
     }
     
-    public void set_URL(String url)
+    public void setURL(String url)
     {
-        _url = url;
+        pageUrl = url;
     }
     
-    public String get_URL()
+    public String getURL()
     {
-        return _url;
+        return pageUrl;
     }
     
-    public void set_author(String author)
+    public void setAuthor(String author)
     {
-        _author = author;
+        pageAuthor = author;
     }
     
-    public String get_author()
+    public String getAuthor()
     {
-        return _author;
+        return pageAuthor;
     }
     
-    public void set_author_URL(String author_url)
+    public void setAuthorURL(String author_url)
     {
-        _author_url = author_url;
+        pageAuthorURL = author_url;
     }
     
-    public String get_author_URL()
+    public String getAuthorURL()
     {
-        return _author_url;
+        return pageAuthorURL;
     }
     
-    public void set_last_post(String last_post)
+    public void setLastPost(String last_post)
     {
-        _last_post = last_post;
+        lastPost = last_post;
     }
     
-    public String get_last_post()
+    public String getLastPost()
     {
-        return _last_post;
+        return lastPost;
     }
     
-    public void set_last_post_URL(String last_post_url)
+    public void setLastPostURL(String last_post_url)
     {
-        _last_post_url = last_post_url;
+        lastPostURL = last_post_url;
     }
     
-    public String get_last_post_URL()
+    public String getLastPostURL()
     {
-        return _last_post_url;
+        return lastPostURL;
     }
 
-	public String get_author_ID() 
+	public String getAuthorID() 
 	{
-		return _author_diary_ID;
+		return authorDiaryID;
 	}
 
-	public void set_author_ID(String _ID) 
+	public void setAuthorID(String _ID) 
 	{
-		this._author_diary_ID = _ID;
+		this.authorDiaryID = _ID;
 	}
 
-    public String get_hint()
+    public String getPageHint()
     {
-        return _hint;
+        return pageHint;
     }
 
-    public void set_hint(String _hint)
+    public void setPageHint(String _hint)
     {
-        this._hint = _hint;
+        this.pageHint = _hint;
     }
 }

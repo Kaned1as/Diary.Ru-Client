@@ -180,8 +180,8 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
             	return true;
             	case HANDLE_OPEN_MAIL:
             	    setCurrentVisibleComponent(PART_WEB);
-            	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.get_page_URL(), mUser.currentUmailPage.get_content().html(), null, "utf-8", mUser.currentUmailPage.get_page_URL());
-                    setTitle(mUser.currentUmailPage.get_content().title());
+            	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
+                    setTitle(mUser.currentUmailPage.getContent().title());
                     mMessageBrowser.onRefreshComplete();
                     pd.dismiss();
                 return true;
@@ -266,7 +266,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 		    int pos = mFolderBrowser.getRefreshableView().getPositionForView((View) view.getParent());
             Openable uMail = (Openable) mFolderBrowser.getRefreshableView().getAdapter().getItem(pos);
             
-		    handleBackground(HANDLE_OPEN_MAIL, uMail.get_URL());
+		    handleBackground(HANDLE_OPEN_MAIL, uMail.getURL());
 		    break;
 		}
 		
@@ -289,7 +289,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     public boolean onPrepareOptionsMenu(Menu menu) 
     {
         // Только если это письмо из папки входящих
-        if(mCurrentComponent == PART_WEB && mUser.currentUmails.get_URL().equals(inFolderAddress)) // Если мы в папке "входящие"
+        if(mCurrentComponent == PART_WEB && mUser.currentUmails.getURL().equals(inFolderAddress)) // Если мы в папке "входящие"
         {
             menu.findItem(R.id.menu_reply_umail).setVisible(true);
         }
@@ -357,7 +357,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     void serializeUmailListPage(String dataPage)
     {
         mUser.currentUmails = new DiaryListPage();
-        mUser.currentUmails.set_URL(Globals.currentURL);
+        mUser.currentUmails.setURL(Globals.currentURL);
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -387,16 +387,16 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
             if (title != null && author != null && last_post != null)
             {
                 Openable mail = new Openable();
-                mail.set_title(title.getElementsByTag("b").text());
-                mail.set_URL(title.attr("href"));
+                mail.setTitle(title.getElementsByTag("b").text());
+                mail.setURL(title.attr("href"));
                 
-                mail.set_author(author.text());
+                mail.setAuthor(author.text());
                 String authorData = author.attr("href");
-                mail.set_author_URL(authorData);
-                mail.set_author_ID(authorData.substring(authorData.lastIndexOf("?") + 1));
+                mail.setAuthorURL(authorData);
+                mail.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
                 
-                mail.set_last_post(last_post.text());
-                mail.set_last_post_URL(last_post.attr("href"));
+                mail.setLastPost(last_post.text());
+                mail.setLastPostURL(last_post.attr("href"));
                 
                 mUser.currentUmails.add(mail);
                 title = author = last_post = null;
@@ -428,7 +428,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         for(Element to : result)
             resultPage.body().appendChild(to);
         
-        scannedUmail.set_content(resultPage);
+        scannedUmail.setContent(resultPage);
         mUser.currentUmailPage = scannedUmail;
     }
 }
