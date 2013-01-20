@@ -27,6 +27,9 @@ public class UserData implements DiaryList.onUserDataParseListener
     Integer newDiscussNum = 0;
     String newDiscussLink = "";
     
+    Integer newUmailNum = 0;
+    String newUmailLink = "";
+    
     // число новых постов в дневнике
     Integer newDiaryCommentsNum = 0;
     String newDiaryLink = "";
@@ -52,8 +55,8 @@ public class UserData implements DiaryList.onUserDataParseListener
             signature = sigNode.attr("value");
 
         // данные о ссылках на свои страницы
-        Elements nodes = tag.getElementsByTag("a");
-        boolean hasNewDiscussions = false, hasNewDiaryComments = false;
+        Elements nodes = tag.select("div#inf_contant").select("a[href]");
+        boolean hasNewDiscussions = false, hasNewDiaryComments = false, hasNewUmails = false;
         for(Element node : nodes)
         {
         	// ссылка на свой дневник
@@ -82,12 +85,22 @@ public class UserData implements DiaryList.onUserDataParseListener
             	newDiaryCommentsNum = Integer.valueOf(node.text());
                 newDiaryLink = node.attr("href");
             }
+            
+            // U-мылки
+            if(node.attr("href").startsWith("/u-mail/folder/"))
+            {
+                hasNewUmails = true;
+                newUmailNum = Integer.valueOf(node.text());
+                newUmailLink = node.attr("href");
+            }
         }
         
         if(!hasNewDiscussions)
         	newDiscussNum = 0;
         if(!hasNewDiaryComments)
         	newDiaryCommentsNum = 0;
+        if(!hasNewUmails)
+            newUmailNum = 0;
     }
 
     public boolean updateNeeded()

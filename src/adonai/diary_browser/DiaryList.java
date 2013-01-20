@@ -103,22 +103,23 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     }
 	
     // Команды хэндлерам
-    static final int HANDLE_AUTHORIZATION_ERROR 					=  -1;
-    static final int HANDLE_CONNECTIVITY_ERROR 						=  -2;
-    static final int HANDLE_START 									= 	1;
-    static final int HANDLE_SET_HTTP_COOKIE 						= 	2;
-    static final int HANDLE_GET_DIARIES_DATA 		             	= 	3;
-    static final int HANDLE_GET_DIARY_PAGE_DATA 					= 	4;
-    static final int HANDLE_PROGRESS 								= 	7;
-    static final int HANDLE_PROGRESS_2 								= 	8;
-    static final int HANDLE_PICK_URL 								= 	9;
-    static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11;
-    static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12;
-    static final int HANDLE_GET_TAG_LIST_DATA 						= 	13;
+    public static final int HANDLERS_MASK                           = 0x10000000;
+    static final int HANDLE_AUTHORIZATION_ERROR 					=  -1 | HANDLERS_MASK;
+    static final int HANDLE_CONNECTIVITY_ERROR 						=  -2 | HANDLERS_MASK;
+    static final int HANDLE_START 									= 	1 | HANDLERS_MASK;
+    static final int HANDLE_SET_HTTP_COOKIE 						= 	2 | HANDLERS_MASK;
+    static final int HANDLE_GET_DIARIES_DATA 		             	= 	3 | HANDLERS_MASK;
+    static final int HANDLE_GET_DIARY_PAGE_DATA 					= 	4 | HANDLERS_MASK;
+    static final int HANDLE_PROGRESS 								= 	7 | HANDLERS_MASK;
+    static final int HANDLE_PROGRESS_2 								= 	8 | HANDLERS_MASK;
+    static final int HANDLE_PICK_URL 								= 	9 | HANDLERS_MASK;
+    static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	11 | HANDLERS_MASK;
+    static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	12 | HANDLERS_MASK;
+    static final int HANDLE_GET_TAG_LIST_DATA 						= 	13 | HANDLERS_MASK;
     
     // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK 							=   20;
-    static final int HANDLE_UPDATE_HEADERS 							= 	21;
+    static final int HANDLE_IMAGE_CLICK 							=   20 | HANDLERS_MASK;
+    static final int HANDLE_UPDATE_HEADERS 							= 	21 | HANDLERS_MASK;
     
     
     // дополнительные команды хэндлерам
@@ -146,6 +147,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     TextView mLogin;
     TextView mDiscussNum;
     TextView mCommentsNum;
+    TextView mUmailNum;
     PullToRefreshListView mDiaryBrowser;
     DiaryWebView mPageBrowser;
     ExpandableListView mDiscussionBrowser;
@@ -266,6 +268,9 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 textView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
             }
         }
+        
+        mUmailNum = (TextView) findViewById(R.id.umail_counter);
+        mUmailNum.setOnClickListener(this);
         
         mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
         mDiaryBrowser.setAdapter(mFavouritesAdapter);
@@ -418,9 +423,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         super.onNewIntent(intent);
 
-        if(intent != null && intent.getBooleanExtra("reloadContent", false))
+        if(intent != null && intent.getStringExtra("url") != null)
         {
-        	reloadContent();
+            if(intent.getStringExtra("url").equals("")) // default case
+                reloadContent();
+            else
+                handleBackground(HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getStringExtra("url"), true));
         	return;
         }
     }
@@ -466,6 +474,17 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                     {
                     	mDiscussNum.setText("");
                     	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
+                    }
+                    
+                    if(mUser.newUmailNum != 0)
+                    {
+                        mUmailNum.setText(mUser.newUmailNum.toString());
+                        mUmailNum.setVisibility(View.VISIBLE);
+                    }
+                    else
+                    {
+                        mUmailNum.setText("");
+                        mUmailNum.setVisibility(View.GONE);
                     }
                     return true;
                 case HANDLE_SET_HTTP_COOKIE:
@@ -787,7 +806,12 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         {
             Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
             startActivity(postIntent);
-            //Utils.showDevelSorry(this);
+        }
+        else if (view == mUmailNum)
+        {
+            Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
+            postIntent.putExtra("url", mUser.newUmailLink);
+            startActivity(postIntent);
         }
         else if (view.getTag() != null)
         {
@@ -796,10 +820,8 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
                 int i = (Integer) view.getTag();
                 setCurrentTab(i);
             }
-            if(view instanceof Button) // нижние панельки
-            {
+            if(view instanceof Button) // нижние кнопки списков
                 handleBackground(HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
-            }
         } else
             switch (view.getId())
             {

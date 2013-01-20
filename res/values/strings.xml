@@ -99,4 +99,5 @@
     <string name="reply_umail">Reply to sender</string>
     <string name="message_send_error">Error occurred while sending message</string>
     <string name="message_send_ok">Successfully sent</string>
+    <string name="simple_counter">Counter</string>
 </resources>

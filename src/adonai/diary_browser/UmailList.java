@@ -34,6 +34,7 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -74,11 +75,12 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
 	static final int TAB_INCOMING                                   =   0;
 	static final int TAB_OUTCOMING                                  =   1;
 	
-	static final int HANDLE_OPEN_FOLDER                             =   0;
-	static final int HANDLE_OPEN_MAIL                               =   1;
-    static final int HANDLE_PROGRESS                                =   7;
-    static final int HANDLE_PROGRESS_2                              =   8;
-    static final int HANDLE_CONNECTIVITY_ERROR                      = -20;
+    public static final int HANDLERS_MASK                           = 0x20000000;
+	static final int HANDLE_OPEN_FOLDER                             =   0 | HANDLERS_MASK;
+	static final int HANDLE_OPEN_MAIL                               =   1 | HANDLERS_MASK;
+    static final int HANDLE_PROGRESS                                =   7 | HANDLERS_MASK;
+    static final int HANDLE_PROGRESS_2                              =   8 | HANDLERS_MASK;
+    static final int HANDLE_CONNECTIVITY_ERROR                      = -20 | HANDLERS_MASK;
     
     private static final int PART_WEB = 0;
     private static final int PART_LIST = 1;
@@ -127,9 +129,9 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     protected void onStart()
     {
         super.onStart();
-        if(getIntent() != null && getIntent().getBooleanExtra("sendCompleted", false))
+        if(getIntent() != null && getIntent().getStringExtra("url") != null)
         {
-            handleBackground(HANDLE_OPEN_FOLDER, outFolderAddress);
+            handleBackground(HANDLE_OPEN_FOLDER, getIntent().getStringExtra("url"));
             return;
         }
         else // стартуем в первый раз
@@ -206,9 +208,21 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                     pd.dismiss();
                     Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
                 return false;
+                default:
+                    pd.dismiss();
+                    if((message.what & DiaryList.HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
+                    {
+                        if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
+                        {
+                            Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                            returnIntent.putExtra("url", ((Pair<?, ?>)message.obj).first.toString());
+                            startActivity(returnIntent);
+                            finish();
+                        }
+                    }
+                    return false;
             }
-            
-            return false;
         }
     };
     
@@ -234,8 +248,8 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                         serializeUmailListPage(uFolder);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_OPEN_FOLDER);
+                        return true;
                     }
-                    return true;
                     case HANDLE_OPEN_MAIL:
                     {
                         HttpResponse page = mDHCL.postPage((String)message.obj, null);
@@ -248,7 +262,10 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
                         serializeUmailPage(uMail);
                         
                         mUiHandler.sendEmptyMessage(HANDLE_OPEN_MAIL);
+                        return true;
                     }
+                    default:
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(message.what, message.obj));
                 }
             }
             catch (ParseException e)

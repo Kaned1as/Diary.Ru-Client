@@ -60,6 +60,14 @@
             android:scaleType="center"
             android:src="@drawable/umail_folders" />
 
+        <TextView
+            android:id="@+id/umail_counter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/umail_button"
+            android:textStyle="bold" />
+
     </RelativeLayout>
 
     <TabHost

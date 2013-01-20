@@ -267,7 +267,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         			pd.dismiss();
         			
     				Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
-    				returnIntent.putExtra("reloadContent", true);
+    				returnIntent.putExtra("url", "");
     				returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
     				startActivity(returnIntent);
 					finish();
