@@ -89,19 +89,8 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, IRequestHandler
+public class DiaryList extends Activity implements OnClickListener, OnSharedPreferenceChangeListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, IRequestHandler, UserData.OnDataChangeListener
 {
-	public interface onUserDataParseListener
-    {
-        public void parseData(Element rootNode);
-    }
-    
-    
-    public void setUserDataListener(onUserDataParseListener listener)
-    {
-        this.mListener = listener;
-    }
-	
     // Команды хэндлерам
     public static final int HANDLERS_MASK                           = 0x10000000;
     static final int HANDLE_AUTHORIZATION_ERROR 					=  -1 | HANDLERS_MASK;
@@ -162,7 +151,6 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     // Сервисные объекты
     DiaryHttpClient mDHCL = Globals.mDHCL;
     UserData mUser = Globals.mUser;
-    onUserDataParseListener mListener;
     DisplayMetrics gMetrics;
     CacheManager mCache;
     
@@ -179,10 +167,11 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     {
         super.onCreate(savedInstanceState);
         // Оповещаем остальных, что мы создались
-        setUserDataListener(mUser);
         // Если был простой приложения
         if(Globals.mSharedPrefs == null)
         	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        
+        mUser.setOnDataChangeListener(this);
         
         browserHistory = new HashMap<String, String>();
         mPreferences = Globals.mSharedPrefs;
@@ -202,6 +191,13 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
 
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
+    }
+    
+
+    @Override
+    public void handleDataChange()
+    {
+        mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
     
     public void initializeUI()
@@ -1004,11 +1000,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
-        if(mListener != null)
-        {
-            mListener.parseData(rootNode);
-            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
-        }
+        mUser.parseData(rootNode);
             
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
         if(table == null) // Нет вообще никаких дневников, заканчиваем
@@ -1070,12 +1062,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
     	Document rootNode = Jsoup.parse(dataPage);
-    	
-        if(mListener != null)
-        {       	
-        	mListener.parseData(rootNode);
-            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
-        }
+    	mUser.parseData(rootNode);
         
         scannedDiary.setDiaryURL(Globals.currentURL);
         Element diaryTag = rootNode.select("[id=authorName]").first();
@@ -1140,12 +1127,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
-        
-        if(mListener != null)
-        {
-            mListener.parseData(rootNode);
-            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
-        }
+        mUser.parseData(rootNode);
         
         scannedPost.setDiaryURL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
@@ -1187,12 +1169,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
-        
-        if(mListener != null)
-        {
-            mListener.parseData(rootNode);
-            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
-        }
+        mUser.parseData(rootNode);
         
         scannedTags.setDiaryURL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
@@ -1227,12 +1204,7 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
     	mUser.discussions.clear();
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
-        
-        if(mListener != null)
-        {
-            mListener.parseData(rootNode);
-            mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
-        }
+        mUser.parseData(rootNode);
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");

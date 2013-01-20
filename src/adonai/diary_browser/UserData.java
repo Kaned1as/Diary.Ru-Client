@@ -8,8 +8,19 @@ import adonai.diary_browser.entities.DiaryWebPage;
 import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.DiaryPage;
 
-public class UserData implements DiaryList.onUserDataParseListener
+public class UserData
 {
+    public interface OnDataChangeListener
+    {
+        public void handleDataChange();
+    }
+    
+    OnDataChangeListener mListener = null;
+    public void setOnDataChangeListener(OnDataChangeListener listener)
+    {
+        mListener = listener;
+    }
+    
 	// Динамические списки постов
     DiaryListPage currentDiaries;
     DiaryListPage currentUmails;
@@ -101,6 +112,9 @@ public class UserData implements DiaryList.onUserDataParseListener
         	newDiaryCommentsNum = 0;
         if(!hasNewUmails)
             newUmailNum = 0;
+        
+        if(mListener != null)
+            mListener.handleDataChange();
     }
 
     public boolean updateNeeded()

@@ -391,6 +391,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
+        mUser.parseData(rootNode);
             
         Element table = rootNode.getElementsByAttributeValue("class", "table l").first();
         if(table == null) // Нет вообще никаких сообщений, заканчиваем
@@ -441,6 +442,8 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS);
         
         Document rootNode = Jsoup.parse(dataPage);
+        mUser.parseData(rootNode);
+        
         scannedUmail.setUmail_URL(Globals.currentURL);
         scannedUmail.setUmail_ID(scannedUmail.getUmail_URL().substring(scannedUmail.getUmail_URL().lastIndexOf('=') + 1));
         mUiHandler.sendEmptyMessage(HANDLE_PROGRESS_2);
