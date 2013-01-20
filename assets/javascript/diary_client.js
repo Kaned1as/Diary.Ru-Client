@@ -1,14 +1,27 @@
 document.domain = "diary.ru";
 
-function handleIMGDown(index, source)
+function handleIMGDown(input, source)
 {
-  var filename = source.substring(source.lastIndexOf('/')+1);
-  var source_input = document.getElementById("imageLoader" + index);
   var image = new Image();
   image.src=source;
   
-  source_input.parentNode.insertBefore(image, source_input);
-  source_input.parentNode.removeChild(source_input);
+  input.parentNode.insertBefore(image, input);
+  input.parentNode.removeChild(input);
+  //alert(image.parentNode.innerHTML);
+  return true;
+}
+
+function handleADown(input, link, source)
+{
+  var image = new Image();
+  image.src=source;
+  
+   var linkImage = document.createElement('a');
+   linkImage.href = link;
+   linkImage.appendChild(image);
+  
+  input.parentNode.insertBefore(linkImage, input);
+  input.parentNode.removeChild(input);
   //alert(image.parentNode.innerHTML);
   return true;
 }

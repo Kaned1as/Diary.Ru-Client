@@ -1095,26 +1095,47 @@ public class DiaryList extends Activity implements OnClickListener, OnSharedPref
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
     	if(!load_images)
         {
-            Elements images = resultPage.select("img[src^=http]");
-            int i = 0;
-            for(Element image : images)
+            Elements images = resultPage.select("img[src^=http], a:has(img)");
+            for(Element current : images)
             {
-                String src = image.attr("src");
-                if(!src.contains("diary.ru") && !image.parent().className().equals("avatar"))
+                if(current.tagName().equals("img"))
                 {
-                	if(load_cached)
-                	{
-	                	String hashCode = String.format("%08x", src.hashCode());
-	                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-	                    if(file.exists())
-	                    	continue;
-                	}
-                    
-                    String jsButton = "<input type=\"image\" id=\"imageLoader" + i + "\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown('" + i + "', '"+ image.attr("src") +"')\"/>";
-                    
-                    image.after(jsButton);
-                    image.remove();
-                    i++;
+                    String src = current.attr("src");
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar"))
+                    {
+                    	if(load_cached)
+                    	{
+    	                	String hashCode = String.format("%08x", src.hashCode());
+    	                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+    	                    if(file.exists())
+    	                    	continue;
+                    	}
+                        
+                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
+                        
+                        current.after(jsButton);
+                        current.remove();
+                    }
+                }
+                
+                if(current.tagName().equals("a"))
+                {
+                    String src = current.getElementsByTag("img").attr("src");
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar"))
+                    {
+                        if(load_cached)
+                        {
+                            String hashCode = String.format("%08x", src.hashCode());
+                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+                            if(file.exists())
+                                continue;
+                        }
+                        
+                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
+                        
+                        current.after(jsButton);
+                        current.remove();
+                    }
                 }
             }
         }
