@@ -69,7 +69,7 @@ public class DiaryWebView extends PullToRefreshWebView
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
-            mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;
         }
     };
@@ -82,10 +82,10 @@ public class DiaryWebView extends PullToRefreshWebView
             switch (refreshView.getId())
             {
                 case R.id.page_browser:
-                    mActivity.handleBackground(DiaryList.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
                     break;
                 case R.id.umessage_browser:
-                    mActivity.handleBackground(UmailList.HANDLE_OPEN_MAIL, mUser.currentUmailPage.getPageURL());
+                    mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mUser.currentUmailPage.getPageURL());
                     break;
             }
         }
