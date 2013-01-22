@@ -21,12 +21,10 @@ import adonai.diary_browser.entities.DiaryPage;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
@@ -68,7 +66,7 @@ import android.widget.TabWidget;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class DiaryList extends Activity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, IRequestHandler, UserData.OnDataChangeListener
+public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK 							=   0x100;
@@ -88,8 +86,8 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
     int mCurrentTab = 0;
     int mCurrentComponent = 0;
     
-    private static final int PART_WEB = 0;
-    private static final int PART_LIST = 1;
+    private static final int PART_LIST = 0;
+    private static final int PART_WEB = 1;
     private static final int PART_DISC_LIST = 2;
     
     // Адаптеры типов
@@ -109,12 +107,9 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
     TabHost mTabHost;
-    ProgressDialog pd;
     AlertDialog ad;
     
     // Сервисные объекты
-    DiaryHttpClient mDHCL;
-    UserData mUser;
     DisplayMetrics gMetrics;
     CacheManager mCache;
     
@@ -130,15 +125,9 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
         if(Globals.mSharedPrefs == null)
         	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
         
-        NetworkService.getInstance(this).addListener(this);
-        mUser = NetworkService.getInstance(this).mUser;
-        mDHCL = NetworkService.getInstance(this).mDHCL;
-        mUser.setOnDataChangeListener(this);
-        
         browserHistory = new HashMap<String, String>();
 
-        mUiHandler = new Handler(UiCallback);
-        
+        mUiHandler = new Handler(this);
         CookieSyncManager.createInstance(this);
 
         setContentView(R.layout.activity_diary_list_a);
@@ -159,7 +148,6 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
         
         mLogin = (TextView) findViewById(R.id.login_name);
-        mLogin.setText(mUser.userName);
         
         mExitButton = (ImageButton) findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
@@ -220,20 +208,14 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
         
-        mFavouritesAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
-        mDiaryBrowser.setAdapter(mFavouritesAdapter);
         mDiaryBrowser.setOnRefreshListener(this);
         
-        mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
-        mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
         mDiscussionBrowser.setOnChildClickListener(this);
         mDiscussionBrowser.setOnGroupClickListener(this);
         mDiscussionBrowser.setOnItemLongClickListener(this);
         
         mTabHost.setCurrentTab(mCurrentTab);
         setCurrentVisibleComponent(0);
-        
-        mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
     
     @Override
@@ -245,7 +227,7 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
     @Override
     protected void onDestroy()
     {
-    	NetworkService.getInstance(this).removeListener(this);
+    	mService.removeListener(this);
         super.onDestroy();
     }
     
@@ -362,7 +344,7 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
     {
         super.onStart();
         
-        if(mUser.updateNeeded())
+        if(mUser != null && mUser.updateNeeded())
         	handleUi(Utils.HANDLE_START, null);
     }
     
@@ -381,197 +363,199 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
         }
     }
     
-    Handler.Callback UiCallback = new Handler.Callback()
+    @Override
+    public boolean handleMessage(Message message)
     {
-        public boolean handleMessage(Message message)
+        switch (message.what)
         {
-            switch (message.what)
-            {
-            	case Utils.HANDLE_START:
-            	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-                    handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
-                    return true;
-                case Utils.HANDLE_PROGRESS:
-                    if(pd != null && pd.isShowing())
-                        pd.setMessage(getString(R.string.parsing_data));
-                    return true;
-                case Utils.HANDLE_PROGRESS_2:
-                    if(pd != null && pd.isShowing())
-                        pd.setMessage(getString(R.string.sorting_data));
-                    return true;
-                case HANDLE_UPDATE_HEADERS:
-                	// обрабатываем обновление контента
-                	mLogin.setText(mUser.userName);
-                    if(mUser.newDiaryCommentsNum != 0)
-                    {
-                    	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
-                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
-                    }
-                    else
-                    {
-                    	mCommentsNum.setText("");
-                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(false);
-                    }
-                    
-                    if(mUser.newDiscussNum != 0)
-                    {
-                    	mDiscussNum.setText(mUser.newDiscussNum.toString());
-                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
-                    }
-                    else
-                    {
-                    	mDiscussNum.setText("");
-                    	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
-                    }
-                    
-                    if(mUser.newUmailNum != 0)
-                    {
-                        mUmailNum.setText(mUser.newUmailNum.toString());
-                        mUmailNum.setVisibility(View.VISIBLE);
-                    }
-                    else
-                    {
-                        mUmailNum.setText("");
-                        mUmailNum.setVisibility(View.GONE);
-                    }
-                    return true;
-                case Utils.HANDLE_SET_HTTP_COOKIE:
-                    pd.setMessage(getString(R.string.getting_user_info));
-                    mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
-                    handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
-                    return true;
-                case Utils.HANDLE_GET_DIARIES_DATA:
-                    setCurrentVisibleComponent(PART_LIST);
-                    mDiaryBrowser.setAdapter(null);
-                    mDiaryBrowser.getRefreshableView().removeFooterView(mDiaryBrowser.getRefreshableView().findViewWithTag("footer"));
-                    mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
-                    if(mUser.currentDiaries.getPageLinks() != null)
-                    {
-                        LinearLayout LL = new LinearLayout(mDiaryBrowser.getRefreshableView().getContext());
-                        LL.setTag("footer");
-                        Spanned pageLinks = mUser.currentDiaries.getPageLinks();
-                        URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
-                        for(URLSpan url : URLs)
-                        {
-                            Button click = new Button(LL.getContext());
-                            click.setMaxLines(1);
-                            click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
-                            click.setTag(url.getURL());
-                            click.setOnClickListener(DiaryList.this);
-                            LL.addView(click);
-                            
-                            LayoutParams LP = (LayoutParams) click.getLayoutParams();
-                            LP.width = LayoutParams.MATCH_PARENT;
-                            LP.weight = 1.0f;
-                        }
-                        mDiaryBrowser.getRefreshableView().addFooterView(LL);
-                    }
-                    mCurrentTab = TAB_FAVOURITES;
-                    mTabHost.setCurrentTab(TAB_FAVOURITES);
-                    
-                    mDiaryBrowser.setAdapter(mFavouritesAdapter);
-                    browserHistory.put(mUser.currentDiaries.getURL(), getString(R.string.favourites));
-                    mDiaryBrowser.onRefreshComplete();
-                    pd.dismiss();
-                    return true;
-                case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the mos important part!
-                    setCurrentVisibleComponent(PART_WEB);
-                    mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
-                    
-                    browserHistory.put(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
-                    setTitle(mUser.currentDiaryPage.getContent().title());
-                    mPageBrowser.onRefreshComplete();
-                    pd.dismiss();
-                    return true;
-                case Utils.HANDLE_GET_DISCUSSIONS_DATA:
-                    mDiscussionsAdapter.notifyDataSetChanged();
-                	setCurrentVisibleComponent(PART_DISC_LIST);
-                	pd.dismiss();
-                	return true;
-                case Utils.HANDLE_AUTHORIZATION_ERROR:
-                    pd.dismiss();
-                    mPageBrowser.onRefreshComplete();
-                    mDiaryBrowser.onRefreshComplete();
-                    Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
-                    finish();
-                break;
-                case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
-                	int pos = (Integer) message.obj;
-                	mDiscussionBrowser.expandGroup(pos);
-                	pd.dismiss();
-                	return true;
-                case Utils.HANDLE_CONNECTIVITY_ERROR:
-                    pd.dismiss();
-                    Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
-                break;
-                case HANDLE_IMAGE_CLICK:
-                {
-                	final String src = message.getData().getString("url");
-                	if(src == null) // нет картинки!
-                		return false;
-                	
-                    ArrayList<String> itemsBuilder = new ArrayList<String>();
-		        	itemsBuilder.add(getString(R.string.image_save));
-		        	itemsBuilder.add(getString(R.string.image_copy_url));
-		        	itemsBuilder.add(getString(R.string.image_open));
-
-		        	final String[] items = itemsBuilder.toArray(new String[0]);
-		        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
-		        	builder.setTitle(R.string.image_action);
-		        	builder.setItems(items, new DialogInterface.OnClickListener() 
-		        	{
-		        	    @SuppressWarnings("deprecation")
-						public void onClick(DialogInterface dialog, int item) 
-		        	    {
-		        	    	switch(item)
-		        	    	{
-		        	    		case DiaryWebView.IMAGE_SAVE: // save
-		        	    		{	        	    			
-		                            String hashCode = String.format("%08x", src.hashCode());
-		                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-		                            if(file.exists())
-		                            {
-		                                String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(src);
-		                                String realName = URLUtil.guessFileName(src, null, fileExtenstion);
-		                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
-		                            }
-		        	    		}
-		        	    		break;
-		        	    		case DiaryWebView.IMAGE_COPY_URL: // copy
-		        	    		{
-		                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-		                            Toast.makeText(DiaryList.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
-		                            clipboard.setText(src);
-		        	    		}
-		        	    		break;
-		        	    		case DiaryWebView.IMAGE_OPEN: // open Link
-		        	    		{
-		                        	String hashCode = String.format("%08x", src.hashCode());
-		                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-		                            if(file.exists())
-		                            {
-		                            	BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
-		                            	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
-		                            	Globals.tempDrawable = sendDrawable;
-		                            	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-		                                startActivity(intent);
-		                            }
-		        	    		}
-		        	    		break;
-		        	    	}
-		        	    }
-		        	});
-		        	AlertDialog alert = builder.create();
-		        	alert.show();
-		        }
+        	case Utils.HANDLE_START:
+                mService.addListener(this);
+                mUser.setOnDataChangeListener(this);
+        		
+        	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+                handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
                 return true;
-                default:
-                    return false;
-            }
-            return false;
+            case Utils.HANDLE_PROGRESS:
+                if(pd != null && pd.isShowing())
+                    pd.setMessage(getString(R.string.parsing_data));
+                return true;
+            case Utils.HANDLE_PROGRESS_2:
+                if(pd != null && pd.isShowing())
+                    pd.setMessage(getString(R.string.sorting_data));
+                return true;
+            case HANDLE_UPDATE_HEADERS:
+            	// обрабатываем обновление контента
+            	mLogin.setText(mUser.userName);
+                if(mUser.newDiaryCommentsNum != 0)
+                {
+                	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
+                	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
+                }
+                else
+                {
+                	mCommentsNum.setText("");
+                	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(false);
+                }
+                
+                if(mUser.newDiscussNum != 0)
+                {
+                	mDiscussNum.setText(mUser.newDiscussNum.toString());
+                	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
+                }
+                else
+                {
+                	mDiscussNum.setText("");
+                	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
+                }
+                
+                if(mUser.newUmailNum != 0)
+                {
+                    mUmailNum.setText(mUser.newUmailNum.toString());
+                    mUmailNum.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    mUmailNum.setText("");
+                    mUmailNum.setVisibility(View.GONE);
+                }
+                return true;
+            case Utils.HANDLE_SET_HTTP_COOKIE:
+                pd.setMessage(getString(R.string.getting_user_info));
+                mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
+                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
+                return true;
+            case Utils.HANDLE_GET_DIARIES_DATA:
+                setCurrentVisibleComponent(PART_LIST);
+                mDiaryBrowser.setAdapter(null);
+                mDiaryBrowser.getRefreshableView().removeFooterView(mDiaryBrowser.getRefreshableView().findViewWithTag("footer"));
+                mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
+                if(mUser.currentDiaries.getPageLinks() != null)
+                {
+                    LinearLayout LL = new LinearLayout(mDiaryBrowser.getRefreshableView().getContext());
+                    LL.setTag("footer");
+                    Spanned pageLinks = mUser.currentDiaries.getPageLinks();
+                    URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
+                    for(URLSpan url : URLs)
+                    {
+                        Button click = new Button(LL.getContext());
+                        click.setMaxLines(1);
+                        click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
+                        click.setTag(url.getURL());
+                        click.setOnClickListener(DiaryList.this);
+                        LL.addView(click);
+                        
+                        LayoutParams LP = (LayoutParams) click.getLayoutParams();
+                        LP.width = LayoutParams.MATCH_PARENT;
+                        LP.weight = 1.0f;
+                    }
+                    mDiaryBrowser.getRefreshableView().addFooterView(LL);
+                }
+                mCurrentTab = TAB_FAVOURITES;
+                mTabHost.setCurrentTab(TAB_FAVOURITES);
+                
+                mDiaryBrowser.setAdapter(mFavouritesAdapter);
+                browserHistory.put(mUser.currentDiaries.getURL(), getString(R.string.favourites));
+                mDiaryBrowser.onRefreshComplete();
+                pd.dismiss();
+                return true;
+            case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the mos important part!
+                setCurrentVisibleComponent(PART_WEB);
+                mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
+                
+                browserHistory.put(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
+                setTitle(mUser.currentDiaryPage.getContent().title());
+                mPageBrowser.onRefreshComplete();
+                pd.dismiss();
+                return true;
+            case Utils.HANDLE_GET_DISCUSSIONS_DATA:
+                mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
+                mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
+            	setCurrentVisibleComponent(PART_DISC_LIST);
+            	pd.dismiss();
+            	return true;
+            case Utils.HANDLE_AUTHORIZATION_ERROR:
+                pd.dismiss();
+                mPageBrowser.onRefreshComplete();
+                mDiaryBrowser.onRefreshComplete();
+                Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+                finish();
+            break;
+            case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
+            	int pos = (Integer) message.obj;
+            	mDiscussionBrowser.expandGroup(pos);
+            	pd.dismiss();
+            	return true;
+            case Utils.HANDLE_CONNECTIVITY_ERROR:
+                pd.dismiss();
+                Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+            break;
+            case HANDLE_IMAGE_CLICK:
+            {
+            	final String src = message.getData().getString("url");
+            	if(src == null) // нет картинки!
+            		return false;
+            	
+                ArrayList<String> itemsBuilder = new ArrayList<String>();
+	        	itemsBuilder.add(getString(R.string.image_save));
+	        	itemsBuilder.add(getString(R.string.image_copy_url));
+	        	itemsBuilder.add(getString(R.string.image_open));
+
+	        	final String[] items = itemsBuilder.toArray(new String[0]);
+	        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+	        	builder.setTitle(R.string.image_action);
+	        	builder.setItems(items, new DialogInterface.OnClickListener() 
+	        	{
+	        	    @SuppressWarnings("deprecation")
+					public void onClick(DialogInterface dialog, int item) 
+	        	    {
+	        	    	switch(item)
+	        	    	{
+	        	    		case DiaryWebView.IMAGE_SAVE: // save
+	        	    		{	        	    			
+	                            String hashCode = String.format("%08x", src.hashCode());
+	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+	                            if(file.exists())
+	                            {
+	                                String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(src);
+	                                String realName = URLUtil.guessFileName(src, null, fileExtenstion);
+	                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
+	                            }
+	        	    		}
+	        	    		break;
+	        	    		case DiaryWebView.IMAGE_COPY_URL: // copy
+	        	    		{
+	                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+	                            Toast.makeText(DiaryList.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
+	                            clipboard.setText(src);
+	        	    		}
+	        	    		break;
+	        	    		case DiaryWebView.IMAGE_OPEN: // open Link
+	        	    		{
+	                        	String hashCode = String.format("%08x", src.hashCode());
+	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+	                            if(file.exists())
+	                            {
+	                            	BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
+	                            	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+	                            	Globals.tempDrawable = sendDrawable;
+	                            	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+	                                startActivity(intent);
+	                            }
+	        	    		}
+	        	    		break;
+	        	    	}
+	        	    }
+	        	});
+	        	AlertDialog alert = builder.create();
+	        	alert.show();
+	        }
+            return true;
+            default:
+                super.handleMessage(message);
         }
-    };
+        return false;
+    }
     
     public void onClick(View view)
     {	
@@ -591,7 +575,7 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
 		            CookieManager cookieManager = CookieManager.getInstance();
 		            cookieManager.removeSessionCookie();
 		            CookieSyncManager.getInstance().sync();
-		            Globals.mUser = new UserData();
+		            mService.mUser = new UserData();
 		            
 		            //TODO: просмотр без логина тоже еще не введен
 		            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
@@ -857,28 +841,5 @@ public class DiaryList extends Activity implements OnClickListener, OnChildClick
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
             break;
         }
-    }
-	
-    public void handleBackground(int opCode, Object body)
-    {
-        // WebView hack. It is the only way to stop it.
-    	mPageBrowser.getRefreshableView().loadData("<html><body>dummy</body></html>", null, null);
-        if(!pd.isShowing())
-        {
-        	pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-	        pd.setOnCancelListener(new OnCancelListener() 
-	        {
-	            public void onCancel(DialogInterface dialog)
-	            {
-	                mDHCL.abort();
-	            }
-	        });
-        }
-        NetworkService.getInstance(this).handleRequest(opCode, body);
-    }
-
-    public void handleUi(int opCode, Object body)
-    {
-        mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
     }
 }

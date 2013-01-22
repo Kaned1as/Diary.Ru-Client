@@ -112,7 +112,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     {
         super.onCreate(savedInstanceState);
         
-        mDHCL = Globals.mDHCL;
+        mDHCL = NetworkService.getInstance(this).mDHCL;
         mPost = new Post();
 		postParams = new ArrayList<NameValuePair>();
         

@@ -8,12 +8,8 @@ import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.DialogInterface.OnCancelListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +17,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -35,27 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.LinearLayout.LayoutParams;
 
-public class UmailList extends Activity implements IRequestHandler, OnClickListener
+public class UmailList extends DiaryActivity implements OnClickListener
 {
-	public void handleBackground(int opCode, Object body)
-    {
-    	mMessageBrowser.getRefreshableView().stopLoading();
-        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-        pd.setOnCancelListener(new OnCancelListener() 
-        {
-            public void onCancel(DialogInterface dialog)
-            {
-                mDHCL.abort();
-            }
-        });
-        NetworkService.getInstance(this).handleRequest(opCode, body);
-    }
-
-    public void handleUi(int opCode, Object body)
-    {
-        mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
-    }
-    
     private final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
     private final String outFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=2";
     
@@ -67,14 +43,11 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     
     private int mCurrentComponent = 1;
 	
-    DiaryHttpClient mDHCL = Globals.mDHCL;
-    UserData mUser = Globals.mUser;
     Map<String, String> namesUrls;
     
     DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
     DiaryListArrayAdapter mFolderAdapter;
-    ProgressDialog pd;
     TabWidget mTabs;
     TextView mIncoming;
     TextView mOutcoming;
@@ -85,13 +58,12 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        mUiHandler = new Handler(UiCallback);
+        mUiHandler = new Handler(this);
         
         setContentView(R.layout.umail_list_a);
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
-        mFolderAdapter = new DiaryListArrayAdapter(this, android.R.layout.simple_list_item_1, mUser.currentUmails);
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
         
         mIncoming = (TextView) findViewById(R.id.incoming);
@@ -104,15 +76,6 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     protected void onStart()
     {
         super.onStart();
-        NetworkService.getInstance(this).addListener(this);
-        
-        if(getIntent() != null && getIntent().getStringExtra("url") != null)
-        {
-            handleBackground(Utils.HANDLE_OPEN_FOLDER, getIntent().getStringExtra("url"));
-            return;
-        }
-        else // стартуем в первый раз
-            handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
     }
     
     @Override
@@ -125,7 +88,7 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
     @Override
 	protected void onDestroy()
 	{
-		NetworkService.getInstance(this).removeListener(this);
+		mService.removeListener(this);
 		super.onDestroy();
 	}
 
@@ -143,72 +106,81 @@ public class UmailList extends Activity implements IRequestHandler, OnClickListe
         }
     }
     
-    Handler.Callback UiCallback = new Handler.Callback()
+    @Override
+    public boolean handleMessage(Message message)
     {
-        public boolean handleMessage(Message message)
+        switch (message.what)
         {
-            switch (message.what)
-            {
-            	case Utils.HANDLE_OPEN_FOLDER:
-            	    setCurrentVisibleComponent(PART_LIST);
-            		mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
-            		mFolderBrowser.getRefreshableView().removeFooterView(mFolderBrowser.getRefreshableView().findViewWithTag("footer"));
-                    if(mUser.currentUmails.getPageLinks() != null)
+        	case Utils.HANDLE_START:
+                mService.addListener(this);
+                
+                if(getIntent() != null && getIntent().getStringExtra("url") != null)
+                {
+                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getIntent().getStringExtra("url"));
+                }
+                else // стартуем в первый раз
+                    handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
+        		return true;
+        	case Utils.HANDLE_OPEN_FOLDER:
+        	    setCurrentVisibleComponent(PART_LIST);
+        		mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
+        		mFolderBrowser.getRefreshableView().removeFooterView(mFolderBrowser.getRefreshableView().findViewWithTag("footer"));
+                if(mUser.currentUmails.getPageLinks() != null)
+                {
+                    LinearLayout LL = new LinearLayout(mFolderBrowser.getRefreshableView().getContext());
+                    LL.setTag("footer");
+                    Spanned pageLinks = mUser.currentUmails.getPageLinks();
+                    URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
+                    for(URLSpan url : URLs)
                     {
-                        LinearLayout LL = new LinearLayout(mFolderBrowser.getRefreshableView().getContext());
-                        LL.setTag("footer");
-                        Spanned pageLinks = mUser.currentUmails.getPageLinks();
-                        URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
-                        for(URLSpan url : URLs)
-                        {
-                            Button click = new Button(LL.getContext());
-                            click.setMaxLines(1);
-                            click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
-                            click.setTag(url.getURL());
-                            click.setOnClickListener(UmailList.this);
-                            LL.addView(click);
-                            
-                            LayoutParams LP = (LayoutParams) click.getLayoutParams();
-                            LP.width = LayoutParams.MATCH_PARENT;
-                            LP.weight = 1.0f;
-                        }
-                        mFolderBrowser.getRefreshableView().addFooterView(LL);
+                        Button click = new Button(LL.getContext());
+                        click.setMaxLines(1);
+                        click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
+                        click.setTag(url.getURL());
+                        click.setOnClickListener(UmailList.this);
+                        LL.addView(click);
+                        
+                        LayoutParams LP = (LayoutParams) click.getLayoutParams();
+                        LP.width = LayoutParams.MATCH_PARENT;
+                        LP.weight = 1.0f;
                     }
-            		mFolderBrowser.setAdapter(mFolderAdapter);
-            		pd.dismiss();
-            	return true;
-            	case Utils.HANDLE_OPEN_MAIL:
-            	    setCurrentVisibleComponent(PART_WEB);
-            	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
-                    setTitle(mUser.currentUmailPage.getContent().title());
-                    mMessageBrowser.onRefreshComplete();
-                    pd.dismiss();
-                return true;
-                case Utils.HANDLE_PROGRESS:
-                    if(pd != null && pd.isShowing())
-                        pd.setMessage(getString(R.string.parsing_data));
-                return true;
-                case Utils.HANDLE_CONNECTIVITY_ERROR:
-                    pd.dismiss();
-                    Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+                    mFolderBrowser.getRefreshableView().addFooterView(LL);
+                }
+        		mFolderBrowser.setAdapter(mFolderAdapter);
+        		pd.dismiss();
+        	return true;
+        	case Utils.HANDLE_OPEN_MAIL:
+        	    setCurrentVisibleComponent(PART_WEB);
+        	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
+                setTitle(mUser.currentUmailPage.getContent().title());
+                mMessageBrowser.onRefreshComplete();
+                pd.dismiss();
+            return true;
+            case Utils.HANDLE_PROGRESS:
+                if(pd != null && pd.isShowing())
+                    pd.setMessage(getString(R.string.parsing_data));
+            return true;
+            case Utils.HANDLE_CONNECTIVITY_ERROR:
+                pd.dismiss();
+                Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+            return false;
+            default:
+            	super.handleMessage(message);
+                /*pd.dismiss();
+                if((message.what & Utils.DIARY_HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
+                {
+                    if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
+                    {
+                        Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+                        returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        returnIntent.putExtra("url", ((Pair<?, ?>)message.obj).first.toString());
+                        startActivity(returnIntent);
+                        finish();
+                    }
+                }*/
                 return false;
-                default:
-                    pd.dismiss();
-                    if((message.what & Utils.DIARY_HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
-                    {
-                        if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
-                        {
-                            Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
-                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            returnIntent.putExtra("url", ((Pair<?, ?>)message.obj).first.toString());
-                            startActivity(returnIntent);
-                            finish();
-                        }
-                    }
-                    return false;
-            }
         }
-    };
+    }
     
 	public void onClick(View view)
 	{

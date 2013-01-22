@@ -20,8 +20,7 @@ public class DiaryWebView extends PullToRefreshWebView
     public static final int IMAGE_COPY_URL = 1;
     public static final int IMAGE_OPEN = 2;
 
-    IRequestHandler mActivity;
-    UserData mUser;
+    DiaryActivity mActivity;
     
     public DiaryWebView(Context context, AttributeSet attrs)
     {
@@ -43,9 +42,8 @@ public class DiaryWebView extends PullToRefreshWebView
     
     public void init()
     {
-        if(getContext() instanceof IRequestHandler) 
-            mActivity = (IRequestHandler) getContext();
-        mUser = Globals.mUser;
+        if(getContext() instanceof DiaryActivity) 
+            mActivity = (DiaryActivity) getContext();
     }
     
     public void setDefaultSettings()
@@ -82,10 +80,10 @@ public class DiaryWebView extends PullToRefreshWebView
             switch (refreshView.getId())
             {
                 case R.id.page_browser:
-                    mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.mUser.currentDiaryPage.getPageURL(), true));
                     break;
                 case R.id.umessage_browser:
-                    mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mUser.currentUmailPage.getPageURL());
+                    mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.mUser.currentUmailPage.getPageURL());
                     break;
             }
         }

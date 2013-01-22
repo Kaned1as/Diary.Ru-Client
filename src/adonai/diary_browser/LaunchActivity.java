@@ -22,7 +22,6 @@ public class LaunchActivity extends Activity {
         	startActivity(new Intent(this, AuthorizationForm.class));
         }
         
-        startService(new Intent(getApplicationContext(), NetworkService.class));
         finish();
     }
 

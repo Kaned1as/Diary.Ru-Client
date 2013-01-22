@@ -48,6 +48,8 @@ import adonai.diary_browser.Utils;
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
 	private static NetworkService mInstance = null;
+	private static boolean mIsStarting = false;
+	
 	private static final Object sWait = new Object(); 
 	
 	public UserData mUser = new UserData();
@@ -61,21 +63,15 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean load_images;
     boolean load_cached;
     
-    private List<IRequestHandler> mListeners = new ArrayList<IRequestHandler>();
+    private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
 	
+    
 	public static NetworkService getInstance(final Context context)
 	{
-		if(mInstance == null)
+		if(mInstance == null && !mIsStarting)
 		{
 			context.startService(new Intent(context, NetworkService.class));
-			while (mInstance == null)
-				try
-				{
-					synchronized(sWait)
-					{
-						sWait.wait();
-					}
-				} catch (InterruptedException ignored) {}
+			mIsStarting = true;
 		}
 		return mInstance;
 	}
@@ -103,6 +99,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mHandler = new Handler(mLooper, this);
 		
 		mInstance = this;
+		mIsStarting = false;
+		
 		synchronized(sWait)
 		{
 			sWait.notifyAll();
@@ -128,20 +126,20 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		mHandler.sendMessage(mHandler.obtainMessage(opcode, message));
 	}
 	
-	public void addListener(IRequestHandler listener)
+	public void addListener(DiaryActivity listener)
 	{
 		if(!mListeners.contains(listener))
 			mListeners.add(listener);
 	}
 	
-	public void removeListener(IRequestHandler listener)
+	public void removeListener(DiaryActivity listener)
 	{
 		mListeners.remove(listener);
 	}
 	
 	public void notifyListeners(int opCode, Object body)
 	{
-		for (IRequestHandler listener : mListeners)
+		for (DiaryActivity listener : mListeners)
 			listener.handleUi(opCode, body);
 	}
 	
