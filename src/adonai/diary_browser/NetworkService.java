@@ -416,7 +416,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if(current.tagName().equals("img"))
                 {
                     String src = current.attr("src");
-                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar"))
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
                     {
                     	if(load_cached)
                     	{
@@ -436,7 +436,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if(current.tagName().equals("a"))
                 {
                     String src = current.getElementsByTag("img").attr("src");
-                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar"))
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
                     {
                         if(load_cached)
                         {

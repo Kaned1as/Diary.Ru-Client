@@ -66,7 +66,7 @@ public class UserData
             signature = sigNode.attr("value");
 
         // данные о ссылках на свои страницы
-        Elements nodes = tag.select("div#inf_contant").select("a[href]");
+        Elements nodes = tag.select("div#inf_contant, div#myDiaryLinks").select("a[href]");
         boolean hasNewDiscussions = false, hasNewDiaryComments = false, hasNewUmails = false;
         for(Element node : nodes)
         {
@@ -82,7 +82,7 @@ public class UserData
             }
             
             // дискасс
-            if(node.attr("id").equals("menuNewDescussions"))
+            if(node.id().equals("menuNewDescussions"))
             {
             	hasNewDiscussions = true;
             	newDiscussNum = Integer.valueOf(node.text());
@@ -90,7 +90,8 @@ public class UserData
             }
             
             // дневник
-            if(node.parent() != null && node.parent().parent() != null && node.parent().parent().attr("id").equals("new_comments_count"))
+            // как минимум 3 родителя точно будет - div, body и html, значит, можно не проверять.
+            if(node.parent().parent().id().equals("new_comments_count") || node.parent().parent().parent().id().equals("myDiaryLink"))
             {
             	hasNewDiaryComments = true;
             	newDiaryCommentsNum = Integer.valueOf(node.text());
