@@ -25,8 +25,18 @@ public class DiaryActivity extends Activity implements Callback
 	{
 		super.onCreate(savedInstanceState);
 		mUiHandler = new Handler(this);
-		mUiHandler.sendEmptyMessage(HANDLE_APP_START);
 	}
+	
+	@Override
+	protected void onStart()
+	{
+		if(mService == null)
+			mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
+		
+		super.onStart();
+	}
+	
+	
 
 	@Override
 	public boolean handleMessage(Message msg)

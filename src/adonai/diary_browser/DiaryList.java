@@ -340,15 +340,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     }
 
     @Override
-    protected void onStart()
-    {
-        super.onStart();
-        
-        if(mUser != null && mUser.updateNeeded())
-        	handleUi(Utils.HANDLE_START, null);
-    }
-    
-    @Override
     protected void onNewIntent(Intent intent) 
     {
         super.onNewIntent(intent);
