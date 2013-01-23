@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.os.Bundle;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 
 public class LaunchActivity extends Activity {
 
@@ -10,10 +11,10 @@ public class LaunchActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-        Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         
-        if (!Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "").equals("") && 
-            !Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "").equals("")) 
+        if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") && 
+            !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals("")) 
         {
         	startActivity(new Intent(this, DiaryList.class));
         } 

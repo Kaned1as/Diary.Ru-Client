@@ -57,9 +57,6 @@ public class UserData
     // обновляем контент
     public void parseData(Element tag)
     {
-    	// имя пользователя
-        userName = Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "");
-        
         // цифровая подпись
         Element sigNode = tag.getElementsByAttributeValue("name", "signature").first();
         if (sigNode != null)
@@ -75,8 +72,11 @@ public class UserData
                 ownDiaryURL = node.attr("href");
             
             // идентификатор своего профиля
-            if(node.text().equals(userName) || node.text().equals("Мой профиль"))
+            if(node.attr("href").startsWith("/member/"))
             {
+                if(!node.text().equals("Мой профиль"))
+                    userName = node.text();
+                
             	String Id = node.attr("href");
                 ownProfileID = Id.substring(Id.lastIndexOf("?") + 1);
             }

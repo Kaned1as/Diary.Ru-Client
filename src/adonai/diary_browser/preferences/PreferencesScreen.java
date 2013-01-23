@@ -1,7 +1,7 @@
 package adonai.diary_browser.preferences;
 
-import adonai.diary_browser.AuthorizationForm;
 import adonai.diary_browser.R;
+import adonai.diary_browser.Utils;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
@@ -19,7 +19,7 @@ public class PreferencesScreen extends PreferenceActivity
 	    super.onCreate(savedInstanceState);
 	    
 	    PreferenceManager prefMgr = getPreferenceManager();
-	    prefMgr.setSharedPreferencesName(AuthorizationForm.mPrefsFile);
+	    prefMgr.setSharedPreferencesName(Utils.mPrefsFile);
 	    prefMgr.setSharedPreferencesMode(MODE_PRIVATE);
 	    
 	    addPreferencesFromResource(R.xml.preferences);

@@ -39,7 +39,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.text.Html;
-import android.util.Log;
 import android.util.Pair;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -54,8 +53,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	
 	public UserData mUser = new UserData();
 	public DiaryHttpClient mDHCL = new DiaryHttpClient();
+	public SharedPreferences mPreferences;
 	private CacheManager mCache = CacheManager.getInstance();
-	SharedPreferences mPreferences;
 	
 	private Handler mHandler;
     private Looper mLooper; // петля времени
@@ -66,7 +65,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
 	
     
-	public static NetworkService getInstance(final Context context)
+	public static NetworkService getInstance(Context context)
 	{
 		if(mInstance == null && !mIsStarting)
 		{
@@ -86,8 +85,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	public void onCreate()
 	{
 		super.onCreate();
-		Log.d("app", "Service is starting!!!");
-        mPreferences = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
+        mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         load_images = mPreferences.getBoolean("images.autoload", false);
         load_cached = mPreferences.getBoolean("images.autoload.cache", false);
@@ -156,8 +154,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_SET_HTTP_COOKIE:
                 {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-                    nameValuePairs.add(new BasicNameValuePair("user_login", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
-                    nameValuePairs.add(new BasicNameValuePair("user_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
+                    nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
+                    nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                     nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
                     
                     HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
@@ -699,39 +697,27 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
 			if(handled != null) // Если это страничка дайри
 	    	{
-	    		if(handled == DiaryPage.class)
+			    if(cachedPage != null && !reload)
+                    mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
+			    else if(handled == DiaryPage.class)
     			{
-    				if(cachedPage != null && !reload)
-                    	mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
-    				else
-    				{
-	    				serializeDiaryPage(dataPage);
-	    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
-    				}
-    				notifyListeners(Utils.HANDLE_GET_DIARY_PAGE_DATA, null);
+    				serializeDiaryPage(dataPage);
+    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
     			}
 	    		else if (handled == CommentsPage.class)
     			{
-    				if(cachedPage != null && !reload)
-                    	mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
-    				else
-    				{
-	    				serializeCommentsPage(dataPage);
-	    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
-    				}
-    				notifyListeners(Utils.HANDLE_GET_DIARY_PAGE_DATA, null);
+    				serializeCommentsPage(dataPage);
+    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
     			}
 	    		else if(handled == TagsPage.class)
     			{
-    				if(cachedPage != null && !reload)
-                    	mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
-    				else
-    				{
-	    				serializeTagsPage(dataPage);
-	    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
-    				}
-    				notifyListeners(Utils.HANDLE_GET_DIARY_PAGE_DATA, null);
+    				serializeTagsPage(dataPage);
+    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
     			}
+	    		else
+	    		    return;
+			    
+			    notifyListeners(Utils.HANDLE_GET_DIARY_PAGE_DATA, null);
 	    	}
 			else
 			{

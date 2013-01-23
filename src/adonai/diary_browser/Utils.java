@@ -11,6 +11,10 @@ import android.webkit.WebViewClient;
 
 public class Utils 
 {
+    public static final String KEY_USERNAME = "diary.username.key";
+    public static final String KEY_PASSWORD = "diary.password.key";
+    public static final String mPrefsFile = "diary.shared.prefs";
+    
 	// Команды хэндлерам
     public static final int DIARY_HANDLERS_MASK                           = 0x10000000;
     static final int HANDLE_AUTHORIZATION_ERROR 					=  -1 | DIARY_HANDLERS_MASK;

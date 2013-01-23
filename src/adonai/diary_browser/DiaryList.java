@@ -29,7 +29,6 @@ import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -122,9 +121,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         super.onCreate(savedInstanceState);
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
-        if(Globals.mSharedPrefs == null)
-        	Globals.mSharedPrefs = getApplicationContext().getSharedPreferences(AuthorizationForm.mPrefsFile, MODE_PRIVATE);
-        
         browserHistory = new HashMap<String, String>();
 
         mUiHandler = new Handler(this);
@@ -412,7 +408,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 return true;
             case Utils.HANDLE_SET_HTTP_COOKIE:
                 pd.setMessage(getString(R.string.getting_user_info));
-                mLogin.setText(Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, ""));
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
                 return true;
             case Utils.HANDLE_GET_DIARIES_DATA:
@@ -527,10 +522,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
 	                            if(file.exists())
 	                            {
-	                            	BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
-	                            	sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
-	                            	Globals.tempDrawable = sendDrawable;
 	                            	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+	                            	intent.putExtra("image_file", hashCode);
 	                                startActivity(intent);
 	                            }
 	        	    		}
@@ -558,9 +551,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         	{
 				public void onClick(DialogInterface dialog, int item) 
         	    {
-					Editor lysosome = Globals.mSharedPrefs.edit();
-		            lysosome.remove(AuthorizationForm.KEY_USERNAME);
-		            lysosome.remove(AuthorizationForm.KEY_PASSWORD);
+					Editor lysosome = mService.mPreferences.edit();
+		            lysosome.remove(Utils.KEY_USERNAME);
+		            lysosome.remove(Utils.KEY_PASSWORD);
 		            lysosome.commit();
 		            
 		            CookieManager cookieManager = CookieManager.getInstance();

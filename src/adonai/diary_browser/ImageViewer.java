@@ -1,5 +1,7 @@
 package adonai.diary_browser;
 
+import java.io.File;
+
 import contrib.gesture.GestureImageView;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +9,7 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.view.ViewGroup.LayoutParams;
 import android.app.Activity;
+import android.graphics.drawable.BitmapDrawable;
 
 public class ImageViewer extends Activity implements OnClickListener 
 {
@@ -14,11 +17,21 @@ public class ImageViewer extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
+        String hash = getIntent().getStringExtra("image_file");
+        if(hash == null)
+        {
+            finish();
+            return;
+        }
+        
+        File file = new File(new File(getCacheDir(), "webviewCache"), hash); // Already checked at intent sending
+        BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
+        sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
+        
         LayoutParams params = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
         GestureImageView view = new GestureImageView(this);
         view.setOnClickListener(this);
-        view.setImageDrawable(Globals.tempDrawable);
+        view.setImageDrawable(sendDrawable);
         view.setLayoutParams(params);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
@@ -30,8 +43,6 @@ public class ImageViewer extends Activity implements OnClickListener
 	protected void onStart() 
     {
 		super.onStart();
-		if (Globals.tempDrawable == null)
-			finish();
 	}
 
 	public void onClick(View v) 

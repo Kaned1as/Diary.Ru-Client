@@ -334,6 +334,9 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         if(intent == null)
         	finish();
         
+        if(NetworkService.getInstance(this) == null)
+            finish();
+        
         // обязательно
         mSignature = intent.getStringExtra("signature");
         mSendURL = intent.getStringExtra("sendURL");
@@ -400,7 +403,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				mPost.set_mood(moodText.getText().toString());
 
 				// Добавляем параметры из настроек
-				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + Globals.mSharedPrefs.getString("post.signature", "")));
+				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
                 postParams.add(new BasicNameValuePair("action", "dosend"));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
@@ -421,7 +424,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("title", mPost.get_title()));
 					if(mShowOptionals.isChecked())
 					{
-						postParams.add(new BasicNameValuePair("themes", mPost.get_themes() + Globals.mSharedPrefs.getString("post.tags", "")));
+						postParams.add(new BasicNameValuePair("themes", mPost.get_themes() + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
 						postParams.add(new BasicNameValuePair("current_music", mPost.get_music()));
 						postParams.add(new BasicNameValuePair("current_mood", mPost.get_mood()));
 					}
