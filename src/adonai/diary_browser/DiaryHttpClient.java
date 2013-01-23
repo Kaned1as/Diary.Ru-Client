@@ -26,6 +26,7 @@ public class DiaryHttpClient
 
     private HttpPost httpPost = null;
     private HttpGet httpGet = null;
+    String currentURL = "";
 
     public DiaryHttpClient() 
     {
@@ -58,12 +59,12 @@ public class DiaryHttpClient
     	HttpResponse response = null;
     	try 
     	{
-    		URI address = new URI(Globals.currentURL).resolve(url);
+    		URI address = new URI(currentURL).resolve(url);
         	httpPost = new HttpPost(address.toURL().toString());
         	if(data != null)
         		httpPost.setEntity(data);
         	else
-            	Globals.currentURL = address.toURL().toString();
+            	currentURL = address.toURL().toString();
         	
     		response = httpClient.execute(httpPost, localContext);
     	}
@@ -97,7 +98,7 @@ public class DiaryHttpClient
 
     	try 
     	{
-    		URI address = new URI(Globals.currentURL).resolve(url);
+    		URI address = new URI(currentURL).resolve(url);
         	httpGet = new HttpGet(address.toURL().toString());
     		response = httpClient.execute(httpGet, localContext);
     	} 

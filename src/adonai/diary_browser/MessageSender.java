@@ -111,8 +111,6 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
-        mDHCL = NetworkService.getInstance(this).mDHCL;
         mPost = new Post();
 		postParams = new ArrayList<NameValuePair>();
         
@@ -332,12 +330,19 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         
         // запущено без запроса
         if(intent == null)
+        {
         	finish();
+        	return;
+        }
         
         if(NetworkService.getInstance(this) == null)
+        {
             finish();
+            return;
+        }
         
         // обязательно
+        mDHCL = NetworkService.getInstance(this).mDHCL;
         mSignature = intent.getStringExtra("signature");
         mSendURL = intent.getStringExtra("sendURL");
         
@@ -418,7 +423,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("act", "new_post_post"));
 					postParams.add(new BasicNameValuePair("post_id", ""));
 					postParams.add(new BasicNameValuePair("journal_id", mId));
-					postParams.add(new BasicNameValuePair("referer", Globals.currentURL));
+					postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
 					postParams.add(new BasicNameValuePair("title", mPost.get_title()));

@@ -314,7 +314,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void serializeDiaryListPage(String dataPage)
     {
         mUser.currentDiaries = new DiaryListPage();
-        mUser.currentDiaries.setURL(Globals.currentURL);
+        mUser.currentDiaries.setURL(mDHCL.currentURL);
         
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
@@ -370,7 +370,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     	Document rootNode = Jsoup.parse(dataPage);
     	mUser.parseData(rootNode);
         
-        scannedDiary.setDiaryURL(Globals.currentURL);
+        scannedDiary.setDiaryURL(mDHCL.currentURL);
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
@@ -384,7 +384,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         	return;
         
         Elements result = postsArea.clone();
-        Document resultPage = Document.createShell(Globals.currentURL);
+        Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
         {
@@ -456,7 +456,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
         
-        scannedPost.setDiaryURL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
+        scannedPost.setDiaryURL(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
@@ -477,7 +477,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedPost.setPostURL(postURL);
             scannedPost.setPostID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
-        Document resultPage = Document.createShell(Globals.currentURL);
+        Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
         {
@@ -498,7 +498,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
         
-        scannedTags.setDiaryURL(Globals.currentURL.substring(0, Globals.currentURL.lastIndexOf('/') + 1));
+        scannedTags.setDiaryURL(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
@@ -514,7 +514,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Elements result = effectiveAreas.clone();
         result.select("input[type=checkbox]").remove();
         
-        Document resultPage = Document.createShell(Globals.currentURL);
+        Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
         {
@@ -577,7 +577,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     void serializeUmailListPage(String dataPage)
     {
         mUser.currentUmails = new DiaryListPage();
-        mUser.currentUmails.setURL(Globals.currentURL);
+        mUser.currentUmails.setURL(mDHCL.currentURL);
         
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
@@ -634,7 +634,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
         
-        scannedUmail.setUmail_URL(Globals.currentURL);
+        scannedUmail.setUmail_URL(mDHCL.currentURL);
         scannedUmail.setUmail_ID(scannedUmail.getUmail_URL().substring(scannedUmail.getUmail_URL().lastIndexOf('=') + 1));
         notifyListeners(Utils.HANDLE_PROGRESS_2, null);
         
@@ -647,7 +647,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedUmail.setSender_Name(sender.text());
         
         Elements result = mailArea.clone();
-        Document resultPage = Document.createShell(Globals.currentURL);
+        Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
             resultPage.body().appendChild(to);
@@ -669,6 +669,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	    	    // Особый обработчик для случая с списками
 	    	    if(mCache.loadPageFromCache(URL) instanceof DiaryListPage)
 	    	    {
+	    	        mDHCL.currentURL = URL;
 	    	        mHandler.sendMessage(mHandler.obtainMessage(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(URL, false)));
 	    	        return;
 	    	    }
@@ -691,21 +692,24 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 			if(handled != null) // Если это страничка дайри
 	    	{
 			    if(cachedPage != null && !reload)
+			    {
+			        mDHCL.currentURL = URL;
                     mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
+			    }
 			    else if(handled == DiaryPage.class)
     			{
     				serializeDiaryPage(dataPage);
-    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
+    				mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
     			}
 	    		else if (handled == CommentsPage.class)
     			{
     				serializeCommentsPage(dataPage);
-    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
+    				mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
     			}
 	    		else if(handled == TagsPage.class)
     			{
     				serializeTagsPage(dataPage);
-    				mCache.putPageToCache(Globals.currentURL, mUser.currentDiaryPage);
+    				mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
     			}
 	    		else
 	    		    return;
