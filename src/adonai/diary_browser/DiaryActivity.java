@@ -30,7 +30,7 @@ public class DiaryActivity extends Activity implements Callback
 	@Override
 	protected void onStart()
 	{
-		if(mService == null)
+		if(NetworkService.getInstance(this) == null || mService == null)
 			mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
 		
 		super.onStart();

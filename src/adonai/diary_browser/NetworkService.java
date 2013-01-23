@@ -49,8 +49,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	private static NetworkService mInstance = null;
 	private static boolean mIsStarting = false;
 	
-	private static final Object sWait = new Object(); 
-	
 	public UserData mUser = new UserData();
 	public DiaryHttpClient mDHCL = new DiaryHttpClient();
 	public SharedPreferences mPreferences;
@@ -98,11 +96,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		
 		mInstance = this;
 		mIsStarting = false;
-		
-		synchronized(sWait)
-		{
-			sWait.notifyAll();
-		}
 	}
 	
 	@Override
