@@ -1,12 +1,20 @@
 package adonai.diary_browser;
 
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.http.HttpResponse;
+
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import adonai.diary_browser.R;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.webkit.MimeTypeMap;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
@@ -57,21 +65,64 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setLightTouchEnabled(true);
         settings.setBuiltInZoomControls(true);
         settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-        getRefreshableView().setWebViewClient(new DiaryWebClient());
+        
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD) 
+        {
+        	getRefreshableView().setWebViewClient(new WebViewClient()
+	        {
+	        	@Override
+				public WebResourceResponse shouldInterceptRequest(WebView view, String url)
+				{
+	        		String mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(MimeTypeMap.getFileExtensionFromUrl(url));
+					if(mime.contains("image"))
+					{
+						try
+						{
+							HttpResponse response = mActivity.mDHCL.getPage(url);
+							if(response != null)
+							{
+								InputStream inImage = mActivity.mDHCL.getPage(url).getEntity().getContent();
+								WebResourceResponse result = new WebResourceResponse(mime, response.getEntity().getContentEncoding().getValue(), inImage);
+								
+								return result;
+							}
+							
+						} 
+						catch (Exception e)
+						{
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+						return null;
+					}
+					return super.shouldInterceptRequest(view, url);
+				}
+	
+				@Override
+	            public boolean shouldOverrideUrlLoading(WebView  view, String  url)
+	            {
+	                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
+	                return true;
+	            }
+	        });
+        }
+        else
+        {
+        	getRefreshableView().setWebViewClient(new WebViewClient()
+	        {
+				@Override
+	            public boolean shouldOverrideUrlLoading(WebView  view, String  url)
+	            {
+	                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
+	                return true;
+	            }
+	        });
+        }
         setOnRefreshListener(new WebPageRefresher());
     }
-
-    private class DiaryWebClient extends WebViewClient
-    {
-        // Override page so it's load on my view only
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView  view, String  url)
-        {
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
-            return true;
-        }
-    };
     
+    
+
     public class WebPageRefresher implements OnRefreshListener<WebView>
     {
 
