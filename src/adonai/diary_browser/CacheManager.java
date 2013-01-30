@@ -158,6 +158,40 @@ public class CacheManager
 			Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
 		}
     }
+    
+    public static File saveDataToSD(Context context, String name, InputStream inStream)
+    {
+        if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+            return null;
+        
+        File SD = Environment.getExternalStorageDirectory();
+        File externalDir = new File(SD, "Diary.Ru"); 
+        if(!externalDir.exists())
+            externalDir.mkdir();
+        
+        File toFile = new File(externalDir, name);
+        
+        try 
+        {
+            OutputStream out = new FileOutputStream(toFile);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = inStream.read(buf)) > 0)
+            {
+                out.write(buf, 0, len);
+            }
+            inStream.close();
+            out.close();
+            Toast.makeText(context, context.getResources().getString(R.string.saved_to) + toFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            return toFile;
+        }  
+        catch (IOException e) 
+        {
+            Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+        }
+        return null;
+    }
 
     private void cleanDir(File dir, long bytes) 
     {

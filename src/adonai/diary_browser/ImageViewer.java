@@ -17,14 +17,14 @@ public class ImageViewer extends Activity implements OnClickListener
     public void onCreate(Bundle savedInstanceState) 
     {
         super.onCreate(savedInstanceState);
-        String hash = getIntent().getStringExtra("image_file");
-        if(hash == null)
+        String addr = getIntent().getStringExtra("image_file");
+        if(addr == null)
         {
             finish();
             return;
         }
         
-        File file = new File(new File(getCacheDir(), "webviewCache"), hash); // Already checked at intent sending
+        File file = new File(addr); // Already checked at intent sending
         BitmapDrawable sendDrawable = (BitmapDrawable) BitmapDrawable.createFromPath(file.getAbsolutePath());
         sendDrawable.setBounds(0, 0, sendDrawable.getIntrinsicWidth(), sendDrawable.getIntrinsicHeight());
         

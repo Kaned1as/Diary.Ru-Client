@@ -1,6 +1,7 @@
 package adonai.diary_browser;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,7 @@ import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.DiscListArrayAdapter;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.entities.DiaryPage;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -498,15 +500,23 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	        	    	switch(item)
 	        	    	{
 	        	    		case DiaryWebView.IMAGE_SAVE: // save
-	        	    		{	        	    			
-	                            String hashCode = String.format("%08x", src.hashCode());
-	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-	                            if(file.exists())
-	                            {
-	                                String fileExtenstion = MimeTypeMap.getFileExtensionFromUrl(src);
-	                                String realName = URLUtil.guessFileName(src, null, fileExtenstion);
-	                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
-	                            }
+	        	    		{	        
+	        	    		    // На Андроиде > 2.3.3 используется иной метод сохранения кэша. Просто так картинку не получить, увы.
+	        	    		    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+	        	    	        {
+	        	    		        Toast.makeText(DiaryList.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+	        	    		        mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, false));
+	        	    	        }
+	        	    		    else
+	        	    		    {
+    	                            String hashCode = String.format("%08x", src.hashCode());
+    	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+    	                            if(file.exists())
+    	                            {
+    	                                String realName = URLUtil.guessFileName(src, null, MimeTypeMap.getFileExtensionFromUrl(src));
+    	                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
+    	                            }
+	        	    		    }
 	        	    		}
 	        	    		break;
 	        	    		case DiaryWebView.IMAGE_COPY_URL: // copy
@@ -518,14 +528,28 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	        	    		break;
 	        	    		case DiaryWebView.IMAGE_OPEN: // open Link
 	        	    		{
-	                        	String hashCode = String.format("%08x", src.hashCode());
-	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-	                            if(file.exists())
-	                            {
-	                            	Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-	                            	intent.putExtra("image_file", hashCode);
-	                                startActivity(intent);
-	                            }
+	        	    		 // На Андроиде > 2.3.3 используется иной метод сохранения кэша.
+	        	    		    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+                                {
+                                    Toast.makeText(DiaryList.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                    mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, true));
+                                }
+	        	    		    else
+	        	    		    {
+    	                        	String hashCode = String.format("%08x", src.hashCode());
+    	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+    	                            if(file.exists())
+    	                            	try
+                                        {
+    	                            	    Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+                                            intent.putExtra("image_file", file.getCanonicalPath());
+                                            startActivity(intent);
+                                        }
+                                        catch (IOException e)
+                                        {
+                                            Toast.makeText(DiaryList.this, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+                                        }
+	        	    		    }
 	        	    		}
 	        	    		break;
 	        	    	}

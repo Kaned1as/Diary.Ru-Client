@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
@@ -42,6 +43,8 @@ import android.text.Html;
 import android.util.Pair;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
 import adonai.diary_browser.Utils;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
@@ -290,6 +293,28 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     serializeUmailPage(uMail);
                     
                     notifyListeners(Utils.HANDLE_OPEN_MAIL, null);
+                    return true;
+                }
+                case Utils.HANDLE_GET_IMAGE:
+                {
+                    String src = ((Pair<String, Boolean>) message.obj).first;
+                    boolean openOnLoad = ((Pair<String, Boolean>) message.obj).second;
+                    HttpResponse response = mDHCL.getPage(src);
+                    if(response == null)
+                    {
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        return false;
+                    }
+                    Header srcName = response.getFirstHeader("Content-Disposition");
+                    String realName = URLUtil.guessFileName(src, srcName != null ? srcName.getValue() : null, MimeTypeMap.getFileExtensionFromUrl(src));
+                    File newFile = CacheManager.saveDataToSD(getApplicationContext(), realName, response.getEntity().getContent());
+                    if(openOnLoad && newFile != null)
+                    {
+                        Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra("image_file", newFile.getCanonicalPath());
+                        startActivity(intent);
+                    }
                     return true;
                 }
                 default:

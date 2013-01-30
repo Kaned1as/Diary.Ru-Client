@@ -21,6 +21,7 @@ public class DiaryHttpClient
 {
 
 	DefaultHttpClient httpClient = new DefaultHttpClient();
+	DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     CookieStore cookieStore = new BasicCookieStore();
 
@@ -100,7 +101,7 @@ public class DiaryHttpClient
     	{
     		URI address = new URI(currentURL).resolve(url);
         	httpGet = new HttpGet(address.toURL().toString());
-    		response = httpClient.execute(httpGet, localContext);
+    		response = AsyncRetriever.execute(httpGet, localContext);
     	} 
     	catch (ClientProtocolException e) 
     	{
