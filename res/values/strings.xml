@@ -100,4 +100,7 @@
     <string name="message_send_error">Error occurred while sending message</string>
     <string name="message_send_ok">Successfully sent</string>
     <string name="simple_counter">Counter</string>
+    <string name="sticky_service">Keep service in memory</string>
+    <string name="sticky_service_sum">If checked, the service will be always running, even on low-memory. You will not need to refresh data in this case.</string>
+    <string name="service_notification">Diary.Ru service is running</string>
 </resources>

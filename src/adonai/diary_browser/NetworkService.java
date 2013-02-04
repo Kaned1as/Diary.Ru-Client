@@ -27,6 +27,8 @@ import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -45,10 +47,13 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
+import android.widget.RemoteViews;
 import adonai.diary_browser.Utils;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
+    private static final int NOTIFICATION_ID = 3; // Просто случайное число
+    
 	private static NetworkService mInstance = null;
 	private static boolean mIsStarting = false;
 	
@@ -62,6 +67,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     
     boolean load_images;
     boolean load_cached;
+    boolean is_sticky;
     
     private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
 	
@@ -88,8 +94,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		super.onCreate();
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
+        
         load_images = mPreferences.getBoolean("images.autoload", false);
         load_cached = mPreferences.getBoolean("images.autoload.cache", false);
+        is_sticky = mPreferences.getBoolean("service.always.running", false);
+        if(is_sticky)
+            startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+        
         updateMaxCacheSize(mPreferences);
 		
         HandlerThread thr = new HandlerThread("ServiceThread");
@@ -106,13 +117,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	{
 		mInstance = null;
 		mLooper.quit();
+		
+		// убираем значок
+        stopForeground(true);
+        
 		super.onDestroy();
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId)
 	{
-		return START_NOT_STICKY;
+		return is_sticky ? START_STICKY : START_NOT_STICKY;
 	}
 	
 	public void handleRequest(int opcode, Object message)
@@ -784,5 +799,39 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		{
 			load_cached = sharedPreferences.getBoolean(key, false);
 		}
+		else if(key.equals("service.always.running"))
+		{
+		    is_sticky = sharedPreferences.getBoolean(key, false);
+		    if(is_sticky)
+		        startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+		    else
+		        stopForeground(true);
+		}
 	}
+    
+    public Notification createNotification(DiaryWebPage page)
+    {
+        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
+        //views.setImageViewResource(R.id.icon, statusIcon);
+        //views.setTextViewText(R.id.title, song.title);
+        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getContent().head() != null ? page.getContent().head().text() : "");
+
+        /*if (mInvertNotification) {
+            TypedArray array = getTheme().obtainStyledAttributes(new int[] { android.R.attr.textColorPrimary });
+            int color = array.getColor(0, 0xFF00FF);
+            array.recycle();
+            views.setTextColor(R.id.title, color);
+            views.setTextColor(R.id.artist, color);
+        }*/
+
+        Notification notification = new Notification();
+        notification.contentView = views;
+        notification.icon = R.drawable.ic_launcher;
+        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        
+        Intent intent = new Intent(this, DiaryList.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        return notification;
+    }
 }

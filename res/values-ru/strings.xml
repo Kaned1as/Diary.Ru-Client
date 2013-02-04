@@ -87,7 +87,7 @@
     <string name="subscribers_list">Список ПЧ</string>
     <string name="incoming_mail">Входящие</string>
     <string name="outcoming_mail">Исходящие</string>
-    <string name="menu_close">Выход</string>
+    <string name="menu_close">Остановка и выход</string>
     <string name="umail_activity_title">U-Mail Папки</string>
     <string name="umail_description">Почтовая служба UMail</string>
     <string name="quotes_decription">Цитатник пользователя</string>
@@ -98,4 +98,7 @@
     <string name="reply_umail">Ответить</string>
     <string name="message_send_error">Ошибка отправки сообщения</string>
     <string name="message_send_ok">Сообщение успешно отправлено</string>
+    <string name="sticky_service">Держать сервис в памяти</string>
+    <string name="sticky_service_sum">Если включено, сервис будет всегда оставаться активным, даже при нехватке памяти. В этом случае приложению не нужно перезагружать данные при переключении.</string>
+    <string name="service_notification">сервис Diary.Ru работает</string>
 </resources>

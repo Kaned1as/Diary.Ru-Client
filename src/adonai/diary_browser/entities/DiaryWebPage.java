@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document;
 
 public abstract class DiaryWebPage
 {
-    private Document content;
+    private Document content = null;
     
     public Document getContent()
     {
