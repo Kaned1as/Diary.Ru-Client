@@ -318,6 +318,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
                 return true;
             case R.id.menu_close_app:
+                stopService(new Intent(this, NetworkService.class));
                 finish();
                 System.exit(0);
             default:
