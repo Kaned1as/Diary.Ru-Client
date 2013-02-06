@@ -2,14 +2,14 @@
     <item android:id="@+id/menu_new_post"
         android:title="@string/new_post"
         android:orderInCategory="100"
-        android:showAsAction="never" 
+        android:showAsAction="always|withText" 
         android:icon="@android:drawable/ic_menu_add" />
     
     <item android:id="@+id/menu_new_comment" 
         android:orderInCategory="101" 
         android:title="@string/new_comment" 
         android:icon="@android:drawable/ic_menu_add"
-        android:showAsAction="never" />
+        android:showAsAction="always|withText" />
     <item android:id="@+id/menu_tags" android:title="@string/diary_tags" android:icon="@android:drawable/ic_menu_agenda"></item>
     <group android:id="@+id/group_all" android:menuCategory="container">
         <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share"></item>

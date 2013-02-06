@@ -353,6 +353,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         // Если это пост
         if(mTypeId.equals("DiaryId"))
         {
+            setTitle(R.string.new_post);
+            
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
             
@@ -364,6 +366,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         }
         else if (mTypeId.equals("PostId")) // если это комментарий
         {
+            setTitle(R.string.new_comment);
+            
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
             
@@ -376,6 +380,8 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         }
         else if(mTypeId.equals("umailTo")) // Если почта
         {
+            setTitle(R.string.new_umail);
+            
             for(View v : commentElements)
                 v.setVisibility(View.GONE);
             
@@ -416,7 +422,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				// Если пост
 				if(mTypeId.equals("DiaryId"))
 				{
-	                
+				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
 	                postParams.add(new BasicNameValuePair("module", "journal"));
 	                postParams.add(new BasicNameValuePair("resulttype", "2"));
 	                
@@ -515,7 +521,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				}
 				else if(mTypeId.equals("PostId"))  // если коммент
 				{
-	                
+				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
 	                postParams.add(new BasicNameValuePair("module", "journal"));
 	                postParams.add(new BasicNameValuePair("resulttype", "2"));
 				    

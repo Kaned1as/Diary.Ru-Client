@@ -364,15 +364,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         		
         	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
                 handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
-                return true;
+                break;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null && pd.isShowing())
                     pd.setMessage(getString(R.string.parsing_data));
-                return true;
+                break;
             case Utils.HANDLE_PROGRESS_2:
                 if(pd != null && pd.isShowing())
                     pd.setMessage(getString(R.string.sorting_data));
-                return true;
+                break;
             case HANDLE_UPDATE_HEADERS:
             	// обрабатываем обновление контента
             	mLogin.setText(mUser.userName);
@@ -408,11 +408,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     mUmailNum.setText("");
                     mUmailNum.setVisibility(View.GONE);
                 }
-                return true;
+                break;
             case Utils.HANDLE_SET_HTTP_COOKIE:
                 pd.setMessage(getString(R.string.getting_user_info));
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
-                return true;
+                break;
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);
                 mDiaryBrowser.setAdapter(null);
@@ -445,23 +445,36 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
                 browserHistory.put(mUser.currentDiaries.getURL(), getString(R.string.favourites));
                 mDiaryBrowser.onRefreshComplete();
+                
+                // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+                    invalidateOptionsMenu();
+                
                 pd.dismiss();
-                return true;
-            case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the mos important part!
+                break;
+            case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
-                
                 browserHistory.put(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
+                
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 mPageBrowser.onRefreshComplete();
+                
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+                    invalidateOptionsMenu(); // PART_WEB
+                
                 pd.dismiss();
-                return true;
+                break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
             	setCurrentVisibleComponent(PART_DISC_LIST);
+            	
+                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+                    invalidateOptionsMenu(); // PART_DISC_LIST
+            	
             	pd.dismiss();
-            	return true;
+            	break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 pd.dismiss();
                 mPageBrowser.onRefreshComplete();
@@ -469,12 +482,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                 finish();
-            break;
+                break;
             case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
             	int pos = (Integer) message.obj;
             	mDiscussionBrowser.expandGroup(pos);
             	pd.dismiss();
-            	return true;
+            	break;
             case Utils.HANDLE_CONNECTIVITY_ERROR:
                 pd.dismiss();
                 Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
@@ -559,11 +572,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	        	AlertDialog alert = builder.create();
 	        	alert.show();
 	        }
-            return true;
+            break;
             default:
                 super.handleMessage(message);
         }
-        return false;
+        
+        return true;
     }
     
     public void onClick(View view)
