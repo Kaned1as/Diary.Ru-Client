@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.widget.Toast;
 
 public class DiaryActivity extends Activity implements Callback
 {
@@ -46,7 +47,7 @@ public class DiaryActivity extends Activity implements Callback
 		case HANDLE_APP_START:
 			mService = NetworkService.getInstance(this);
 			if(mService == null)
-				mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 100);
+				mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 50);
 			else
 			{
 		        mUser = mService.mUser;
@@ -54,6 +55,13 @@ public class DiaryActivity extends Activity implements Callback
 		        mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 			}
 			return true;
+		case Utils.HANDLE_SERVICE_ERROR:
+		    Toast.makeText(getApplicationContext(), "Service is not running", Toast.LENGTH_SHORT).show();
+		    return true;
+		case Utils.HANDLE_CONNECTIVITY_ERROR:
+            pd.dismiss();
+            Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+            return true;
 		}
 		return false;
 	}

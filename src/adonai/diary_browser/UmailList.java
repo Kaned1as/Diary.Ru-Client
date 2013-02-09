@@ -148,22 +148,18 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 }
         		mFolderBrowser.setAdapter(mFolderAdapter);
         		pd.dismiss();
-        	return true;
+        		return true;
         	case Utils.HANDLE_OPEN_MAIL:
         	    setCurrentVisibleComponent(PART_WEB);
         	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
                 setTitle(mUser.currentUmailPage.getContent().title());
                 mMessageBrowser.onRefreshComplete();
                 pd.dismiss();
-            return true;
+                return true;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null && pd.isShowing())
                     pd.setMessage(getString(R.string.parsing_data));
-            return true;
-            case Utils.HANDLE_CONNECTIVITY_ERROR:
-                pd.dismiss();
-                Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
-            return false;
+                return true;
             default:
             	super.handleMessage(message);
                 /*pd.dismiss();

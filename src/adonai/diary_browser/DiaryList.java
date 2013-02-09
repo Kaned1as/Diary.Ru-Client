@@ -488,10 +488,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mDiscussionBrowser.expandGroup(pos);
             	pd.dismiss();
             	break;
-            case Utils.HANDLE_CONNECTIVITY_ERROR:
-                pd.dismiss();
-                Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
-            break;
             case HANDLE_IMAGE_CLICK:
             {
             	final String src = message.getData().getString("url");

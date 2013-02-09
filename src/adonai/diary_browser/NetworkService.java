@@ -121,6 +121,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		// убираем значок
         stopForeground(true);
         
+        // убираем вызовы регистрантам
+        for (DiaryActivity listener : mListeners)
+        {
+            listener.mUiHandler.removeCallbacksAndMessages(null);
+            listener.handleUi(Utils.HANDLE_SERVICE_ERROR, null);
+        }
+        
 		super.onDestroy();
 	}
 
