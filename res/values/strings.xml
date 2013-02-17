@@ -105,4 +105,5 @@
     <string name="service_notification">Diary.Ru service is running</string>
     <string name="refresh">Refresh</string>
     <string name="menu_goto_top">Top</string>
+    <string name="really_delete">Really delete?</string>
 </resources>

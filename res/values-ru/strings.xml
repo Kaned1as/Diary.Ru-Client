@@ -103,4 +103,5 @@
     <string name="service_notification">сервис Diary.Ru работает</string>
     <string name="refresh">Обновить</string>
     <string name="menu_goto_top">Наверх</string>
+    <string name="really_delete">Правда удалить?</string>
 </resources>

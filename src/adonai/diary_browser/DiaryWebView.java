@@ -4,7 +4,10 @@ import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 import adonai.diary_browser.R;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.webkit.WebSettings;
@@ -67,8 +70,37 @@ public class DiaryWebView extends PullToRefreshWebView
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
-            return true;
+            if(url.contains("diary"))
+            {
+                if(url.contains("?delpost&postid=")) // удаление поста
+                {
+                    final String id = url.substring(url.lastIndexOf("=") + 1);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            mActivity.handleBackground(Utils.HANDLE_DELETE_POST, id);
+                        }
+                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                        }
+                    });
+                    
+                    builder.create().show();
+                    return true;
+                }
+                    
+                    
+                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
+            }
+            return false;
         }
     };
     

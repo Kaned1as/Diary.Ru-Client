@@ -339,6 +339,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
                     return true;
                 }
+                case Utils.HANDLE_DELETE_POST:
+                {
+                    String id = (String) message.obj;
+                    List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+                    postParams.add(new BasicNameValuePair("module", "journal"));
+                    postParams.add(new BasicNameValuePair("act", "del_post_post"));
+                    postParams.add(new BasicNameValuePair("post_id", id));
+                    postParams.add(new BasicNameValuePair("yes", "Да"));
+                    mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                    
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    return true;
+                }
                 default:
                     return false;
             }
@@ -816,6 +829,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		}
 	}
     
+    // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foregound-режиме
     public Notification createNotification(DiaryWebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
