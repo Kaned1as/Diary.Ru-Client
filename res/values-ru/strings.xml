@@ -101,4 +101,6 @@
     <string name="sticky_service">Держать сервис в памяти</string>
     <string name="sticky_service_sum">Если включено, сервис будет всегда оставаться активным, даже при нехватке памяти. В этом случае приложению не нужно перезагружать данные при переключении.</string>
     <string name="service_notification">сервис Diary.Ru работает</string>
+    <string name="refresh">Обновить</string>
+    <string name="menu_goto_top">Наверх</string>
 </resources>

@@ -18,4 +18,8 @@
         <item android:id="@+id/menu_close_app" android:title="@string/menu_close" android:icon="@android:drawable/ic_menu_close_clear_cancel"></item>
     </group>
     <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@android:drawable/ic_menu_agenda"></item>
+    <group android:id="@+id/group_web">
+        <item android:id="@+id/menu_refresh" android:title="@string/refresh" android:icon="@drawable/default_ptr_rotate" android:showAsAction="always|withText"></item>
+        <item android:id="@+id/menu_up" android:title="@string/menu_goto_top" android:icon="@drawable/ic_menu_up" android:showAsAction="never|withText"></item>
+    </group>
 </menu>

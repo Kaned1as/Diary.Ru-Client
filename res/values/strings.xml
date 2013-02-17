@@ -103,4 +103,6 @@
     <string name="sticky_service">Keep service in memory</string>
     <string name="sticky_service_sum">If checked, the service will be always running, even on low-memory. You will not need to refresh data in this case.</string>
     <string name="service_notification">Diary.Ru service is running</string>
+    <string name="refresh">Refresh</string>
+    <string name="menu_goto_top">Top</string>
 </resources>

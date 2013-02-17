@@ -259,7 +259,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         else
         	menu.findItem(R.id.menu_new_comment).setVisible(false);
         
-        // Только если это список дневников
+        
+        // Для всех веб-страничек
+        if(mCurrentComponent == PART_WEB)
+            menu.setGroupVisible(R.id.group_web, true);
+        else
+            menu.setGroupVisible(R.id.group_web, false);
+        
+        // Для всех списков
         if(mCurrentComponent == PART_LIST)
         {
         	menu.findItem(R.id.menu_share).setVisible(false);
@@ -270,6 +277,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         	menu.findItem(R.id.menu_share).setVisible(true);
         	menu.findItem(R.id.menu_subscr_list).setVisible(false);
         }
+        
+        
         
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -317,10 +326,17 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
                 return true;
+            case R.id.menu_up:
+                mPageBrowser.getRefreshableView().scrollTo(0, 0);
+                return true;
+            case R.id.menu_refresh:
+                mPageBrowser.setRefreshing(false);
+                return true;
             case R.id.menu_close_app:
                 stopService(new Intent(this, NetworkService.class));
                 finish();
                 System.exit(0);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
