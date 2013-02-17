@@ -94,6 +94,8 @@ public class DiaryHttpClient
     
     public HttpResponse getPage(String url) 
     {
+        if(url.startsWith("file"))
+            return null; // Не загружать локальные
     	
     	HttpResponse response = null;
 
