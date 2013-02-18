@@ -666,7 +666,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     // Загружаем дискуссии
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) 
 	{
-		String link = ((DiscList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).get_URL();
+		String link = ((DiscList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
 	    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(link, false));
 		return true;
 	}

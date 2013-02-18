@@ -24,6 +24,7 @@ import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryWebPage;
 import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.Openable;
+import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
@@ -352,6 +353,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
                     return true;
                 }
+                case Utils.HANDLE_EDIT_POST:
+                {
+                	String URL = (String) message.obj;
+                	HttpResponse page = mDHCL.postPage(URL, null);
+    		    	if(page == null)
+    		    	{
+    		    		notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+    		    		return false;
+    		    	}
+    		    	String dataPage = EntityUtils.toString(page.getEntity());
+    		    	Post sendPost = serializePostEditPage(dataPage);
+                	return true;
+                }
                 default:
                     return false;
             }
@@ -366,6 +380,21 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
 		
 		return true;
+	}
+
+	private Post serializePostEditPage(String dataPage)
+	{
+		notifyListeners(Utils.HANDLE_PROGRESS, null);
+		Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
+		Post result = new Post();
+		
+		result.title = rootNode.select("input#postTitle.text").text();
+		result.content = rootNode.select("textarea#message").text();
+		
+		result.themes = rootNode.select("input#tags.text").text();
+		result.mood = rootNode.select("input#atMood.text").text();
+		result.music = rootNode.select("input#atMusic.text").text();
+		return result;
 	}
 
 	/* (non-Javadoc)
@@ -623,11 +652,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
         	DiscList.Discussion currentDisc = new DiscList.Discussion();
         	String link = discussion.attr("href");
-        	currentDisc.set_URL(link);
+        	currentDisc.URL = link;
         	String title = discussion.text();
-        	currentDisc.set_title(title);
+        	currentDisc.title = title;
         	String date = discussion.previousElementSibling().text();
-        	currentDisc.set_date(date);
+        	currentDisc.date = date;
         	
         	
         	destination.add(currentDisc);

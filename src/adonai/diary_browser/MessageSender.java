@@ -406,12 +406,12 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 			{
 				// TODO: Сохранение в черновики
 				// Задел на будущее - для сохранения в черновики
-				mPost.set_title(titleText.getText().toString());
+				mPost.title = titleText.getText().toString();
 				//mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
-				mPost.set_content(Jsoup.parse(contentText.getText().toString()));
-				mPost.set_themes(themesText.getText().toString());
-				mPost.set_music(musicText.getText().toString());
-				mPost.set_mood(moodText.getText().toString());
+				mPost.content = Jsoup.parse(contentText.getText().toString()).html();
+				mPost.themes = themesText.getText().toString();
+				mPost.music = musicText.getText().toString();
+				mPost.mood = moodText.getText().toString();
 
 				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
@@ -432,12 +432,12 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
-					postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+					postParams.add(new BasicNameValuePair("title", mPost.title));
 					if(mShowOptionals.isChecked())
 					{
-						postParams.add(new BasicNameValuePair("themes", mPost.get_themes() + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
-						postParams.add(new BasicNameValuePair("current_music", mPost.get_music()));
-						postParams.add(new BasicNameValuePair("current_mood", mPost.get_mood()));
+						postParams.add(new BasicNameValuePair("themes", mPost.themes + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
+						postParams.add(new BasicNameValuePair("current_music", mPost.music));
+						postParams.add(new BasicNameValuePair("current_mood", mPost.mood));
 					}
 					else
 					{
@@ -547,7 +547,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				    postParams.add(new BasicNameValuePair("act", "umail_send"));
 				    postParams.add(new BasicNameValuePair("from_folder", ""));
 				    postParams.add(new BasicNameValuePair("to_user", toText.getText().toString()));
-				    postParams.add(new BasicNameValuePair("title", mPost.get_title()));
+				    postParams.add(new BasicNameValuePair("title", mPost.title));
 				    postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
 				    postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
 				    

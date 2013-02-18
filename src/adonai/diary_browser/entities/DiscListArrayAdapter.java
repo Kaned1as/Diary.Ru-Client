@@ -87,9 +87,9 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
             view = convertView;
         
         TextView title = (TextView) view.findViewById(R.id.discussion_post_title);
-        title.setText(discussion.get_title());
+        title.setText(discussion.title);
         TextView date = (TextView) view.findViewById(R.id.discussion_post_date);
-        date.setText(discussion.get_date());
+        date.setText(discussion.date);
         
         return view;
 	}

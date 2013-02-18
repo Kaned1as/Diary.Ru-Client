@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.webkit.WebSettings;
@@ -96,7 +95,12 @@ public class DiaryWebView extends PullToRefreshWebView
                     builder.create().show();
                     return true;
                 }
-                    
+                
+                if(url.contains("?editpost&postid=")) // редактирование поста
+                {
+                    mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
+                    return true;
+                }
                     
                 mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             }
