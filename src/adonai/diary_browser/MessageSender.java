@@ -394,11 +394,41 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
             if(mId != null)
                 toText.setText(mId);
         }
+        else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
+        {
+            setTitle(R.string.edit_post);
+            
+            for(View v : umailElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : commentElements)
+                v.setVisibility(View.GONE);
+            
+            for(View v : postElements)
+                v.setVisibility(View.VISIBLE);
+            
+            mPost = Post.deserialize(intent.getStringExtra("postContents"));
+            prepareUi(mPost);
+        }
         
         super.onStart();
     }
 
-	public void onClick(View view) 
+	private void prepareUi(Post post)
+    {
+        titleText.setText(post.title);
+        contentText.setText(post.content);
+        
+        if(!"".equals(post.music + post.mood + post.themes))
+        {
+            mShowOptionals.setChecked(true);
+            musicText.setText(post.music);
+            moodText.setText(post.mood);
+            themesText.setText(post.themes);
+        }
+    }
+
+    public void onClick(View view) 
 	{
 		switch(view.getId())
 		{
@@ -518,6 +548,105 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					postParams.add(new BasicNameValuePair("save_type", "js2"));
 					
 					mHandler.sendEmptyMessage(HANDLE_DO_POST);
+				}
+				else if(mTypeId.equals("PostEditId")) // Если редактируем пост
+				{
+				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
+                    postParams.add(new BasicNameValuePair("module", "journal"));
+                    postParams.add(new BasicNameValuePair("resulttype", "2"));
+                    
+                    postParams.add(new BasicNameValuePair("act", "edit_post_post"));
+                    postParams.add(new BasicNameValuePair("post_id", mPost.ID));
+                    postParams.add(new BasicNameValuePair("journal_id", mPost.diaryID));
+                    postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
+                    postParams.add(new BasicNameValuePair("post_type", ""));
+                    
+                    postParams.add(new BasicNameValuePair("title", mPost.title));
+                    if(mShowOptionals.isChecked())
+                    {
+                        postParams.add(new BasicNameValuePair("themes", mPost.themes + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
+                        postParams.add(new BasicNameValuePair("current_music", mPost.music));
+                        postParams.add(new BasicNameValuePair("current_mood", mPost.mood));
+                    }
+                    else
+                    {
+                        postParams.add(new BasicNameValuePair("themes", ""));
+                        postParams.add(new BasicNameValuePair("current_music", ""));
+                        postParams.add(new BasicNameValuePair("current_mood", ""));
+                    }
+
+                    postParams.add(new BasicNameValuePair("attachment", ""));
+                    
+                    if(mShowPoll.isChecked())
+                    {
+                        postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_1", mPollChoice1.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_2", mPollChoice2.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_3", mPollChoice3.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_4", mPollChoice4.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_5", mPollChoice5.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_6", mPollChoice6.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_7", mPollChoice7.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_8", mPollChoice8.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_9", mPollChoice9.getText().toString()));
+                        postParams.add(new BasicNameValuePair("poll_answer_10", mPollChoice10.getText().toString()));
+                    }
+                    else
+                    {
+                        postParams.add(new BasicNameValuePair("poll_title", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_1", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_2", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_3", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_4", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_5", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_6", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_7", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_8", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_9", ""));
+                        postParams.add(new BasicNameValuePair("poll_answer_10", ""));
+                    }
+                    
+                    if(mShowAndClose.isChecked())
+                    {
+                        postParams.add(new BasicNameValuePair("private_post", "1"));
+                        if(!mCloseText.getText().equals(""))
+                        {
+                            postParams.add(new BasicNameValuePair("check_close_text", "1"));
+                            postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
+                        }
+                        
+                        switch(mCloseOpts.getCheckedRadioButtonId())
+                        {
+                            case R.id.close_only_reg:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "6"));
+                            break;
+                            case R.id.close_only_fav:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "1"));
+                            break;
+                            case R.id.close_only_sub:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "5"));
+                            break;
+                            case R.id.close_only_white:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "4"));
+                            break;
+                            case R.id.close_for_list:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "2"));
+                                postParams.add(new BasicNameValuePair("access_list", mCloseDenyList.getText().toString()));
+                            break;
+                            case R.id.close_only_list:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "3"));
+                                postParams.add(new BasicNameValuePair("access_list", mCloseAllowList.getText().toString()));
+                            break;
+                            case R.id.close_for_all:
+                                postParams.add(new BasicNameValuePair("close_access_mode", "7"));
+                            break;
+                        }
+                    }
+                    
+                    postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
+                    postParams.add(new BasicNameValuePair("save_type", "js2"));
+                    
+                    mHandler.sendEmptyMessage(HANDLE_DO_POST);
 				}
 				else if(mTypeId.equals("PostId"))  // если коммент
 				{

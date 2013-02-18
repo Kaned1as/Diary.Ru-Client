@@ -17,6 +17,7 @@ import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.DiscList;
 import adonai.diary_browser.entities.DiscListArrayAdapter;
+import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.entities.DiaryPage;
 import android.os.Build;
@@ -585,6 +586,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	        	alert.show();
 	        }
             break;
+            case Utils.HANDLE_EDIT_POST:
+                Post sendPost = (Post)message.obj;
+                editPost(sendPost);
+                pd.dismiss();
+                break;
             default:
                 super.handleMessage(message);
         }
@@ -864,6 +870,20 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((CommentsPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
+        
+        startActivity(postIntent);
+    }
+    
+    public void editPost(Post post)
+    {
+        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+        
+        postIntent.putExtra("TypeId", "PostEditId");
+        postIntent.putExtra("PostEditId", post.ID);
+        
+        postIntent.putExtra("signature", mUser.signature);
+        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
+        postIntent.putExtra("postContents", post.serialize());
         
         startActivity(postIntent);
     }

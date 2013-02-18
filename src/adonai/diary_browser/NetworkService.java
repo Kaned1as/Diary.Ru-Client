@@ -364,6 +364,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     		    	}
     		    	String dataPage = EntityUtils.toString(page.getEntity());
     		    	Post sendPost = serializePostEditPage(dataPage);
+    		    	sendPost.ID = URL.substring(URL.lastIndexOf("=") + 1);
+    		    	sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
+    		    	
+    		    	notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                 	return true;
                 }
                 default:
@@ -388,12 +392,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
 		Post result = new Post();
 		
-		result.title = rootNode.select("input#postTitle.text").text();
+		result.title = rootNode.select("input#postTitle.text").val();
 		result.content = rootNode.select("textarea#message").text();
 		
-		result.themes = rootNode.select("input#tags.text").text();
-		result.mood = rootNode.select("input#atMood.text").text();
-		result.music = rootNode.select("input#atMusic.text").text();
+		result.themes = rootNode.select("input#tags.text").val();
+		result.mood = rootNode.select("input#atMood.text").val();
+		result.music = rootNode.select("input#atMusic.text").val();
+		
+		result.pollTitle = rootNode.select("input#queti.text").val();
+		if(!result.pollTitle.equals("")) // если есть опрос
+		{
+		    result.pollAnswer1 = rootNode.select("input#answer1i.text.poll_answer").val();
+		    result.pollAnswer2 = rootNode.select("input#answer2i.text.poll_answer").val();
+		    result.pollAnswer3 = rootNode.select("input#answer3i.text.poll_answer").val();
+		    result.pollAnswer4 = rootNode.select("input#answer4i.text.poll_answer").val();
+		    result.pollAnswer5 = rootNode.select("input#answer5i.text.poll_answer").val();
+		    result.pollAnswer6 = rootNode.select("input#answer6i.text.poll_answer").val();
+		    result.pollAnswer7 = rootNode.select("input#answer7i.text.poll_answer").val();
+		    result.pollAnswer8 = rootNode.select("input#answer8i.text.poll_answer").val();
+		    result.pollAnswer9 = rootNode.select("input#answer9i.text.poll_answer").val();
+		    result.pollAnswer10 = rootNode.select("input#answer10i.text.poll_answer").val();
+		}
+		
+		result.closeAccessMode = rootNode.select("[id^=closeaccessmode]").select("[checked]").val();
+		
 		return result;
 	}
 
