@@ -426,6 +426,44 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
             moodText.setText(post.mood);
             themesText.setText(post.themes);
         }
+        
+        if(!post.pollTitle.equals(""))
+        {
+        	mShowPoll.setChecked(true);
+        	mPollTitle.setText(post.pollTitle);
+        	mPollChoice1.setText(post.pollAnswer1);
+        	mPollChoice2.setText(post.pollAnswer2);
+        	mPollChoice3.setText(post.pollAnswer3);
+        	mPollChoice4.setText(post.pollAnswer4);
+        	mPollChoice5.setText(post.pollAnswer5);
+        	mPollChoice6.setText(post.pollAnswer6);
+        	mPollChoice7.setText(post.pollAnswer7);
+        	mPollChoice8.setText(post.pollAnswer8);
+        	mPollChoice9.setText(post.pollAnswer9);
+        	mPollChoice10.setText(post.pollAnswer10);
+        }
+        
+        if(!post.closeAccessMode.equals(""))
+        {
+            mCloseOpts.setVisibility(View.VISIBLE);
+            if(post.closeAccessMode.equals("6"))
+                mCloseOpts.check(R.id.close_only_reg);
+            else if(post.closeAccessMode.equals("1"))
+                mCloseOpts.check(R.id.close_only_fav);
+            else if(post.closeAccessMode.equals("5"))
+                mCloseOpts.check(R.id.close_only_sub);
+            else if(post.closeAccessMode.equals("4"))
+                mCloseOpts.check(R.id.close_only_white);
+            else if(post.closeAccessMode.equals("3"))
+                mCloseOpts.check(R.id.close_for_list);
+            else if(post.closeAccessMode.equals("2"))
+                mCloseOpts.check(R.id.close_only_list);
+            else if(post.closeAccessMode.equals("7"))
+                mCloseOpts.check(R.id.close_for_all);
+            
+            mCloseAllowList.setText(post.closeAllowList);
+            mCloseDenyList.setText(post.closeDenyList);
+        }
     }
 
     public void onClick(View view) 
