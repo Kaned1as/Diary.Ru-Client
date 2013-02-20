@@ -1,7 +1,9 @@
 package adonai.diary_browser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -9,6 +11,9 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import adonai.diary_browser.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -37,16 +42,18 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 
 public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
 
-	private static final int HANDLE_DO_POST = 0;
-	private static final int HANDLE_DO_COMMENT = 1;
-	private static final int HANDLE_DO_UMAIL = 2;
-	private static final int HANDLE_UMAIL_ACK = 3;
-	private static final int HANDLE_UMAIL_REJ = 4;
+	private static final int HANDLE_DO_POST 		= 0;
+	private static final int HANDLE_DO_COMMENT 		= 1;
+	private static final int HANDLE_DO_UMAIL 		= 2;
+	private static final int HANDLE_UMAIL_ACK 		= 3;
+	private static final int HANDLE_UMAIL_REJ 		= 4;
+	private static final int HANDLE_REQUEST_AVATARS = 5;
 	
 	ImageButton mLeftGradient;
 	ImageButton mRightGradient;
@@ -65,6 +72,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	CheckBox mShowAndClose;
 	CheckBox mGetReceipt;
 	CheckBox mCopyMessage;
+	CheckBox mCustomAvatar;
 	
 	EditText mPollTitle;
 	EditText mPollChoice1;
@@ -88,6 +96,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	Looper mLooper;
 	ProgressDialog pd = null;
 	
+	LinearLayout mAvatars;
 	List<View> postElements = new ArrayList<View>();
 	List<View> commentElements = new ArrayList<View>();
 	List<View> umailElements = new ArrayList<View>();
@@ -99,6 +108,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	String mSignature = null;
 	String mId = null;
 	String mTypeId = null;
+	Map<Integer, String> avatarMap;
 	
 	DiaryHttpClient mDHCL;
 	String mSendURL;
@@ -158,6 +168,10 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     	mCloseAllowList = (EditText) findViewById(R.id.close_allowed_list);
     	mCloseDenyList = (EditText) findViewById(R.id.close_denied_list);
     	mCloseText = (EditText) findViewById(R.id.close_text);
+    	
+    	mCustomAvatar = (CheckBox) findViewById(R.id.message_custom_avatar);
+    	mAvatars = (LinearLayout) findViewById(R.id.message_avatars);
+    	mCustomAvatar.setOnCheckedChangeListener(this);
     	
     	mShowOptionals = (CheckBox) findViewById(R.id.message_optional);
     	mShowOptionals.setOnCheckedChangeListener(this);
@@ -228,10 +242,13 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
             	{
             		case HANDLE_DO_POST:
             		case HANDLE_DO_COMMENT:
+            		{
 						mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 						mUiHandler.sendEmptyMessage(message.what);
             			return true;
+            		}
                     case HANDLE_DO_UMAIL:
+                    {
                         HttpResponse page = mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
                         String result = EntityUtils.toString(page.getEntity());
                         if(result.contains("Письмо отправлено"))
@@ -239,6 +256,26 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
                         else
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_REJ);
                         return true;
+                    }
+                    case HANDLE_REQUEST_AVATARS:
+                    {
+                    	String URL = "http://www.diary.ru/options/member/?avatar";
+                    	HttpResponse page = mDHCL.postPage(URL, null);
+        		    	if(page == null)
+        		    		return false;
+        		    	
+        		    	String dataPage = EntityUtils.toString(page.getEntity());
+        		    	Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
+        		    	avatarMap = new HashMap<Integer, String>();
+        		    	for(Element avatarbit : avatardivs)
+        		    	{
+        		    		Integer avId = Integer.valueOf(avatarbit.select("input[name=use_avatar_id]").val());
+        		    		String url = avatarbit.child(0).attr("style");
+        		    		url = url.substring(url.lastIndexOf('(') + 1, url.lastIndexOf(')') - 1);
+        		    		avatarMap.put(avId, url);
+        		    	}
+                    	return true;
+                    }
             		default:
             			break;
             	}
@@ -312,6 +349,10 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
                     builder.create().show();
                     break;
                 }
+        		case HANDLE_REQUEST_AVATARS:
+        		{
+        			
+        		}
         		default:
         			break;
         	}
@@ -808,6 +849,15 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 					mCloseOpts.setVisibility(View.VISIBLE);
 				else
 					mCloseOpts.setVisibility(View.GONE);
+			case R.id.message_custom_avatar:
+				if(isChecked)
+				{
+					mAvatars.setVisibility(View.VISIBLE);
+					pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
+					mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
+				}
+				else
+					mAvatars.setVisibility(View.GONE);
 			default:
 			break;
 		}

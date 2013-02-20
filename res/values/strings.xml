@@ -107,4 +107,5 @@
     <string name="menu_goto_top">Top</string>
     <string name="really_delete">Really delete?</string>
     <string name="edit_post">Edit post</string>
+    <string name="select_custom_avatar">Select custom avatar</string>
 </resources>

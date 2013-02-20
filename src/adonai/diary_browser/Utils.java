@@ -16,7 +16,7 @@ public class Utils
     public static final String mPrefsFile = "diary.shared.prefs";
     
 	// Команды хэндлерам
-    static final int DIARY_HANDLERS_MASK                           = 0x10000000;
+    static final int DIARY_HANDLERS_MASK                            = 0x10000000;
     static final int HANDLE_AUTHORIZATION_ERROR 					=  -1 | DIARY_HANDLERS_MASK;
     static final int HANDLE_SET_HTTP_COOKIE 						= 	2 | DIARY_HANDLERS_MASK;
     static final int HANDLE_GET_DIARIES_DATA 		             	= 	3 | DIARY_HANDLERS_MASK;
@@ -29,7 +29,7 @@ public class Utils
     static final int HANDLE_EDIT_POST                               =  10 | DIARY_HANDLERS_MASK;
     
     
-    static final int UMAIL_HANDLERS_MASK                           = 0x20000000;
+    static final int UMAIL_HANDLERS_MASK                            = 0x20000000;
 	static final int HANDLE_OPEN_FOLDER                             =   2 | UMAIL_HANDLERS_MASK;
 	static final int HANDLE_OPEN_MAIL                               =   3 | UMAIL_HANDLERS_MASK;
 	
@@ -40,8 +40,6 @@ public class Utils
     static final int HANDLE_CONNECTIVITY_ERROR                      =  -20 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_SERVICE_ERROR                           =  -30 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     
-	
-	
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
                                              "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +

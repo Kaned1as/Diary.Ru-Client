@@ -395,7 +395,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
-                	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
+                	mCommentsNum.setText(" " + mUser.newDiaryCommentsNum.toString() + " ");
                 	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
                 }
                 else
@@ -406,7 +406,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 
                 if(mUser.newDiscussNum != 0)
                 {
-                	mDiscussNum.setText(mUser.newDiscussNum.toString());
+                	mDiscussNum.setText(" " + mUser.newDiscussNum.toString() + " ");
                 	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
                 }
                 else
