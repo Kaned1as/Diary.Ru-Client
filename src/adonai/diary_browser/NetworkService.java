@@ -417,6 +417,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		result.closeAccessMode = rootNode.select("[id^=closeaccessmode]").select("[checked]").val();
 		if(!result.closeAccessMode.equals(""))
 		{
+		    result.closeText = rootNode.select("textarea#close_text").text();
 			if(result.closeAccessMode.equals("3"))
 				result.closeAllowList = rootNode.select("textarea#access_list").text();
 	        if(result.closeAccessMode.equals("2"))
