@@ -21,7 +21,6 @@ public class DiaryHttpClient
 {
 
 	DefaultHttpClient httpClient = new DefaultHttpClient();
-	DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     CookieStore cookieStore = new BasicCookieStore();
 
@@ -97,6 +96,7 @@ public class DiaryHttpClient
         if(url.startsWith("file"))
             return null; // Не загружать локальные
     	
+        DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
     	HttpResponse response = null;
 
     	try 

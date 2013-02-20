@@ -1,9 +1,12 @@
 package adonai.diary_browser;
 
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -27,6 +30,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -34,6 +38,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -108,7 +113,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	String mSignature = null;
 	String mId = null;
 	String mTypeId = null;
-	Map<Integer, String> avatarMap;
+	SparseArray<Object> avatarMap;
 	
 	DiaryHttpClient mDHCL;
 	String mSendURL;
@@ -264,16 +269,59 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         		    	if(page == null)
         		    		return false;
         		    	
+        		    	// собираем пары ID аватара - URL аватара
         		    	String dataPage = EntityUtils.toString(page.getEntity());
         		    	Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
-        		    	avatarMap = new HashMap<Integer, String>();
+        		    	avatarMap = new SparseArray<Object>();
         		    	for(Element avatarbit : avatardivs)
         		    	{
         		    		Integer avId = Integer.valueOf(avatarbit.select("input[name=use_avatar_id]").val());
         		    		String url = avatarbit.child(0).attr("style");
-        		    		url = url.substring(url.lastIndexOf('(') + 1, url.lastIndexOf(')') - 1);
+        		    		url = url.substring(url.lastIndexOf('(') + 1, url.lastIndexOf(')'));
         		    		avatarMap.put(avId, url);
         		    	}
+        		    	
+        		    	// распараллеливаем получение аватарок
+        		    	// в массиве теперь будет храниться ID аватара - задача загрузки аватара
+        		    	ExecutorService executor = Executors.newFixedThreadPool(avatarMap.size());
+        		    	for(int i = 0; i < avatarMap.size(); i++)
+        		    	{
+        		    	    final String url = (String) avatarMap.valueAt(i);
+        		    	    FutureTask<Drawable> future = new FutureTask<Drawable>(new Callable<Drawable>()
+                            {
+                                @Override
+                                public Drawable call() throws Exception
+                                {
+                                    HttpResponse page = mDHCL.getPage(url);
+                                    InputStream is = page.getEntity().getContent();
+                                    BitmapDrawable avatar = (BitmapDrawable) BitmapDrawable.createFromStream(is, url);
+                                    return avatar;
+                                }
+        		    	        
+                            });
+        		    	    avatarMap.setValueAt(i, future);
+        		            executor.execute(future);
+        		    	}
+        		    	
+        		    	// по мере выполнения задач переписываем массив по кусочкам на результат задачи
+        		    	while(true)
+        		    	{
+                            int remaining = 0;
+                            for(int i = 0; i < avatarMap.size(); i++)
+                            {
+                                if(avatarMap.valueAt(i) instanceof FutureTask)
+                                {
+                                    FutureTask<Drawable> future = (FutureTask<Drawable>) avatarMap.valueAt(i);
+                                if(future.isDone())
+                                    avatarMap.setValueAt(i, future.get());
+                                else
+                                    remaining++;
+                                }
+                            }
+                            if(remaining == 0)
+                                break;
+        		    	}
+        		    	
                     	return true;
                     }
             		default:
