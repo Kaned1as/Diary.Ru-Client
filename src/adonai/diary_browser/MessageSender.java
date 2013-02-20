@@ -445,7 +445,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
         
         if(!post.closeAccessMode.equals(""))
         {
-            mCloseOpts.setVisibility(View.VISIBLE);
+            mShowAndClose.setChecked(true);
             if(post.closeAccessMode.equals("6"))
                 mCloseOpts.check(R.id.close_only_reg);
             else if(post.closeAccessMode.equals("1"))
