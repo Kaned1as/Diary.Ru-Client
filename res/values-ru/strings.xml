@@ -104,4 +104,7 @@
     <string name="refresh">Обновить</string>
     <string name="menu_goto_top">Наверх</string>
     <string name="really_delete">Правда удалить?</string>
+    <string name="select_custom_avatar">Сменить аватар</string>
+    <string name="avatar_selected">Аватар успешно установлен</string>
+    
 </resources>

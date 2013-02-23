@@ -44,13 +44,13 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
-public class MessageSender extends Activity implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
+public class MessageSender extends Activity implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
 
 	private static final int HANDLE_DO_POST 		= 0;
@@ -59,6 +59,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 	private static final int HANDLE_UMAIL_ACK 		= 3;
 	private static final int HANDLE_UMAIL_REJ 		= 4;
 	private static final int HANDLE_REQUEST_AVATARS = 5;
+	private static final int HANDLE_SET_AVATAR      = 6;
 	
 	ImageButton mLeftGradient;
 	ImageButton mRightGradient;
@@ -239,6 +240,7 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
     
     Handler.Callback HttpCallback = new Handler.Callback()
     {
+        @SuppressWarnings("unchecked")
         public boolean handleMessage(Message message)
         {
             try
@@ -322,7 +324,15 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
                                 break;
         		    	}
         		    	
+        		    	mUiHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
                     	return true;
+                    }
+                    case HANDLE_SET_AVATAR:
+                    {
+                        String URL = "http://www.diary.ru/options/member/?avatar";
+                        mDHCL.postPage(URL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        Toast.makeText(getApplicationContext(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
+                        return true;
                     }
             		default:
             			break;
@@ -399,7 +409,15 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
                 }
         		case HANDLE_REQUEST_AVATARS:
         		{
-        			
+        		    for(int i = 0; i < avatarMap.size(); i++)
+        		    {
+        		        ImageButton current = new ImageButton(MessageSender.this);
+        		        current.setImageDrawable((Drawable) avatarMap.valueAt(i));
+        		        current.setTag(avatarMap.keyAt(i));
+        		        current.setOnClickListener(MessageSender.this);
+        		        mAvatars.addView(current);
+        		    }
+        		    pd.dismiss();
         		}
         		default:
         			break;
@@ -558,12 +576,22 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 
     public void onClick(View view) 
 	{
+        if(view instanceof ImageButton && view.getTag() != null)
+        {
+            postParams.clear();
+            postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag().toString()));
+            postParams.add(new BasicNameValuePair("avatar_url", ""));
+            postParams.add(new BasicNameValuePair("signature", mSignature));
+            mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
+        }
+        
 		switch(view.getId())
 		{
 			case R.id.message_publish:
 			{
 				// TODO: Сохранение в черновики
 				// Задел на будущее - для сохранения в черновики
+			    postParams.clear();
 				mPost.title = titleText.getText().toString();
 				//mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
 				mPost.content = Jsoup.parse(contentText.getText().toString()).html();
@@ -902,8 +930,11 @@ public class MessageSender extends Activity implements OnClickListener, OnChecke
 				if(isChecked)
 				{
 					mAvatars.setVisibility(View.VISIBLE);
-					pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
-					mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
+					if(avatarMap == null)
+					{
+    					pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
+    					mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
+					}
 				}
 				else
 					mAvatars.setVisibility(View.GONE);
