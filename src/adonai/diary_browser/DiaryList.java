@@ -330,7 +330,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 mPageBrowser.getRefreshableView().scrollTo(0, 0);
                 return true;
             case R.id.menu_refresh:
-                mPageBrowser.setRefreshing(false);
+                reloadContent();
                 return true;
             case R.id.menu_close_app:
                 stopService(new Intent(this, NetworkService.class));
