@@ -225,6 +225,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     {
     	mService.removeListener(this);
         super.onDestroy();
+        if(isFinishing())
+            mService = null;
     }
     
     @Override
@@ -608,7 +610,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 		            CookieManager cookieManager = CookieManager.getInstance();
 		            cookieManager.removeSessionCookie();
 		            CookieSyncManager.getInstance().sync();
-		            mService.stopSelf();
+		            mService.mUser = new UserData();
 		            
 		            //TODO: просмотр без логина тоже еще не введен
 		            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
