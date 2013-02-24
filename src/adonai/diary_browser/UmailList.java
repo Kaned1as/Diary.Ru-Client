@@ -70,18 +70,12 @@ public class UmailList extends DiaryActivity implements OnClickListener
         mIncoming.setOnClickListener(this);
         mOutcoming.setOnClickListener(this);
     }
-
-    @Override
-    protected void onStart()
-    {
-        super.onStart();
-    }
     
     @Override
     protected void onNewIntent(Intent intent) 
     {
         super.onNewIntent(intent);
-        this.setIntent(intent);
+        setIntent(intent);
     }
     
     @Override
@@ -146,22 +140,21 @@ public class UmailList extends DiaryActivity implements OnClickListener
                     mFolderBrowser.getRefreshableView().addFooterView(LL);
                 }
         		mFolderBrowser.setAdapter(mFolderAdapter);
-        		pd.dismiss();
-        		return true;
+        		break;
         	case Utils.HANDLE_OPEN_MAIL:
         	    setCurrentVisibleComponent(PART_WEB);
         	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
                 setTitle(mUser.currentUmailPage.getContent().title());
                 mMessageBrowser.onRefreshComplete();
-                pd.dismiss();
-                return true;
+                break;
             case Utils.HANDLE_PROGRESS:
-                if(pd != null && pd.isShowing())
+                if(pd != null)
                     pd.setMessage(getString(R.string.parsing_data));
                 return true;
+            /*
             default:
             	super.handleMessage(message);
-                /*pd.dismiss();
+                pd.dismiss();
                 if((message.what & Utils.DIARY_HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
                 {
                     if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
@@ -172,9 +165,13 @@ public class UmailList extends DiaryActivity implements OnClickListener
                         startActivity(returnIntent);
                         finish();
                     }
-                }*/
+                }
                 return false;
+                */
         }
+
+        super.handleMessage(message);
+        return true;
     }
     
 	public void onClick(View view)

@@ -54,23 +54,29 @@ public class DiaryActivity extends Activity implements Callback
 		        mDHCL = mService.mDHCL;
 		        mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 			}
-			return true;
+			break;
 		case Utils.HANDLE_SERVICE_ERROR:
 		    Toast.makeText(getApplicationContext(), "Service is not running", Toast.LENGTH_SHORT).show();
-		    return true;
+		    break;
 		case Utils.HANDLE_CONNECTIVITY_ERROR:
-            pd.dismiss();
             Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
-            return true;
+            break;
 		}
-		return false;
+
+        if(pd != null)
+        {
+            pd.dismiss();
+            pd = null;
+        }
+
+		return true;
 	}
 	
 	public void handleBackground(int opCode, Object body)
     {
         //WebView hack. It is the only way to stop it.
     	//mPageBrowser.getRefreshableView().loadData("<html><body>dummy</body></html>", null, null);
-        if(pd == null || !pd.isShowing())
+        if(pd == null)
         {
         	pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
 	        pd.setOnCancelListener(new OnCancelListener() 

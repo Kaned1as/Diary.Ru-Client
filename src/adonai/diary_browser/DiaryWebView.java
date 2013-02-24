@@ -101,9 +101,8 @@ public class DiaryWebView extends PullToRefreshWebView
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
                     return true;
                 }
-                    
-                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             }
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;
         }
     };

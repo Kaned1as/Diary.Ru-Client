@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import adonai.diary_browser.R;
-
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
 import com.handmark.pulltorefresh.library.PullToRefreshListView;
@@ -379,15 +377,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         		
         	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
                 handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
-                break;
+                return true;
             case Utils.HANDLE_PROGRESS:
-                if(pd != null && pd.isShowing())
+                if(pd != null)
                     pd.setMessage(getString(R.string.parsing_data));
-                break;
+                return true;
             case Utils.HANDLE_PROGRESS_2:
-                if(pd != null && pd.isShowing())
+                if(pd != null)
                     pd.setMessage(getString(R.string.sorting_data));
-                break;
+                return true;
             case HANDLE_UPDATE_HEADERS:
             	// обрабатываем обновление контента
             	mLogin.setText(mUser.userName);
@@ -423,11 +421,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     mUmailNum.setText("");
                     mUmailNum.setVisibility(View.GONE);
                 }
-                break;
+                return true;
             case Utils.HANDLE_SET_HTTP_COOKIE:
                 pd.setMessage(getString(R.string.getting_user_info));
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
-                break;
+                return true;
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);
                 mDiaryBrowser.setAdapter(null);
@@ -464,8 +462,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu();
-                
-                pd.dismiss();
+
                 break;
             case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
@@ -477,8 +474,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu(); // PART_WEB
-                
-                pd.dismiss();
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
@@ -487,11 +482,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu(); // PART_DISC_LIST
-            	
-            	pd.dismiss();
             	break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
-                pd.dismiss();
                 mPageBrowser.onRefreshComplete();
                 mDiaryBrowser.onRefreshComplete();
                 Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
@@ -501,7 +493,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
             	int pos = (Integer) message.obj;
             	mDiscussionBrowser.expandGroup(pos);
-            	pd.dismiss();
             	break;
             case HANDLE_IMAGE_CLICK:
             {
@@ -587,12 +578,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_EDIT_POST:
                 Post sendPost = (Post)message.obj;
                 editPost(sendPost);
-                pd.dismiss();
                 break;
-            default:
-                super.handleMessage(message);
         }
-        
+
+        super.handleMessage(message);
         return true;
     }
     

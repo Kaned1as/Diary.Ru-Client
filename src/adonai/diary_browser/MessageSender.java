@@ -17,7 +17,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import adonai.diary_browser.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import adonai.diary_browser.entities.Post;

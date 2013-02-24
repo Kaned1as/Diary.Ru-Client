@@ -71,8 +71,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     
     private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
 	
-    
-	public static NetworkService getInstance(Context context)
+    /*
+    К сожалению, НЕТ другой возможности запустить сервис.
+    Контекст способен к запуску сервиса только если цикл его главного потока выполняется.
+    Поэтому НЕЛЬЗЯ остановить контекст, создающий сервис и подождать пока он запустится
+    Из-за этого, в частности, и нужен механизм HANDLE_APP_START.
+    SPICE MUST FLOW!
+    */
+    public static NetworkService getInstance(Context context)
 	{
 		if(mInstance == null && !mIsStarting)
 		{
