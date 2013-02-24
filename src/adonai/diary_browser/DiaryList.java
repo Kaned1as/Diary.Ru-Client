@@ -357,13 +357,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     {
         super.onNewIntent(intent);
 
-        if(intent != null && intent.getStringExtra("url") != null)
+        if(intent.getStringExtra("url") != null)
         {
             if(intent.getStringExtra("url").equals("")) // default case
                 reloadContent();
             else
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getStringExtra("url"), true));
         }
+        if(intent.getData() != null)
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getDataString(), false));
     }
     
     @Override
@@ -424,7 +426,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 return true;
             case Utils.HANDLE_SET_HTTP_COOKIE:
                 pd.setMessage(getString(R.string.getting_user_info));
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
+                if(getIntent().getData() == null)
+                    handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
+                else
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getIntent().getDataString(), false));
                 return true;
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);
@@ -603,7 +608,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 		            CookieManager cookieManager = CookieManager.getInstance();
 		            cookieManager.removeSessionCookie();
 		            CookieSyncManager.getInstance().sync();
-		            mService.mUser = new UserData();
+		            mService.stopSelf();
 		            
 		            //TODO: просмотр без логина тоже еще не введен
 		            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));

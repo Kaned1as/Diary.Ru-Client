@@ -21,14 +21,20 @@
         <activity
             android:name="adonai.diary_browser.DiaryList"
             android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="http" android:host="*diary.ru"/>
+                <action android:name="android.intent.action.VIEW" />
+            </intent-filter>
         </activity>
-        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"></activity><activity
+        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"></activity>
+        <activity
             android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
         <activity

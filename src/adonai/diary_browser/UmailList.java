@@ -107,10 +107,8 @@ public class UmailList extends DiaryActivity implements OnClickListener
         	case Utils.HANDLE_START:
                 mService.addListener(this);
                 
-                if(getIntent() != null && getIntent().getStringExtra("url") != null)
-                {
+                if(getIntent().getStringExtra("url") != null)
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, getIntent().getStringExtra("url"));
-                }
                 else // стартуем в первый раз
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
         		return true;

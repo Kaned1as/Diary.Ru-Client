@@ -14,14 +14,10 @@ public class LaunchActivity extends Activity {
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         
         if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") && 
-            !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals("")) 
-        {
-        	startActivity(new Intent(this, DiaryList.class));
-        } 
-        else 
-        {
-        	startActivity(new Intent(this, AuthorizationForm.class));
-        }
+            !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals(""))
+            startActivity(new Intent(this, DiaryList.class));
+        else
+            startActivity(new Intent(this, AuthorizationForm.class));
         
         finish();
     }
