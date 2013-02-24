@@ -837,10 +837,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	    	}
 			else
 			{
-				notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+				//notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
 				Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-				//startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
-				startActivity(sendIntent);
+				startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 			}
 		} 
     	catch (Exception e) 
