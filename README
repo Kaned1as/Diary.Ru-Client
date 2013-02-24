@@ -3,4 +3,10 @@ This program uses native html parsing with data retrieved from site. It is in ea
 License: GPLv3
 
 Used programs:
+
+# Проект элемента интерфейса для выбора цвета - используется при выставлении градиента тексту
 git clone https://github.com/brk3/android-color-picker.git Android-ColorPicker
+
+# Проект элементов интерфейса "потяни для обновления" - используется здесь в списках и веб-формах
+git clone https://github.com/chrisbanes/Android-PullToRefresh.git Android-PullToRefresh # у этого проекта необходимо выставить JDK Compliance mode 1.5
+

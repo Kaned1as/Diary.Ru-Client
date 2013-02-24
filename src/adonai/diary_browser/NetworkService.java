@@ -49,7 +49,6 @@ import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
-import adonai.diary_browser.Utils;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
@@ -255,7 +254,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     	return false;
                     }
                 	String dataPage = EntityUtils.toString(page.getEntity());
-                	serializeDiscussionsPage(dataPage, null); 
+                	serializeDiscussionsPage(dataPage);
                 	
                 	notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
                 	return true;
@@ -449,32 +448,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         
         Elements rows = table.getElementsByTag("td");
         Element title = null, author = null, last_post = null;
-        for (int i = 0; i < rows.size(); ++i)
-        {
-            if (title == null && rows.get(i).hasClass("l"))
-                title = rows.get(i).getElementsByClass("withfloat").first();
+        for (Element row : rows) {
+            if (title == null && row.hasClass("l"))
+                title = row.getElementsByClass("withfloat").first();
 
             if (author == null)
-                author = rows.get(i).getElementsByAttributeValue("target", "_blank").first();
-            
+                author = row.getElementsByAttributeValue("target", "_blank").first();
+
             if (last_post == null)
-                if (rows.get(i).className().equals(""))
-                    last_post = rows.get(i).getElementsByClass("withfloat").first();
-            
-            if (title != null && author != null && last_post != null)
-            {
+                if (row.className().equals(""))
+                    last_post = row.getElementsByClass("withfloat").first();
+
+            if (title != null && author != null && last_post != null) {
                 Openable diary = new Openable();
                 diary.setTitle(title.getElementsByTag("b").text());
                 diary.setURL(title.attr("href"));
-                
+
                 diary.setAuthor(author.text());
                 String authorData = author.attr("href");
                 diary.setAuthorURL(authorData);
                 diary.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
-                
+
                 diary.setLastUpdate(last_post.text());
                 diary.setLastUpdateURL(last_post.attr("href"));
-                
+
                 mUser.currentDiaries.add(diary);
                 title = author = last_post = null;
             }
@@ -645,7 +642,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedTags;
     }
     
-    public void serializeDiscussionsPage(String dataPage, List<DiscList> destination)
+    public void serializeDiscussionsPage(String dataPage)
     {
     	mUser.discussions.clear();
     	notifyListeners(Utils.HANDLE_PROGRESS, null);
@@ -681,12 +678,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         for (Element discussion : rootNode.getElementsByTag("a"))
         {
         	DiscList.Discussion currentDisc = new DiscList.Discussion();
-        	String link = discussion.attr("href");
-        	currentDisc.URL = link;
-        	String title = discussion.text();
-        	currentDisc.title = title;
-        	String date = discussion.previousElementSibling().text();
-        	currentDisc.date = date;
+            currentDisc.URL = discussion.attr("href");
+            currentDisc.title = discussion.text();
+            currentDisc.date = discussion.previousElementSibling().text();
         	
         	
         	destination.add(currentDisc);
@@ -777,7 +771,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     
     public void checkUrlAndHandle(String URL, boolean reload)
     {   
-    	Class<?> handled = null;
+    	Class<?> handled;
     	DiaryWebPage cachedPage = null;
     	String dataPage = null;
     	
@@ -810,7 +804,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
 			if(handled != null) // Если это страничка дайри
 	    	{
-			    if(cachedPage != null && !reload)
+			    if(cachedPage != null)
 			    {
 			        mDHCL.currentURL = URL;
                     mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
@@ -848,8 +842,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     		notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
 			e.printStackTrace();
 		}
-    	
-    	return;
+
     }
     
     public void updateMaxCacheSize(SharedPreferences prefs)

@@ -113,8 +113,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     
     // Сервисные объекты
     DisplayMetrics gMetrics;
-    CacheManager mCache;
-    
+
     Map<String, String> browserHistory;
     Handler mUiHandler;
     
@@ -366,7 +365,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 reloadContent();
             else
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getStringExtra("url"), true));
-        	return;
         }
     }
     
@@ -395,7 +393,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
-                	mCommentsNum.setText(" " + mUser.newDiaryCommentsNum.toString() + " ");
+                	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
                 	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
                 }
                 else
@@ -406,7 +404,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 
                 if(mUser.newDiscussNum != 0)
                 {
-                	mDiscussNum.setText(" " + mUser.newDiscussNum.toString() + " ");
+                	mDiscussNum.setText(mUser.newDiscussNum.toString());
                 	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
                 }
                 else
@@ -516,7 +514,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 	        	itemsBuilder.add(getString(R.string.image_copy_url));
 	        	itemsBuilder.add(getString(R.string.image_open));
 
-	        	final String[] items = itemsBuilder.toArray(new String[0]);
+	        	final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
 	        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
 	        	builder.setTitle(R.string.image_action);
 	        	builder.setItems(items, new DialogInterface.OnClickListener() 
