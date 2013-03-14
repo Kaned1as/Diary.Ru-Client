@@ -1,10 +1,23 @@
 package adonai.diary_browser;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import adonai.diary_browser.entities.*;
+import android.app.Notification;
+import android.app.PendingIntent;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.net.Uri;
+import android.os.*;
+import android.os.Handler.Callback;
+import android.text.Html;
+import android.util.Pair;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
+import android.webkit.MimeTypeMap;
+import android.webkit.URLUtil;
+import android.widget.RemoteViews;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -18,37 +31,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryListPage;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiaryWebPage;
-import adonai.diary_browser.entities.DiscList;
-import adonai.diary_browser.entities.Openable;
-import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.TagsPage;
-import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.entities.UmailPage;
-import android.app.Notification;
-import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.net.Uri;
-import android.os.Handler;
-import android.os.Handler.Callback;
-import android.os.HandlerThread;
-import android.os.IBinder;
-import android.os.Looper;
-import android.os.Message;
-import android.text.Html;
-import android.util.Pair;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
-import android.widget.RemoteViews;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
@@ -106,8 +92,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         is_sticky = mPreferences.getBoolean("service.always.running", false);
         if(is_sticky)
             startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
-        
-        updateMaxCacheSize(mPreferences);
 		
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -159,7 +143,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		mListeners.remove(listener);
 	}
 	
-	public void notifyListeners(int opCode, Object body)
+	private void notifyListeners(int opCode, Object body)
 	{
 		for (DiaryActivity listener : mListeners)
 			listener.handleUi(opCode, body);
@@ -435,7 +419,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	/* (non-Javadoc)
      * @see android.app.Activity#onSearchRequested()
      */
-    public void serializeDiaryListPage(String dataPage)
+    private void serializeDiaryListPage(String dataPage)
     {
         mUser.currentDiaries = new DiaryListPage();
         mUser.currentDiaries.setURL(mDHCL.currentURL);
@@ -484,7 +468,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 	
-	public void serializeDiaryPage(String dataPage) throws IOException
+	private void serializeDiaryPage(String dataPage) throws IOException
     {
         DiaryPage scannedDiary = new DiaryPage();
         
@@ -570,7 +554,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     	resultPage.body().append(Utils.javascriptContent);
 	}
 
-	public void serializeCommentsPage(String dataPage) throws IOException
+	private void serializeCommentsPage(String dataPage) throws IOException
     {
 	    CommentsPage scannedPost = new CommentsPage();
     	
@@ -612,7 +596,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedPost;
     }
 	
-	public void serializeTagsPage(String dataPage) throws IOException
+	private void serializeTagsPage(String dataPage) throws IOException
     {
 	    TagsPage scannedTags = new TagsPage();
     	
@@ -648,7 +632,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedTags;
     }
     
-    public void serializeDiscussionsPage(String dataPage)
+    private void serializeDiscussionsPage(String dataPage)
     {
     	mUser.discussions.clear();
     	notifyListeners(Utils.HANDLE_PROGRESS, null);
@@ -673,7 +657,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
     
-    public void serializeDiscussions(String dataPage, ArrayList<DiscList.Discussion> destination)
+    private void serializeDiscussions(String dataPage, ArrayList<DiscList.Discussion> destination)
     {
     	destination.clear();
     	dataPage = dataPage.replace("\\\"", "\"");
@@ -693,7 +677,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
     
-    void serializeUmailListPage(String dataPage)
+    private void serializeUmailListPage(String dataPage)
     {
         mUser.currentUmails = new DiaryListPage();
         mUser.currentUmails.setURL(mDHCL.currentURL);
@@ -745,7 +729,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
     
-    public void serializeUmailPage(String dataPage) throws IOException
+    private void serializeUmailPage(String dataPage) throws IOException
     {
         UmailPage scannedUmail = new UmailPage();
         notifyListeners(Utils.HANDLE_PROGRESS, null);
@@ -775,7 +759,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentUmailPage = scannedUmail;
     }
     
-    public void checkUrlAndHandle(String URL, boolean reload)
+    private void checkUrlAndHandle(String URL, boolean reload)
     {   
     	Class<?> handled;
     	DiaryWebPage cachedPage = null;
@@ -850,27 +834,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     }
     
-    public void updateMaxCacheSize(SharedPreferences prefs)
-    {
-    	try
-        {
-        	CacheManager.MAX_SIZE = Integer.valueOf(prefs.getString("cache.size", "5")) * 1048576L;
-        }
-        catch (NumberFormatException e)
-        {
-        	CacheManager.MAX_SIZE = 5 * 1048576L;
-        }
-    }
-    
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
 	{
 		if(key.equals("images.autoload"))
 		{
 			load_images = sharedPreferences.getBoolean(key, false);
-		}
-		else if(key.equals("cache.size"))
-		{
-			updateMaxCacheSize(sharedPreferences);
 		}
 		else if(key.equals("images.autoload.cache"))
 		{
@@ -887,7 +855,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	}
     
     // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foregound-режиме
-    public Notification createNotification(DiaryWebPage page)
+    private Notification createNotification(DiaryWebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
         //views.setImageViewResource(R.id.icon, statusIcon);

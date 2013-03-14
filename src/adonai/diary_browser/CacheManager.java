@@ -1,19 +1,12 @@
 package adonai.diary_browser;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.ref.SoftReference;
-import java.util.HashMap;
-import java.util.Map;
-import adonai.diary_browser.R;
 import android.content.Context;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Environment;
 import android.widget.Toast;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CacheManager 
 {
@@ -22,22 +15,6 @@ public class CacheManager
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
     // загруженные странички
     private Map<String, Object> browseCache = new HashMap<String, Object>();
-    // загруженные изображения
-    private Map<String, SoftReference<BitmapDrawable>> imageCache = new HashMap<String, SoftReference<BitmapDrawable>>();
-    
-    public void saveForReuse(String URL, BitmapDrawable drawable)
-    {
-    	imageCache.put(URL, new SoftReference<BitmapDrawable>(drawable));
-    }
-    
-    public BitmapDrawable loadToReuse(String URL)
-    {
-    	if(imageCache.containsKey(URL) && imageCache.get(URL).get() != null)
-    	{
-    		return imageCache.get(URL).get();
-    	}
-    	return null;
-    }
     
     public Object loadPageFromCache(String URL)
     {

@@ -1,27 +1,7 @@
 package adonai.diary_browser;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
-
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.Openable;
-import adonai.diary_browser.entities.DiaryListArrayAdapter;
-import adonai.diary_browser.entities.DiscList;
-import adonai.diary_browser.entities.DiscListArrayAdapter;
-import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.*;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import adonai.diary_browser.entities.DiaryPage;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -30,41 +10,37 @@ import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.graphics.Typeface;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.ContextMenu;
+import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.ContextThemeWrapper;
-import android.view.Gravity;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.AdapterView;
+import android.widget.*;
 import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.Button;
-import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
-import android.widget.ListView;
-import android.widget.ScrollView;
-import android.widget.TabHost;
-import android.widget.TabWidget;
-import android.widget.TextView;
-import android.widget.Toast;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
@@ -224,9 +200,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     protected void onDestroy()
     {
     	mService.removeListener(this);
+        mUser.setOnDataChangeListener(null);
+
         super.onDestroy();
-        if(isFinishing())
-            mService = null;
+
     }
     
     @Override
