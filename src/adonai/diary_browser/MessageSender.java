@@ -295,8 +295,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
                                 {
                                     HttpResponse page = mDHCL.getPage(url);
                                     InputStream is = page.getEntity().getContent();
-                                    BitmapDrawable avatar = (BitmapDrawable) BitmapDrawable.createFromStream(is, url);
-                                    return avatar;
+                                    return BitmapDrawable.createFromStream(is, url);
                                 }
         		    	        
                             });
@@ -599,7 +598,6 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				mPost.mood = moodText.getText().toString();
 
 				// Добавляем параметры из настроек
-				postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
 				postParams.add(new BasicNameValuePair("signature", mSignature));
                 postParams.add(new BasicNameValuePair("action", "dosend"));
 				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
@@ -607,6 +605,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				// Если пост
 				if(mTypeId.equals("DiaryId"))
 				{
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
 				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
 	                postParams.add(new BasicNameValuePair("module", "journal"));
 	                postParams.add(new BasicNameValuePair("resulttype", "2"));
@@ -665,7 +664,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 					if(mShowAndClose.isChecked())
 					{
 						postParams.add(new BasicNameValuePair("private_post", "1"));
-						if(!mCloseText.getText().equals(""))
+						if(!mCloseText.getText().toString().equals(""))
 						{
 						    postParams.add(new BasicNameValuePair("check_close_text", "1"));
 						    postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
@@ -706,6 +705,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				}
 				else if(mTypeId.equals("PostEditId")) // Если редактируем пост
 				{
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
 				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
@@ -719,7 +719,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
                     postParams.add(new BasicNameValuePair("title", mPost.title));
                     if(mShowOptionals.isChecked())
                     {
-                        postParams.add(new BasicNameValuePair("themes", mPost.themes + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
+                        postParams.add(new BasicNameValuePair("themes", mPost.themes));
                         postParams.add(new BasicNameValuePair("current_music", mPost.music));
                         postParams.add(new BasicNameValuePair("current_mood", mPost.mood));
                     }
@@ -764,7 +764,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
                     if(mShowAndClose.isChecked())
                     {
                         postParams.add(new BasicNameValuePair("private_post", "1"));
-                        if(!mCloseText.getText().equals(""))
+                        if(!mCloseText.getText().toString().equals(""))
                         {
                             postParams.add(new BasicNameValuePair("check_close_text", "1"));
                             postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
@@ -805,6 +805,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				}
 				else if(mTypeId.equals("PostId"))  // если коммент
 				{
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
 				    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
 	                postParams.add(new BasicNameValuePair("module", "journal"));
 	                postParams.add(new BasicNameValuePair("resulttype", "2"));
@@ -827,6 +828,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				}
 				else if(mTypeId.equals("umailTo"))  // если почта
 				{
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
 				    postParams.add(new BasicNameValuePair("module", "umail"));
 				    postParams.add(new BasicNameValuePair("act", "umail_send"));
 				    postParams.add(new BasicNameValuePair("from_folder", ""));
@@ -842,17 +844,17 @@ public class MessageSender extends Activity implements OnClickListener, android.
 			case R.id.left_gradient:
 			case R.id.right_gradient:
 			{
-			    int oldColor = getColorFromPicture((ImageButton) view);
-			    final ImageButton imgbutton = (ImageButton) view;
-			    AmbilWarnaDialog dialog = new AmbilWarnaDialog(MessageSender.this, oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener() 
+                final ImageButton imgbutton = (ImageButton) view;
+			    int oldColor = getColorFromPicture(imgbutton);
+			    AmbilWarnaDialog dialog = new AmbilWarnaDialog(MessageSender.this, oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener()
 			    {
-			        public void onOk(AmbilWarnaDialog dialog, int color) 
+			        public void onOk(AmbilWarnaDialog dialog, int color)
 			        {
 			            ColorDrawable newColor = new ColorDrawable(color);
-			            ((ImageButton) imgbutton).setImageDrawable(newColor);
+			            imgbutton.setImageDrawable(newColor);
 			        }
-			                
-			        public void onCancel(AmbilWarnaDialog dialog) 
+
+			        public void onCancel(AmbilWarnaDialog dialog)
 			        {
 			        }
 			    });
@@ -893,7 +895,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 	
 	public int getColorFromPicture(ImageButton view)
 	{
-	    Drawable old = ((ImageButton) view).getDrawable();
+	    Drawable old = view.getDrawable();
         Bitmap example = Bitmap.createBitmap(1, 1, Config.ARGB_8888);
         Canvas tCanvas = new Canvas(example);
         old.draw(tCanvas);

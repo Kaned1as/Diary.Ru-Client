@@ -105,8 +105,8 @@ public class DiaryWebView extends PullToRefreshWebView
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;
         }
-    };
-    
+    }
+
     public class WebPageRefresher implements OnRefreshListener<WebView>
     {
 

@@ -1,9 +1,5 @@
 package adonai.diary_browser;
 
-import java.util.Map;
-
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
-
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.Openable;
 import adonai.diary_browser.entities.UmailPage;
@@ -17,17 +13,14 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.view.ContextThemeWrapper;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
+import android.view.*;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.TabWidget;
 import android.widget.TextView;
-import android.widget.LinearLayout.LayoutParams;
+import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 public class UmailList extends DiaryActivity implements OnClickListener
 {
@@ -41,9 +34,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
     private static final int PART_LIST = 1;
     
     private int mCurrentComponent = 1;
-	
-    Map<String, String> namesUrls;
-    
+
     DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
     DiaryListArrayAdapter mFolderAdapter;

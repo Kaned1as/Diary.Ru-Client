@@ -28,7 +28,7 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"></activity>
+        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"/>
         <activity
             android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >
@@ -43,8 +43,8 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="adonai.diary_browser.DiaryList" />
         </activity>
-        <activity android:name="adonai.diary_browser.MessageSender"></activity>
-        <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"></activity>
+        <activity android:name="adonai.diary_browser.MessageSender"/>
+        <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"/>
         <service android:name="NetworkService" android:enabled="true">
         </service>
         
