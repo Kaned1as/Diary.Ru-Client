@@ -342,6 +342,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
                     return true;
                 }
+                case Utils.HANDLE_DELETE_COMMENT:
+                {
+                    String id = (String) message.obj;
+                    mDHCL.getPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
+
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    return true;
+                }
                 case Utils.HANDLE_EDIT_POST:
                 {
                 	String URL = (String) message.obj;
@@ -353,11 +361,28 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     		    	}
     		    	String dataPage = EntityUtils.toString(page.getEntity());
     		    	Post sendPost = serializePostEditPage(dataPage);
-    		    	sendPost.ID = URL.substring(URL.lastIndexOf("=") + 1);
+    		    	sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
     		    	sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
     		    	
     		    	notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                 	return true;
+                }
+                case Utils.HANDLE_EDIT_COMMENT:
+                {
+                    String URL = (String) message.obj;
+                    HttpResponse page = mDHCL.postPage(URL, null);
+                    if(page == null)
+                    {
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        return false;
+                    }
+                    String dataPage = EntityUtils.toString(page.getEntity());
+                    Comment sendComment = serializeCommentEditPage(dataPage);
+                    sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
+                    sendComment.postID = ((CommentsPage)mUser.currentDiaryPage).getPostID();
+
+                    notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
+                    return true;
                 }
                 default:
                     return false;
@@ -415,6 +440,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		
 		return result;
 	}
+
+    private Comment serializeCommentEditPage(String dataPage)
+    {
+        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        Element rootNode = Jsoup.parse(dataPage).select("textarea#message").first(); // выбираем окошко с текстом
+        Comment result = new Comment();
+
+        result.content = rootNode.text();
+
+        return result;
+    }
 
 	/* (non-Javadoc)
      * @see android.app.Activity#onSearchRequested()
@@ -504,7 +540,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     
     private void parseContent(Document resultPage)
 	{
+        // страница будет иметь наш стиль
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+
+        Elements jsElems = resultPage.getElementsByAttribute("onclick");
+        for(Element js : jsElems)
+            if(!js.attr("href").contains("#more"))
+                js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE
+
     	if(!load_images)
         {
             Elements images = resultPage.select("img[src^=http], a:has(img)");
@@ -522,7 +565,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     	                    if(file.exists())
     	                    	continue;
                     	}
-                        
+                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
                         String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
                         
                         current.after(jsButton);
@@ -542,7 +585,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                             if(file.exists())
                                 continue;
                         }
-                        
+                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
                         String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
                         
                         current.after(jsButton);
@@ -821,8 +864,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	    	}
 			else
 			{
-				//notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+				notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
 				Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
 				startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
 			}
 		} 

@@ -1,8 +1,5 @@
 package adonai.diary_browser;
 
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
-import adonai.diary_browser.R;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -13,6 +10,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends PullToRefreshWebView
@@ -95,10 +94,41 @@ public class DiaryWebView extends PullToRefreshWebView
                     builder.create().show();
                     return true;
                 }
+
+                if(url.contains("?delcomment&commentid=")) // удаление коммента
+                {
+                    final String id = url.substring(url.lastIndexOf("=") + 1);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            mActivity.handleBackground(Utils.HANDLE_DELETE_COMMENT, id);
+                        }
+                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    builder.create().show();
+                    return true;
+                }
                 
                 if(url.contains("?editpost&postid=")) // редактирование поста
                 {
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
+                    return true;
+                }
+
+                if(url.contains("?editcomment&commentid=")) // редактирование комментария
+                {
+                    mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
                     return true;
                 }
             }

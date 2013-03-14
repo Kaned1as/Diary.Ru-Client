@@ -1,24 +1,6 @@
 package adonai.diary_browser;
 
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.FutureTask;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import yuku.ambilwarna.AmbilWarnaDialog;
-
+import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -32,22 +14,28 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
-import android.os.Looper;
-import android.os.Message;
+import android.os.*;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
-import android.widget.Toast;
+import android.widget.*;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import yuku.ambilwarna.AmbilWarnaDialog;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.FutureTask;
 
 public class MessageSender extends Activity implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
@@ -117,7 +105,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 	
 	DiaryHttpClient mDHCL;
 	String mSendURL;
-	Post mPost;
+	Comment mPost;
 
     /* (non-Javadoc)
      * @see android.app.Activity#onCreate(android.os.Bundle)
@@ -499,6 +487,23 @@ public class MessageSender extends Activity implements OnClickListener, android.
             if(mId != null)
                 toText.setText(mId);
         }
+        else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
+        {
+            setTitle(R.string.edit_comment);
+
+            for(View v : umailElements)
+                v.setVisibility(View.GONE);
+
+            for(View v : postElements)
+                v.setVisibility(View.GONE);
+
+            for(View v : commentElements)
+                v.setVisibility(View.VISIBLE);
+
+            mPost = new Comment();
+            mPost.deserialize(intent.getStringExtra("commentContents"));
+            prepareUi(mPost);
+        }
         else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
         {
             setTitle(R.string.edit_post);
@@ -512,11 +517,17 @@ public class MessageSender extends Activity implements OnClickListener, android.
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
             
-            mPost = Post.deserialize(intent.getStringExtra("postContents"));
-            prepareUi(mPost);
+            mPost = new Post();
+            mPost.deserialize(intent.getStringExtra("postContents"));
+            prepareUi((Post) mPost);
         }
         
         super.onStart();
+    }
+
+    private void prepareUi(Comment comment)
+    {
+        contentText.setText(comment.content);
     }
 
 	private void prepareUi(Post post)
@@ -588,14 +599,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 			case R.id.message_publish:
 			{
 				// TODO: Сохранение в черновики
-				// Задел на будущее - для сохранения в черновики
 			    postParams.clear();
-				mPost.title = titleText.getText().toString();
-				//mPost.set_text(new Spannable.Factory().newSpannable(contentText.getText().toString()));
-				mPost.content = Jsoup.parse(contentText.getText().toString()).html();
-				mPost.themes = themesText.getText().toString();
-				mPost.music = musicText.getText().toString();
-				mPost.mood = moodText.getText().toString();
 
 				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("signature", mSignature));
@@ -616,12 +620,12 @@ public class MessageSender extends Activity implements OnClickListener, android.
 					postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
 					postParams.add(new BasicNameValuePair("post_type", ""));
 					
-					postParams.add(new BasicNameValuePair("title", mPost.title));
+					postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
 					if(mShowOptionals.isChecked())
 					{
-						postParams.add(new BasicNameValuePair("themes", mPost.themes + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
-						postParams.add(new BasicNameValuePair("current_music", mPost.music));
-						postParams.add(new BasicNameValuePair("current_mood", mPost.mood));
+						postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
+						postParams.add(new BasicNameValuePair("current_music", musicText.getText().toString()));
+						postParams.add(new BasicNameValuePair("current_mood", moodText.getText().toString()));
 					}
 					else
 					{
@@ -711,17 +715,17 @@ public class MessageSender extends Activity implements OnClickListener, android.
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
                     
                     postParams.add(new BasicNameValuePair("act", "edit_post_post"));
-                    postParams.add(new BasicNameValuePair("post_id", mPost.ID));
-                    postParams.add(new BasicNameValuePair("journal_id", mPost.diaryID));
+                    postParams.add(new BasicNameValuePair("post_id", mPost.postID));
+                    postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
                     postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
                     postParams.add(new BasicNameValuePair("post_type", ""));
                     
-                    postParams.add(new BasicNameValuePair("title", mPost.title));
+                    postParams.add(new BasicNameValuePair("title", ((Post) mPost).title));
                     if(mShowOptionals.isChecked())
                     {
-                        postParams.add(new BasicNameValuePair("themes", mPost.themes));
-                        postParams.add(new BasicNameValuePair("current_music", mPost.music));
-                        postParams.add(new BasicNameValuePair("current_mood", mPost.mood));
+                        postParams.add(new BasicNameValuePair("themes", ((Post) mPost).themes));
+                        postParams.add(new BasicNameValuePair("current_music", ((Post) mPost).music));
+                        postParams.add(new BasicNameValuePair("current_mood", ((Post) mPost).mood));
                     }
                     else
                     {
@@ -826,6 +830,29 @@ public class MessageSender extends Activity implements OnClickListener, android.
 					
 					mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
 				}
+                else if(mTypeId.equals("CommentEditId"))  // если редактируем коммент
+                {
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
+                    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
+                    postParams.add(new BasicNameValuePair("module", "journal"));
+                    postParams.add(new BasicNameValuePair("resulttype", "2"));
+
+                    postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
+                    postParams.add(new BasicNameValuePair("post_id", mPost.postID));
+                    postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
+                    postParams.add(new BasicNameValuePair("referer", ""));
+                    postParams.add(new BasicNameValuePair("page", "last"));
+                    postParams.add(new BasicNameValuePair("open_uri", ""));
+
+                    postParams.add(new BasicNameValuePair("write_from", "0"));
+                    //postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
+                    //postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
+
+                    postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
+                    postParams.add(new BasicNameValuePair("attachment1", ""));
+
+                    mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
+                }
 				else if(mTypeId.equals("umailTo"))  // если почта
 				{
                     postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
@@ -833,7 +860,7 @@ public class MessageSender extends Activity implements OnClickListener, android.
 				    postParams.add(new BasicNameValuePair("act", "umail_send"));
 				    postParams.add(new BasicNameValuePair("from_folder", ""));
 				    postParams.add(new BasicNameValuePair("to_user", toText.getText().toString()));
-				    postParams.add(new BasicNameValuePair("title", mPost.title));
+				    postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
 				    postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
 				    postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
 				    

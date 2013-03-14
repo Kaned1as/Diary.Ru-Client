@@ -106,5 +106,6 @@
     <string name="really_delete">Правда удалить?</string>
     <string name="select_custom_avatar">Сменить аватар</string>
     <string name="avatar_selected">Аватар успешно установлен</string>
-    
+    <string name="edit_comment">Редактирование комментария</string>
+
 </resources>

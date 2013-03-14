@@ -563,6 +563,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 Post sendPost = (Post)message.obj;
                 editPost(sendPost);
                 break;
+            case Utils.HANDLE_EDIT_COMMENT:
+                Comment sendComment = (Comment)message.obj;
+                editComment(sendComment);
+                break;
         }
 
         super.handleMessage(message);
@@ -850,12 +854,26 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
         
         postIntent.putExtra("TypeId", "PostEditId");
-        postIntent.putExtra("PostEditId", post.ID);
+        postIntent.putExtra("PostEditId", post.postID);
         
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
         postIntent.putExtra("postContents", post.serialize());
         
+        startActivity(postIntent);
+    }
+
+    public void editComment(Comment comment)
+    {
+        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+
+        postIntent.putExtra("TypeId", "CommentEditId");
+        postIntent.putExtra("CommentEditId", comment.commentID);
+
+        postIntent.putExtra("signature", mUser.signature);
+        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
+        postIntent.putExtra("commentContents", comment.serialize());
+
         startActivity(postIntent);
     }
     
