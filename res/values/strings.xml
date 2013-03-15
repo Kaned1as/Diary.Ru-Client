@@ -110,4 +110,5 @@
     <string name="select_custom_avatar">Select custom avatar</string>
     <string name="avatar_selected">Default avatar successfully changed</string>
     <string name="edit_comment">Edit comment</string>
+    <string name="overscroll_button">Fast scroll button</string>
 </resources>

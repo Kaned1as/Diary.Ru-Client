@@ -7,7 +7,7 @@
     
     
     <item android:id="@+id/menu_new_umail" android:title="@string/new_umail" android:orderInCategory="100" android:showAsAction="never" android:icon="@android:drawable/ic_menu_add" /><group android:id="@+id/group_all" android:menuCategory="container">
-        <item android:id="@+id/menu_about" android:title="@string/about" android:icon="@android:drawable/ic_menu_help"></item>
-        <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"></item>
+        <item android:id="@+id/menu_about" android:title="@string/about" android:icon="@android:drawable/ic_menu_help"/>
+        <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"/>
     </group>
 </menu>

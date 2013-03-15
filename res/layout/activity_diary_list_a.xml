@@ -1,10 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/diary_background"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/upperDeck"
@@ -129,7 +128,8 @@
                     android:background="@android:color/transparent"
                     android:src="@drawable/overscroll_button_down"
                     android:visibility="invisible"
-                    android:scaleType="fitXY" />
+                    android:scaleType="fitXY"
+                    android:contentDescription="@string/overscroll_button" />
 
             </FrameLayout>
         </LinearLayout>
