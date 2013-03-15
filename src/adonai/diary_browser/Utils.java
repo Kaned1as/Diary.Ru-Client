@@ -6,14 +6,16 @@ import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.TagsPage;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
 
 public class Utils 
 {
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
     public static final String mPrefsFile = "diary.shared.prefs";
+
+    static final int VIEW_SCROLL_UP                                 =   1;
+    static final int VIEW_SCROLL_DOWN                               =   2;
+    static final int VIEW_SCROLL_FINISH                             =   -1;
     
 	// Команды хэндлерам
     static final int DIARY_HANDLERS_MASK                            = 0x10000000;
@@ -71,14 +73,5 @@ public class Utils
 		dlg.setTitle("Sorry :(");
 		dlg.setMessage("This object is under development now, please, have a patience! ^_^");
 		dlg.create().show();
-	}
-	
-	static class DiaryWebView extends WebViewClient
-	{  //HERE IS THE MAIN CHANGE. 
-        @Override
-        public boolean shouldOverrideUrlLoading(WebView view, String url) 
-        {
-            return (false);
-        }
 	}
 }

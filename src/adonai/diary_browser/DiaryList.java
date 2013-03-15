@@ -23,6 +23,8 @@ import android.util.Pair;
 import android.view.*;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.View.OnClickListener;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
@@ -82,6 +84,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     ImageButton mExitButton;
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
+    ImageButton mScrollButton;
     TabHost mTabHost;
     AlertDialog ad;
     
@@ -90,7 +93,35 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
     Map<String, String> browserHistory;
     Handler mUiHandler;
-    
+
+    // Часть кода относится к кнопке быстрой промотки
+    private Runnable fadeAnimation = new Runnable()
+    {
+        @Override
+        public void run() {
+            Animation animation = AnimationUtils.loadAnimation(mScrollButton.getContext(), android.R.anim.fade_out);
+            animation.setAnimationListener(new Animation.AnimationListener()
+            {
+                @Override
+                public void onAnimationStart(Animation animation)
+                {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation)
+                {
+                    mScrollButton.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation)
+                {
+                }
+            });
+            mScrollButton.startAnimation(animation);
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -127,6 +158,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mQuotesButton.setOnClickListener(this);
         mUmailButton = (ImageButton) findViewById(R.id.umail_button);
         mUmailButton.setOnClickListener(this);
+        mScrollButton = (ImageButton) findViewById(R.id.updown_button);
+        mScrollButton.setOnClickListener(this);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
@@ -572,7 +605,19 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         super.handleMessage(message);
         return true;
     }
-    
+
+    // Часть кода относится к кнопке быстрой промотки
+    @Override
+    void handleScroll(int direction)
+    {
+        if(direction > 0)
+        {
+            mScrollButton.setVisibility(View.VISIBLE);
+            mScrollButton.removeCallbacks(fadeAnimation);
+            mScrollButton.postDelayed(fadeAnimation, 2000);
+        }
+    }
+
     public void onClick(View view)
     {	
         if (view == mExitButton)
@@ -609,6 +654,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         {
             Intent postIntent = new Intent(getApplicationContext(), UmailList.class);
             startActivity(postIntent);
+        }
+        else if (view == mScrollButton)
+        {
+            // Офигительная штука, документации по которой нет.
+            // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
+            mPageBrowser.getRefreshableView().flingScroll(0, 100000);
         }
         else if (view == mUmailNum)
         {

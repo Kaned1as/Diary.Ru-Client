@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
@@ -16,6 +19,8 @@ import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends PullToRefreshWebView
 {
+    public static final int MILLIS_TO_FAST_SCROLL = 200;
+
  // текущий контекст
     public static final int IMAGE_SAVE = 0;
     public static final int IMAGE_COPY_URL = 1;
@@ -43,7 +48,7 @@ public class DiaryWebView extends PullToRefreshWebView
     
     public void init()
     {
-        if(getContext() instanceof DiaryActivity) 
+        if(getContext() instanceof DiaryActivity)
             mActivity = (DiaryActivity) getContext();
     }
     
@@ -53,18 +58,41 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setSupportZoom(true);
         settings.setUseWideViewPort(false);
         settings.setLightTouchEnabled(true);
-        settings.setBuiltInZoomControls(true);
+        //settings.setBuiltInZoomControls(true);
         settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
         setOnRefreshListener(new WebPageRefresher());
+        getRefreshableView().setOnTouchListener(new webTouchListener());
+    }
+
+    // Часть кода относится к кнопке быстрой промотки
+    private class webTouchListener implements OnTouchListener
+    {
+        private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
+        @Override
+        public boolean onTouch(View v, MotionEvent event)
+        {
+            mGestureDetector.onTouchEvent(event);
+            return false;
+        }
+
+        private class webGestureDetector extends GestureDetector.SimpleOnGestureListener
+        {
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
+            {
+                if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL && distanceY > 120)
+                    mActivity.handleScroll(Utils.VIEW_SCROLL_DOWN);
+
+                return false;
+            }
+        }
     }
 
     private class DiaryWebClient extends WebViewClient
     {
-        // Override page so it's load on my view only
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {

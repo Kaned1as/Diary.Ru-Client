@@ -98,7 +98,8 @@
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
+                android:layout_height="match_parent"
+                android:visibility="visible">
 
                 <com.handmark.pulltorefresh.library.PullToRefreshListView
                     android:id="@+id/diary_browser"
@@ -119,6 +120,17 @@
                     android:layout_height="match_parent"
                     android:cacheColorHint="@android:color/transparent" >
                 </ExpandableListView>
+
+                <ImageButton
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:id="@+id/updown_button"
+                    android:layout_gravity="right|center_vertical"
+                    android:background="@android:color/transparent"
+                    android:src="@android:drawable/ic_menu_more"
+                    android:visibility="invisible"
+                    android:scaleType="fitXY" />
+
             </FrameLayout>
         </LinearLayout>
     </TabHost>

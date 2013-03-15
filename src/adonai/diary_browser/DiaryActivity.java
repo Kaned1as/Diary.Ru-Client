@@ -10,7 +10,7 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.widget.Toast;
 
-public class DiaryActivity extends Activity implements Callback
+public abstract class DiaryActivity extends Activity implements Callback
 {
 	private static final int HANDLE_APP_START = 0;
 	
@@ -94,4 +94,6 @@ public class DiaryActivity extends Activity implements Callback
     {
         mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
     }
+
+    abstract void handleScroll(int direction);
 }
