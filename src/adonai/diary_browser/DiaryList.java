@@ -336,9 +336,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
                 return true;
-            case R.id.menu_up:
-                mPageBrowser.getRefreshableView().scrollTo(0, 0);
-                return true;
             case R.id.menu_refresh:
                 reloadContent();
                 return true;
@@ -610,12 +607,20 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     @Override
     void handleScroll(int direction)
     {
-        if(direction > 0)
+        mScrollButton.setVisibility(View.VISIBLE);
+        mScrollButton.removeCallbacks(fadeAnimation);
+        mScrollButton.clearAnimation();
+        mScrollButton.postDelayed(fadeAnimation, 2000);
+        switch (direction)
         {
-            mScrollButton.setVisibility(View.VISIBLE);
-            mScrollButton.removeCallbacks(fadeAnimation);
-            mScrollButton.postDelayed(fadeAnimation, 2000);
+            case Utils.VIEW_SCROLL_DOWN:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_down);
+                break;
+            case Utils.VIEW_SCROLL_UP:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_up);
+                break;
         }
+
     }
 
     public void onClick(View view)
@@ -659,7 +664,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         {
             // Офигительная штука, документации по которой нет.
             // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
-            mPageBrowser.getRefreshableView().flingScroll(0, 100000);
+            if(mPageBrowser.scrolling == Utils.VIEW_SCROLL_DOWN)
+                mPageBrowser.getRefreshableView().flingScroll(0, 100000);
+            else
+                mPageBrowser.getRefreshableView().flingScroll(0, -100000);
         }
         else if (view == mUmailNum)
         {

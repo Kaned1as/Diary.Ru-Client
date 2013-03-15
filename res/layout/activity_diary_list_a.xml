@@ -122,12 +122,12 @@
                 </ExpandableListView>
 
                 <ImageButton
-                    android:layout_width="100dp"
-                    android:layout_height="100dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:id="@+id/updown_button"
                     android:layout_gravity="right|center_vertical"
                     android:background="@android:color/transparent"
-                    android:src="@android:drawable/ic_menu_more"
+                    android:src="@drawable/overscroll_button_down"
                     android:visibility="invisible"
                     android:scaleType="fitXY" />
 

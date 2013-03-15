@@ -27,6 +27,7 @@ public class DiaryWebView extends PullToRefreshWebView
     public static final int IMAGE_OPEN = 2;
 
     DiaryActivity mActivity;
+    int scrolling = 0;
     
     public DiaryWebView(Context context, AttributeSet attrs)
     {
@@ -83,8 +84,20 @@ public class DiaryWebView extends PullToRefreshWebView
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
             {
-                if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL && distanceY > 120)
-                    mActivity.handleScroll(Utils.VIEW_SCROLL_DOWN);
+                if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
+                {
+                    if(distanceY > 120)
+                    {
+                        scrolling = Utils.VIEW_SCROLL_DOWN;
+                        mActivity.handleScroll(Utils.VIEW_SCROLL_DOWN);
+                    }
+                    else if (distanceY < -120)
+                    {
+                        scrolling = Utils.VIEW_SCROLL_UP;
+                        mActivity.handleScroll(Utils.VIEW_SCROLL_UP);
+                    }
+                }
+
 
                 return false;
             }
