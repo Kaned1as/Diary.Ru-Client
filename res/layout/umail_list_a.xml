@@ -21,7 +21,8 @@
             android:background="@android:drawable/btn_default"
             android:gravity="center"
             android:tag="0"
-            android:text="@string/incoming_mail" />
+            android:text="@string/incoming_mail"
+            android:textStyle="bold"/>
 
         <TextView
             android:id="@+id/outcoming"
@@ -31,7 +32,8 @@
             android:background="@android:drawable/btn_default"
             android:gravity="center"
             android:tag="0"
-            android:text="@string/outcoming_mail" />
+            android:text="@string/outcoming_mail"
+            android:textStyle="bold"/>
 
     </TabWidget>
 
@@ -46,7 +48,8 @@
             android:layout_height="match_parent"
             android:cacheColorHint="@android:color/transparent"
             android:divider="@null"
-            android:background="#edd8bd">
+            android:background="#edd8bd"
+            >
         </com.handmark.pulltorefresh.library.PullToRefreshListView>
 
         <adonai.diary_browser.DiaryWebView

@@ -6,6 +6,7 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -54,6 +55,8 @@ public class UmailList extends DiaryActivity implements OnClickListener
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
+        mFolderBrowser.getRefreshableView().setVerticalFadingEdgeEnabled(true);
+        mFolderBrowser.getRefreshableView().setCacheColorHint(Color.parseColor("#edd8bd"));
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
         
         mIncoming = (TextView) findViewById(R.id.incoming);

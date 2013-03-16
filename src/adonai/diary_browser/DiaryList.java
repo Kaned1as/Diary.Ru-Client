@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -162,12 +163,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mScrollButton.setOnClickListener(this);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
+        mDiaryBrowser.getRefreshableView().setVerticalFadingEdgeEnabled(true);
+        mDiaryBrowser.getRefreshableView().setCacheColorHint(Color.parseColor("#edd8bd"));
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
         mPageBrowser.getRefreshableView().clearHistory();
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
-        
+
         mTabHost = (TabHost) findViewById(android.R.id.tabhost);
         mTabHost.setup();
         
