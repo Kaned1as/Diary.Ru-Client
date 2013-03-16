@@ -1005,6 +1005,11 @@ blockquote, .paragraph li, .paragraph ul {
 .linkssection{
 	margin-bottom: 1px;
 }
+
+a {
+    color: rgb(128, 0, 0);
+}
+
 .linkssection .paragraph{
 	padding: 5px;
 }

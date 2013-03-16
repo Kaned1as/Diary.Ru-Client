@@ -122,7 +122,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cacheColorHint="#edd8bd"
-                    android:fadingEdge="vertical">
+                    android:requiresFadingEdge="vertical">
                 </ExpandableListView>
 
                 <ImageButton
@@ -134,7 +134,8 @@
                     android:src="@drawable/overscroll_button_down"
                     android:visibility="invisible"
                     android:scaleType="fitXY"
-                    android:contentDescription="@string/overscroll_button" />
+                    android:contentDescription="@string/overscroll_button"
+                    android:padding="5dp"/>
 
             </FrameLayout>
         </LinearLayout>

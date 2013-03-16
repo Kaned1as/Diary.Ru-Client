@@ -17,7 +17,7 @@
         <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"/>
         <item android:id="@+id/menu_close_app" android:title="@string/menu_close" android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
     </group>
-    <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@android:drawable/ic_menu_agenda"/>
+    <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@android:drawable/ic_menu_agenda" android:showAsAction="always|withText" />
     <group android:id="@+id/group_web">
         <item android:id="@+id/menu_refresh" android:title="@string/refresh" android:icon="@drawable/default_ptr_rotate" android:showAsAction="always|withText"/>
     </group>

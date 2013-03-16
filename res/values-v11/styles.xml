@@ -1,6 +1,7 @@
 <resources>
     <style name="DiaryTheme" parent="android:Theme.Holo.Light">
         <item name="android:actionBarStyle">@style/DiaryTheme.ActionBar</item>
+        <item name="android:actionMenuTextColor">@android:color/white</item>
     </style>
 
     <style name="DiaryTheme.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
@@ -11,6 +12,9 @@
     </style>
 
     <style name="DiaryTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+    <style name="DiaryTheme.ActionBar.MenuTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Menu">
         <item name="android:textColor">@android:color/white</item>
     </style>
 </resources>

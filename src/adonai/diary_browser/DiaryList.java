@@ -190,7 +190,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             final View view = mTabHost.getTabWidget().getChildTabViewAt(i);
             view.setOnClickListener(this);
             view.setTag(i);
-            view.setPadding((int)(10 * gMetrics.density), 0, (int)(10 * gMetrics.density), 0);
+            view.setBackgroundResource(R.drawable.menu_button);
+            view.setPadding((int)(5 * gMetrics.density), 0, (int)(5 * gMetrics.density), 0);
 
             final View textView = view.findViewById(android.R.id.title);
             if (textView instanceof TextView)
@@ -207,10 +208,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         // Дополнительные настройки для маленьких вкладок отображения новых комментариев
         mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
         LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
-        lp.width = (int) (20 * gMetrics.density);
+        lp.width = (int) (25 * gMetrics.density);
         mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
         lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
-        lp.width = (int) (20 * gMetrics.density);
+        lp.width = (int) (25 * gMetrics.density);
         
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
