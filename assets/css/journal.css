@@ -4,7 +4,7 @@ xhtml {
 }
 body {
 	margin: 0;
-	background-color: #F7F2EE;
+	background-color: #f7f2ee;
 	color: #333333;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 80%;
@@ -220,7 +220,7 @@ a:hover {
 	margin-left:0; 
 	padding:0 0 5px 0; 
 }
-/*для табличного*/
+/*пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 #topNav {  
 	padding:5px;  
 	margin:0 0 1px 0;  
@@ -260,10 +260,12 @@ a:hover {
 }
 .singlePost, .menuSection, #side h1, .header, .postContent, .singleComment, .section, .postDate{
 	margin-bottom:1px;
-	border: 1px dotted black;
+	/*border: 1px dotted black;*/
 }
 .singlePost, .singleComment {
       	margin-top: 20px;
+        background-color: #edd8bd;
+        border-radius: 12px;
 }
 
 .postContent, .menuSection, .bordered{
@@ -287,7 +289,8 @@ a:hover {
 
 .header, .postDate{  
 	text-align:left;  
-	padding:5px; 
+	padding:5px;
+    border-bottom: 1px solid #c7b29b;
 }
 .header *, .postDate *{
 	font-size:100%;  	 
@@ -299,6 +302,7 @@ a:hover {
 	padding: 5px;
 	font-size: 85%;
 	text-align: right;
+    border-top: 1px solid #c7b29b;
 }
 .formcontainer{
 	margin: 0 0 1px 0;
@@ -535,7 +539,7 @@ textarea {
 	bottom:0;
 	top: 0;
 }
-/*информациооные окошки*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ*/
 #info_wind .withfloat{
 	display: inline;
 }
@@ -560,7 +564,7 @@ textarea {
 #rewrite_record_info.withfloat:hover .flwin{
 	left:-194px;
 }
-/*плавание для оперы*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ*/
 @media all and (min-width:0px) { 
 head~body .withfloat:hover{
 	position:static;
@@ -674,7 +678,7 @@ input.simplebutton {
 	overflow:hidden; 
 }
 
-/*новые темы*/
+/*пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ*/
 #my_tags{
 	border: 1px solid #cccccc;
 	padding: 5px;
@@ -699,7 +703,7 @@ input.simplebutton {
 	//margin-top: -3px;
 }
 
-/* Сообщение */
+/* пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ */
 #msgWin
 { 
 	width:300px;
@@ -822,7 +826,7 @@ input.simplebutton {
 	padding:0 2px 2px 0;
 }
 
-/*вкладки*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 #vkl{
 	position: relative;
 	bottom: -1px;
@@ -875,13 +879,13 @@ input.simplebutton {
 	padding: 3px 5px 5px 5px;
 	border-bottom: none;
 }
-/*end вкладки*/
+/*end пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 
 .quote_text{
 	font-style: italic;
 }
 
-/*суггестр*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 #suggestform{
 	border-style: solid;
 	border-width: 1px;
@@ -993,7 +997,7 @@ html:first-child #YaSearchForm input.submit{
 	text-align: right; 
 //	height: 1%;
 }
-/* для сдвига блоков в ВР */
+/* пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅ */
 blockquote, .paragraph li, .paragraph ul {
 	margin-top:0;
 	margin-bottom:0;
@@ -1011,7 +1015,7 @@ blockquote, .paragraph li, .paragraph ul {
 	float:right;
 }
 
-/*.block_design - блочный дизайн*/
+/*.block_design - пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ*/
 .block_design #topNav{
 	display: none;
 }
@@ -1086,6 +1090,7 @@ blockquote, .paragraph li, .paragraph ul {
 }
 .block_design .commentAuthor{
 	margin-left: 0;
+    border-right: 1px solid #c7b29b;
 }
 .block_design #content{
 	padding: 0;
@@ -1324,7 +1329,7 @@ input.std_submit{
 	display:block;
 }
 
-/*верхнее меню*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ*/
  .top .menuSection_title{ display:block; cursor:pointer; }
  .top #topNav{ display:none; }
  .top #bottomNav{ display:block; }
@@ -1363,19 +1368,19 @@ input.std_submit{
 	height: 1.35em;
 	padding: 0 2px;
 }
-#side #search_selectbtid{
+#side #search_selectbtid {
 	background: #ffffff url('http://static.diary.ru/images/2007/select_but_journal.gif') no-repeat center;
 	cursor: pointer;
 	width: 12px;
 	padding: 	0;
 	opacity: 0.7;
-	//filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+	/*filter:progid:DXImageTransform.Microsoft.Alpha(opacity=70);*/
 	margin:0;
-	//margin-top:1px;
+	/*margin-top:1px;*/
 	border: 1px solid #cccccc;
 	height: 1.35em;	
 }
-#side .search_select_list{/*общий вывод*/
+#side .search_select_list{/*пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ*/
 	border-style: solid;
 	border-width: 1px;
 	background-color: #ffffff;
@@ -1386,7 +1391,7 @@ input.std_submit{
 	padding: 0;		
 	cursor: pointer;
 }
-#side .search_select_list .select_line{/*выделенная строка для общего*/
+#side .search_select_list .select_line{/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ*/
 	background-color: #e0dbd6;
 }
 #side #search_selectsform{
@@ -1422,7 +1427,7 @@ input.std_submit{
 .htmlbox, #shsmile{
 	border: 1px solid #cccccc;
 }
-/*кнопки*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅ*/
 .mceToolbarTop{background-color:#f0f0ee;}
 a.mceButtonNormal img, a.mceButtonSelected img, a.mceButtonDisabled img{
 border: #cccccc 1px solid;}
@@ -1432,7 +1437,7 @@ span.mceMenuButton img, span.mceMenuButtonSelected img{border: #cccccc 1px solid
 span.mceMenuButton img.mceMenuButton, span.mceMenuButtonSelected img.mceMenuButton, span.mceMenuButton:hover img.mceMenuButton, span.mceMenuButtonSelected:hover img.mceMenuButton{border-left:none!important;}
 #shsmile, #jsbut{background-color: #f9f9f9;}
 
-/*вкладки*/
+/*пїЅпїЅпїЅпїЅпїЅпїЅпїЅ*/
 #vkl .current a, #vkl .current .z_n{background-color:#f9f9f9;}
 #vkl li a, #vkl .z_n{background-color:#f9f9f9;}
 
