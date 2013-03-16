@@ -180,35 +180,34 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(android.R.id.tabcontent));
         mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(android.R.id.tabcontent));
         mTabHost.getCurrentView().setVisibility(View.VISIBLE);
-        
-        // Дополнительные настройки для маленьких вкладок отображения новых комментариев
-        mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
-		lp.weight = 0; lp.width = (int)(50 / gMetrics.density);
-		mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
-		lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
-		lp.weight = 0; lp.width = (int)(50 / gMetrics.density);
-        
+
         // UGLY HACK для более тонких табов
         for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
         {
             final View view = mTabHost.getTabWidget().getChildTabViewAt(i);
             view.setOnClickListener(this);
             view.setTag(i);
-            view.getLayoutParams().height *= 0.50;
-            view.setPadding((int)(10 / gMetrics.density), 0, (int)(10 / gMetrics.density), 0);
+            view.setPadding((int)(10 * gMetrics.density), 0, (int)(10 * gMetrics.density), 0);
 
             final View textView = view.findViewById(android.R.id.title);
             if (textView instanceof TextView)
             {
                 ((TextView) textView).setGravity(Gravity.CENTER);
                 ((TextView) textView).setTypeface(Typeface.DEFAULT_BOLD);
-                
+
                 // explicitly set layout parameters
                 textView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
                 textView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
             }
         }
+
+        // Дополнительные настройки для маленьких вкладок отображения новых комментариев
+        mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
+        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
+        lp.width = (int) (20 * gMetrics.density);
+        mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
+        lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
+        lp.width = (int) (20 * gMetrics.density);
         
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);

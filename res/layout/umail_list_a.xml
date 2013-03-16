@@ -9,7 +9,9 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:measureWithLargestChild="false"
-        android:minHeight="30dip" >
+        android:minHeight="30dip"
+        android:background="#edd8bd"
+        android:paddingTop="5dp">
 
         <TextView
             android:id="@+id/incoming"
@@ -42,7 +44,9 @@
             android:id="@+id/ufolder_browser"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:cacheColorHint="@android:color/transparent" >
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@null"
+            android:background="#edd8bd">
         </com.handmark.pulltorefresh.library.PullToRefreshListView>
 
         <adonai.diary_browser.DiaryWebView
