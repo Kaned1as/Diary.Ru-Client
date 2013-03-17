@@ -78,7 +78,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:clickable="true"
+            >
 
             <HorizontalScrollView
                 android:id="@+id/horizontalScrollView1"
@@ -92,10 +94,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:measureWithLargestChild="false"
-                    android:background="#edd8bd">
+                    android:background="#edd8bd"
+                    >
                 </TabWidget>
             </HorizontalScrollView>
-
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#800000"/>
             <FrameLayout
                 android:id="@android:id/tabcontent"
                 android:layout_width="match_parent"
@@ -121,8 +127,7 @@
                     android:id="@+id/discussion_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:cacheColorHint="#edd8bd"
-                    android:requiresFadingEdge="vertical">
+                    android:divider="@null">
                 </ExpandableListView>
 
                 <ImageButton

@@ -2,7 +2,8 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    >
 
     <TabWidget
         android:id="@+id/folder_selector"
@@ -36,7 +37,10 @@
             android:textStyle="bold"/>
 
     </TabWidget>
-
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#800000"/>
     <FrameLayout
         android:id="@android:id/tabcontent"
         android:layout_width="match_parent"

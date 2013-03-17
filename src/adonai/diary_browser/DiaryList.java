@@ -163,10 +163,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mScrollButton.setOnClickListener(this);
         
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
-        mDiaryBrowser.getRefreshableView().setVerticalFadingEdgeEnabled(true);
-        mDiaryBrowser.getRefreshableView().setCacheColorHint(Color.parseColor("#edd8bd"));
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
-        mPageBrowser.getRefreshableView().clearHistory();
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);

@@ -55,8 +55,6 @@ public class UmailList extends DiaryActivity implements OnClickListener
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
-        mFolderBrowser.getRefreshableView().setVerticalFadingEdgeEnabled(true);
-        mFolderBrowser.getRefreshableView().setCacheColorHint(Color.parseColor("#edd8bd"));
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
         
         mIncoming = (TextView) findViewById(R.id.incoming);
