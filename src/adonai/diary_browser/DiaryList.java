@@ -42,8 +42,6 @@ import com.handmark.pulltorefresh.library.PullToRefreshListView;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
@@ -92,7 +90,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     // Сервисные объекты
     DisplayMetrics gMetrics;
 
-    Map<String, String> browserHistory;
+    BrowseHistory browserHistory;
     Handler mUiHandler;
 
     // Часть кода относится к кнопке быстрой промотки
@@ -129,7 +127,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         super.onCreate(savedInstanceState);
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
-        browserHistory = new HashMap<String, String>();
+        browserHistory = new BrowseHistory();
 
         mUiHandler = new Handler(this);
         CookieSyncManager.createInstance(this);
@@ -189,12 +187,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             view.setTag(i);
             view.setBackgroundResource(R.drawable.menu_button);
             view.setPadding((int)(5 * gMetrics.density), 0, (int)(5 * gMetrics.density), 0);
+            view.getLayoutParams().height *= 0.75;
 
             final View textView = view.findViewById(android.R.id.title);
             if (textView instanceof TextView)
             {
                 ((TextView) textView).setGravity(Gravity.CENTER);
                 ((TextView) textView).setTypeface(Typeface.DEFAULT_BOLD);
+                ((TextView) textView).setTextColor(Color.BLACK);
 
                 // explicitly set layout parameters
                 textView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
@@ -470,7 +470,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 mTabHost.setCurrentTab(TAB_FAVOURITES);
                 
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
-                browserHistory.put(mUser.currentDiaries.getURL(), getString(R.string.favourites));
+
+                browserHistory.add(mUser.currentDiaries.getURL(), getString(R.string.favourites));
+
                 mDiaryBrowser.onRefreshComplete();
                 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
@@ -481,8 +483,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
-                browserHistory.put(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
-                
+
+                browserHistory.add(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
+
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 mPageBrowser.onRefreshComplete();
                 
@@ -805,24 +808,28 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     		handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onBackPressed()
-     */
     @Override
     public void onBackPressed()
     {
-        if(mUser.currentDiaryPage instanceof DiaryPage)
+        if(browserHistory.getCurrentIndex() > 1)
+        {
+            browserHistory.moveBack();
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(browserHistory.getCurrentUrl(), false));
+        }
+        else
         {
         	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
         	final ScrollView dialogView = new ScrollView(ctw);
         	LinearLayout LL = new LinearLayout(ctw);
         	LL.setOrientation(LinearLayout.VERTICAL);
-        	
-        	for(String url : browserHistory.keySet())
+
+            ArrayList<String> urls = browserHistory.getUrlsCopy();
+        	for(Integer index = urls.size() - 1; index >= 0; index--)
         	{
+
     			TextView tmpTxt = new TextView(ctw);
-    			tmpTxt.setText(browserHistory.get(url));
-    			tmpTxt.setTag(url);
+    			tmpTxt.setText(browserHistory.getName(urls.get(index)));
+    			tmpTxt.setTag(urls.get(index));
     			tmpTxt.setMaxLines(1);
     			tmpTxt.setPadding(5, 5, 5, 5);
     			tmpTxt.setTextAppearance(ctw, android.R.style.TextAppearance_Large);
@@ -838,7 +845,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 					}
 				});
     			TextView tmpDescTxt = new TextView(ctw);
-    			tmpDescTxt.setText(url);
+    			tmpDescTxt.setText(urls.get(index));
     			LL.addView(tmpTxt);
     			LL.addView(tmpDescTxt);
         	}
@@ -848,16 +855,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         	builder.setView(dialogView);
         	ad = builder.create();
         	ad.show();
-        	dialogView.post(new Runnable() 
-        	{
-				public void run()
-				{
-					dialogView.fullScroll(ScrollView.FOCUS_DOWN);
-				}
-        	});
         }
-        else
-        	super.onBackPressed();
     }
 
     @Override

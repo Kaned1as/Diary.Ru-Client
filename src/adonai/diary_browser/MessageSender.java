@@ -2,9 +2,9 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -15,7 +15,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.*;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.util.SparseArray;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
@@ -37,7 +42,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-public class MessageSender extends Activity implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
+public class MessageSender extends FragmentActivity implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener, PasteSelector.PasteAcceptor
 {
 
 	private static final int HANDLE_DO_POST 		= 0;
@@ -217,8 +222,30 @@ public class MessageSender extends Activity implements OnClickListener, android.
     	umailElements.add(mGetReceipt);
     	umailElements.add(mCopyMessage);
     }
-    
-	@Override
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.message_sender_a, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case R.id.menu_special_paste:
+                DialogFragment newFragment = PasteSelector.newInstance();
+                newFragment.show(getSupportFragmentManager(), "selector");
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
 	protected void onDestroy() 
 	{
 		mLooper.quit();
@@ -989,4 +1016,58 @@ public class MessageSender extends Activity implements OnClickListener, android.
 			break;
 		}
 	}
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void acceptDialogClick(View view, boolean pasteClipboard)
+    {
+        int cursorPos = contentText.getSelectionStart();
+        if(cursorPos == -1)
+            cursorPos = contentText.getText().length();
+
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        CharSequence paste = clipboard.getText();
+        if(paste == null || !pasteClipboard)
+            paste = "";
+
+        switch (view.getId())
+        {
+            case R.id.button_bold:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<b>" + paste.toString() + "</b>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("</b>", cursorPos));
+                break;
+            }
+            case R.id.button_italic:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<i>" + paste.toString() + "</i>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("</i>", cursorPos));
+                break;
+            }
+            case R.id.button_underlined:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<u>" + paste.toString() + "</u>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("</u>", cursorPos));
+                break;
+            }
+            case R.id.button_nick:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<L>" + paste.toString() + "</L>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("</L>", cursorPos));
+                break;
+            }
+            case R.id.button_link:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<a href=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                break;
+            }
+            case R.id.button_image:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<img src=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                break;
+            }
+        }
+    }
 }

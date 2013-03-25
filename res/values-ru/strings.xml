@@ -17,7 +17,7 @@
     <string name="my_diary">Дневник</string>
     <string name="discussions">Дискуссии</string>
     <string name="file_not_found">Файл не найден</string>
-    <string name="saved_to">Сохранено: </string>
+    <string name="saved_to">Сохранено:</string>
     <string name="image_save">Сохранить</string>
     <string name="image_open">Открыть</string>
     <string name="really_exit">Правда выйти?</string>
@@ -55,18 +55,23 @@
     <string name="new_comment">Новый комментарий</string>
     <string name="sorting_data">Сортировка данных…</string>
     <string name="images_autoload">Автозагрузка изображений</string>
-    <string name="images_autoload_summary">Используйте с осторожностью! Может вызвать переполнение доступной памяти!</string>
+    <string name="images_autoload_summary">Используйте с осторожностью! Может вызвать переполнение доступной памяти!
+    </string>
     <string name="post_signature">Подпись к сообщению</string>
-    <string name="post_signature_summary">Подпись, которая будет добавлена к любому сообщению, которое вы добавите через приложение.</string>
+    <string name="post_signature_summary">Подпись, которая будет добавлена к любому сообщению, которое вы добавите через
+        приложение.
+    </string>
     <string name="posted_via_client">;Android-клиент;anticitizen.diary.ru</string>
     <string name="post_tags">Тэги поста по умолчанию</string>
     <string name="post_tags_summary">Тэги, которые будут добавлены к любому посту, который вы опубликуете</string>
     <string name="cache_size">Максимальный размер кэша</string>
     <string name="cache_size_summary">Размер кэша, используемого для картинок и постов, в МБ</string>
     <string name="autoload_cached_images">Автозагрузка кэша</string>
-    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.</string>
+    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из
+        памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.
+    </string>
     <string name="menu_share">Поделиться</string>
-    <string name="copied">Скопировано: </string>
+    <string name="copied">Скопировано:</string>
     <string name="message_close">Закрытый пост</string>
     <string name="message_close_only_reg">Только для зарегистрированных</string>
     <string name="message_close_only_fav">Только для избранных</string>
@@ -79,10 +84,22 @@
     <string name="message_close_allowed_list">Список разрешенных</string>
     <string name="message_close_text">Текст уведомления о закрытии</string>
     <string name="gradient_button">Преобразовать в градиент</string>
-    <string name="application_description">&lt;b>@Дневники&lt;/b>&lt;br/>Андроид-клиент &lt;br/> для сайта Diary.ru&lt;br/>Версия: &lt;b>Альфа-0.3.0&lt;/b>&lt;br/>Сообщество: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a></string>
-    <string name="author_description">Автор: &lt;b>Адонай&lt;/b>&lt;br/>Дневник: &lt;a href="http://dron01.diary.ru">Not an Option&lt;/a>&lt;br/> Если желаете поучаствовать&lt;br/> или помочь, пожалуйста, пишите на &lt;br/>&lt;a href="mailto:adonai@xaker.ru">adonai@xaker.ru&lt;/a></string>
+    <string name="application_description">&lt;b>@Дневники&lt;/b>&lt;br/>Андроид-клиент &lt;br/> для сайта Diary.ru&lt;br/>Версия:
+        &lt;b>Альфа-0.3.0&lt;/b>&lt;br/>Сообщество: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a>
+    </string>
+    <string name="author_description">Автор: &lt;b>Адонай&lt;/b>&lt;br/>Дневник: &lt;a href="http://dron01.diary.ru">Not
+        an Option&lt;/a>&lt;br/> Если желаете поучаствовать&lt;br/> или помочь, пожалуйста, пишите на &lt;br/>&lt;a
+        href="mailto:adonai@xaker.ru">adonai@xaker.ru&lt;/a>
+    </string>
     <string name="about">О программе</string>
-    <string name="gpl_notice">Это свободная программа: вы можете перераспространять ее и/или изменять ее на условиях Стандартной общественной лицензии GNU в том виде, в каком она была опубликована Фондом свободного программного обеспечения; либо версии 3 лицензии, либо (по вашему выбору) любой более поздней версии. \n Эта программа распространяется в надежде, что она будет полезной, но БЕЗО ВСЯКИХ ГАРАНТИЙ; даже без неявной гарантии ТОВАРНОГО ВИДА или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной общественной лицензии GNU. \n Вы должны были получить копию Стандартной общественной лицензии GNU вместе с этой программой. Если это не так, см. http://www.gnu.org/licenses/</string>
+    <string name="gpl_notice">Это свободная программа: вы можете перераспространять ее и/или изменять ее на условиях
+        Стандартной общественной лицензии GNU в том виде, в каком она была опубликована Фондом свободного программного
+        обеспечения; либо версии 3 лицензии, либо (по вашему выбору) любой более поздней версии. \n Эта программа
+        распространяется в надежде, что она будет полезной, но БЕЗО ВСЯКИХ ГАРАНТИЙ; даже без неявной гарантии ТОВАРНОГО
+        ВИДА или ПРИГОДНОСТИ ДЛЯ ОПРЕДЕЛЕННЫХ ЦЕЛЕЙ. Подробнее см. в Стандартной общественной лицензии GNU. \n Вы должны
+        были получить копию Стандартной общественной лицензии GNU вместе с этой программой. Если это не так, см.
+        http://www.gnu.org/licenses/
+    </string>
     <string name="diary_tags">Тэги дневника</string>
     <string name="subscribers_list">Список ПЧ</string>
     <string name="incoming_mail">Входящие</string>
@@ -99,7 +116,9 @@
     <string name="message_send_error">Ошибка отправки сообщения</string>
     <string name="message_send_ok">Сообщение успешно отправлено</string>
     <string name="sticky_service">Держать сервис в памяти</string>
-    <string name="sticky_service_sum">Если включено, сервис будет всегда оставаться активным, даже при нехватке памяти. В этом случае приложению не нужно перезагружать данные при переключении.</string>
+    <string name="sticky_service_sum">Если включено, сервис будет всегда оставаться активным, даже при нехватке памяти.
+        В этом случае приложению не нужно перезагружать данные при переключении.
+    </string>
     <string name="service_notification">сервис Diary.Ru работает</string>
     <string name="refresh">Обновить</string>
     <string name="menu_goto_top">Наверх</string>
@@ -108,5 +127,13 @@
     <string name="avatar_selected">Аватар успешно установлен</string>
     <string name="edit_comment">Редактирование комментария</string>
     <string name="overscroll_button">Быстрая прокрутка</string>
+    <string name="menu_special_paste">Специальная вставка</string>
+    <string name="italic">Курсив</string>
+    <string name="bold">Полужирный</string>
+    <string name="nick">Псевдоним</string>
+    <string name="underlined">Подчеркнутый</string>
+    <string name="link">Ссылка</string>
+    <string name="image">Изображение</string>
+    <string name="paste_clipboard">Вставить из буфера обмена</string>
 
 </resources>

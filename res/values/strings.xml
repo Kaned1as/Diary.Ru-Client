@@ -111,4 +111,5 @@
     <string name="avatar_selected">Default avatar successfully changed</string>
     <string name="edit_comment">Edit comment</string>
     <string name="overscroll_button">Fast scroll button</string>
+    <string name="menu_special_paste">Special paste</string><string name="italic">Italic</string><string name="bold">Bold</string><string name="nick">Nick</string><string name="underlined">Underlined</string><string name="link">Link</string><string name="image">Image</string><string name="paste_clipboard">Paste from clipboard</string>
 </resources>
