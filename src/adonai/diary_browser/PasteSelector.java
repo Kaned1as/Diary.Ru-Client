@@ -50,7 +50,7 @@ public class PasteSelector extends DialogFragment
         public void onClick(View v)
         {
             if(getActivity() instanceof PasteAcceptor)
-                ((MessageSender) getActivity()).acceptDialogClick(v, mShouldPaste.isChecked());
+                ((PasteAcceptor) getActivity()).acceptDialogClick(v, mShouldPaste.isChecked());
 
             dismiss();
         }

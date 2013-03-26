@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/checkbox_paste_clip"
         android:text="@string/paste_clipboard"
-        android:checked="true"/>
+        android:checked="false"/>
 
     <Button
         android:layout_width="fill_parent"
