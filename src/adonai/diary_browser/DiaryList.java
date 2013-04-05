@@ -9,8 +9,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Typeface;
+import android.graphics.*;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,6 +43,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import static java.lang.Math.max;
+
 public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
     // Команды хэндлеру вида
@@ -73,8 +75,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     
     // Видимые объекты
     TextView mLogin;
-    TextView mDiscussNum;
-    TextView mCommentsNum;
+    Button mDiscussNum;
+    Button mCommentsNum;
     TextView mUmailNum;
     PullToRefreshListView mDiaryBrowser;
     DiaryWebView mPageBrowser;
@@ -84,8 +86,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
     ImageButton mScrollButton;
-    TabHost mTabHost;
+    LinearLayout mTabs;
     AlertDialog ad;
+    Paint mPaint;
     
     // Сервисные объекты
     DisplayMetrics gMetrics;
@@ -145,6 +148,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     
     public void initializeUI()
     {
+        // for text drawing
+        mPaint = new Paint();
+        mPaint.setColor(Color.RED);
+        mPaint.setTextSize(12f);
+        mPaint.setAntiAlias(true);
+        mPaint.setStyle(Paint.Style.FILL);
+        mPaint.setTextAlign(Paint.Align.CENTER);
+        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
 
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
@@ -165,50 +176,16 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
+        mTabs = (LinearLayout) findViewById(R.id.tabs);
 
-        mTabHost = (TabHost) findViewById(android.R.id.tabhost);
-        mTabHost.setup();
-        
-        // Когда мы добавляем несколько табов с одинаковым содержимым, необходимо в конце сделать нужную видимой.
-        // Я открыл это странное свойство, когда копался в исходниках Андроида
-        mTabHost.addTab(mTabHost.newTabSpec("tab_favourites").setIndicator(getString(R.string.favourites)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_posts").setIndicator(getString(R.string.posts)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator(getString(R.string.my_diary)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_owndiary").setIndicator("").setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions").setIndicator(getString(R.string.discussions)).setContent(android.R.id.tabcontent));
-        mTabHost.addTab(mTabHost.newTabSpec("tab_discussions_newest").setIndicator("").setContent(android.R.id.tabcontent));
-        mTabHost.getCurrentView().setVisibility(View.VISIBLE);
-
-        // UGLY HACK для более тонких табов
-        for (int i = 0, count = mTabHost.getTabWidget().getTabCount(); i != count; ++i)
+        for(int i = 0; i < mTabs.getChildCount(); i++)
         {
-            final View view = mTabHost.getTabWidget().getChildTabViewAt(i);
-            view.setOnClickListener(this);
-            view.setTag(i);
-            view.setBackgroundResource(R.drawable.menu_button);
-            view.setPadding((int)(5 * gMetrics.density), 0, (int)(5 * gMetrics.density), 0);
-            view.getLayoutParams().height *= 0.75;
-
-            final View textView = view.findViewById(android.R.id.title);
-            if (textView instanceof TextView)
-            {
-                ((TextView) textView).setGravity(Gravity.CENTER);
-                ((TextView) textView).setTypeface(Typeface.DEFAULT_BOLD);
-                ((TextView) textView).setTextColor(Color.BLACK);
-
-                // explicitly set layout parameters
-                textView.getLayoutParams().height = ViewGroup.LayoutParams.MATCH_PARENT;
-                textView.getLayoutParams().width = ViewGroup.LayoutParams.MATCH_PARENT;
-            }
+            Button current = (Button) mTabs.getChildAt(i);
+            current.setOnClickListener(this);
         }
 
-        // Дополнительные настройки для маленьких вкладок отображения новых комментариев
-        mCommentsNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).findViewById(android.R.id.title);
-        LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).getLayoutParams();
-        lp.width = (int) (25 * gMetrics.density);
-        mDiscussNum = (TextView) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).findViewById(android.R.id.title);
-        lp = (LinearLayout.LayoutParams) mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).getLayoutParams();
-        lp.width = (int) (25 * gMetrics.density);
+        mCommentsNum = (Button) findViewById(R.id.diary_button);
+        mDiscussNum = (Button) findViewById(R.id.discussions_button);
         
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
@@ -218,8 +195,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mDiscussionBrowser.setOnChildClickListener(this);
         mDiscussionBrowser.setOnGroupClickListener(this);
         mDiscussionBrowser.setOnItemLongClickListener(this);
-        
-        mTabHost.setCurrentTab(mCurrentTab);
+
         setCurrentVisibleComponent(0);
     }
     
@@ -402,26 +378,43 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
-                	mCommentsNum.setText(mUser.newDiaryCommentsNum.toString());
-                	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(true);
+                    Rect bounds = new Rect();
+                    mPaint.getTextBounds(mUser.newDiaryCommentsNum.toString(), 0, mUser.newDiaryCommentsNum.toString().length(), bounds);
+                    int square = max(bounds.width() + 5, bounds.height() + 5);
+
+                    Bitmap example = Bitmap.createBitmap(square, square, Bitmap.Config.ARGB_8888);
+                    Canvas tCanvas = new Canvas(example);
+                    tCanvas.drawCircle(square/2, square/2, square/2, mPaint);
+                    mPaint.setColor(Color.BLACK);
+                    tCanvas.drawText(mUser.newDiaryCommentsNum.toString(), square/2, square, mPaint);
+                    BitmapDrawable right = new BitmapDrawable(getResources(), example);
+                    right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
+
+                    mCommentsNum.setCompoundDrawables(null, null, right, null);
+                    mCommentsNum.invalidate();
                 }
                 else
-                {
-                	mCommentsNum.setText("");
-                	mTabHost.getTabWidget().getChildTabViewAt(TAB_MY_DIARY_NEW).setEnabled(false);
-                }
-                
+                	mCommentsNum.setCompoundDrawables(null, null, null, null);
+
                 if(mUser.newDiscussNum != 0)
                 {
-                	mDiscussNum.setText(mUser.newDiscussNum.toString());
-                	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(true);
+                    Rect bounds = new Rect();
+                    mPaint.getTextBounds(mUser.newDiscussNum.toString(), 0, mUser.newDiscussNum.toString().length(), bounds);
+                    int square = max(bounds.width() + 5, bounds.height() + 5);
+
+                    Bitmap example = Bitmap.createBitmap(square, square, Bitmap.Config.ARGB_8888);
+                    Canvas tCanvas = new Canvas(example);
+                    tCanvas.drawCircle(square/2, square/2, square/2, mPaint);
+                    mPaint.setColor(Color.BLACK);
+                    tCanvas.drawText(mUser.newDiscussNum.toString(), 0, square, mPaint);
+                    BitmapDrawable right = new BitmapDrawable(getResources(), example);
+                    right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
+
+                    mDiscussNum.setCompoundDrawables(null, null, right, null);
                 }
                 else
-                {
-                	mDiscussNum.setText("");
-                	mTabHost.getTabWidget().getChildTabViewAt(TAB_DISCUSSIONS_NEW).setEnabled(false);
-                }
-                
+                    mDiscussNum.setCompoundDrawables(null, null, null, null);
+
                 if(mUser.newUmailNum != 0)
                 {
                     mUmailNum.setText(mUser.newUmailNum.toString());
@@ -436,7 +429,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_SET_HTTP_COOKIE:
                 pd.setMessage(getString(R.string.getting_user_info));
                 if(getIntent().getData() == null)
-                    handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
+                    setCurrentTab(TAB_FAVOURITES);
                 else
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getIntent().getDataString(), false));
                 return true;
@@ -466,9 +459,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     }
                     mDiaryBrowser.getRefreshableView().addFooterView(LL);
                 }
-                mCurrentTab = TAB_FAVOURITES;
-                mTabHost.setCurrentTab(TAB_FAVOURITES);
-                
+
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
 
                 browserHistory.add(mUser.currentDiaries.getURL(), getString(R.string.favourites));
@@ -678,16 +669,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             postIntent.putExtra("url", mUser.newUmailLink);
             startActivity(postIntent);
         }
-        else if (view.getTag() != null)
+        else if (view.getParent() == mTabs)   // Если это кнопка табов
         {
-            if(view.getParent() instanceof TabWidget) // Если это кнопка табов
-            {
-                int i = (Integer) view.getTag();
-                setCurrentTab(i);
-            }
-            if(view instanceof Button) // нижние кнопки списков
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
-        } else
+            setCurrentTab(mTabs.indexOfChild(view));
+        }
+        else if (view.getTag() != null)  // нижние кнопки списков
+        {
+            handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
+        }
+        else
             switch (view.getId())
             {
             	// Загружаем посты дневника
@@ -761,6 +751,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
      */
     private void setCurrentTab(int index)
     {
+        mTabs.getChildAt(mCurrentTab).setSelected(false);
+
         switch (index)
         {
             case TAB_FAVOURITES:
@@ -787,7 +779,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         }
         
         mCurrentTab = index;
-        mTabHost.setCurrentTab(index);
+        mTabs.getChildAt(index).setSelected(true);
     }
     
     private void setCurrentVisibleComponent(int needed)
@@ -861,11 +853,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     @Override
     public boolean onSearchRequested()
     {
-        int visibility = mTabHost.getTabWidget().getVisibility();
+        int visibility = mTabs.getVisibility();
         if(visibility == View.GONE)
-            mTabHost.getTabWidget().setVisibility(View.VISIBLE);
+            mTabs.setVisibility(View.VISIBLE);
         else
-            mTabHost.getTabWidget().setVisibility(View.GONE);
+            mTabs.setVisibility(View.GONE);
         
         return super.onSearchRequested();
     }

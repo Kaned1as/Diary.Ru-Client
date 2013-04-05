@@ -70,80 +70,113 @@
 
     </RelativeLayout>
 
-    <TabHost
-        android:id="@android:id/tabhost"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clickable="true"
+        >
 
-        <LinearLayout
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="none" >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/tabs"
+                android:background="#edd8bd">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/favourites"
+                    android:id="@+id/button"
+                    android:background="@drawable/menu_button"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/posts"
+                    android:id="@+id/button1"
+                    android:background="@drawable/menu_button"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/my_diary"
+                    android:id="@+id/diary_button"
+                    android:background="@drawable/menu_button"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/discussions"
+                    android:id="@+id/discussions_button"
+                    android:background="@drawable/menu_button"
+                    android:textStyle="bold"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"/>
+            </LinearLayout>
+        </HorizontalScrollView>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="#800000"/>
+        <FrameLayout
+            android:id="@android:id/tabcontent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:clickable="true"
-            >
+            android:visibility="visible">
 
-            <HorizontalScrollView
-                android:id="@+id/horizontalScrollView1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:fillViewport="true"
-                android:scrollbars="none" >
-
-                <TabWidget
-                    android:id="@android:id/tabs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:measureWithLargestChild="false"
-                    android:background="#edd8bd"
-                    >
-                </TabWidget>
-            </HorizontalScrollView>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#800000"/>
-            <FrameLayout
-                android:id="@android:id/tabcontent"
+            <com.handmark.pulltorefresh.library.PullToRefreshListView
+                android:id="@+id/diary_browser"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="visible">
+                android:cacheColorHint="@android:color/transparent"
+                android:divider="@null"
+                >
+            </com.handmark.pulltorefresh.library.PullToRefreshListView>
 
-                <com.handmark.pulltorefresh.library.PullToRefreshListView
-                    android:id="@+id/diary_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:cacheColorHint="@android:color/transparent"
-                    android:divider="@null"
-                    >
-                </com.handmark.pulltorefresh.library.PullToRefreshListView>
+            <adonai.diary_browser.DiaryWebView
+                android:id="@+id/page_browser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+            </adonai.diary_browser.DiaryWebView>
 
-                <adonai.diary_browser.DiaryWebView
-                    android:id="@+id/page_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" >
-                </adonai.diary_browser.DiaryWebView>
+            <ExpandableListView
+                android:id="@+id/discussion_browser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:divider="@null">
+            </ExpandableListView>
 
-                <ExpandableListView
-                    android:id="@+id/discussion_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:divider="@null">
-                </ExpandableListView>
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/updown_button"
+                android:layout_gravity="right|center_vertical"
+                android:background="@android:color/transparent"
+                android:src="@drawable/overscroll_button_down"
+                android:visibility="invisible"
+                android:scaleType="fitXY"
+                android:contentDescription="@string/overscroll_button"
+                android:padding="5dp"/>
 
-                <ImageButton
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/updown_button"
-                    android:layout_gravity="right|center_vertical"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/overscroll_button_down"
-                    android:visibility="invisible"
-                    android:scaleType="fitXY"
-                    android:contentDescription="@string/overscroll_button"
-                    android:padding="5dp"/>
-
-            </FrameLayout>
-        </LinearLayout>
-    </TabHost>
+        </FrameLayout>
+    </LinearLayout>
 
 </LinearLayout>
