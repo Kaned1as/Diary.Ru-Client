@@ -9,8 +9,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.*;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -43,8 +44,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-import static java.lang.Math.max;
-
 public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
     // Команды хэндлеру вида
@@ -58,10 +57,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
-    public static final int TAB_MY_DIARY_NEW = 3;
-    public static final int TAB_DISCUSSIONS = 4;
-    public static final int TAB_DISCUSSIONS_NEW = 5;
-    
+    public static final int TAB_DISCUSSIONS = 3;
+
     int mCurrentTab = 0;
     int mCurrentComponent = 0;
     
@@ -378,42 +375,17 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
-                    Rect bounds = new Rect();
-                    mPaint.getTextBounds(mUser.newDiaryCommentsNum.toString(), 0, mUser.newDiaryCommentsNum.toString().length(), bounds);
-                    int square = max(bounds.width() + 5, bounds.height() + 5);
-
-                    Bitmap example = Bitmap.createBitmap(square, square, Bitmap.Config.ARGB_8888);
-                    Canvas tCanvas = new Canvas(example);
-                    tCanvas.drawCircle(square/2, square/2, square/2, mPaint);
-                    mPaint.setColor(Color.BLACK);
-                    tCanvas.drawText(mUser.newDiaryCommentsNum.toString(), square/2, square, mPaint);
-                    BitmapDrawable right = new BitmapDrawable(getResources(), example);
-                    right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
-
-                    mCommentsNum.setCompoundDrawables(null, null, right, null);
-                    mCommentsNum.invalidate();
+                    mCommentsNum.setText(mCommentsNum.getText() + " - " + mUser.newDiaryCommentsNum.toString());
                 }
                 else
-                	mCommentsNum.setCompoundDrawables(null, null, null, null);
+                    mCommentsNum.setText(getString(R.string.my_diary));
 
                 if(mUser.newDiscussNum != 0)
                 {
-                    Rect bounds = new Rect();
-                    mPaint.getTextBounds(mUser.newDiscussNum.toString(), 0, mUser.newDiscussNum.toString().length(), bounds);
-                    int square = max(bounds.width() + 5, bounds.height() + 5);
-
-                    Bitmap example = Bitmap.createBitmap(square, square, Bitmap.Config.ARGB_8888);
-                    Canvas tCanvas = new Canvas(example);
-                    tCanvas.drawCircle(square/2, square/2, square/2, mPaint);
-                    mPaint.setColor(Color.BLACK);
-                    tCanvas.drawText(mUser.newDiscussNum.toString(), 0, square, mPaint);
-                    BitmapDrawable right = new BitmapDrawable(getResources(), example);
-                    right.setBounds(0, 0, right.getIntrinsicWidth(), right.getIntrinsicHeight());
-
-                    mDiscussNum.setCompoundDrawables(null, null, right, null);
+                    mDiscussNum.setText(mDiscussNum.getText() + " - " + mUser.newDiscussNum);
                 }
                 else
-                    mDiscussNum.setCompoundDrawables(null, null, null, null);
+                    mDiscussNum.setText(getString(R.string.discussions));
 
                 if(mUser.newUmailNum != 0)
                 {
@@ -454,7 +426,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                         LL.addView(click);
                         
                         LayoutParams LP = (LayoutParams) click.getLayoutParams();
-                        LP.width = LayoutParams.MATCH_PARENT;
+                        LP.width = 0;
+                        LP.height = LayoutParams.MATCH_PARENT;
                         LP.weight = 1.0f;
                     }
                     mDiaryBrowser.getRefreshableView().addFooterView(LL);
@@ -762,16 +735,16 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false));
             break;
             case TAB_MY_DIARY:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false));
-            break;
-            case TAB_MY_DIARY_NEW:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, false));
+                if(mUser.newDiaryCommentsNum != 0)
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, true));
+                else
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false));
             break;
             case TAB_DISCUSSIONS:
-                handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
-            break;
-            case TAB_DISCUSSIONS_NEW:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, false));
+                if(mUser.newDiscussNum != 0)
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, true));
+                else
+                    handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
             break;
             default:
             	Utils.showDevelSorry(this);

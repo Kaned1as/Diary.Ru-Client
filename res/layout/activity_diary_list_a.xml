@@ -89,23 +89,27 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/tabs"
-                android:background="#edd8bd">
+                android:background="#edd8bd"
+                android:showDividers="middle"
+                android:clickable="false"
+                >
 
                 <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@string/favourites"
-                    android:id="@+id/button"
+                    android:id="@+id/favlist_button"
                     android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
-                    android:paddingRight="5dp"/>
+                    android:paddingRight="5dp"
+                    />
 
                 <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@string/posts"
-                    android:id="@+id/button1"
+                    android:id="@+id/fav_button"
                     android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
@@ -113,7 +117,7 @@
 
                 <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@string/my_diary"
                     android:id="@+id/diary_button"
                     android:background="@drawable/menu_button"
@@ -123,7 +127,7 @@
 
                 <Button
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:text="@string/discussions"
                     android:id="@+id/discussions_button"
                     android:background="@drawable/menu_button"

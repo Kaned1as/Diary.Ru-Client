@@ -446,6 +446,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     @Override
     protected void onStart()
     {
+        super.onStart();
         Intent intent = getIntent();
         
         // запущено без запроса
@@ -548,8 +549,6 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
             mPost.deserialize(intent.getStringExtra("postContents"));
             prepareUi((Post) mPost);
         }
-        
-        super.onStart();
     }
 
     private void prepareUi(Comment comment)
