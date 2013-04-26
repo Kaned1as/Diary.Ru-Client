@@ -335,7 +335,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     }
 
     @Override
-    protected void onNewIntent(Intent intent) 
+    protected void onNewIntent(Intent intent)
     {
         super.onNewIntent(intent);
 
@@ -347,7 +347,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getStringExtra("url"), true));
         }
         if(intent.getData() != null)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getDataString(), false));
+            getIntent().setData(intent.getData()); // далее обрабатывается в HANDLE_START -> HANDLE_SET_HTTP_COOKIE
     }
     
     @Override
@@ -375,14 +375,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             	mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
-                    mCommentsNum.setText(mCommentsNum.getText() + " - " + mUser.newDiaryCommentsNum.toString());
+                    mCommentsNum.setText(getString(R.string.my_diary) + " - " + mUser.newDiaryCommentsNum.toString());
                 }
                 else
                     mCommentsNum.setText(getString(R.string.my_diary));
 
                 if(mUser.newDiscussNum != 0)
                 {
-                    mDiscussNum.setText(mDiscussNum.getText() + " - " + mUser.newDiscussNum);
+                    mDiscussNum.setText(getString(R.string.discussions) + " - " + mUser.newDiscussNum);
                 }
                 else
                     mDiscussNum.setText(getString(R.string.discussions));
