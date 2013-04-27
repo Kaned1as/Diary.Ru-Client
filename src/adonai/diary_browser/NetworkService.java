@@ -159,6 +159,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
             switch (message.what)
             {
+                case Utils.HANDLE_JUST_DO_GET:
+                {
+                    if(mDHCL.getPage(message.obj.toString()) != null)
+                        notifyListeners(Utils.HANDLE_JUST_DO_GET, null);
+                    break;
+                }
                 case Utils.HANDLE_SET_HTTP_COOKIE:
                 {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();

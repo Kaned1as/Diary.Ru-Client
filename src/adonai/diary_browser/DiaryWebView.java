@@ -174,6 +174,11 @@ public class DiaryWebView extends PullToRefreshWebView
                 }
 
                 // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
+                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid="))
+                {
+                    mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
+                    return true;
+                }
             }
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;

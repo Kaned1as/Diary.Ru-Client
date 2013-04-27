@@ -61,6 +61,9 @@ public abstract class DiaryActivity extends Activity implements Callback
 		case Utils.HANDLE_CONNECTIVITY_ERROR:
             Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
             break;
+        case Utils.HANDLE_JUST_DO_GET:
+            Toast.makeText(getApplicationContext(), "Выполнено", Toast.LENGTH_SHORT).show();
+            break;
 		}
 
         if(pd != null)
