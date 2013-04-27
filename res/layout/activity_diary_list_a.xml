@@ -8,14 +8,14 @@
     <RelativeLayout
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dip"
         android:gravity="right"
         android:background="#edd8bd">
 
         <ImageButton
             android:id="@+id/quotes_button"
             android:layout_width="30dip"
-            android:layout_height="30dip"
+            android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:background="#00FFFFFF"
@@ -26,11 +26,10 @@
         <ImageButton
             android:id="@+id/exit_button"
             android:layout_width="30dip"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:layout_gravity="right|center_vertical"
-            android:layout_marginTop="3dip"
             android:background="@android:color/transparent"
             android:contentDescription="@string/logout_drawable"
             android:paddingBottom="5dip"
@@ -40,18 +39,18 @@
          <TextView
             android:id="@+id/login_name"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_gravity="right|center_vertical"
             android:layout_marginRight="10dip"
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" />
+            android:textStyle="bold" android:gravity="center_vertical"/>
 
         <ImageButton
             android:id="@+id/umail_button"
             android:layout_width="30dip"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_marginLeft="10dip"
             android:layout_toRightOf="@+id/quotes_button"
@@ -63,10 +62,10 @@
         <TextView
             android:id="@+id/umail_counter"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/umail_button"
-            android:textStyle="bold" />
+            android:textStyle="bold" android:gravity="center_vertical"/>
 
     </RelativeLayout>
 
