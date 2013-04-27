@@ -172,6 +172,8 @@ public class DiaryWebView extends PullToRefreshWebView
                     mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
                     return true;
                 }
+
+                // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
             }
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
             return true;

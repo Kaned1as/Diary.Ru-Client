@@ -7,6 +7,23 @@ document.domain = "diary.ru";
 // array - the haystack
 // element - the needle
 // func - an optional function to compare the needle to each element in the haystack
+function getBrowser() {
+
+    var ua = navigator.userAgent.toLowerCase(),
+    rwebkit = /(webkit)[ \/]([\w.]+)/,
+    ropera = /(opera)(?:.*version)?[ \/]([\w.]+)/,
+    rmsie = /(msie) ([\w.]+)/,
+    rmozilla = /(mozilla)(?:.*? rv:([\w.]+))?/;
+
+    var match = rwebkit.exec(ua) ||
+    ropera.exec(ua) ||
+    rmsie.exec(ua) ||
+    ua.indexOf("compatible") < 0 && rmozilla.exec(ua) || [];
+
+    return match[1];
+}
+isIE = getBrowser()=="msie";
+
 function inArray(array, element, func)
 {
 	if (! func)	func = _argument;
@@ -261,12 +278,10 @@ function clUploadData ()
 	this.oldScript  = document.createElement("SCRIPT");
 	this.oldScript.type = "text/javascript";
 	this.callId = 0;
-
 //	document.body.appendChild(this.oldScript);
 	document.getElementsByTagName('body')[0].appendChild(this.oldScript);
 	this.upload = function (theparams, nocash)
 	{
-
 		var newScript = document.createElement("SCRIPT");
 		newScript.type = "text/javascript";
 		newScript.src  = theparams || "";
@@ -494,7 +509,7 @@ function openWinList(target, type)
 		}
 		catch(ex)
 		{
-			open_win_list = window.open('/options/site/?2&lists&target=' + target + '&type=' + type, this.target, 'width=500, height=400, location=0, toolbar=0, menubar=0, status=0, scrollbars=1, resizable=0');
+			open_win_list = window.open('/options/site/?lists&2&target=' + target + '&type=' + type, this.target, 'width=500, height=400, location=0, toolbar=0, menubar=0, status=0, scrollbars=1, resizable=0');
 		}
 	}
 	else open_win_list = window.open('/options/site/?lists&target=' + target + '&type=' + type, this.target, 'width=500, height=400, location=0, toolbar=0, menubar=0, status=0, scrollbars=1, resizable=0');

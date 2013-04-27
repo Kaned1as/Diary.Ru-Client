@@ -26,7 +26,6 @@ public class Utils
     static final int HANDLE_PICK_URL 								= 	5 | DIARY_HANDLERS_MASK;
     static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	6 | DIARY_HANDLERS_MASK;
     static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	7 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_TAG_LIST_DATA 						= 	8 | DIARY_HANDLERS_MASK;
     static final int HANDLE_DELETE_POST                             =   9 | DIARY_HANDLERS_MASK;
     static final int HANDLE_EDIT_POST                               =  10 | DIARY_HANDLERS_MASK;
     static final int HANDLE_DELETE_COMMENT                          =  11 | DIARY_HANDLERS_MASK;
@@ -44,11 +43,10 @@ public class Utils
     static final int HANDLE_CONNECTIVITY_ERROR                      =  -20 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_SERVICE_ERROR                           =  -30 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     
-    static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
-                                             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
-                                             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
-                                             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/select.js\"> </script>" +
-                                             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
+    static String javascriptContent =    "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
+                                         "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
+                                         "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
+                                         "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
     
 	static Class<?> checkDiaryUrl(String response)
 	{
