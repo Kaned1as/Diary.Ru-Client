@@ -19,6 +19,7 @@ public abstract class DiaryActivity extends Activity implements Callback
     ProgressDialog pd;
 	
     DiaryHttpClient mDHCL;
+    String pageToLoad;
     UserData mUser;
 	
 	@Override
@@ -31,8 +32,7 @@ public abstract class DiaryActivity extends Activity implements Callback
 	@Override
 	protected void onStart()
 	{
-		if(NetworkService.getInstance(this) == null || mService == null)
-			mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
+        mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
 		
 		super.onStart();
 	}

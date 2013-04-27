@@ -197,6 +197,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                             cookieManager.setCookie("diary.ru", cookieString);
                         }
                         CookieSyncManager.getInstance().sync();
+                        mUser.isAuthorised = true;
                     }
                     else
                     {

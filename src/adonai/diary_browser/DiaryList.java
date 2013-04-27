@@ -342,12 +342,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         if(intent.getStringExtra("url") != null)
         {
             if(intent.getStringExtra("url").equals("")) // default case
-                reloadContent();
+                pageToLoad = mService.mUser.currentDiaryPage.getPageURL();
             else
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(intent.getStringExtra("url"), true));
+                pageToLoad = intent.getStringExtra("url");
         }
         if(intent.getData() != null)
-            getIntent().setData(intent.getData()); // далее обрабатывается в HANDLE_START -> HANDLE_SET_HTTP_COOKIE
+            pageToLoad = intent.getDataString();
     }
     
     @Override
@@ -358,9 +358,17 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         	case Utils.HANDLE_START:
                 mService.addListener(this);
                 mUser.setOnDataChangeListener(this);
-        		
-        	    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-                handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
+
+                if(pageToLoad != null && mUser.isAuthorised)
+                {
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(pageToLoad, true));
+                    pageToLoad = null;
+                }
+                else if (!mUser.isAuthorised)
+                {
+                    pd = ProgressDialog.show(DiaryList.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+                    handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
+                }
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
@@ -398,12 +406,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     mUmailNum.setVisibility(View.GONE);
                 }
                 return true;
-            case Utils.HANDLE_SET_HTTP_COOKIE:
+            case Utils.HANDLE_SET_HTTP_COOKIE: // успешно авторизовались
                 pd.setMessage(getString(R.string.getting_user_info));
-                if(getIntent().getData() == null)
-                    setCurrentTab(TAB_FAVOURITES);
+                if (pageToLoad != null) // Если страничка пришла до авторизации
+                {
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(pageToLoad, true));
+                    pageToLoad = null;
+                }
                 else
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getIntent().getDataString(), false));
+                    setCurrentTab(TAB_FAVOURITES);
                 return true;
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);

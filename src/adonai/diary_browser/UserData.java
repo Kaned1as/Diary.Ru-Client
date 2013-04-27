@@ -20,6 +20,7 @@ public class UserData
     {
         mListener = listener;
     }
+    boolean isAuthorised;
     
 	// Динамические списки постов
     DiaryListPage currentDiaries;

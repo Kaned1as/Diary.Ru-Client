@@ -67,7 +67,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
     protected void onNewIntent(Intent intent) 
     {
         super.onNewIntent(intent);
-        setIntent(intent);
+        pageToLoad = intent.getStringExtra("url");
     }
     
     @Override
@@ -99,9 +99,9 @@ public class UmailList extends DiaryActivity implements OnClickListener
         	case Utils.HANDLE_START:
                 mService.addListener(this);
                 
-                if(getIntent().getStringExtra("url") != null)
-                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getIntent().getStringExtra("url"));
-                else // стартуем в первый раз
+                if(pageToLoad != null)
+                    handleBackground(Utils.HANDLE_OPEN_FOLDER, pageToLoad);
+                else if(mFolderAdapter == null) // стартуем в первый раз
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
         		return true;
         	case Utils.HANDLE_OPEN_FOLDER:
