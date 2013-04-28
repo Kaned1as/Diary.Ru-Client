@@ -31,8 +31,8 @@ body
 
 .postInner
 {
-    width: 100%;
-    float: right;  /* можно убрать - тогда текст будет обтекать аватар */
+    /* float: right;   можно убрать - тогда текст будет обтекать аватар */
+    clear: left;
     padding: 5px;
 }
 
@@ -342,6 +342,12 @@ a:hover
 img
 {
     border: none;
+    max-width:100%;
+}
+
+img[width="3"] /* хак! >_< ну почему, почему у IMG нет nowrap!! */
+{
+    display: none;
 }
 
 table

@@ -62,7 +62,7 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setUseWideViewPort(false);
         settings.setLightTouchEnabled(true);
         //settings.setBuiltInZoomControls(true);
-        settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
+        //settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
         getRefreshableView().setWebViewClient(new DiaryWebClient());
         setOnRefreshListener(new WebPageRefresher());
         getRefreshableView().setOnTouchListener(new webTouchListener());
@@ -180,7 +180,7 @@ public class DiaryWebView extends PullToRefreshWebView
                     return true;
                 }
             }
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.mUser.currentDiaryPage.getPageURL())));
             return true;
         }
     }
