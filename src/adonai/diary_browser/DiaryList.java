@@ -84,7 +84,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     ImageButton mUmailButton;
     ImageButton mScrollButton;
     LinearLayout mTabs;
-    Paint mPaint;
     
     // Сервисные объекты
     DisplayMetrics gMetrics;
@@ -144,14 +143,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     
     public void initializeUI()
     {
-        // for text drawing
-        mPaint = new Paint();
-        mPaint.setColor(Color.RED);
-        mPaint.setTextSize(12f);
-        mPaint.setAntiAlias(true);
-        mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setTextAlign(Paint.Align.CENTER);
-        mPaint.setTypeface(Typeface.DEFAULT_BOLD);
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
+            getActionBar().setHomeButtonEnabled(true);
 
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
@@ -316,6 +309,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 finish();
                 System.exit(0);
                 return true;
+            case android.R.id.home:
+                return onSearchRequested();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -799,10 +794,16 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     {
         int visibility = mTabs.getVisibility();
         if(visibility == View.GONE)
+        {
+            findViewById(R.id.upperDeck).setVisibility(View.VISIBLE);
             mTabs.setVisibility(View.VISIBLE);
+        }
         else
+        {
+            findViewById(R.id.upperDeck).setVisibility(View.GONE);
             mTabs.setVisibility(View.GONE);
-        
+        }
+
         return super.onSearchRequested();
     }
     
