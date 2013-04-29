@@ -84,7 +84,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     ImageButton mUmailButton;
     ImageButton mScrollButton;
     LinearLayout mTabs;
-    AlertDialog ad;
     Paint mPaint;
     
     // Сервисные объекты
@@ -446,7 +445,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
 
-                browserHistory.add(mUser.currentDiaries.getURL(), getString(R.string.favourites));
+                browserHistory.add(mUser.currentDiaries.getURL());
 
                 mDiaryBrowser.onRefreshComplete();
                 
@@ -459,7 +458,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
 
-                browserHistory.add(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().title());
+                browserHistory.add(mUser.currentDiaryPage.getPageURL());
 
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 mPageBrowser.onRefreshComplete();
@@ -478,7 +477,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 mPageBrowser.onRefreshComplete();
                 mDiaryBrowser.onRefreshComplete();
-                Toast.makeText(getApplicationContext(), "Not authorized, retry!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.not_authorized), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                 finish();
                 break;
@@ -787,51 +786,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     @Override
     public void onBackPressed()
     {
-        if(browserHistory.getCurrentIndex() > 1)
+        if(browserHistory.hasPrevious())
         {
             browserHistory.moveBack();
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(browserHistory.getCurrentUrl(), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(browserHistory.getUrl(), false));
         }
-        else
-        {
-        	ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-        	final ScrollView dialogView = new ScrollView(ctw);
-        	LinearLayout LL = new LinearLayout(ctw);
-        	LL.setOrientation(LinearLayout.VERTICAL);
 
-            ArrayList<String> urls = browserHistory.getUrlsCopy();
-        	for(Integer index = urls.size() - 1; index >= 0; index--)
-        	{
-
-    			TextView tmpTxt = new TextView(ctw);
-    			tmpTxt.setText(browserHistory.getName(urls.get(index)));
-    			tmpTxt.setTag(urls.get(index));
-    			tmpTxt.setMaxLines(1);
-    			tmpTxt.setPadding(5, 5, 5, 5);
-    			tmpTxt.setTextAppearance(ctw, android.R.style.TextAppearance_Large);
-    			tmpTxt.setOnClickListener(new OnClickListener()
-				{
-					
-					public void onClick(View v)
-					{
-						String url = (String) v.getTag();
-						handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, false));
-	        	    	if(ad.isShowing())
-	        	    		ad.dismiss();
-					}
-				});
-    			TextView tmpDescTxt = new TextView(ctw);
-    			tmpDescTxt.setText(urls.get(index));
-    			LL.addView(tmpTxt);
-    			LL.addView(tmpDescTxt);
-        	}
-        	dialogView.addView(LL);
-        	AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
-        	builder.setTitle(R.string.image_action);
-        	builder.setView(dialogView);
-        	ad = builder.create();
-        	ad.show();
-        }
     }
 
     @Override

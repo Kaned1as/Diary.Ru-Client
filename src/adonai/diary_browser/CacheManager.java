@@ -15,25 +15,21 @@ public class CacheManager
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
     // загруженные странички
     private Map<String, Object> browseCache = new HashMap<String, Object>();
-    
+
     public Object loadPageFromCache(String URL)
     {
     	Object toPage = browseCache.get(URL);
 	    return toPage;
     }
-    
+
     public boolean hasPage(String URL)
     {
     	return browseCache.containsKey(URL);
     }
-    
+
     public void putPageToCache(String URL, Object page)
     {
     	browseCache.put(URL, page);
-    }
-
-    private CacheManager() 
-    {
     }
     
     public static CacheManager getInstance()

@@ -92,7 +92,7 @@
         android:contentDescription="@string/message_content"
         android:ems="10"
         android:imeOptions="actionSend"
-        android:inputType="textCapSentences|textMultiLine"
+        android:inputType="text|textMultiLine|textCapSentences"
         android:minLines="2" />
 
     <CheckBox
@@ -362,7 +362,7 @@
                 android:id="@+id/horizontalScrollView">
             <LinearLayout
             android:id="@+id/message_avatars"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content" >
 
             </LinearLayout>

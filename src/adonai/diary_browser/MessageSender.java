@@ -390,10 +390,6 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
-                            returnIntent.putExtra("sendCompleted", true);
-                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivity(returnIntent);
                             finish();
                         }
                     });
@@ -630,7 +626,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 				// Добавляем параметры из настроек
 				postParams.add(new BasicNameValuePair("signature", mSignature));
                 postParams.add(new BasicNameValuePair("action", "dosend"));
-				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
+				pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, false);
 				
 				// Если пост
 				if(mTypeId.equals("DiaryId"))

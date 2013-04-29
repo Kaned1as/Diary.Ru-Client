@@ -1,61 +1,40 @@
 package adonai.diary_browser;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class BrowseHistory
 {
-    private ArrayList<String> urls = new ArrayList<String>();
-    private ArrayList<String> titles = new ArrayList<String>();
-    private Integer mCurrentHistoryItem = 0;
-    private boolean freezed;
+    private List<String> urls = new ArrayList<String>();
+    private boolean freeze;
 
-    public void add(String url, String name)
+    public void add(String url)
     {
         if(!urls.isEmpty() && urls.get(urls.size() - 1).equals(url)) // обновляем страницу, а не загружаем новую. Запись в историю не нужна.
             return;
 
-        if(!freezed)
+        if(!freeze)
         {
-            mCurrentHistoryItem = urls.size();
-
             urls.add(url);
-            titles.add(name);
         }
 
-        freezed = false;
-    }
-
-    public ArrayList<String> getUrlsCopy()
-    {
-        return (ArrayList<String>) urls.clone();
+        freeze = false;
     }
 
     public void moveBack()
     {
-        freezed = true;
+        freeze = true;
 
-        if(mCurrentHistoryItem > 0)
-            mCurrentHistoryItem--;
+        urls.remove(urls.size() - 1);
     }
 
-    public Integer getCurrentIndex()
+    public boolean hasPrevious()
     {
-        return mCurrentHistoryItem;
+        return urls.size() > 1;
     }
 
-    public String getCurrentUrl()
+    public String getUrl()
     {
-        if(urls.isEmpty())
-            return null;
-
-        return urls.get(mCurrentHistoryItem);
-    }
-
-    public String getName(String url)
-    {
-        if(!urls.contains(url))
-            return null;
-
-        return titles.get(urls.indexOf(url));
+        return urls.get(urls.size() - 1);
     }
 }

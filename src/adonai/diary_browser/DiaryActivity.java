@@ -33,7 +33,9 @@ public abstract class DiaryActivity extends Activity implements Callback
 	protected void onStart()
 	{
         mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
-		
+        if(getIntent().getData() != null && pageToLoad == null)
+            pageToLoad = getIntent().getDataString();
+
 		super.onStart();
 	}
 	
@@ -56,13 +58,13 @@ public abstract class DiaryActivity extends Activity implements Callback
 			}
 			break;
 		case Utils.HANDLE_SERVICE_ERROR:
-		    Toast.makeText(getApplicationContext(), "Service is not running", Toast.LENGTH_SHORT).show();
+		    Toast.makeText(getApplicationContext(), getString(R.string.service_not_running), Toast.LENGTH_SHORT).show();
 		    break;
 		case Utils.HANDLE_CONNECTIVITY_ERROR:
-            Toast.makeText(getApplicationContext(), "Connection error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
             break;
         case Utils.HANDLE_JUST_DO_GET:
-            Toast.makeText(getApplicationContext(), "Выполнено", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
             break;
 		}
 

@@ -552,8 +552,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
         for(Element js : jsElems)
-            if(!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe"))
-                js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE и подписки
+            if(!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature="))
+                js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE, результатов голосования и подписки
 
     	if(!load_images)
         {

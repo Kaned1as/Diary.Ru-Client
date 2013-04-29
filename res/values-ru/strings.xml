@@ -135,5 +135,10 @@
     <string name="link">Ссылка</string>
     <string name="image">Изображение</string>
     <string name="paste_clipboard">Вставить из буфера обмена</string>
+    <string name="codepage_missing">Кодировка не найдена!</string>
+    <string name="not_authorized">Не авторизованы, попробуйте снова!</string>
+    <string name="service_not_running">Сервис не запущен!</string>
+    <string name="connection_error">Ошибка соединения</string>
+    <string name="completed">Выполнено!</string>
 
 </resources>

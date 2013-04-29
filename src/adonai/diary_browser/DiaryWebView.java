@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.text.Html;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -13,8 +15,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Toast;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 import com.handmark.pulltorefresh.library.PullToRefreshWebView;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends PullToRefreshWebView
@@ -173,8 +179,27 @@ public class DiaryWebView extends PullToRefreshWebView
                     return true;
                 }
 
+                if(url.contains("u-mail/?new&username=")) // послать кому-то U-Mail
+                {
+                    try
+                    {
+                        Intent postIntent = new Intent(getContext(), MessageSender.class);
+                        postIntent.putExtra("TypeId", "umailTo");
+                        postIntent.putExtra("umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"));
+                        postIntent.putExtra("signature", mActivity.mUser.signature);
+                        postIntent.putExtra("sendURL", "http://www.diary.ru/diary.php");
+                        getContext().startActivity(postIntent);
+                    }
+                    catch (UnsupportedEncodingException e)
+                    {
+                        Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();
+                    }
+                    return true;
+                }
+
+
                 // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
-                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid="))
+                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature="))
                 {
                     mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
                     return true;
