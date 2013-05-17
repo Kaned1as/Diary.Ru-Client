@@ -51,16 +51,16 @@ public class Utils
     
 	static Class<?> checkDiaryUrl(String response)
 	{
-		if(response.contains("tags_ul_all"))
+		if(response.contains("class=\"tags_ul_all\""))
 			return TagsPage.class;
 		
-		if(response.contains("commentsArea"))
+		if(response.contains("id=\"commentsArea\""))
 			return CommentsPage.class;
 		
-		if(response.contains("postsArea"))
+		if(response.contains("id=\"postsArea\""))
 			return DiaryPage.class;
 		
-		if(response.contains("table r"))
+		if(response.contains("class=\"table r\""))
 			return DiaryListPage.class;
 		
 		return null; // not found

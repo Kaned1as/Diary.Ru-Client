@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="jar://$PROJECT_DIR$/libs/android-support-v4.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/jsoup-1.7.1.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/httpmime-4.2.5.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
