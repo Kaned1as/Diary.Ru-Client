@@ -375,7 +375,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                             mpEntity.addPart("resulttype1", new StringBody("2"));
                             mpEntity.addPart("attachment1", cbFile);
 
-                            HttpResponse response = mDHCL.postPage("http://dron01.diary.ru/diary.php?upload=1&js", mpEntity);
+                            HttpResponse response = mDHCL.postPage(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
                             HttpEntity resEntity = response.getEntity();
                             if (resEntity != null)
                             {
@@ -389,7 +389,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                             }
                         } catch (Exception e)
                         {
-                            Toast.makeText(MessageSender.this, "File not found!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(MessageSender.this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
                         }
                         return true;
                     }
@@ -497,13 +497,6 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     {
         super.onStart();
         Intent intent = getIntent();
-        
-        // запущено без запроса
-        if(intent == null)
-        {
-        	finish();
-        	return;
-        }
         
         if(NetworkService.getInstance(this) == null)
         {
