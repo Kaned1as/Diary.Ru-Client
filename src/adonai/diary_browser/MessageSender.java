@@ -4,9 +4,11 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -14,6 +16,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.*;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -24,9 +27,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.*;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -34,6 +42,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +62,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 	private static final int HANDLE_UMAIL_REJ 		= 4;
 	private static final int HANDLE_REQUEST_AVATARS = 5;
 	private static final int HANDLE_SET_AVATAR      = 6;
+    private static final int HANDLE_UPLOAD_FILE     = 7;
 	
 	ImageButton mLeftGradient;
 	ImageButton mRightGradient;
@@ -347,6 +358,41 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         Toast.makeText(getApplicationContext(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
                     }
+                    case HANDLE_UPLOAD_FILE:
+                    {
+                        try
+                        {
+                            File file = new File((String) message.obj);
+                            /*HttpClient httpclient = new DefaultHttpClient();
+                            httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
+
+                            HttpPost httppost = new HttpPost("http://dron01.diary.ru/diary.php?upload=1&js"); */
+
+                            MultipartEntity mpEntity = new MultipartEntity();
+                            ContentBody cbFile = new FileBody(file, "image/*");
+                            mpEntity.addPart("module", new StringBody("photolib"));
+                            mpEntity.addPart("signature", new StringBody("[$signature]"));
+                            mpEntity.addPart("resulttype1", new StringBody("2"));
+                            mpEntity.addPart("attachment1", cbFile);
+
+                            HttpResponse response = mDHCL.postPage("http://dron01.diary.ru/diary.php?upload=1&js", mpEntity);
+                            HttpEntity resEntity = response.getEntity();
+                            if (resEntity != null)
+                            {
+                                String result = EntityUtils.toString(resEntity);
+                                result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
+                                if(!result.isEmpty())
+                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_UPLOAD_FILE, result));
+                                else
+                                    Toast.makeText(MessageSender.this, getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                                //resEntity.consumeContent();
+                            }
+                        } catch (Exception e)
+                        {
+                            Toast.makeText(MessageSender.this, "File not found!", Toast.LENGTH_SHORT).show();
+                        }
+                        return true;
+                    }
             		default:
             			break;
             	}
@@ -428,6 +474,13 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
         		    }
         		    pd.dismiss();
         		}
+                case HANDLE_UPLOAD_FILE:
+                {
+                    int cursorPos = contentText.getSelectionStart();
+                    contentText.setText(contentText.getText().toString().substring(0, cursorPos) + message.obj + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                    contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                    break;
+                }
         		default:
         			break;
         	}
@@ -962,7 +1015,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 				else
 					for(View view : optionals)
 						view.setVisibility(View.GONE);
-			break;
+			    break;
 			case R.id.message_poll:
 				if(isChecked)
 					for(View view : pollScheme)
@@ -970,12 +1023,13 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 				else
 					for(View view : pollScheme)
 						view.setVisibility(View.GONE);
-			break;
+			    break;
 			case R.id.message_close:
 				if(isChecked)
 					mCloseOpts.setVisibility(View.VISIBLE);
 				else
 					mCloseOpts.setVisibility(View.GONE);
+                break;
 			case R.id.message_custom_avatar:
 				if(isChecked)
 				{
@@ -989,7 +1043,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 				else
 					mAvatars.setVisibility(View.GONE);
 			default:
-			break;
+			    break;
 		}
 	}
 	
@@ -1059,10 +1113,64 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
             }
             case R.id.button_image:
             {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<img src=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                if(pasteClipboard)
+                {
+                    contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<img src=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                    contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                }
+                else
+                    try
+                    {
+                        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), 0);
+                    } catch (android.content.ActivityNotFoundException ex)
+                    {
+                        Toast.makeText(this, getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
+                    }
                 break;
             }
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        switch (requestCode) {
+            case 0:
+                if (resultCode == RESULT_OK)
+                {
+                    Uri uri = data.getData();
+                    File file = null;
+                    if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme()))
+                    {
+                        String[] projection = { "_data" };
+                        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+                        int column_index = cursor.getColumnIndex("_data");
+                        if (cursor.moveToFirst())
+                            file = new File(cursor.getString(column_index));
+
+                    }
+                    else if ("file".equalsIgnoreCase(uri.getScheme()))
+                        file = new File(uri.getPath());
+
+                    try
+                    {
+                        Toast.makeText(this, getString(R.string.sending_data), Toast.LENGTH_SHORT).show();
+                        if (file != null)
+                            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_UPLOAD_FILE, file.getCanonicalPath()));
+                        else
+                            Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e)
+                    {
+                        Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

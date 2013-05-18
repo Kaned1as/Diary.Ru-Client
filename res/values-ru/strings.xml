@@ -140,5 +140,7 @@
     <string name="service_not_running">Сервис не запущен!</string>
     <string name="connection_error">Ошибка соединения</string>
     <string name="completed">Выполнено!</string>
+    <string name="no_file_manager_found">Пожалуйста, установите файловый менеджер!</string>
+    <string name="select_file">Выберите файл для отправки</string>
 
 </resources>

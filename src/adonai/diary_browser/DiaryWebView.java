@@ -5,14 +5,12 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.text.Html;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebSettings;
-import android.webkit.WebSettings.LayoutAlgorithm;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
@@ -92,12 +90,12 @@ public class DiaryWebView extends PullToRefreshWebView
             {
                 if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
                 {
-                    if(distanceY > 120)
+                    if(distanceY > 90)
                     {
                         scrolling = Utils.VIEW_SCROLL_DOWN;
                         mActivity.handleScroll(Utils.VIEW_SCROLL_DOWN);
                     }
-                    else if (distanceY < -120)
+                    else if (distanceY < -90)
                     {
                         scrolling = Utils.VIEW_SCROLL_UP;
                         mActivity.handleScroll(Utils.VIEW_SCROLL_UP);
