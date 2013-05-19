@@ -355,11 +355,19 @@ img
 {
     border: none;
     max-width:100%;
+    height: auto;
 }
+
 
 img[width="3"] /* хак! >_< ну почему, почему у IMG нет nowrap!! */
 {
     display: none;
+}
+
+.voting img
+{
+    border: none;
+    max-height: 10px;
 }
 
 table
