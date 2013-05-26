@@ -2,12 +2,15 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.*;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.graphics.Color;
+import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.*;
 import android.os.Handler.Callback;
@@ -46,7 +49,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	public UserData mUser = new UserData();
 	public DiaryHttpClient mDHCL = new DiaryHttpClient();
 	public SharedPreferences mPreferences;
+
 	private CacheManager mCache = CacheManager.getInstance();
+    private PowerManager.WakeLock waker;
 	
 	private Handler mHandler;
     private Looper mLooper; // петля времени
@@ -54,6 +59,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean load_images;
     boolean load_cached;
     boolean is_sticky;
+    boolean notify_on_updates;
+    boolean keep_device_on;
     
     private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
 	
@@ -86,19 +93,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		super.onCreate();
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
+        PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        waker = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "diary.client");
         
         load_images = mPreferences.getBoolean("images.autoload", false);
         load_cached = mPreferences.getBoolean("images.autoload.cache", false);
         is_sticky = mPreferences.getBoolean("service.always.running", false);
-        if(is_sticky)
-            startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
-		
+        notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
+        keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
+
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
 		mLooper = thr.getLooper();
         mHandler = new Handler(mLooper, this);
-		
-		mInstance = this;
+
+        if(notify_on_updates)
+            mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
+
+        if(keep_device_on)
+            waker.acquire();
+
+        if(is_sticky)
+            startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+
+        mInstance = this;
 		mIsStarting = false;
 	}
 	
@@ -106,6 +124,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 	public void onDestroy()
 	{
 		mInstance = null;
+        if(waker.isHeld())
+            waker.release();
 		mLooper.quit();
 		
 		// убираем значок
@@ -159,6 +179,45 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
             switch (message.what)
             {
+                case Utils.HANDLE_SERVICE_UPDATE:
+                {
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
+
+                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
+                    if(page == null)
+                        return false;
+
+                    String dataPage = EntityUtils.toString(page.getEntity());
+                    Document rootNode = Jsoup.parse(dataPage);
+                    mUser.parseData(rootNode);
+
+                    if(mUser.newDiscussNum > 0 || mUser.newDiaryCommentsNum > 0 || mUser.newUmailNum > 0)
+                    {
+                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
+
+                        views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
+                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.newDiaryCommentsNum + " " +
+                                                                      getString(R.string.discussions) + ": " + mUser.newDiscussNum + " " +
+                                                                      getString(R.string.umail_activity_title) + ": " + mUser.newUmailNum);
+
+                        Notification notification = new Notification();
+                        notification.contentView = views;
+                        notification.icon = R.drawable.ic_launcher_inverted;
+                        notification.ledOnMS = 1000;
+                        notification.ledOffMS = 10000;
+                        notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                        notification.ledARGB = Color.parseColor("#edd8bd");
+                        notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
+                        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+
+                        Intent intent = new Intent(this, DiaryList.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+                        mNotificationManager.notify(NOTIFICATION_ID + 1, notification);
+                    }
+                    break;
+                }
                 case Utils.HANDLE_JUST_DO_GET:
                 {
                     if(mDHCL.getPage(message.obj.toString()) != null)
@@ -895,6 +954,22 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 		{
 			load_cached = sharedPreferences.getBoolean(key, false);
 		}
+        else if(key.equals("service.notify.updates"))
+        {
+            mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);
+            notify_on_updates = sharedPreferences.getBoolean(key, false);
+            if(notify_on_updates)
+                mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
+        }
+        else if(key.equals("service.keep.device.on"))
+        {
+            if(waker.isHeld())
+                waker.release();
+
+            keep_device_on = sharedPreferences.getBoolean(key, false);
+            if(keep_device_on)
+                waker.acquire();
+        }
 		else if(key.equals("service.always.running"))
 		{
 		    is_sticky = sharedPreferences.getBoolean(key, false);
@@ -909,21 +984,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Notification createNotification(DiaryWebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
-        //views.setImageViewResource(R.id.icon, statusIcon);
-        //views.setTextViewText(R.id.title, song.title);
-        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getContent().head() != null ? page.getContent().head().text() : "");
+        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getContent().title() != null ? page.getContent().title() : "");
 
-        /*if (mInvertNotification) {
-            TypedArray array = getTheme().obtainStyledAttributes(new int[] { android.R.attr.textColorPrimary });
-            int color = array.getColor(0, 0xFF00FF);
-            array.recycle();
-            views.setTextColor(R.id.title, color);
-            views.setTextColor(R.id.artist, color);
-        }*/
 
         Notification notification = new Notification();
         notification.contentView = views;
-        notification.icon = R.drawable.ic_launcher;
+        notification.icon = R.drawable.ic_launcher_inverted;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
         
         Intent intent = new Intent(this, DiaryList.class);

@@ -15,7 +15,6 @@ public class Utils
 
     static final int VIEW_SCROLL_UP                                 =   1;
     static final int VIEW_SCROLL_DOWN                               =   2;
-    static final int VIEW_SCROLL_FINISH                             =   -1;
     
 	// Команды хэндлерам
     static final int DIARY_HANDLERS_MASK                            = 0x10000000;
@@ -39,6 +38,7 @@ public class Utils
 	
 	static final int HANDLE_START 									= 	1  | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
 	static final int HANDLE_GET_IMAGE                               =   2  | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
+    static final int HANDLE_SERVICE_UPDATE                          =   3  | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_PROGRESS                                =   10 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_PROGRESS_2                              =   11 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CONNECTIVITY_ERROR                      =  -20 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
@@ -54,7 +54,7 @@ public class Utils
 		if(response.contains("class=\"tags_ul_all\""))
 			return TagsPage.class;
 		
-		if(response.contains("id=\"commentsArea\""))
+		if(response.contains("id=\"addCommentArea\""))
 			return CommentsPage.class;
 		
 		if(response.contains("id=\"postsArea\""))

@@ -142,5 +142,9 @@
     <string name="completed">Выполнено!</string>
     <string name="no_file_manager_found">Пожалуйста, установите файловый менеджер!</string>
     <string name="select_file">Выберите файл для отправки</string>
-
+    <string name="notify_updates">Уведомлять о новых комментариях</string>
+    <string name="notify_updates_sum">Делать проверку на наличие новых комментариев время от времени</string>
+    <string name="new_comments">Новые комментарии</string>
+    <string name="keep_device_on">Держать телефон включенным</string>
+    <string name="keep_device_on_sum">Необходимо, чтобы сервис всегда получал уведомления о новых комментариях, а не только при включенном экране. Внимание! Садит батарейку, поскольку телефон не уходит в режим полного сна.</string>
 </resources>

@@ -33,7 +33,7 @@ THE SOFTWARE.
 	    android:layout_gravity="center"
 	    android:padding="10dip"
 	    android:scaleType="fitCenter"
-	    android:src="@drawable/ic_launcher"
+	    android:src="@drawable/ic_launcher_inverted"
         android:contentDescription="@string/app_name" />
 
 	<LinearLayout

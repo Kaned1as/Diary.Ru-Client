@@ -13,6 +13,7 @@
 
     <style name="DiaryTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">14dp</item>
     </style>
     <style name="DiaryTheme.ActionBar.MenuTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Menu">
         <item name="android:textColor">@android:color/white</item>
