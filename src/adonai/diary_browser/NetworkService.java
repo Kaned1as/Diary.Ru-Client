@@ -63,6 +63,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean keep_device_on;
     
     private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
+    String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
 	
     /*
     К сожалению, НЕТ другой возможности запустить сервис.
@@ -191,14 +192,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
-                    if(mUser.newDiscussNum > 0 || mUser.newDiaryCommentsNum > 0 || mUser.newUmailNum > 0)
+                    if(!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))
                     {
+                        lastLinks[0] = mUser.newDiaryLink;
+                        lastLinks[1] = mUser.newDiscussLink;
+                        lastLinks[2] = mUser.newUmailLink;
+
                         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
 
                         views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
-                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.newDiaryCommentsNum + " " +
-                                                                      getString(R.string.discussions) + ": " + mUser.newDiscussNum + " " +
+                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.newDiaryCommentsNum + " | " +
+                                                                      getString(R.string.discussions) + ": " + mUser.newDiscussNum + " | " +
                                                                       getString(R.string.umail_activity_title) + ": " + mUser.newUmailNum);
 
                         Notification notification = new Notification();
@@ -207,9 +212,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notification.ledOnMS = 1000;
                         notification.ledOffMS = 10000;
                         notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        notification.ledARGB = Color.parseColor("#edd8bd");
+                        notification.ledARGB = Color.parseColor("#FFD8BD");
                         notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
-                        notification.flags |= Notification.FLAG_SHOW_LIGHTS;
+                        notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE;
 
                         Intent intent = new Intent(this, DiaryList.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);

@@ -1,12 +1,13 @@
 package adonai.diary_browser;
 
-import java.util.ArrayList;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryWebPage;
 import adonai.diary_browser.entities.DiscList;
-import adonai.diary_browser.entities.DiaryPage;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
+import java.util.ArrayList;
 
 public class UserData
 {
@@ -117,22 +118,5 @@ public class UserData
         
         if(mListener != null)
             mListener.handleDataChange();
-    }
-
-    public boolean updateNeeded()
-    {
-        if(ownDiaryURL.equals(""))
-            return true;
-        
-        if(ownProfileID.equals(""))
-            return true;
-        
-        if(userName.equals(""))
-            return true;
-        
-        if(signature.equals(""))
-            return true;
-        
-        return false;
     }
 }
