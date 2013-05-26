@@ -180,11 +180,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
             switch (message.what)
             {
-                case Utils.HANDLE_SERVICE_UPDATE:
+                case Utils.HANDLE_SERVICE_UPDATE: // уведомления о новых комментариях раз в 5 минут
                 {
-                    mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null);
+                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null); // подойдет любая ссылка с дневников
                     if(page == null)
                         return false;
 
@@ -192,9 +192,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
-                    if(!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))
+                    if(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum > 0 && (!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))) // старые данные или нет?
                     {
-                        lastLinks[0] = mUser.newDiaryLink;
+                        lastLinks[0] = mUser.newDiaryLink; // устанавливаем линки на новые значения
                         lastLinks[1] = mUser.newDiscussLink;
                         lastLinks[2] = mUser.newUmailLink;
 
@@ -208,18 +208,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                         Notification notification = new Notification();
                         notification.contentView = views;
-                        notification.icon = R.drawable.ic_launcher_inverted;
+                        notification.icon = R.drawable.ic_launcher_inverted; // иконка
                         notification.ledOnMS = 1000;
                         notification.ledOffMS = 10000;
                         notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                         notification.ledARGB = Color.parseColor("#FFD8BD");
                         notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
-                        notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE;
+                        notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 
-                        Intent intent = new Intent(this, DiaryList.class);
+                        Intent intent = new Intent(this, DiaryList.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-                        mNotificationManager.notify(NOTIFICATION_ID + 1, notification);
+                        mNotificationManager.notify(NOTIFICATION_ID + 1, notification); // запускаем уведомление
                     }
                     break;
                 }
