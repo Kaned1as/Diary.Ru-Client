@@ -363,15 +363,11 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         try
                         {
                             File file = new File((String) message.obj);
-                            /*HttpClient httpclient = new DefaultHttpClient();
-                            httpclient.getParams().setParameter(CoreProtocolPNames.PROTOCOL_VERSION, HttpVersion.HTTP_1_1);
-
-                            HttpPost httppost = new HttpPost("http://dron01.diary.ru/diary.php?upload=1&js"); */
 
                             MultipartEntity mpEntity = new MultipartEntity();
                             ContentBody cbFile = new FileBody(file, "image/*");
                             mpEntity.addPart("module", new StringBody("photolib"));
-                            mpEntity.addPart("signature", new StringBody("[$signature]"));
+                            mpEntity.addPart("signature", new StringBody(mSignature));
                             mpEntity.addPart("resulttype1", new StringBody("2"));
                             mpEntity.addPart("attachment1", cbFile);
 
@@ -473,6 +469,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
         		        mAvatars.addView(current);
         		    }
         		    pd.dismiss();
+                    break;
         		}
                 case HANDLE_UPLOAD_FILE:
                 {
