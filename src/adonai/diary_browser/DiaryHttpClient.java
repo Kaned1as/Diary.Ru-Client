@@ -25,18 +25,12 @@ public class DiaryHttpClient
     CookieStore cookieStore = new BasicCookieStore();
 
     private HttpPost httpPost = null;
-    private HttpGet httpGet = null;
     String currentURL = "";
 
     public DiaryHttpClient() 
     {
     	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
     	localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
-    }
-    
-    public void clearCookies()
-    {
-    	httpClient.getCookieStore().clear();
     }
 
     public void abort() 
@@ -59,7 +53,7 @@ public class DiaryHttpClient
     	HttpResponse response = null;
     	try 
     	{
-    		URI address = new URI(currentURL).resolve(url);
+    		URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
         	httpPost = new HttpPost(address.toURL().toString());
         	if(data != null)
         		httpPost.setEntity(data);
@@ -102,7 +96,7 @@ public class DiaryHttpClient
     	try 
     	{
     		URI address = new URI(currentURL).resolve(url);
-        	httpGet = new HttpGet(address.toURL().toString());
+            HttpGet httpGet = new HttpGet(address.toURL().toString());
     		response = AsyncRetriever.execute(httpGet, localContext);
     	} 
     	catch (ClientProtocolException e) 
