@@ -101,7 +101,7 @@ public class UserData
             }
             
             // U-мылки
-            if(node.attr("href").startsWith("/u-mail/folder/"))
+            if(node.attr("href").contains("/u-mail/folder/"))
             {
                 hasNewUmails = true;
                 newUmailNum = Integer.valueOf(node.text());
