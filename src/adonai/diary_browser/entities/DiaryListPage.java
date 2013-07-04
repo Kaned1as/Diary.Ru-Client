@@ -9,7 +9,7 @@ public class DiaryListPage extends ArrayList<Openable>
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
     private String pageURL = null;
-    
+
     public Spanned getPageLinks()
     {
         return pageLinks;

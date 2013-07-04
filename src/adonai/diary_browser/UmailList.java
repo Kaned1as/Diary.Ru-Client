@@ -27,13 +27,13 @@ public class UmailList extends DiaryActivity implements OnClickListener
 {
     private final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
     private final String outFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=2";
-    
-	static final int TAB_INCOMING                                   =   0;
-	static final int TAB_OUTCOMING                                  =   1;
-	
+
+    static final int TAB_INCOMING                                   =   0;
+    static final int TAB_OUTCOMING                                  =   1;
+
     private static final int PART_WEB = 0;
     private static final int PART_LIST = 1;
-    
+
     private int mCurrentComponent = 1;
 
     DiaryWebView mMessageBrowser;
@@ -42,7 +42,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
     TabWidget mTabs;
     TextView mIncoming;
     TextView mOutcoming;
-    
+
     Handler mUiHandler;
 
     @Override
@@ -50,32 +50,32 @@ public class UmailList extends DiaryActivity implements OnClickListener
     {
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
-        
+
         setContentView(R.layout.umail_list_a);
         mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
         mMessageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
-        
+
         mIncoming = (TextView) findViewById(R.id.incoming);
         mOutcoming = (TextView) findViewById(R.id.outcoming);
         mIncoming.setOnClickListener(this);
         mOutcoming.setOnClickListener(this);
     }
-    
+
     @Override
     protected void onNewIntent(Intent intent) 
     {
         super.onNewIntent(intent);
         pageToLoad = intent.getStringExtra("url");
     }
-    
+
     @Override
-	protected void onDestroy()
-	{
-		mService.removeListener(this);
-		super.onDestroy();
-	}
+    protected void onDestroy()
+    {
+        mService.removeListener(this);
+        super.onDestroy();
+    }
 
     @Override
     public void onBackPressed()
@@ -90,24 +90,24 @@ public class UmailList extends DiaryActivity implements OnClickListener
             finish();
         }
     }
-    
+
     @Override
     public boolean handleMessage(Message message)
     {
         switch (message.what)
         {
-        	case Utils.HANDLE_START:
+            case Utils.HANDLE_START:
                 mService.addListener(this);
-                
+
                 if(pageToLoad != null)
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, pageToLoad);
                 else if(mFolderAdapter == null) // стартуем в первый раз
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
-        		return true;
-        	case Utils.HANDLE_OPEN_FOLDER:
-        	    setCurrentVisibleComponent(PART_LIST);
-        		mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
-        		mFolderBrowser.getRefreshableView().removeFooterView(mFolderBrowser.getRefreshableView().findViewWithTag("footer"));
+                return true;
+            case Utils.HANDLE_OPEN_FOLDER:
+                setCurrentVisibleComponent(PART_LIST);
+                mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
+                mFolderBrowser.getRefreshableView().removeFooterView(mFolderBrowser.getRefreshableView().findViewWithTag("footer"));
                 if(mUser.currentUmails.getPageLinks() != null)
                 {
                     LinearLayout LL = new LinearLayout(mFolderBrowser.getRefreshableView().getContext());
@@ -122,18 +122,18 @@ public class UmailList extends DiaryActivity implements OnClickListener
                         click.setTag(url.getURL());
                         click.setOnClickListener(UmailList.this);
                         LL.addView(click);
-                        
+
                         LayoutParams LP = (LayoutParams) click.getLayoutParams();
                         LP.width = LayoutParams.MATCH_PARENT;
                         LP.weight = 1.0f;
                     }
                     mFolderBrowser.getRefreshableView().addFooterView(LL);
                 }
-        		mFolderBrowser.setAdapter(mFolderAdapter);
-        		break;
-        	case Utils.HANDLE_OPEN_MAIL:
-        	    setCurrentVisibleComponent(PART_WEB);
-        	    mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
+                mFolderBrowser.setAdapter(mFolderAdapter);
+                break;
+            case Utils.HANDLE_OPEN_MAIL:
+                setCurrentVisibleComponent(PART_WEB);
+                mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
                 setTitle(mUser.currentUmailPage.getContent().title());
                 mMessageBrowser.onRefreshComplete();
                 break;
@@ -143,7 +143,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 return true;
             /*
             default:
-            	super.handleMessage(message);
+                super.handleMessage(message);
                 pd.dismiss();
                 if((message.what & Utils.DIARY_HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
                 {
@@ -170,40 +170,40 @@ public class UmailList extends DiaryActivity implements OnClickListener
     }
 
     public void onClick(View view)
-	{
-		switch (view.getId())
-		{
-		case R.id.incoming:
-			mTabs.setCurrentTab(TAB_INCOMING);
-			handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
-			break;
-		case R.id.outcoming:
-			mTabs.setCurrentTab(TAB_OUTCOMING);
-			handleBackground(Utils.HANDLE_OPEN_FOLDER, outFolderAddress);
-			break;
-		case R.id.title:
-		    int pos = mFolderBrowser.getRefreshableView().getPositionForView((View) view.getParent());
-            Openable uMail = (Openable) mFolderBrowser.getRefreshableView().getAdapter().getItem(pos);
-            
-		    handleBackground(Utils.HANDLE_OPEN_MAIL, uMail.getURL());
-		    break;
-		}
-		
-		if(view instanceof Button) // нижние панельки
+    {
+        switch (view.getId())
         {
-		    handleBackground(Utils.HANDLE_OPEN_FOLDER, view.getTag());
+        case R.id.incoming:
+            mTabs.setCurrentTab(TAB_INCOMING);
+            handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
+            break;
+        case R.id.outcoming:
+            mTabs.setCurrentTab(TAB_OUTCOMING);
+            handleBackground(Utils.HANDLE_OPEN_FOLDER, outFolderAddress);
+            break;
+        case R.id.title:
+            int pos = mFolderBrowser.getRefreshableView().getPositionForView((View) view.getParent());
+            Openable uMail = (Openable) mFolderBrowser.getRefreshableView().getAdapter().getItem(pos);
+
+            handleBackground(Utils.HANDLE_OPEN_MAIL, uMail.getURL());
+            break;
         }
-	}
-	
+
+        if(view instanceof Button) // нижние панельки
+        {
+            handleBackground(Utils.HANDLE_OPEN_FOLDER, view.getTag());
+        }
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.umail_list_a, menu);
-        
+
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) 
     {
@@ -216,10 +216,10 @@ public class UmailList extends DiaryActivity implements OnClickListener
         {
             menu.findItem(R.id.menu_reply_umail).setVisible(false);
         }
-        
+
         return super.onPrepareOptionsMenu(menu);
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -252,24 +252,24 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 return super.onOptionsItemSelected(item);
         }
     }
-	
-	private void newUmail(String receiver)
+
+    private void newUmail(String receiver)
     {
-	    Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-        
+        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+
         postIntent.putExtra("TypeId", "umailTo");
         postIntent.putExtra("umailTo", receiver);
-        
+
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", "http://www.diary.ru/diary.php");
-        
+
         startActivity(postIntent);
     }
 
     private void setCurrentVisibleComponent(int needed)
     {   
-	    mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
-	    mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
-	    mCurrentComponent = needed;
+        mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
+        mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
+        mCurrentComponent = needed;
     }
 }

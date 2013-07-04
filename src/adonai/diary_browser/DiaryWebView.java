@@ -32,7 +32,7 @@ public class DiaryWebView extends PullToRefreshWebView
 
     DiaryActivity mActivity;
     int scrolling = 0;
-    
+
     public DiaryWebView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
@@ -50,13 +50,13 @@ public class DiaryWebView extends PullToRefreshWebView
         super(context);
         init();
     }
-    
+
     public void init()
     {
         if(getContext() instanceof DiaryActivity)
             mActivity = (DiaryActivity) getContext();
     }
-    
+
     public void setDefaultSettings()
     {
         WebSettings settings = getRefreshableView().getSettings();
@@ -135,7 +135,7 @@ public class DiaryWebView extends PullToRefreshWebView
                             dialog.dismiss();
                         }
                     });
-                    
+
                     builder.create().show();
                     return true;
                 }
@@ -164,7 +164,7 @@ public class DiaryWebView extends PullToRefreshWebView
                     builder.create().show();
                     return true;
                 }
-                
+
                 if(url.contains("?editpost&postid=")) // редактирование поста
                 {
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);

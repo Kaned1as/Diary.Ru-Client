@@ -20,7 +20,7 @@ import org.apache.http.protocol.HttpContext;
 public class DiaryHttpClient 
 {
 
-	DefaultHttpClient httpClient = new DefaultHttpClient();
+    DefaultHttpClient httpClient = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     CookieStore cookieStore = new BasicCookieStore();
 
@@ -29,88 +29,67 @@ public class DiaryHttpClient
 
     public DiaryHttpClient() 
     {
-    	httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
-    	localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+        httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
+        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
     }
 
     public void abort() 
     {
 
-    	try 
-    	{
-    		if(httpClient != null && httpPost != null)
-    		{
-    			httpPost.abort();
-    		}
-    	} catch (Exception e) 
-    	{
-    		System.out.println("HTTPHelp : Abort Exception : " + e);
-    	}
+        try
+        {
+            if(httpClient != null && httpPost != null)
+                httpPost.abort();
+
+        } catch (Exception e)
+        {
+            System.out.println("HTTPHelp : Abort Exception : " + e);
+        }
     }
 
     public HttpResponse postPage(String url, HttpEntity data) 
     {
-    	HttpResponse response = null;
-    	try 
-    	{
-    		URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-        	httpPost = new HttpPost(address.toURL().toString());
-        	if(data != null)
-        		httpPost.setEntity(data);
-        	else
-            	currentURL = address.toURL().toString();
-        	
-    		response = httpClient.execute(httpPost, localContext);
-    	}
-    	catch (IllegalStateException isex)
-    	{
-    		System.out.println("HTTPHelp : no such host : " + isex);
-    	}
-    	catch (IllegalArgumentException e)
-    	{
-    	    System.out.println("Illegal argument: " + e);
-    	}
-    	catch (ClientProtocolException e) 
-    	{
-    		System.out.println("HTTPHelp : ClientProtocolException : " + e);
-    	} 
-    	catch (IOException e) 
-    	{
-    		System.out.println("HTTPHelp : IOException : " + e);
-    	} 
-    	catch (URISyntaxException e) 
-    	{
-			e.printStackTrace();
-		}
-  		return response;
+        HttpResponse response = null;
+        try
+        {
+            URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+            httpPost = new HttpPost(address.toURL().toString());
+            if(data != null)
+                httpPost.setEntity(data);
+            else
+                currentURL = address.toURL().toString();
+
+            response = httpClient.execute(httpPost, localContext);
+        }
+        catch (Exception e) // неполадки в соединении
+        {
+            System.out.println("HTTPHelp : Null URL: " + e);
+            e.printStackTrace();
+        }
+
+        return response;
     }
-    
+
     public HttpResponse getPage(String url) 
     {
         if(url.startsWith("file"))
             return null; // Не загружать локальные
-    	
-        DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
-    	HttpResponse response = null;
 
-    	try 
-    	{
-    		URI address = new URI(currentURL).resolve(url);
+        DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
+        HttpResponse response = null;
+
+        try
+        {
+            URI address = new URI(currentURL).resolve(url);
             HttpGet httpGet = new HttpGet(address.toURL().toString());
-    		response = AsyncRetriever.execute(httpGet, localContext);
-    	} 
-    	catch (ClientProtocolException e) 
-    	{
-    		System.out.println("HTTPHelp : ClientProtocolException : " + e);
-    	} 
-    	catch (IOException e) 
-    	{
-    		System.out.println("HTTPHelp : IOException : " + e);
-    	} catch (URISyntaxException e) 
-    	{
-			e.printStackTrace();
-		} 
-    	
-  		return response;
+            response = AsyncRetriever.execute(httpGet, localContext);
+        }
+        catch (Exception e)
+        {
+            System.out.println("HTTPHelp : Null URL: " + e);
+            e.printStackTrace();
+        }
+
+        return response;
     }
 }

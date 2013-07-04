@@ -9,9 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,12 +44,12 @@ import java.util.ArrayList;
 public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
 {
     // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK 							=   0x100;
-    static final int HANDLE_UPDATE_HEADERS 							= 	0x200;
-    
-    
+    static final int HANDLE_IMAGE_CLICK                               =   0x100;
+    static final int HANDLE_UPDATE_HEADERS                            =   0x200;
+
+
     // дополнительные команды хэндлерам
-    
+
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -61,15 +58,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
     int mCurrentTab = 0;
     int mCurrentComponent = 0;
-    
+
     private static final int PART_LIST = 0;
     private static final int PART_WEB = 1;
     private static final int PART_DISC_LIST = 2;
-    
+
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     DiscListArrayAdapter mDiscussionsAdapter;
-    
+
     // Видимые объекты
     TextView mLogin;
     Button mDiscussNum;
@@ -78,13 +75,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     PullToRefreshListView mDiaryBrowser;
     DiaryWebView mPageBrowser;
     ExpandableListView mDiscussionBrowser;
-    
+
     ImageButton mExitButton;
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
     ImageButton mScrollButton;
     LinearLayout mTabs;
-    
+
     // Сервисные объекты
     DisplayMetrics gMetrics;
 
@@ -133,14 +130,14 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
-    
+
 
     @Override
     public void handleDataChange()
     {
         mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
-    
+
     public void initializeUI()
     {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
@@ -148,9 +145,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
-        
+
         mLogin = (TextView) findViewById(R.id.login_name);
-        
+
         mExitButton = (ImageButton) findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
         mQuotesButton = (ImageButton) findViewById(R.id.quotes_button);
@@ -159,7 +156,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mUmailButton.setOnClickListener(this);
         mScrollButton = (ImageButton) findViewById(R.id.updown_button);
         mScrollButton.setOnClickListener(this);
-        
+
         mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
@@ -175,92 +172,92 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         mCommentsNum = (Button) findViewById(R.id.diary_button);
         mDiscussNum = (Button) findViewById(R.id.discussions_button);
-        
+
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
-        
+
         mDiaryBrowser.setOnRefreshListener(this);
-        
+
         mDiscussionBrowser.setOnChildClickListener(this);
         mDiscussionBrowser.setOnGroupClickListener(this);
         mDiscussionBrowser.setOnItemLongClickListener(this);
 
         setCurrentVisibleComponent(0);
     }
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) 
     {
         super.onConfigurationChanged(newConfig);
     }
-    
+
     @Override
     protected void onDestroy()
     {
-    	mService.removeListener(this);
+        mService.removeListener(this);
         mUser.setOnDataChangeListener(null);
 
         super.onDestroy();
 
     }
-    
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu)
     {
-    	MenuInflater inflater = getMenuInflater();
-    	inflater.inflate(R.menu.diary_list_a, menu);
-        
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.diary_list_a, menu);
+
         return super.onCreateOptionsMenu(menu);
     }
-    
+
     @Override
-	public boolean onPrepareOptionsMenu(Menu menu) 
+    public boolean onPrepareOptionsMenu(Menu menu)
     {
-    	// Только если это дневник
+        // Только если это дневник
         if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
         {
-        	menu.findItem(R.id.menu_tags).setVisible(true);
-        	menu.findItem(R.id.menu_new_post).setVisible(true);
+            menu.findItem(R.id.menu_tags).setVisible(true);
+            menu.findItem(R.id.menu_new_post).setVisible(true);
         }
         else
         {
-        	menu.findItem(R.id.menu_tags).setVisible(false);
-        	menu.findItem(R.id.menu_new_post).setVisible(false);
+            menu.findItem(R.id.menu_tags).setVisible(false);
+            menu.findItem(R.id.menu_new_post).setVisible(false);
         }
-        
+
         // Только если это пост
         if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(CommentsPage.class))
-        	menu.findItem(R.id.menu_new_comment).setVisible(true);
+            menu.findItem(R.id.menu_new_comment).setVisible(true);
         else
-        	menu.findItem(R.id.menu_new_comment).setVisible(false);
-        
-        
+            menu.findItem(R.id.menu_new_comment).setVisible(false);
+
+
         // Для всех веб-страничек
         if(mCurrentComponent == PART_WEB)
             menu.setGroupVisible(R.id.group_web, true);
         else
             menu.setGroupVisible(R.id.group_web, false);
-        
+
         // Для всех списков
         if(mCurrentComponent == PART_LIST)
         {
-        	menu.findItem(R.id.menu_share).setVisible(false);
-        	menu.findItem(R.id.menu_subscr_list).setVisible(true);
+            menu.findItem(R.id.menu_share).setVisible(false);
+            menu.findItem(R.id.menu_subscr_list).setVisible(true);
         }
         else
         {
-        	menu.findItem(R.id.menu_share).setVisible(true);
-        	menu.findItem(R.id.menu_subscr_list).setVisible(false);
+            menu.findItem(R.id.menu_share).setVisible(true);
+            menu.findItem(R.id.menu_subscr_list).setVisible(false);
         }
-        
-        
-        
-		return super.onPrepareOptionsMenu(menu);
-	}
+
+
+
+        return super.onPrepareOptionsMenu(menu);
+    }
 
     // старые телефоны тоже должны работать
-	@SuppressWarnings("deprecation")
-	@Override
+    @SuppressWarnings("deprecation")
+    @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
         switch(item.getItemId())
@@ -269,16 +266,16 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 newPostPost();
                 return true;
             case R.id.menu_new_comment:
-            	newCommentPost();
-            	return true;
+                newCommentPost();
+                return true;
             case R.id.menu_settings:
-            	startActivity(new Intent(this, PreferencesScreen.class));
-            	return true;
+                startActivity(new Intent(this, PreferencesScreen.class));
+                return true;
             case R.id.menu_share:
-            	android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-    			Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.getPageURL(), Toast.LENGTH_SHORT).show();
-    			clipboard.setText(mUser.currentDiaryPage.getPageURL());
-            	return true;
+                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.getPageURL(), Toast.LENGTH_SHORT).show();
+                clipboard.setText(mUser.currentDiaryPage.getPageURL());
+                return true;
             case R.id.menu_about:
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
                 AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
@@ -297,7 +294,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
                 assert(mUser.currentDiaryPage instanceof DiaryPage); // следим чтобы текущая страничка обязательно была в пределах иерархии
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage)mUser.currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)mUser.currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
-            	return true;
+                return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=-1", false));
                 return true;
@@ -315,16 +312,16 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 return super.onOptionsItemSelected(item);
         }
     }
-    
+
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
     {
         super.onCreateContextMenu(menu, v, menuInfo);
-        
+
         if(v.getId() == R.id.page_browser)
         {
-        	Message msg = Message.obtain(mUiHandler, HANDLE_IMAGE_CLICK);
-        	mPageBrowser.getRefreshableView().requestImageRef(msg);
+            Message msg = Message.obtain(mUiHandler, HANDLE_IMAGE_CLICK);
+            mPageBrowser.getRefreshableView().requestImageRef(msg);
         }
     }
 
@@ -343,13 +340,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         if(intent.getData() != null)
             pageToLoad = intent.getDataString();
     }
-    
+
     @Override
     public boolean handleMessage(Message message)
     {
         switch (message.what)
         {
-        	case Utils.HANDLE_START:
+            case Utils.HANDLE_START:
                 mService.addListener(this);
                 mUser.setOnDataChangeListener(this);
 
@@ -373,8 +370,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     pd.setMessage(getString(R.string.sorting_data));
                 return true;
             case HANDLE_UPDATE_HEADERS:
-            	// обрабатываем обновление контента
-            	mLogin.setText(mUser.userName);
+                // обрабатываем обновление контента
+                mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
                 {
                     mCommentsNum.setText(getString(R.string.my_diary) + " - " + mUser.newDiaryCommentsNum.toString());
@@ -429,7 +426,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                         click.setTag(url.getURL());
                         click.setOnClickListener(DiaryList.this);
                         LL.addView(click);
-                        
+
                         LayoutParams LP = (LayoutParams) click.getLayoutParams();
                         LP.width = 0;
                         LP.height = LayoutParams.MATCH_PARENT;
@@ -443,7 +440,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 browserHistory.add(mUser.currentDiaries.getURL());
 
                 mDiaryBrowser.onRefreshComplete();
-                
+
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu();
@@ -457,18 +454,18 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 mPageBrowser.onRefreshComplete();
-                
+
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu(); // PART_WEB
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
-            	setCurrentVisibleComponent(PART_DISC_LIST);
-            	
+                setCurrentVisibleComponent(PART_DISC_LIST);
+
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu(); // PART_DISC_LIST
-            	break;
+                break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 mPageBrowser.onRefreshComplete();
                 mDiaryBrowser.onRefreshComplete();
@@ -477,73 +474,73 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 finish();
                 break;
             case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
-            	int pos = (Integer) message.obj;
-            	mDiscussionBrowser.expandGroup(pos);
-            	break;
+                int pos = (Integer) message.obj;
+                mDiscussionBrowser.expandGroup(pos);
+                break;
             case HANDLE_IMAGE_CLICK:
             {
-            	final String src = message.getData().getString("url");
-            	if(src == null) // нет картинки!
-            		return false;
-            	
-                ArrayList<String> itemsBuilder = new ArrayList<String>();
-	        	itemsBuilder.add(getString(R.string.image_save));
-	        	itemsBuilder.add(getString(R.string.image_copy_url));
-	        	itemsBuilder.add(getString(R.string.image_open));
+                final String src = message.getData().getString("url");
+                if(src == null) // нет картинки!
+                    return false;
 
-	        	final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
-	        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
-	        	builder.setTitle(R.string.image_action);
-	        	builder.setItems(items, new DialogInterface.OnClickListener() 
-	        	{
-	        	    @SuppressWarnings("deprecation")
-					public void onClick(DialogInterface dialog, int item) 
-	        	    {
-	        	    	switch(item)
-	        	    	{
-	        	    		case DiaryWebView.IMAGE_SAVE: // save
-	        	    		{	        
-	        	    		    // На Андроиде > 2.3.3 используется иной метод сохранения кэша. Просто так картинку не получить, увы.
-	        	    		    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
-	        	    	        {
-	        	    		        Toast.makeText(DiaryList.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-	        	    		        mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, false));
-	        	    	        }
-	        	    		    else
-	        	    		    {
-    	                            String hashCode = String.format("%08x", src.hashCode());
-    	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-    	                            if(file.exists())
-    	                            {
-    	                                String realName = URLUtil.guessFileName(src, null, MimeTypeMap.getFileExtensionFromUrl(src));
-    	                                CacheManager.saveDataToSD(getApplicationContext(), realName, file);
-    	                            }
-	        	    		    }
-	        	    		}
-	        	    		break;
-	        	    		case DiaryWebView.IMAGE_COPY_URL: // copy
-	        	    		{
-	                            android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-	                            Toast.makeText(DiaryList.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
-	                            clipboard.setText(src);
-	        	    		}
-	        	    		break;
-	        	    		case DiaryWebView.IMAGE_OPEN: // open Link
-	        	    		{
-	        	    		 // На Андроиде > 2.3.3 используется иной метод сохранения кэша.
-	        	    		    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
+                ArrayList<String> itemsBuilder = new ArrayList<String>();
+                itemsBuilder.add(getString(R.string.image_save));
+                itemsBuilder.add(getString(R.string.image_copy_url));
+                itemsBuilder.add(getString(R.string.image_open));
+
+                final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
+                AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+                builder.setTitle(R.string.image_action);
+                builder.setItems(items, new DialogInterface.OnClickListener()
+                {
+                    @SuppressWarnings("deprecation")
+                    public void onClick(DialogInterface dialog, int item)
+                    {
+                        switch(item)
+                        {
+                            case DiaryWebView.IMAGE_SAVE: // save
+                            {
+                                // На Андроиде > 2.3.3 используется иной метод сохранения кэша. Просто так картинку не получить, увы.
+                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
+                                {
+                                    Toast.makeText(DiaryList.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                    mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, false));
+                                }
+                                else
+                                {
+                                    String hashCode = String.format("%08x", src.hashCode());
+                                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+                                    if(file.exists())
+                                    {
+                                        String realName = URLUtil.guessFileName(src, null, MimeTypeMap.getFileExtensionFromUrl(src));
+                                        CacheManager.saveDataToSD(getApplicationContext(), realName, file);
+                                    }
+                                }
+                            }
+                            break;
+                            case DiaryWebView.IMAGE_COPY_URL: // copy
+                            {
+                                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                Toast.makeText(DiaryList.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
+                                clipboard.setText(src);
+                            }
+                            break;
+                            case DiaryWebView.IMAGE_OPEN: // open Link
+                            {
+                             // На Андроиде > 2.3.3 используется иной метод сохранения кэша.
+                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
                                 {
                                     Toast.makeText(DiaryList.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
                                     mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, true));
                                 }
-	        	    		    else
-	        	    		    {
-    	                        	String hashCode = String.format("%08x", src.hashCode());
-    	                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-    	                            if(file.exists())
-    	                            	try
+                                else
+                                {
+                                    String hashCode = String.format("%08x", src.hashCode());
+                                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+                                    if(file.exists())
+                                        try
                                         {
-    	                            	    Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
+                                            Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
                                             intent.putExtra("image_file", file.getCanonicalPath());
                                             startActivity(intent);
                                         }
@@ -551,15 +548,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                                         {
                                             Toast.makeText(DiaryList.this, R.string.file_not_found, Toast.LENGTH_SHORT).show();
                                         }
-	        	    		    }
-	        	    		}
-	        	    		break;
-	        	    	}
-	        	    }
-	        	});
-	        	AlertDialog alert = builder.create();
-	        	alert.show();
-	        }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
             break;
             case Utils.HANDLE_EDIT_POST:
                 Post sendPost = (Post)message.obj;
@@ -599,29 +596,29 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     {	
         if (view == mExitButton)
         {
-        	AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
-        	builder.setTitle(R.string.really_exit);
-        	builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() 
-        	{
-				public void onClick(DialogInterface dialog, int item) 
-        	    {
-					Editor lysosome = mService.mPreferences.edit();
-		            lysosome.remove(Utils.KEY_USERNAME);
-		            lysosome.remove(Utils.KEY_PASSWORD);
-		            lysosome.commit();
-		            
-		            CookieManager cookieManager = CookieManager.getInstance();
-		            cookieManager.removeSessionCookie();
-		            CookieSyncManager.getInstance().sync();
-		            mService.mUser = new UserData();
-		            
-		            //TODO: просмотр без логина тоже еще не введен
-		            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
-		            finish();
-        	    }
-        	});
-        	builder.setNegativeButton(android.R.string.no, null);
-        	builder.create().show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+            builder.setTitle(R.string.really_exit);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
+            {
+                public void onClick(DialogInterface dialog, int item)
+                {
+                    Editor lysosome = mService.mPreferences.edit();
+                    lysosome.remove(Utils.KEY_USERNAME);
+                    lysosome.remove(Utils.KEY_PASSWORD);
+                    lysosome.commit();
+
+                    CookieManager cookieManager = CookieManager.getInstance();
+                    cookieManager.removeSessionCookie();
+                    CookieSyncManager.getInstance().sync();
+                    mService.mUser = new UserData();
+
+                    //TODO: просмотр без логина тоже еще не введен
+                    startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+                    finish();
+                }
+            });
+            builder.setNegativeButton(android.R.string.no, null);
+            builder.create().show();
         }
         else if (view == mQuotesButton)
         {
@@ -658,12 +655,12 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         else
             switch (view.getId())
             {
-            	// Загружаем посты дневника
+                // Загружаем посты дневника
                 case R.id.title:
                 {
                     int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
                     Openable diary = (Openable) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
-                    
+
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(diary.getURL(), false));
                 }
                 break;
@@ -672,37 +669,37 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 break;
             }
     }
-    
+
 
     // Загружаем дискуссии
-	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) 
-	{
-		String link = ((DiscList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
-	    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(link, false));
-		return true;
-	}
-	
-	public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) 
-	{
-		if(parent.isGroupExpanded(groupPosition))
-		{
-			parent.collapseGroup(groupPosition);
-			return true;
-		}
-		
-		if(((DiscList)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
-		{
-			ArrayList<Object> params = new ArrayList<Object>();
-			params.add(groupPosition);
-			params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
-			params.add(false);
-		    handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, params);
-		}
-		else
-			parent.expandGroup(groupPosition);
-    	return true;
-	}
-	
+    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
+    {
+        String link = ((DiscList.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
+        handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(link, false));
+        return true;
+    }
+
+    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
+    {
+        if(parent.isGroupExpanded(groupPosition))
+        {
+            parent.collapseGroup(groupPosition);
+            return true;
+        }
+
+        if(((DiscList)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
+        {
+            ArrayList<Object> params = new ArrayList<Object>();
+            params.add(groupPosition);
+            params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
+            params.add(false);
+            handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, params);
+        }
+        else
+            parent.expandGroup(groupPosition);
+        return true;
+    }
+
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
     {
         if(parent instanceof ExpandableListView)
@@ -710,7 +707,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             ExpandableListView elv = (ExpandableListView) parent;
             if(ExpandableListView.getPackedPositionType(id) != ExpandableListView.PACKED_POSITION_TYPE_GROUP)
                 return false;
-            
+
             int groupPosition = ExpandableListView.getPackedPositionGroup(id);
             if(elv.isGroupExpanded(groupPosition))
             {
@@ -722,7 +719,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         }
         return false;
     }
-    
+
     /*            is.close();
      * (non-Javadoc) Sets the contents to current tab and hides everything other. In addition, refreshes content on
      * page, if needed.
@@ -752,30 +749,30 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
             break;
             default:
-            	Utils.showDevelSorry(this);
+                Utils.showDevelSorry(this);
             break;
         }
-        
+
         mCurrentTab = index;
         mTabs.getChildAt(index).setSelected(true);
     }
-    
+
     private void setCurrentVisibleComponent(int needed)
     {   
         mDiaryBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
         mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
         mDiscussionBrowser.setVisibility(needed == PART_DISC_LIST ? View.VISIBLE : View.GONE);
-        
+
         mCurrentComponent = needed;
     }
-    
+
     private void reloadContent()
     {
-    	if(mCurrentComponent == PART_WEB)
-    		handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
-    	else if (mCurrentComponent == PART_LIST)
-    		handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
+        if(mCurrentComponent == PART_WEB)
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+        else if (mCurrentComponent == PART_LIST)
+            handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>("http://www.diary.ru/list/?act=show&fgroup_id=0", true));
     }
 
     @Override
@@ -806,54 +803,54 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         return super.onSearchRequested();
     }
-    
+
     public void newPostPost()
     {
         assert(mUser.currentDiaryPage instanceof DiaryPage);
-        
+
         if(((DiaryPage)mUser.currentDiaryPage).getDiaryID().equals(""))
             return;
-        
+
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-        
+
         postIntent.putExtra("TypeId", "DiaryId");
         postIntent.putExtra("DiaryId", ((DiaryPage)mUser.currentDiaryPage).getDiaryID());
-        
+
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-        
+
         startActivity(postIntent);
     }
-    
+
     public void newCommentPost()
     {
         assert(mUser.currentDiaryPage instanceof CommentsPage);
-        
-    	if(((CommentsPage)mUser.currentDiaryPage).getPostID().equals(""))
+
+        if(((CommentsPage)mUser.currentDiaryPage).getPostID().equals(""))
             return;
-    	
-    	Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-    	
-    	postIntent.putExtra("TypeId", "PostId");
+
+        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+
+        postIntent.putExtra("TypeId", "PostId");
         postIntent.putExtra("PostId", ((CommentsPage)mUser.currentDiaryPage).getPostID());
-        
+
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((CommentsPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-        
+
         startActivity(postIntent);
     }
-    
+
     public void editPost(Post post)
     {
         Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-        
+
         postIntent.putExtra("TypeId", "PostEditId");
         postIntent.putExtra("PostEditId", post.postID);
-        
+
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
         postIntent.putExtra("postContents", post.serialize());
-        
+
         startActivity(postIntent);
     }
 
@@ -870,8 +867,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         startActivity(postIntent);
     }
-    
-	public void onRefresh(PullToRefreshBase<ListView> refreshView)
+
+    public void onRefresh(PullToRefreshBase<ListView> refreshView)
     {
         switch (refreshView.getId())
         {

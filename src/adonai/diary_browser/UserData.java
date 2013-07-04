@@ -15,38 +15,38 @@ public class UserData
     {
         public void handleDataChange();
     }
-    
+
     OnDataChangeListener mListener = null;
     public void setOnDataChangeListener(OnDataChangeListener listener)
     {
         mListener = listener;
     }
     boolean isAuthorised;
-    
-	// Динамические списки постов
+
+    // Динамические списки постов
     DiaryListPage currentDiaries;
     DiaryListPage currentUmails;
     ArrayList<DiscList> discussions;
     DiaryWebPage currentDiaryPage;
     DiaryWebPage currentUmailPage;
-    
+
     // Личные данные
     String ownDiaryURL = "";
     String ownProfileID = "";
     String userName = "";
     String signature = "";
-    
+
     // число новых постов в дискуссиях
     Integer newDiscussNum = 0;
     String newDiscussLink = "";
-    
+
     Integer newUmailNum = 0;
     String newUmailLink = "";
-    
+
     // число новых постов в дневнике
     Integer newDiaryCommentsNum = 0;
     String newDiaryLink = "";
-    
+
     UserData()
     {
         currentDiaries = new DiaryListPage();
@@ -55,7 +55,7 @@ public class UserData
         currentUmailPage = new DiaryPage();
         discussions = new ArrayList<DiscList>();
     }
-    
+
     // обновляем контент
     public void parseData(Element tag)
     {
@@ -69,37 +69,37 @@ public class UserData
         boolean hasNewDiscussions = false, hasNewDiaryComments = false, hasNewUmails = false;
         for(Element node : nodes)
         {
-        	// ссылка на свой дневник
+            // ссылка на свой дневник
             if(node.text().equals("Мой дневник"))
                 ownDiaryURL = node.attr("href");
-            
+
             // идентификатор своего профиля
             if(node.attr("href").startsWith("/member/"))
             {
                 if(!node.text().equals("Мой профиль"))
                     userName = node.text();
-                
-            	String Id = node.attr("href");
+
+                String Id = node.attr("href");
                 ownProfileID = Id.substring(Id.lastIndexOf("?") + 1);
             }
-            
+
             // дискасс
             if(node.id().equals("menuNewDescussions"))
             {
-            	hasNewDiscussions = true;
-            	newDiscussNum = Integer.valueOf(node.text());
-            	newDiscussLink = node.attr("href");
+                hasNewDiscussions = true;
+                newDiscussNum = Integer.valueOf(node.text());
+                newDiscussLink = node.attr("href");
             }
-            
+
             // дневник
             // как минимум 3 родителя точно будет - div, body и html, значит, можно не проверять.
             if(node.parent().parent().id().equals("new_comments_count") || node.parent().parent().parent().id().equals("myDiaryLink"))
             {
-            	hasNewDiaryComments = true;
-            	newDiaryCommentsNum = Integer.valueOf(node.text());
+                hasNewDiaryComments = true;
+                newDiaryCommentsNum = Integer.valueOf(node.text());
                 newDiaryLink = node.attr("href");
             }
-            
+
             // U-мылки
             if(node.attr("href").contains("/u-mail/folder/"))
             {
@@ -108,14 +108,14 @@ public class UserData
                 newUmailLink = node.attr("href");
             }
         }
-        
+
         if(!hasNewDiscussions)
-        	newDiscussNum = 0;
+            newDiscussNum = 0;
         if(!hasNewDiaryComments)
-        	newDiaryCommentsNum = 0;
+            newDiaryCommentsNum = 0;
         if(!hasNewUmails)
             newUmailNum = 0;
-        
+
         if(mListener != null)
             mListener.handleDataChange();
     }
