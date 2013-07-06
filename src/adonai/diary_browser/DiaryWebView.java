@@ -88,17 +88,18 @@ public class DiaryWebView extends PullToRefreshWebView
             @Override
             public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
             {
+                if(mActivity instanceof DiaryList)
                 if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
                 {
                     if(distanceY > 90)
                     {
                         scrolling = Utils.VIEW_SCROLL_DOWN;
-                        mActivity.handleScroll(Utils.VIEW_SCROLL_DOWN);
+                        ((DiaryList)mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
                     }
                     else if (distanceY < -90)
                     {
                         scrolling = Utils.VIEW_SCROLL_UP;
-                        mActivity.handleScroll(Utils.VIEW_SCROLL_UP);
+                        ((DiaryList)mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
                     }
                 }
 
@@ -110,6 +111,17 @@ public class DiaryWebView extends PullToRefreshWebView
 
     private class DiaryWebClient extends WebViewClient
     {
+        @Override
+        public void onPageFinished(WebView view, String url)
+        {
+            if(mActivity instanceof DiaryList)
+            {
+                final Integer pos = ((DiaryList) mActivity).browserHistory.getPosition();
+                if(pos > 0)
+                    getRefreshableView().scrollTo(0, pos);
+            }
+        }
+
         @Override
         public boolean shouldOverrideUrlLoading(WebView  view, String  url)
         {
@@ -203,6 +215,9 @@ public class DiaryWebView extends PullToRefreshWebView
                     return true;
                 }
             }
+            if(mActivity instanceof DiaryList)
+                ((DiaryList)mActivity).browserHistory.setPosition(getRefreshableView().getScrollY());
+
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.mUser.currentDiaryPage.getPageURL())));
             return true;
         }

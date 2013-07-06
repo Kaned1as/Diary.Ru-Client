@@ -85,7 +85,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     // Сервисные объекты
     DisplayMetrics gMetrics;
 
-    BrowseHistory browserHistory;
+    public BrowseHistory browserHistory;
     Handler mUiHandler;
 
     // Часть кода относится к кнопке быстрой промотки
@@ -573,7 +573,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     }
 
     // Часть кода относится к кнопке быстрой промотки
-    @Override
     void handleScroll(int direction)
     {
         mScrollButton.setVisibility(View.VISIBLE);

@@ -164,11 +164,6 @@ public class UmailList extends DiaryActivity implements OnClickListener
         return true;
     }
 
-    @Override
-    void handleScroll(int direction)
-    {
-    }
-
     public void onClick(View view)
     {
         switch (view.getId())

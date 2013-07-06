@@ -1,11 +1,13 @@
 package adonai.diary_browser;
 
+import android.util.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class BrowseHistory
 {
-    private List<String> urls = new ArrayList<String>();
+    private List<Pair<String, Integer>> urls = new ArrayList<Pair<String, Integer>>();
     private boolean freeze;
 
     public void add(String url)
@@ -14,9 +16,7 @@ public class BrowseHistory
             return;
 
         if(!freeze)
-        {
-            urls.add(url);
-        }
+            urls.add(new Pair<String, Integer>(url, 0));
 
         freeze = false;
     }
@@ -35,6 +35,16 @@ public class BrowseHistory
 
     public String getUrl()
     {
-        return urls.get(urls.size() - 1);
+        return urls.get(urls.size() - 1).first;
+    }
+
+    public Integer getPosition()
+    {
+        return urls.get(urls.size() - 1).second;
+    }
+
+    public void setPosition(Integer scroll)
+    {
+        urls.set(urls.size() - 1, new Pair<String, Integer>(urls.get(urls.size() - 1).first, scroll));
     }
 }
