@@ -18,13 +18,13 @@ public class Utils
 
     // Команды хэндлерам
     static final int DIARY_HANDLERS_MASK                            = 0x10000000;
-    static final int HANDLE_AUTHORIZATION_ERROR 					=  -1 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_SET_HTTP_COOKIE 						= 	2 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DIARIES_DATA 		             	= 	3 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DIARY_PAGE_DATA 					= 	4 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_PICK_URL 								= 	5 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DISCUSSIONS_DATA 					= 	6 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DISCUSSION_LIST_DATA 				= 	7 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_AUTHORIZATION_ERROR                     =  -1 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_SET_HTTP_COOKIE                         =   2 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_DIARIES_DATA                        =   3 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_DIARY_PAGE_DATA                     =   4 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_PICK_URL                                =   5 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_DISCUSSIONS_DATA                    =   6 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_DISCUSSION_LIST_DATA                =   7 | DIARY_HANDLERS_MASK;
     static final int HANDLE_JUST_DO_GET                             =   8 | DIARY_HANDLERS_MASK;
     static final int HANDLE_DELETE_POST                             =   9 | DIARY_HANDLERS_MASK;
     static final int HANDLE_EDIT_POST                               =  10 | DIARY_HANDLERS_MASK;

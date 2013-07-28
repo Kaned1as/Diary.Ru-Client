@@ -22,6 +22,8 @@ public abstract class DiaryActivity extends Activity implements Callback
     String pageToLoad;
     UserData mUser;
 
+    DiaryWebView mPageBrowser;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -98,5 +100,19 @@ public abstract class DiaryActivity extends Activity implements Callback
     public void handleUi(int opCode, Object body)
     {
         mUiHandler.sendMessage(mUiHandler.obtainMessage(opCode, body));
+    }
+
+    public void handleFontChange(String currSize)
+    {
+        try
+        {
+            int realNum = Integer.parseInt(currSize);
+            mPageBrowser.getRefreshableView().getSettings().setMinimumFontSize(realNum);
+        }
+        catch (NumberFormatException ex)
+        {
+            Toast.makeText(this, R.string.invalid_number, Toast.LENGTH_SHORT);
+        }
+
     }
 }

@@ -126,4 +126,7 @@
     <string name="keep_device_on_sum">Keep device on and do not let it sleep, for the service will be able to get
         updates when necessary
     </string>
+    <string name="webview_font_size">Font size</string>
+    <string name="webview_font_size_sum">Minimum font size for web views</string>
+    <string name="invalid_number">Invalid number</string>
 </resources>

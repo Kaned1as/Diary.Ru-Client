@@ -156,7 +156,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void addListener(DiaryActivity listener)
     {
         if(!mListeners.contains(listener))
+        {
             mListeners.add(listener);
+            listener.handleFontChange(mPreferences.getString("webview.font.size", "8"));
+        }
     }
 
     public void removeListener(DiaryActivity listener)
@@ -982,6 +985,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
             else
                 stopForeground(true);
+        }
+        else if(key.equals("webview.font.size"))
+        {
+            for(DiaryActivity current : mListeners)
+                current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
         }
     }
 

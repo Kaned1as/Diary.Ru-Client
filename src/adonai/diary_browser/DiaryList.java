@@ -73,7 +73,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     Button mCommentsNum;
     TextView mUmailNum;
     PullToRefreshListView mDiaryBrowser;
-    DiaryWebView mPageBrowser;
     ExpandableListView mDiscussionBrowser;
 
     ImageButton mExitButton;
@@ -183,12 +182,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mDiscussionBrowser.setOnItemLongClickListener(this);
 
         setCurrentVisibleComponent(0);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) 
-    {
-        super.onConfigurationChanged(newConfig);
     }
 
     @Override

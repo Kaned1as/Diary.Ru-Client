@@ -7,4 +7,5 @@
     <CheckBoxPreference android:key="service.keep.device.on" android:summary="@string/keep_device_on_sum" android:title="@string/keep_device_on" android:defaultValue="false" android:dependency="service.notify.updates" />
     <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary"/>
     <EditTextPreference android:key="post.tags" android:title="@string/post_tags" android:summary="@string/post_tags_summary" android:defaultValue="@string/posted_via_client"/>
+    <EditTextPreference android:key="webview.font.size" android:title="@string/webview_font_size" android:summary="@string/webview_font_size_sum" android:digits="1234567890" android:defaultValue="8"/>
 </PreferenceScreen>

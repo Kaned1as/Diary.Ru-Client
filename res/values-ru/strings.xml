@@ -147,4 +147,7 @@
     <string name="new_comments">Новые комментарии</string>
     <string name="keep_device_on">Держать телефон включенным</string>
     <string name="keep_device_on_sum">Необходимо, чтобы сервис всегда получал уведомления о новых комментариях, а не только при включенном экране. Внимание! Садит батарейку, поскольку телефон не уходит в режим полного сна.</string>
+    <string name="webview_font_size">Размер шрифта</string>
+    <string name="webview_font_size_sum">Минимальный размер шрифта на вебформах</string>
+    <string name="invalid_number">Неверное число</string>
 </resources>

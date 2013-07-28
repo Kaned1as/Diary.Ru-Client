@@ -6,7 +6,6 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -36,7 +35,6 @@ public class UmailList extends DiaryActivity implements OnClickListener
 
     private int mCurrentComponent = 1;
 
-    DiaryWebView mMessageBrowser;
     PullToRefreshListView mFolderBrowser;
     DiaryListArrayAdapter mFolderAdapter;
     TabWidget mTabs;
@@ -52,8 +50,8 @@ public class UmailList extends DiaryActivity implements OnClickListener
         mUiHandler = new Handler(this);
 
         setContentView(R.layout.umail_list_a);
-        mMessageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
-        mMessageBrowser.setDefaultSettings();
+        mPageBrowser = (DiaryWebView) findViewById(R.id.umessage_browser);
+        mPageBrowser.setDefaultSettings();
         mFolderBrowser = (PullToRefreshListView) findViewById(R.id.ufolder_browser);
         mTabs = (TabWidget) findViewById(R.id.folder_selector);
 
@@ -133,9 +131,9 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
-                mMessageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
+                mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentUmailPage.getPageURL(), mUser.currentUmailPage.getContent().html(), null, "utf-8", mUser.currentUmailPage.getPageURL());
                 setTitle(mUser.currentUmailPage.getContent().title());
-                mMessageBrowser.onRefreshComplete();
+                mPageBrowser.onRefreshComplete();
                 break;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
@@ -264,7 +262,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
     private void setCurrentVisibleComponent(int needed)
     {   
         mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
-        mMessageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
+        mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
         mCurrentComponent = needed;
     }
 }
