@@ -41,8 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener
-{
+public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener {
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                               =   0x100;
     static final int HANDLE_UPDATE_HEADERS                            =   0x200;
@@ -167,6 +166,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         {
             Button current = (Button) mTabs.getChildAt(i);
             current.setOnClickListener(this);
+            current.setOnLongClickListener(this);
         }
 
         mCommentsNum = (Button) findViewById(R.id.diary_button);
@@ -398,7 +398,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     pageToLoad = null;
                 }
                 else
-                    setCurrentTab(TAB_FAVOURITES);
+                    setCurrentTab(TAB_FAVOURITES, false);
                 return true;
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);
@@ -638,7 +638,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         }
         else if (view.getParent() == mTabs)   // Если это кнопка табов
         {
-            setCurrentTab(mTabs.indexOfChild(view));
+            setCurrentTab(mTabs.indexOfChild(view), false);
         }
         else if (view.getTag() != null)  // нижние кнопки списков
         {
@@ -662,6 +662,15 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             }
     }
 
+    @Override
+    public boolean onLongClick(View view)
+    {
+        // по долгому клику принудительно входим в дневник/дискуссии без читки новых сообщений
+        if (view.getParent() == mTabs)
+            setCurrentTab(mTabs.indexOfChild(view), true);
+
+        return true;
+    }
 
     // Загружаем дискуссии
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
@@ -720,7 +729,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
      * (non-Javadoc) Sets the contents to current tab and hides everything other. In addition, refreshes content on
      * page, if needed.
      */
-    private void setCurrentTab(int index)
+    private void setCurrentTab(int index, boolean force)
     {
         mTabs.getChildAt(mCurrentTab).setSelected(false);
 
@@ -733,13 +742,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false));
             break;
             case TAB_MY_DIARY:
-                if(mUser.newDiaryCommentsNum != 0)
+                if(mUser.newDiaryCommentsNum != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiaryLink, true));
                 else
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL, false));
             break;
             case TAB_DISCUSSIONS:
-                if(mUser.newDiscussNum != 0)
+                if(mUser.newDiscussNum != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, true));
                 else
                     handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
