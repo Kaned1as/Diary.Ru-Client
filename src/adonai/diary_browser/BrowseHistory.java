@@ -12,10 +12,7 @@ public class BrowseHistory
 
     public void add(String url)
     {
-        if(!urls.isEmpty() && urls.get(urls.size() - 1).equals(url)) // обновляем страницу, а не загружаем новую. Запись в историю не нужна.
-            return;
-
-        if(!freeze)
+        if( ( urls.isEmpty() || !urls.get(urls.size() - 1).first.equals(url) ) && !freeze) // обновляем страницу, а не загружаем новую. Запись в историю не нужна.
             urls.add(new Pair<String, Integer>(url, 0));
 
         freeze = false;

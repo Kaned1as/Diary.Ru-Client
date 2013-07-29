@@ -706,7 +706,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 elv.collapseGroup(groupPosition);
                 return true;
             }
-            handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, new Pair<Integer, Boolean>(groupPosition, true));
+            ArrayList<Object> params = new ArrayList<Object>();
+            params.add(groupPosition);
+            params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
+            params.add(true);
+            handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, params);
             return true;
         }
         return false;
