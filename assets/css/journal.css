@@ -158,6 +158,7 @@ iframe
 {
     list-style: none;
     display: inline;
+    white-space: nowrap;
     padding: 0;
     margin: 0 0 0 10px;
 }
@@ -224,7 +225,6 @@ a:hover
 .prevNextLinks
 {
     margin-bottom: 1px;
-    height: 1.2em;
 }
 
 .prevNextLinks .prevPostLink
@@ -294,6 +294,8 @@ a:hover
 .singlePost, .menuSection, #side h1, .header, .postContent, .singleComment, .section, .postDate
 {
     margin-bottom: 1px;
+    word-wrap: break-word
+    /*word-break: break-all;*/
     /*border: 1px dotted black;*/
 }
 
