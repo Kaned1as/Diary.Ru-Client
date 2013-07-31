@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -427,11 +426,10 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     }
                     mDiaryBrowser.getRefreshableView().addFooterView(LL);
                 }
+                handleTabChange(mUser.currentDiaries.getURL());
 
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
-
                 browserHistory.add(mUser.currentDiaries.getURL());
-
                 mDiaryBrowser.onRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
@@ -446,6 +444,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 browserHistory.add(mUser.currentDiaryPage.getPageURL());
 
                 setTitle(mUser.currentDiaryPage.getContent().title());
+                handleTabChange(mUser.currentDiaryPage.getPageURL());
                 mPageBrowser.onRefreshComplete();
 
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
@@ -454,6 +453,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 mDiscussionsAdapter = new DiscListArrayAdapter(this, mUser.discussions);
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
+                handleTabChange("http://www.diary.ru/discussion/");
                 setCurrentVisibleComponent(PART_DISC_LIST);
 
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
@@ -563,6 +563,36 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         super.handleMessage(message);
         return true;
+    }
+
+    private void handleTabChange(String url)
+    {
+        // Обработка случая, когда URL страницы совпадает с URL одного из табов
+        if(url.equals("http://www.diary.ru/list/?act=show&fgroup_id=0"))
+        {
+            setTitle(R.string.title_activity_diary_list);
+            mTabs.getChildAt(mCurrentTab).setSelected(false);
+            mCurrentTab = 0;
+            mTabs.getChildAt(mCurrentTab).setSelected(true);
+        }
+        else if(url.equals(mUser.ownDiaryURL + "?favorite"))
+        {
+            mTabs.getChildAt(mCurrentTab).setSelected(false);
+            mCurrentTab = 1;
+            mTabs.getChildAt(mCurrentTab).setSelected(true);
+        }
+        else if(url.equals(mUser.ownDiaryURL) || url.equals(mUser.newDiaryLink))
+        {
+            mTabs.getChildAt(mCurrentTab).setSelected(false);
+            mCurrentTab = 2;
+            mTabs.getChildAt(mCurrentTab).setSelected(true);
+        }
+        else if(url.equals("http://www.diary.ru/discussion/") || url.equals(mUser.newDiscussLink))
+        {
+            mTabs.getChildAt(mCurrentTab).setSelected(false);
+            mCurrentTab = 3;
+            mTabs.getChildAt(mCurrentTab).setSelected(true);
+        }
     }
 
     // Часть кода относится к кнопке быстрой промотки
@@ -731,8 +761,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
      */
     private void setCurrentTab(int index, boolean force)
     {
-        mTabs.getChildAt(mCurrentTab).setSelected(false);
-
         switch (index)
         {
             case TAB_FAVOURITES:
@@ -757,9 +785,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 Utils.showDevelSorry(this);
             break;
         }
-
-        mCurrentTab = index;
-        mTabs.getChildAt(index).setSelected(true);
     }
 
     private void setCurrentVisibleComponent(int needed)
