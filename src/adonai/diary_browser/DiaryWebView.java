@@ -71,37 +71,21 @@ public class DiaryWebView extends WebView
             mActivity = (DiaryActivity) getContext();
     }
 
-    public void setDefaultSettings()
+    @Override
+    public boolean onTouchEvent(MotionEvent event)
     {
-        WebSettings settings = getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDefaultTextEncodingName("windows-1251");
-        settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUseWideViewPort(false);
-        settings.setLightTouchEnabled(true);
-        //settings.setBuiltInZoomControls(true);
-        //settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-        setWebViewClient(new DiaryWebClient());
-        setOnTouchListener(new webTouchListener());
+        mGestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 
-    // Часть кода относится к кнопке быстрой промотки
-    private class webTouchListener implements OnTouchListener
-    {
-        private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
-        @Override
-        public boolean onTouch(View v, MotionEvent event)
-        {
-            mGestureDetector.onTouchEvent(event);
-            return false;
-        }
+    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
 
-        private class webGestureDetector extends GestureDetector.SimpleOnGestureListener
+    private class webGestureDetector extends GestureDetector.SimpleOnGestureListener
+    {
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
         {
-            @Override
-            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
-            {
-                if(mActivity instanceof DiaryList)
+            if(mActivity instanceof DiaryList)
                 if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
                 {
                     if(distanceY > 90)
@@ -117,9 +101,19 @@ public class DiaryWebView extends WebView
                 }
 
 
-                return false;
-            }
+            return false;
         }
+    }
+
+    public void setDefaultSettings()
+    {
+        WebSettings settings = getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDefaultTextEncodingName("windows-1251");
+        settings.setJavaScriptCanOpenWindowsAutomatically(false);
+        settings.setUseWideViewPort(false);
+        settings.setLightTouchEnabled(true);
+        setWebViewClient(new DiaryWebClient());
     }
 
     private class DiaryWebClient extends WebViewClient
