@@ -10,6 +10,8 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.widget.Toast;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+
 public abstract class DiaryActivity extends Activity implements Callback
 {
     private static final int HANDLE_APP_START = 0;
@@ -23,12 +25,18 @@ public abstract class DiaryActivity extends Activity implements Callback
     UserData mUser;
 
     DiaryWebView mPageBrowser;
+    protected PullToRefreshAttacher mPullToRefreshAttacher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
+        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
+
+        mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
+        mPageBrowser.setDefaultSettings();
+        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
     }
 
     @Override
@@ -107,7 +115,7 @@ public abstract class DiaryActivity extends Activity implements Callback
         try
         {
             int realNum = Integer.parseInt(currSize);
-            mPageBrowser.getRefreshableView().getSettings().setMinimumFontSize(realNum);
+            mPageBrowser.getSettings().setMinimumFontSize(realNum);
         }
         catch (NumberFormatException ex)
         {

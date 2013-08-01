@@ -145,14 +145,14 @@
             android:layout_height="match_parent"
             android:visibility="visible">
 
-            <com.handmark.pulltorefresh.library.PullToRefreshListView
+            <ListView
                 android:id="@+id/diary_browser"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:cacheColorHint="@android:color/transparent"
                 android:divider="@null"
                 >
-            </com.handmark.pulltorefresh.library.PullToRefreshListView>
+            </ListView>
 
             <adonai.diary_browser.DiaryWebView
                 android:id="@+id/page_browser"

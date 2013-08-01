@@ -14,14 +14,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshWebView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+
 @SuppressLint("SetJavaScriptEnabled")
-public class DiaryWebView extends PullToRefreshWebView
+public class DiaryWebView extends WebView
 {
     public static final int MILLIS_TO_FAST_SCROLL = 200;
 
@@ -33,15 +33,29 @@ public class DiaryWebView extends PullToRefreshWebView
     DiaryActivity mActivity;
     int scrolling = 0;
 
+    public PullToRefreshAttacher.OnRefreshListener refresher = new PullToRefreshAttacher.OnRefreshListener()
+    {
+        @Override
+        public void onRefreshStarted(View view)
+        {
+            if(mActivity == null)
+                return;
+
+            if(mActivity instanceof DiaryList)
+                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.mUser.currentDiaryPage.getPageURL(), true));
+            else if(mActivity instanceof UmailList)
+                mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.mUser.currentUmailPage.getPageURL());
+        }
+    };
+
     public DiaryWebView(Context context, AttributeSet attrs)
     {
         super(context, attrs);
         init();
     }
 
-    public DiaryWebView(Context context, Mode mode)
-    {
-        super(context, mode);
+    public DiaryWebView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
         init();
     }
 
@@ -59,7 +73,7 @@ public class DiaryWebView extends PullToRefreshWebView
 
     public void setDefaultSettings()
     {
-        WebSettings settings = getRefreshableView().getSettings();
+        WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
@@ -67,9 +81,8 @@ public class DiaryWebView extends PullToRefreshWebView
         settings.setLightTouchEnabled(true);
         //settings.setBuiltInZoomControls(true);
         //settings.setLayoutAlgorithm(LayoutAlgorithm.SINGLE_COLUMN);
-        getRefreshableView().setWebViewClient(new DiaryWebClient());
-        setOnRefreshListener(new WebPageRefresher());
-        getRefreshableView().setOnTouchListener(new webTouchListener());
+        setWebViewClient(new DiaryWebClient());
+        setOnTouchListener(new webTouchListener());
     }
 
     // Часть кода относится к кнопке быстрой промотки
@@ -118,7 +131,7 @@ public class DiaryWebView extends PullToRefreshWebView
             {
                 final Integer pos = ((DiaryList) mActivity).browserHistory.getPosition();
                 if(pos > 0)
-                    getRefreshableView().scrollTo(0, pos);
+                    scrollTo(0, pos);
             }
         }
 
@@ -216,27 +229,10 @@ public class DiaryWebView extends PullToRefreshWebView
                 }
             }
             if(mActivity instanceof DiaryList)
-                ((DiaryList)mActivity).browserHistory.setPosition(getRefreshableView().getScrollY());
+                ((DiaryList)mActivity).browserHistory.setPosition(getScrollY());
 
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.mUser.currentDiaryPage.getPageURL())));
             return true;
-        }
-    }
-
-    public class WebPageRefresher implements OnRefreshListener<WebView>
-    {
-
-        public void onRefresh(PullToRefreshBase<WebView> refreshView)
-        {
-            switch (refreshView.getId())
-            {
-                case R.id.page_browser:
-                    mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.mUser.currentDiaryPage.getPageURL(), true));
-                    break;
-                case R.id.umessage_browser:
-                    mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.mUser.currentUmailPage.getPageURL());
-                    break;
-            }
         }
     }
 }

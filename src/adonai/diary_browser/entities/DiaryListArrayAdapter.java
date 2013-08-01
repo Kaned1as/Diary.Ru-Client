@@ -31,14 +31,11 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Openable>
         
         TextView title = (TextView) view.findViewById(R.id.title);
         title.setText(diary.getTitle());
-        title.setOnClickListener((OnClickListener) getContext());
         TextView author = (TextView) view.findViewById(R.id.author);
         author.setText(diary.getAuthor());
-        author.setOnClickListener((OnClickListener) getContext());
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
-        last_post.setOnClickListener((OnClickListener) getContext());
-        
+
         if(diary instanceof Umail)
             title.setTextColor(((Umail)diary).isRead() ? Color.BLACK : Color.RED);
         

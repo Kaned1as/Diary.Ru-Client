@@ -2,6 +2,8 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.*;
 import adonai.diary_browser.preferences.PreferencesScreen;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -32,15 +34,12 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
 import android.widget.LinearLayout.LayoutParams;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase.OnRefreshListener;
-import com.handmark.pulltorefresh.library.PullToRefreshListView;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnRefreshListener<ListView>, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener {
+public class DiaryList extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener {
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                               =   0x100;
     static final int HANDLE_UPDATE_HEADERS                            =   0x200;
@@ -70,7 +69,8 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     Button mDiscussNum;
     Button mCommentsNum;
     TextView mUmailNum;
-    PullToRefreshListView mDiaryBrowser;
+    ListView mDiaryBrowser;
+
     ExpandableListView mDiscussionBrowser;
 
     ImageButton mExitButton;
@@ -116,6 +116,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
+        setContentView(R.layout.activity_diary_list_a);
         super.onCreate(savedInstanceState);
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
@@ -124,7 +125,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mUiHandler = new Handler(this);
         CookieSyncManager.createInstance(this);
 
-        setContentView(R.layout.activity_diary_list_a);
         initializeUI();
     }
 
@@ -154,9 +154,25 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         mScrollButton = (ImageButton) findViewById(R.id.updown_button);
         mScrollButton.setOnClickListener(this);
 
-        mDiaryBrowser = (PullToRefreshListView) findViewById(R.id.diary_browser);
-        mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
-        mPageBrowser.setDefaultSettings();
+        mDiaryBrowser = (ListView) findViewById(R.id.diary_browser);
+        mDiaryBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
+        {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
+            {
+                Openable diary = (Openable) mDiaryBrowser.getAdapter().getItem(position);
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(diary.getURL(), false));
+            }
+        });
+        mPullToRefreshAttacher.addRefreshableView(mDiaryBrowser, new PullToRefreshAttacher.OnRefreshListener()
+        {
+            @Override
+            public void onRefreshStarted(View view)
+            {
+                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
+            }
+        });
+
         registerForContextMenu(mPageBrowser);
         mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
         mTabs = (LinearLayout) findViewById(R.id.tabs);
@@ -173,8 +189,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
 
         mUmailNum = (TextView) findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
-
-        mDiaryBrowser.setOnRefreshListener(this);
 
         mDiscussionBrowser.setOnChildClickListener(this);
         mDiscussionBrowser.setOnGroupClickListener(this);
@@ -313,7 +327,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         if(v.getId() == R.id.page_browser)
         {
             Message msg = Message.obtain(mUiHandler, HANDLE_IMAGE_CLICK);
-            mPageBrowser.getRefreshableView().requestImageRef(msg);
+            mPageBrowser.requestImageRef(msg);
         }
     }
 
@@ -402,11 +416,11 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             case Utils.HANDLE_GET_DIARIES_DATA:
                 setCurrentVisibleComponent(PART_LIST);
                 mDiaryBrowser.setAdapter(null);
-                mDiaryBrowser.getRefreshableView().removeFooterView(mDiaryBrowser.getRefreshableView().findViewWithTag("footer"));
+                mDiaryBrowser.removeFooterView(mDiaryBrowser.findViewWithTag("footer"));
                 mFavouritesAdapter = new DiaryListArrayAdapter(DiaryList.this, android.R.layout.simple_list_item_1, mUser.currentDiaries);
                 if(mUser.currentDiaries.getPageLinks() != null)
                 {
-                    LinearLayout LL = new LinearLayout(mDiaryBrowser.getRefreshableView().getContext());
+                    LinearLayout LL = new LinearLayout(mDiaryBrowser.getContext());
                     LL.setTag("footer");
                     Spanned pageLinks = mUser.currentDiaries.getPageLinks();
                     URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
@@ -424,13 +438,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                         LP.height = LayoutParams.MATCH_PARENT;
                         LP.weight = 1.0f;
                     }
-                    mDiaryBrowser.getRefreshableView().addFooterView(LL);
+                    mDiaryBrowser.addFooterView(LL);
                 }
                 handleTabChange(mUser.currentDiaries.getURL());
 
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
                 browserHistory.add(mUser.currentDiaries.getURL());
-                mDiaryBrowser.onRefreshComplete();
+                mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
@@ -439,13 +453,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                 break;
             case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.getRefreshableView().loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
+                mPageBrowser.loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
 
                 browserHistory.add(mUser.currentDiaryPage.getPageURL());
 
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 handleTabChange(mUser.currentDiaryPage.getPageURL());
-                mPageBrowser.onRefreshComplete();
+                mPullToRefreshAttacher.setRefreshComplete();
 
                 if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
                     invalidateOptionsMenu(); // PART_WEB
@@ -460,8 +474,7 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
                     invalidateOptionsMenu(); // PART_DISC_LIST
                 break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
-                mPageBrowser.onRefreshComplete();
-                mDiaryBrowser.onRefreshComplete();
+                mPullToRefreshAttacher.setRefreshComplete();
                 Toast.makeText(getApplicationContext(), getString(R.string.not_authorized), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                 finish();
@@ -656,9 +669,9 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             // Офигительная штука, документации по которой нет.
             // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
             if(mPageBrowser.scrolling == Utils.VIEW_SCROLL_DOWN)
-                mPageBrowser.getRefreshableView().flingScroll(0, 100000);
+                mPageBrowser.flingScroll(0, 100000);
             else
-                mPageBrowser.getRefreshableView().flingScroll(0, -100000);
+                mPageBrowser.flingScroll(0, -100000);
         }
         else if (view == mUmailNum)
         {
@@ -674,22 +687,6 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         {
             handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
         }
-        else
-            switch (view.getId())
-            {
-                // Загружаем посты дневника
-                case R.id.title:
-                {
-                    int pos = mDiaryBrowser.getRefreshableView().getPositionForView((View) view.getParent());
-                    Openable diary = (Openable) mDiaryBrowser.getRefreshableView().getAdapter().getItem(pos);
-
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(diary.getURL(), false));
-                }
-                break;
-                default:
-                    Utils.showDevelSorry(this);
-                break;
-            }
     }
 
     @Override
@@ -896,15 +893,5 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
         postIntent.putExtra("commentContents", comment.serialize());
 
         startActivity(postIntent);
-    }
-
-    public void onRefresh(PullToRefreshBase<ListView> refreshView)
-    {
-        switch (refreshView.getId())
-        {
-            case R.id.diary_browser:
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
-            break;
-        }
     }
 }
