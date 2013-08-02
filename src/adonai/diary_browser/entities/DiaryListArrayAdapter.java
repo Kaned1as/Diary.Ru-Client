@@ -7,14 +7,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class DiaryListArrayAdapter extends ArrayAdapter<Openable>
+public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
 {
     
-    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<Openable> objects)
+    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<ListPage> objects)
     {
         super(context, textViewResourceId, objects);
     }
@@ -23,7 +22,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<Openable>
     public View getView(int pos, View convertView, ViewGroup parent)
     {
         View view;
-        Openable diary = getItem(pos);
+        ListPage diary = getItem(pos);
         if (convertView == null)
             view = View.inflate(getContext(), R.layout.diary_list_item, null);
         else

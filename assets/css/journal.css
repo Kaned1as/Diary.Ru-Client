@@ -52,6 +52,7 @@ iframe
 {
     line-height: 130%;
     text-align: justify;
+    overflow: auto;
 }
 
 .commentAuthor
@@ -158,10 +159,16 @@ iframe
 {
     list-style: none;
     display: inline;
-    white-space: nowrap;
     padding: 0;
     margin: 0 0 0 10px;
 }
+
+/* некоторым не нравится перенос ссылки "В цитатник" */
+postLinks li.addToQuote
+{
+    white-space: nowrap;
+}
+
 /* пока не работают */
 .postLinks li.profile, .postLinks li.quote_comment, .postLinks li.quote_post
 {

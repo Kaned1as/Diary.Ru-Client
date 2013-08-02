@@ -1,6 +1,6 @@
 package adonai.diary_browser.entities;
 
-public class UmailPage extends DiaryWebPage
+public class UmailPage extends WebPage
 {
     private String umail_ID = "";
     private String umail_URL = "";

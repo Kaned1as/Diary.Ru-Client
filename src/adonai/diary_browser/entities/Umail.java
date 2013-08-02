@@ -1,6 +1,6 @@
 package adonai.diary_browser.entities;
 
-public class Umail extends Openable
+public class Umail extends ListPage
 {
     private boolean isRead;
 

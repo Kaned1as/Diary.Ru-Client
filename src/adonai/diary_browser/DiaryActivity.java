@@ -36,6 +36,7 @@ public abstract class DiaryActivity extends Activity implements Callback
 
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
+        registerForContextMenu(mPageBrowser);
         mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
     }
 

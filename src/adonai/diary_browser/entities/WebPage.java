@@ -2,7 +2,7 @@ package adonai.diary_browser.entities;
 
 import org.jsoup.nodes.Document;
 
-public abstract class DiaryWebPage
+public abstract class WebPage
 {
     private Document content = null;
     

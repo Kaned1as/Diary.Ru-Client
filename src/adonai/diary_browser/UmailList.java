@@ -1,7 +1,7 @@
 package adonai.diary_browser;
 
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
-import adonai.diary_browser.entities.Openable;
+import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
@@ -59,7 +59,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
-                Openable uMail = (Openable) mFolderBrowser.getAdapter().getItem(position);
+                ListPage uMail = (ListPage) mFolderBrowser.getAdapter().getItem(position);
                 handleBackground(Utils.HANDLE_OPEN_MAIL, uMail.getURL());
             }
         });

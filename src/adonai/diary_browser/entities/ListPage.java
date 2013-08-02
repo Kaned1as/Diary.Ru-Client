@@ -1,6 +1,6 @@
 package adonai.diary_browser.entities;
 
-public class Openable
+public class ListPage
 {
     private String pageTitle = "", pageUrl = "";
     private String pageAuthor = "", pageAuthorURL = "";
@@ -8,17 +8,7 @@ public class Openable
     private String authorDiaryID = "";
     private String pageHint = "";
 
-    public Openable(String title, String url, String author, String author_url, String last_post, String last_post_url)
-    {
-        pageTitle = title;
-        pageUrl = url;
-        pageAuthor = author;
-        pageAuthorURL = author_url;
-        lastUpdate = last_post;
-        lastUpdateURL = last_post_url;
-    }
-
-    public Openable() 
+    public ListPage()
     {
     }
 

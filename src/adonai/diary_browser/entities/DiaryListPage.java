@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import android.text.Spanned;
 
 
-public class DiaryListPage extends ArrayList<Openable>
+public class DiaryListPage extends ArrayList<ListPage>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;

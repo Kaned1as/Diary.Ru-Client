@@ -187,7 +187,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/list/?act=show&fgroup_id=0", null); // подойдет любая ссылка с дневников
+                    HttpResponse page = mDHCL.postPage(DiaryList.favoritesURL, null); // подойдет любая ссылка с дневников
                     if(page == null)
                         return false;
 
@@ -289,9 +289,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     boolean reload = ((Pair<String, Boolean>) message.obj).second;
                     // Если страничка дневников есть в комментах
                     if(mCache.hasPage(URL) && !reload)
-                    {
                         mUser.currentDiaries = (DiaryListPage) mCache.loadPageFromCache(URL);
-                    }
                     else
                     {
                         HttpResponse page = mDHCL.postPage(URL, null);
@@ -301,7 +299,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                             return false;
                         }
                         String favListPage = EntityUtils.toString(page.getEntity());
-
                         serializeDiaryListPage(favListPage);
                         mCache.putPageToCache(URL, mUser.currentDiaries);
                     }
@@ -311,14 +308,23 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 {
-                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/discussion/", null);
-                    if(page == null)
+                    String URL = ((Pair<String, Boolean>) message.obj).first;
+                    boolean reload = ((Pair<String, Boolean>) message.obj).second;
+
+                    if(mCache.hasPage(URL) && !reload)
+                        mUser.discussions = (DiscListPage) mCache.loadPageFromCache(URL);
+                    else
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
-                        return false;
+                        HttpResponse page = mDHCL.postPage(URL, null);
+                        if(page == null)
+                        {
+                            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                            return false;
+                        }
+                        String dataPage = EntityUtils.toString(page.getEntity());
+                        serializeDiscussionsPage(dataPage);
+                        mCache.putPageToCache(DiaryList.discussionsURL, mUser.discussions);
                     }
-                    String dataPage = EntityUtils.toString(page.getEntity());
-                    serializeDiscussionsPage(dataPage);
 
                     notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
                     return true;
@@ -327,7 +333,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
 
                     int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
-                    DiscList dList = (DiscList) ((ArrayList<?>) message.obj).get(1);
+                    DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
                     boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
 
                     String jsURL = dList.getURL();
@@ -560,7 +566,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     last_post = row.getElementsByClass("withfloat").first();
 
             if (title != null && author != null && last_post != null) {
-                Openable diary = new Openable();
+                ListPage diary = new ListPage();
                 diary.setTitle(title.getElementsByTag("b").text());
                 diary.setURL(title.attr("href"));
 
@@ -752,6 +758,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void serializeDiscussionsPage(String dataPage)
     {
         mUser.discussions.clear();
+        mUser.discussions.setURL(mDHCL.currentURL);
+        
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
@@ -760,7 +768,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element dIndex = rootNode.getElementById("all_bits");
         for (Element item : dIndex.getElementsByTag("h3"))
         {
-            DiscList currentList = new DiscList();
+            DiscPage currentList = new DiscPage();
             Element newPosts = item.getElementsByTag("em").first();
             currentList.setLastUpdate(newPosts.text());
             newPosts.remove();
@@ -774,7 +782,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 
-    private void serializeDiscussions(String dataPage, ArrayList<DiscList.Discussion> destination)
+    private void serializeDiscussions(String dataPage, ArrayList<DiscPage.Discussion> destination)
     {
         destination.clear();
         dataPage = dataPage.replace("\\\"", "\"");
@@ -784,7 +792,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         for (Element discussion : rootNode.getElementsByTag("a"))
         {
-            DiscList.Discussion currentDisc = new DiscList.Discussion();
+            DiscPage.Discussion currentDisc = new DiscPage.Discussion();
             currentDisc.URL = discussion.attr("href");
             currentDisc.title = discussion.text();
             currentDisc.date = discussion.previousElementSibling().text();
@@ -879,7 +887,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void checkUrlAndHandle(String URL, boolean reload)
     {   
         Class<?> handled;
-        DiaryWebPage cachedPage = null;
+        WebPage cachedPage = null;
         String dataPage = null;
 
         try
@@ -894,7 +902,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return;
                 }
 
-                cachedPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
+                if(mCache.loadPageFromCache(URL) instanceof DiscListPage)
+                {
+                    mDHCL.currentURL = URL;
+                    mHandler.sendMessage(mHandler.obtainMessage(Utils.HANDLE_GET_DISCUSSIONS_DATA, new Pair<String, Boolean>(URL, false)));
+                    return;
+                }
+
+                cachedPage = (WebPage) mCache.loadPageFromCache(URL);
                 handled = cachedPage.getClass();
             }
             else
@@ -914,7 +929,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if(cachedPage != null)
                 {
                     mDHCL.currentURL = URL;
-                    mUser.currentDiaryPage = (DiaryWebPage) mCache.loadPageFromCache(URL);
+                    mUser.currentDiaryPage = (WebPage) mCache.loadPageFromCache(URL);
                 }
                 else if(handled == DiaryPage.class)
                 {
@@ -994,7 +1009,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     }
 
     // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foregound-режиме
-    private Notification createNotification(DiaryWebPage page)
+    private Notification createNotification(WebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
         views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getContent().title() != null ? page.getContent().title() : "");

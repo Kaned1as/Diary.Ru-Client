@@ -1,17 +1,18 @@
 package adonai.diary_browser.entities;
 
+
 import java.util.ArrayList;
 
-public class DiscList extends Openable
+public class DiscPage extends ListPage
 {
-    private ArrayList<Discussion> discussions;
-
     public static class Discussion extends Post
     {
 
     }
 
-    public DiscList()
+    private ArrayList<Discussion> discussions;
+
+    public DiscPage()
     {
         setDiscussions(new ArrayList<Discussion>());
     }

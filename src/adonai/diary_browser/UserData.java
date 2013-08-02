@@ -2,8 +2,9 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiaryWebPage;
-import adonai.diary_browser.entities.DiscList;
+import adonai.diary_browser.entities.DiscListPage;
+import adonai.diary_browser.entities.WebPage;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -26,9 +27,9 @@ public class UserData
     // Динамические списки постов
     DiaryListPage currentDiaries;
     DiaryListPage currentUmails;
-    ArrayList<DiscList> discussions;
-    DiaryWebPage currentDiaryPage;
-    DiaryWebPage currentUmailPage;
+    DiscListPage discussions;
+    WebPage currentDiaryPage;
+    WebPage currentUmailPage;
 
     // Личные данные
     String ownDiaryURL = "";
@@ -53,7 +54,7 @@ public class UserData
         currentUmails = new DiaryListPage();
         currentDiaryPage = new DiaryPage();
         currentUmailPage = new DiaryPage();
-        discussions = new ArrayList<DiscList>();
+        discussions = new DiscListPage();
     }
 
     // обновляем контент
