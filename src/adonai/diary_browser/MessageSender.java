@@ -414,7 +414,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     // Пост опубликован, возвращаемся
                     pd.dismiss();
 
-                    Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+                    Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
                     returnIntent.putExtra("url", "");
                     returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(returnIntent);
@@ -449,7 +449,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            Intent returnIntent = new Intent(getApplicationContext(), UmailList.class);
+                            Intent returnIntent = new Intent(getApplicationContext(), UmailListActivity.class);
                             returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                             startActivity(returnIntent);
                             finish();

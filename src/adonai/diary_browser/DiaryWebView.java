@@ -41,9 +41,9 @@ public class DiaryWebView extends WebView
             if(mActivity == null)
                 return;
 
-            if(mActivity instanceof DiaryList)
+            if(mActivity instanceof DiaryListActivity)
                 mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.mUser.currentDiaryPage.getPageURL(), true));
-            else if(mActivity instanceof UmailList)
+            else if(mActivity instanceof UmailListActivity)
                 mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.mUser.currentUmailPage.getPageURL());
         }
     };
@@ -85,18 +85,18 @@ public class DiaryWebView extends WebView
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
         {
-            if(mActivity instanceof DiaryList)
+            if(mActivity instanceof DiaryListActivity)
                 if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
                 {
                     if(distanceY > 90)
                     {
                         scrolling = Utils.VIEW_SCROLL_DOWN;
-                        ((DiaryList)mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
+                        ((DiaryListActivity)mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
                     }
                     else if (distanceY < -90)
                     {
                         scrolling = Utils.VIEW_SCROLL_UP;
-                        ((DiaryList)mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
+                        ((DiaryListActivity)mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
                     }
                 }
 
@@ -121,9 +121,9 @@ public class DiaryWebView extends WebView
         @Override
         public void onPageFinished(WebView view, String url)
         {
-            if(mActivity instanceof DiaryList)
+            if(mActivity instanceof DiaryListActivity)
             {
-                final Integer pos = ((DiaryList) mActivity).browserHistory.getPosition();
+                final Integer pos = ((DiaryListActivity) mActivity).browserHistory.getPosition();
                 if(pos > 0)
                     scrollTo(0, pos);
             }
@@ -222,8 +222,8 @@ public class DiaryWebView extends WebView
                     return true;
                 }
             }
-            if(mActivity instanceof DiaryList)
-                ((DiaryList)mActivity).browserHistory.setPosition(getScrollY());
+            if(mActivity instanceof DiaryListActivity)
+                ((DiaryListActivity)mActivity).browserHistory.setPosition(getScrollY());
 
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.mUser.currentDiaryPage.getPageURL())));
             return true;

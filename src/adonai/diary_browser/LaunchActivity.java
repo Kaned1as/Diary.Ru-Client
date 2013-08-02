@@ -15,7 +15,7 @@ public class LaunchActivity extends Activity {
         
         if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") && 
             !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals(""))
-            startActivity(new Intent(this, DiaryList.class));
+            startActivity(new Intent(this, DiaryListActivity.class));
         else
             startActivity(new Intent(this, AuthorizationForm.class));
         

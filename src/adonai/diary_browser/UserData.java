@@ -12,6 +12,10 @@ import java.util.ArrayList;
 
 public class UserData
 {
+    final String discussionsURL = "http://www.diary.ru/discussion/";
+    final String favoritesURL = "http://www.diary.ru/list/?act=show&fgroup_id=0";
+    final String subscribersURL = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
+
     public interface OnDataChangeListener
     {
         public void handleDataChange();

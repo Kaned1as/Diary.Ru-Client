@@ -187,7 +187,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    HttpResponse page = mDHCL.postPage(DiaryList.favoritesURL, null); // подойдет любая ссылка с дневников
+                    HttpResponse page = mDHCL.postPage(mUser.favoritesURL, null); // подойдет любая ссылка с дневников
                     if(page == null)
                         return false;
 
@@ -219,7 +219,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
                         notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 
-                        Intent intent = new Intent(this, DiaryList.class); // при клике на уведомление открываем приложение
+                        Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
                         mNotificationManager.notify(NOTIFICATION_ID + 1, notification); // запускаем уведомление
@@ -323,7 +323,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         }
                         String dataPage = EntityUtils.toString(page.getEntity());
                         serializeDiscussionsPage(dataPage);
-                        mCache.putPageToCache(DiaryList.discussionsURL, mUser.discussions);
+                        mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
                     }
 
                     notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
@@ -1021,7 +1021,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notification.icon = R.drawable.ic_launcher_inverted;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
 
-        Intent intent = new Intent(this, DiaryList.class);
+        Intent intent = new Intent(this, DiaryListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         return notification;

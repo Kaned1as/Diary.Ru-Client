@@ -10,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import adonai.diary_browser.R;
 
 public class AuthorizationForm extends Activity implements OnClickListener {
 
@@ -56,7 +55,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 			editor.putString(Utils.KEY_PASSWORD, mPassword.getText().toString());
 			editor.commit();
 			
-			startActivity(new Intent(this, DiaryList.class));
+			startActivity(new Intent(this, DiaryListActivity.class));
 			finish();
 			break;
 		default:

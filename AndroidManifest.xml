@@ -20,7 +20,7 @@
             android:label="@string/title_activity_authorization_form" >
         </activity>
         <activity
-            android:name="adonai.diary_browser.DiaryList"
+            android:name=".DiaryListActivity"
             android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -29,7 +29,7 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name="adonai.diary_browser.UmailList" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"/>
+        <activity android:name=".UmailListActivity" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"/>
         <activity
             android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >

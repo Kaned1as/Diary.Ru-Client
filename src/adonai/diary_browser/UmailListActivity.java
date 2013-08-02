@@ -25,7 +25,7 @@ import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-public class UmailList extends DiaryActivity implements OnClickListener
+public class UmailListActivity extends DiaryActivity implements OnClickListener
 {
     private final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
     private final String outFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=2";
@@ -101,7 +101,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
             setCurrentVisibleComponent(PART_LIST);
         else
         {
-            Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+            Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
             returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
             startActivity(returnIntent);
             finish();
@@ -123,7 +123,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 return true;
             case Utils.HANDLE_OPEN_FOLDER:
                 setCurrentVisibleComponent(PART_LIST);
-                mFolderAdapter = new DiaryListArrayAdapter(UmailList.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
+                mFolderAdapter = new DiaryListArrayAdapter(UmailListActivity.this, android.R.layout.simple_list_item_1, mUser.currentUmails);
                 mFolderBrowser.removeFooterView(mFolderBrowser.findViewWithTag("footer"));
                 if(mUser.currentUmails.getPageLinks() != null)
                 {
@@ -137,7 +137,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
                         click.setTag(url.getURL());
-                        click.setOnClickListener(UmailList.this);
+                        click.setOnClickListener(UmailListActivity.this);
                         LL.addView(click);
 
                         LayoutParams LP = (LayoutParams) click.getLayoutParams();
@@ -166,7 +166,7 @@ public class UmailList extends DiaryActivity implements OnClickListener
                 {
                     if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
                     {
-                        Intent returnIntent = new Intent(getApplicationContext(), DiaryList.class);
+                        Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
                         returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         returnIntent.putExtra("url", ((Pair<?, ?>)message.obj).first.toString());
                         startActivity(returnIntent);
