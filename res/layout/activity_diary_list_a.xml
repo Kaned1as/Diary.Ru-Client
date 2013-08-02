@@ -151,7 +151,7 @@
                 android:layout_height="match_parent"
                 android:cacheColorHint="@android:color/transparent"
                 android:divider="@null"
-                >
+                android:listSelector="@drawable/list_item_selector">
             </ListView>
 
             <adonai.diary_browser.DiaryWebView

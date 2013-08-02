@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="diary">#ffed9f65</color>
+    <color name="diary_pressed">#ffed6c38</color>
+    <color name="transparent">#00000000</color>
+</resources>

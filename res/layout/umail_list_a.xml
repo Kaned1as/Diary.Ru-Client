@@ -53,7 +53,7 @@
             android:cacheColorHint="@android:color/transparent"
             android:divider="@null"
             android:background="#edd8bd"
-            >
+            android:listSelector="@drawable/list_item_selector">
         </ListView>
 
         <adonai.diary_browser.DiaryWebView
