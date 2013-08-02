@@ -608,13 +608,13 @@ public class DiaryList extends DiaryActivity implements OnClickListener, OnChild
             mCurrentTab = 1;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         }
-        else if(url.equals(mUser.ownDiaryURL) || url.equals(mUser.newDiaryLink))
+        else if(url.equals(mUser.ownDiaryURL) || mUser.newDiaryLink.startsWith(url))
         {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 2;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         }
-        else if(url.equals(discussionsURL) || url.startsWith(mUser.newDiscussLink))
+        else if(url.equals(discussionsURL) || mUser.newDiscussLink.startsWith(url))
         {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 3;

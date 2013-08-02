@@ -554,7 +554,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Elements rows = table.getElementsByTag("td");
         Element title = null, author = null, last_post = null;
-        for (Element row : rows) {
+        for (Element row : rows)
+        {
             if (title == null && row.hasClass("l"))
                 title = row.getElementsByClass("withfloat").first();
 
@@ -759,7 +760,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         mUser.discussions.clear();
         mUser.discussions.setURL(mDHCL.currentURL);
-        
+
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
