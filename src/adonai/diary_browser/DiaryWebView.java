@@ -128,7 +128,15 @@ public class DiaryWebView extends WebView
             {
                 final Integer pos = ((DiaryListActivity) mActivity).browserHistory.getPosition();
                 if(pos > 0)
-                    scrollTo(0, pos);
+                    view.postDelayed(new Runnable()
+                    {
+                        @Override
+                        public void run()
+                        {
+                            scrollTo(0, pos);
+                        }
+                    }, 1000);
+
             }
         }
 
