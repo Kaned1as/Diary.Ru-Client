@@ -1194,14 +1194,6 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                                     pd.setTitle(R.string.loading);
                                     pd.setMessage(getString(R.string.sending_data));
                                     pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                                    pd.setOnCancelListener(new DialogInterface.OnCancelListener()
-                                    {
-                                        @Override
-                                        public void onCancel(DialogInterface dialog)
-                                        {
-                                            mDHCL.abort();
-                                        }
-                                    });
                                     pd.show();
                                     mHandler.sendMessage(msg);
                                 }
