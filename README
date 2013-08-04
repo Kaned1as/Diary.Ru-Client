@@ -1,4 +1,7 @@
-This program uses native html parsing with data retrieved from site. It is in early-early alpha right now.
+Android client for site @Diaries www.diary.ru
+Андроид-клиент для сайта @Дневники www,diary.ru
+
+This program uses native html parsing with data retrieved from site. It is in release state right now.
 
 License: GPLv3
 
@@ -7,6 +10,6 @@ Used programs:
 # Проект элемента интерфейса для выбора цвета - используется при выставлении градиента тексту
 git clone https://github.com/brk3/android-color-picker.git Android-ColorPicker
 
-# Проект элементов интерфейса "потяни для обновления" - используется здесь в списках и веб-формах
-git clone https://github.com/chrisbanes/Android-PullToRefresh.git Android-PullToRefresh # у этого проекта необходимо выставить JDK Compliance mode 1.5
+# Проект элементов интерфейса "потяни для обновления" - используется здесь в списках и веб-формах - спасибо Chris Banes
+git clone https://github.com/chrisbanes/ActionBar-PullToRefresh.git ActionBar-PullToRefresh # у этого проекта необходимо выставить JDK Compliance mode 1.5
 

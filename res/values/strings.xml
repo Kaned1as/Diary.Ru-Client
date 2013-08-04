@@ -129,4 +129,8 @@
     <string name="webview_font_size">Font size</string>
     <string name="webview_font_size_sum">Minimum font size for web views</string>
     <string name="invalid_number">Invalid number</string>
+    <string name="pack_inoriginal">Original</string>
+    <string name="pack_inmore">In [more]</string>
+    <string name="pack_inlink">In link</string>
+    <string name="howto_send_img">How to place image?</string>
 </resources>

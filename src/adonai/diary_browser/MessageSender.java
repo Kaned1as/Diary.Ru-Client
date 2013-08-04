@@ -368,7 +368,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                             ContentBody cbFile = new FileBody(file, "image/*");
                             mpEntity.addPart("module", new StringBody("photolib"));
                             mpEntity.addPart("signature", new StringBody(mSignature));
-                            mpEntity.addPart("resulttype1", new StringBody("2"));
+                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
                             mpEntity.addPart("attachment1", cbFile);
 
                             HttpResponse response = mDHCL.postPage(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
@@ -1148,9 +1148,39 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 
                     try
                     {
-                        Toast.makeText(this, getString(R.string.sending_data), Toast.LENGTH_SHORT).show();
                         if (file != null)
-                            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_UPLOAD_FILE, file.getCanonicalPath()));
+                        {
+                            final Message msg = mHandler.obtainMessage(HANDLE_UPLOAD_FILE, file.getCanonicalPath());
+                            msg.arg1 = 3;
+                            AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(MessageSender.this);
+                            DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    switch(which)
+                                    {
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            msg.arg1 = 1;
+                                            break;
+                                        case DialogInterface.BUTTON_NEUTRAL:
+                                            msg.arg1 = 2;
+                                            break;
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                        default:
+                                            msg.arg1 = 3;
+                                            break;
+                                    }
+                                    Toast.makeText(MessageSender.this, getString(R.string.sending_data), Toast.LENGTH_SHORT).show();
+                                    mHandler.sendMessage(msg);
+                                }
+                            };
+                            origOrMoreOrLink.setTitle(R.string.howto_send_img);
+                            origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
+                            origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
+                            origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
+                            origOrMoreOrLink.create().show();
+                        }
                         else
                             Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
                     } catch (IOException e)

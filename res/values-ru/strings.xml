@@ -150,4 +150,8 @@
     <string name="webview_font_size">Размер шрифта</string>
     <string name="webview_font_size_sum">Минимальный размер шрифта на вебформах</string>
     <string name="invalid_number">Неверное число</string>
+    <string name="pack_inoriginal">Как есть</string>
+    <string name="pack_inmore">В [more]</string>
+    <string name="pack_inlink">В превью</string>
+    <string name="howto_send_img">Как разместить изображение?</string>
 </resources>
