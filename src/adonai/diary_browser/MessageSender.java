@@ -63,6 +63,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     private static final int HANDLE_REQUEST_AVATARS = 5;
     private static final int HANDLE_SET_AVATAR      = 6;
     private static final int HANDLE_UPLOAD_FILE     = 7;
+    private static final int HANDLE_PROGRESS        = 8;
 
     ImageButton mLeftGradient;
     ImageButton mRightGradient;
@@ -103,7 +104,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
 
     Handler mHandler, mUiHandler;
     Looper mLooper;
-    ProgressDialog pd = null;
+    ProgressDialog pd;
 
     LinearLayout mAvatars;
     List<View> postElements = new ArrayList<View>();
@@ -114,9 +115,9 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     List<View> pollScheme = new ArrayList<View>();
     List<NameValuePair> postParams;
 
-    String mSignature = null;
-    String mId = null;
-    String mTypeId = null;
+    String mSignature;
+    String mId;
+    String mTypeId;
     SparseArray<Object> avatarMap;
 
     DiaryHttpClient mDHCL;
@@ -363,9 +364,19 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         try
                         {
                             File file = new File((String) message.obj);
-
+                            final long length = file.length();
                             MultipartEntity mpEntity = new MultipartEntity();
-                            ContentBody cbFile = new FileBody(file, "image/*");
+                            ContentBody cbFile = new DiaryHttpClient.CountingFileBody(file, "image/*", new DiaryHttpClient.ProgressListener()
+                            {
+                                long decade;
+
+                                @Override
+                                public void transferred(long transferredBytes)
+                                {
+                                    long percent = (transferredBytes * 100) / length;
+                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_PROGRESS, (int)percent));
+                                }
+                            });
                             mpEntity.addPart("module", new StringBody("photolib"));
                             mpEntity.addPart("signature", new StringBody(mSignature));
                             mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
@@ -377,8 +388,11 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                             {
                                 String result = EntityUtils.toString(resEntity);
                                 result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
-                                if(!result.isEmpty())
+                                if(result.length() > 0)
+                                {
                                     mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_UPLOAD_FILE, result));
+                                    pd.dismiss();
+                                }
                                 else
                                     Toast.makeText(MessageSender.this, getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                                 //resEntity.consumeContent();
@@ -478,6 +492,9 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
                     break;
                 }
+                case HANDLE_PROGRESS:
+                    pd.setProgress((int)message.obj);
+                    break;
                 default:
                     break;
             }
@@ -1171,7 +1188,21 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                                             msg.arg1 = 3;
                                             break;
                                     }
-                                    Toast.makeText(MessageSender.this, getString(R.string.sending_data), Toast.LENGTH_SHORT).show();
+
+                                    pd = new ProgressDialog(MessageSender.this);
+                                    pd.setIndeterminate(false);
+                                    pd.setTitle(R.string.loading);
+                                    pd.setMessage(getString(R.string.sending_data));
+                                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                    pd.setOnCancelListener(new DialogInterface.OnCancelListener()
+                                    {
+                                        @Override
+                                        public void onCancel(DialogInterface dialog)
+                                        {
+                                            mDHCL.abort();
+                                        }
+                                    });
+                                    pd.show();
                                     mHandler.sendMessage(msg);
                                 }
                             };

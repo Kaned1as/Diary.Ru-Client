@@ -154,4 +154,5 @@
     <string name="pack_inmore">В [more]</string>
     <string name="pack_inlink">В превью</string>
     <string name="howto_send_img">Как разместить изображение?</string>
+    <string name="upload_progress">Загружено:</string>
 </resources>

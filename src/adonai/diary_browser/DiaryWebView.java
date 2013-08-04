@@ -20,6 +20,9 @@ import java.net.URLDecoder;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
+// не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
+// Это была шутка.
+// Если что, я не хотел обидеть никаких печальных разработчиков
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends WebView
 {
@@ -146,14 +149,7 @@ public class DiaryWebView extends WebView
                         {
                             mActivity.handleBackground(Utils.HANDLE_DELETE_POST, id);
                         }
-                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            dialog.dismiss();
-                        }
-                    });
+                    }).setNegativeButton(android.R.string.no, null);
 
                     builder.create().show();
                     return true;
@@ -171,14 +167,7 @@ public class DiaryWebView extends WebView
                         {
                             mActivity.handleBackground(Utils.HANDLE_DELETE_COMMENT, id);
                         }
-                    }).setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener()
-                    {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
-                            dialog.dismiss();
-                        }
-                    });
+                    }).setNegativeButton(android.R.string.no, null);
 
                     builder.create().show();
                     return true;
