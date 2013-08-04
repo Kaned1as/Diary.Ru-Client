@@ -566,9 +566,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if (row.className().equals(""))
                     last_post = row.getElementsByClass("withfloat").first();
 
-            if (title != null && author != null && last_post != null) {
+            if (title != null && author != null && last_post != null)
+            {
                 ListPage diary = new ListPage();
                 diary.setTitle(title.getElementsByTag("b").text());
+                diary.setPageHint(title.getElementsByTag("em").text());
                 diary.setURL(title.attr("href"));
 
                 diary.setAuthor(author.text());

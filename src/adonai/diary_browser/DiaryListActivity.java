@@ -156,6 +156,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mScrollButton.setOnClickListener(this);
 
         mDiaryBrowser = (ListView) findViewById(R.id.diary_browser);
+        mDiaryBrowser.setOnItemLongClickListener(this);
         mDiaryBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
             @Override
@@ -740,7 +741,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
     {
-        if(parent instanceof ExpandableListView)
+        if(parent == mDiscussionBrowser)
         {
             ExpandableListView elv = (ExpandableListView) parent;
             if(ExpandableListView.getPackedPositionType(id) != ExpandableListView.PACKED_POSITION_TYPE_GROUP)
@@ -759,6 +760,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, params);
             return true;
         }
+
+        if(parent == mDiaryBrowser)
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
+            builder.setMessage(diary.getPageHint()).create().show();
+        }
+
         return false;
     }
 
