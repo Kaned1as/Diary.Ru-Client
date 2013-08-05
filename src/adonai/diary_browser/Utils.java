@@ -30,6 +30,7 @@ public class Utils
     static final int HANDLE_EDIT_POST                               =  10 | DIARY_HANDLERS_MASK;
     static final int HANDLE_DELETE_COMMENT                          =  11 | DIARY_HANDLERS_MASK;
     static final int HANDLE_EDIT_COMMENT                            =  12 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_UPLOAD_FILE                             =  13 | DIARY_HANDLERS_MASK;
 
 
     static final int UMAIL_HANDLERS_MASK                            = 0x20000000;

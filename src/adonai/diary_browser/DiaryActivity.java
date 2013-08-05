@@ -34,11 +34,6 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
         mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
-
-        mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
-        mPageBrowser.setDefaultSettings();
-        registerForContextMenu(mPageBrowser);
-        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
     }
 
     @Override

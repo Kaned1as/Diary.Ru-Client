@@ -4,16 +4,24 @@ import adonai.diary_browser.entities.*;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SlidingPaneLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -66,6 +74,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     DiscListArrayAdapter mDiscussionsAdapter;
 
     // Видимые объекты
+    SlidingPaneLayout slider;
+    Fragment mainPane;
+    MessageSender message;
+
     TextView mLogin;
     Button mDiscussNum;
     Button mCommentsNum;
@@ -117,8 +129,43 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        setContentView(R.layout.activity_diary_list_a);
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_diary_main);
+        slider = (SlidingPaneLayout) findViewById(R.id.slider);
+        slider.setPanelSlideListener(new SlidingPaneLayout.PanelSlideListener()
+        {
+
+            @Override
+            public void onPanelSlide(View view, float v)
+            {
+            }
+
+            @Override
+            public void onPanelOpened(View view)
+            {
+
+                if(view == mainPane.getView())
+                {
+                        mainPane.setHasOptionsMenu(true);
+                        message.setHasOptionsMenu(false);
+                }
+                else if(view == message.getView())
+                {
+                    mainPane.setHasOptionsMenu(false);
+                    message.setHasOptionsMenu(true);
+                }
+            }
+
+            @Override
+            public void onPanelClosed(View view)
+            {
+
+            }
+        });
+
+        mainPane = getSupportFragmentManager().findFragmentById(R.id.main_pane);
+        message = new MessageSender();
+
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
         browserHistory = new BrowseHistory();
@@ -126,7 +173,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mUiHandler = new Handler(this);
         CookieSyncManager.createInstance(this);
 
-        initializeUI();
+        initializeUI(mainPane.getView());
     }
 
 
@@ -136,7 +183,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
     }
 
-    public void initializeUI()
+    public void initializeUI(View main)
     {
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
             getActionBar().setHomeButtonEnabled(true);
@@ -144,18 +191,23 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         gMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
 
-        mLogin = (TextView) findViewById(R.id.login_name);
+        mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
+        mPageBrowser.setDefaultSettings();
+        registerForContextMenu(mPageBrowser);
+        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
 
-        mExitButton = (ImageButton) findViewById(R.id.exit_button);
+        mLogin = (TextView) main.findViewById(R.id.login_name);
+
+        mExitButton = (ImageButton) main.findViewById(R.id.exit_button);
         mExitButton.setOnClickListener(this);
-        mQuotesButton = (ImageButton) findViewById(R.id.quotes_button);
+        mQuotesButton = (ImageButton) main.findViewById(R.id.quotes_button);
         mQuotesButton.setOnClickListener(this);
-        mUmailButton = (ImageButton) findViewById(R.id.umail_button);
+        mUmailButton = (ImageButton) main.findViewById(R.id.umail_button);
         mUmailButton.setOnClickListener(this);
-        mScrollButton = (ImageButton) findViewById(R.id.updown_button);
+        mScrollButton = (ImageButton) main.findViewById(R.id.updown_button);
         mScrollButton.setOnClickListener(this);
 
-        mDiaryBrowser = (ListView) findViewById(R.id.diary_browser);
+        mDiaryBrowser = (ListView) main.findViewById(R.id.diary_browser);
         mDiaryBrowser.setOnItemLongClickListener(this);
         mDiaryBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -175,7 +227,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             }
         });
 
-        mDiscussionBrowser = (ExpandableListView) findViewById(R.id.discussion_browser);
+        mDiscussionBrowser = (ExpandableListView) main.findViewById(R.id.discussion_browser);
         mPullToRefreshAttacher.addRefreshableView(mDiscussionBrowser, new PullToRefreshAttacher.OnRefreshListener()
         {
             @Override
@@ -185,7 +237,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             }
         });
 
-        mTabs = (LinearLayout) findViewById(R.id.tabs);
+        mTabs = (LinearLayout) main.findViewById(R.id.tabs);
         for(int i = 0; i < mTabs.getChildCount(); i++)
         {
             Button current = (Button) mTabs.getChildAt(i);
@@ -193,10 +245,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             current.setOnLongClickListener(this);
         }
 
-        mCommentsNum = (Button) findViewById(R.id.diary_button);
-        mDiscussNum = (Button) findViewById(R.id.discussions_button);
+        mCommentsNum = (Button) main.findViewById(R.id.diary_button);
+        mDiscussNum = (Button) main.findViewById(R.id.discussions_button);
 
-        mUmailNum = (TextView) findViewById(R.id.umail_counter);
+        mUmailNum = (TextView) main.findViewById(R.id.umail_counter);
         mUmailNum.setOnClickListener(this);
 
         mDiscussionBrowser.setOnChildClickListener(this);
@@ -323,6 +375,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case android.R.id.home:
                 return onSearchRequested();
+            case R.id.menu_special_paste:
+                DialogFragment newFragment = PasteSelector.newInstance();
+                newFragment.show(getSupportFragmentManager(), "selector");
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -838,12 +894,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         int visibility = mTabs.getVisibility();
         if(visibility == View.GONE)
         {
-            findViewById(R.id.upperDeck).setVisibility(View.VISIBLE);
+            mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.VISIBLE);
             mTabs.setVisibility(View.VISIBLE);
         }
         else
         {
-            findViewById(R.id.upperDeck).setVisibility(View.GONE);
+            mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.GONE);
             mTabs.setVisibility(View.GONE);
         }
 
@@ -865,7 +921,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
 
-        startActivity(postIntent);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.slider, message);
+        transaction.commit();
     }
 
     public void newCommentPost()
@@ -883,7 +941,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         postIntent.putExtra("signature", mUser.signature);
         postIntent.putExtra("sendURL", ((CommentsPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
 
-        startActivity(postIntent);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.slider, message);
+        transaction.commit();
     }
 
     public void editPost(Post post)
@@ -897,7 +957,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
         postIntent.putExtra("postContents", post.serialize());
 
-        startActivity(postIntent);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.slider, message);
+        transaction.commit();
     }
 
     public void editComment(Comment comment)
@@ -911,6 +973,83 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
         postIntent.putExtra("commentContents", comment.serialize());
 
-        startActivity(postIntent);
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.add(R.id.slider, message);
+        transaction.commit();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        switch (requestCode) {
+            case 0:
+                if (resultCode == Activity.RESULT_OK)
+                {
+                    Uri uri = data.getData();
+                    File file = null;
+                    if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme()))
+                    {
+                        String[] projection = { "_data" };
+                        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+                        int column_index = cursor.getColumnIndex("_data");
+                        if (cursor.moveToFirst())
+                            file = new File(cursor.getString(column_index));
+
+                    }
+                    else if ("file".equalsIgnoreCase(uri.getScheme()))
+                        file = new File(uri.getPath());
+
+                    try
+                    {
+                        if (file != null)
+                        {
+                            final Message msg = message.mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
+                            msg.arg1 = 3;
+                            AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(DiaryListActivity.this);
+                            DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    switch(which)
+                                    {
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            msg.arg1 = 1;
+                                            break;
+                                        case DialogInterface.BUTTON_NEUTRAL:
+                                            msg.arg1 = 2;
+                                            break;
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                        default:
+                                            msg.arg1 = 3;
+                                            break;
+                                    }
+
+                                    pd = new ProgressDialog(DiaryListActivity.this);
+                                    pd.setIndeterminate(false);
+                                    pd.setTitle(R.string.loading);
+                                    pd.setMessage(getString(R.string.sending_data));
+                                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                    pd.show();
+                                    message.mHandler.sendMessage(msg);
+                                }
+                            };
+                            origOrMoreOrLink.setTitle(R.string.howto_send_img);
+                            origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
+                            origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
+                            origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
+                            origOrMoreOrLink.create().show();
+                        }
+                        else
+                            Toast.makeText(DiaryListActivity.this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e)
+                    {
+                        Toast.makeText(DiaryListActivity.this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

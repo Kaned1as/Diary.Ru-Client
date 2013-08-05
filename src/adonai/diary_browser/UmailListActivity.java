@@ -49,9 +49,15 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
-        setContentView(R.layout.umail_list_a);
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
+
+        setContentView(R.layout.umail_list_a);
+
+        mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
+        mPageBrowser.setDefaultSettings();
+        registerForContextMenu(mPageBrowser);
+        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
 
         mFolderBrowser = (ListView) findViewById(R.id.ufolder_browser);
         mFolderBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()

@@ -2,6 +2,8 @@ package adonai.diary_browser;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
+
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -19,13 +21,17 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.*;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentTransaction;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.*;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -52,7 +58,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-public class MessageSender extends FragmentActivity implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener, PasteSelector.PasteAcceptor
+public class MessageSender extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener, PasteSelector.PasteAcceptor
 {
 
     private static final int HANDLE_DO_POST 		= 0;
@@ -62,7 +68,6 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     private static final int HANDLE_UMAIL_REJ 		= 4;
     private static final int HANDLE_REQUEST_AVATARS = 5;
     private static final int HANDLE_SET_AVATAR      = 6;
-    private static final int HANDLE_UPLOAD_FILE     = 7;
     private static final int HANDLE_PROGRESS        = 8;
 
     ImageButton mLeftGradient;
@@ -118,6 +123,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     String mSignature;
     String mId;
     String mTypeId;
+    NetworkService mService;
     SparseArray<Object> avatarMap;
 
     DiaryHttpClient mDHCL;
@@ -128,9 +134,12 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
     @Override
-    protected void onCreate(Bundle savedInstanceState)
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        super.onCreate(savedInstanceState);
+        mService = NetworkService.getInstance(getActivity());
+        assert(mService != null);
+
+        View sender = inflater.inflate(R.layout.message_sender_a, container, false);
         mPost = new Post();
         postParams = new ArrayList<NameValuePair>();
 
@@ -140,62 +149,60 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
         mHandler = new Handler(mLooper, HttpCallback);
         mUiHandler = new Handler(UiCallback);
 
-        setContentView(R.layout.message_sender_a);
+        toText = (EditText) sender.findViewById(R.id.message_to);
+        mGetReceipt = (CheckBox) sender.findViewById(R.id.message_getreceipt);
+        mCopyMessage = (CheckBox) sender.findViewById(R.id.message_copy);
 
-        toText = (EditText) findViewById(R.id.message_to);
-        mGetReceipt = (CheckBox) findViewById(R.id.message_getreceipt);
-        mCopyMessage = (CheckBox) findViewById(R.id.message_copy);
-
-        titleText = (EditText) findViewById(R.id.message_title);
-        contentText = (EditText) findViewById(R.id.message_content);
-        themesText = (EditText) findViewById(R.id.message_themes);
-        musicText = (EditText) findViewById(R.id.message_music);
-        moodText = (EditText) findViewById(R.id.message_mood);
-        mPublish = (Button) findViewById(R.id.message_publish);
+        titleText = (EditText) sender.findViewById(R.id.message_title);
+        contentText = (EditText) sender.findViewById(R.id.message_content);
+        themesText = (EditText) sender.findViewById(R.id.message_themes);
+        musicText = (EditText) sender.findViewById(R.id.message_music);
+        moodText = (EditText) sender.findViewById(R.id.message_mood);
+        mPublish = (Button) sender.findViewById(R.id.message_publish);
         mPublish.setOnClickListener(this);
 
-        mLeftGradient = (ImageButton) findViewById(R.id.left_gradient);
+        mLeftGradient = (ImageButton) sender.findViewById(R.id.left_gradient);
         mLeftGradient.setOnClickListener(this);
-        mRightGradient = (ImageButton) findViewById(R.id.right_gradient);
+        mRightGradient = (ImageButton) sender.findViewById(R.id.right_gradient);
         mRightGradient.setOnClickListener(this);
-        mSetGradient = (Button) findViewById(R.id.set_gradient);
+        mSetGradient = (Button) sender.findViewById(R.id.set_gradient);
         mSetGradient.setOnClickListener(this);
 
-        mPollTitle = (EditText) findViewById(R.id.message_poll_title);
-        mPollChoice1 = (EditText) findViewById(R.id.message_poll_1);
-        mPollChoice2 = (EditText) findViewById(R.id.message_poll_2);
-        mPollChoice3 = (EditText) findViewById(R.id.message_poll_3);
-        mPollChoice4 = (EditText) findViewById(R.id.message_poll_4);
-        mPollChoice5 = (EditText) findViewById(R.id.message_poll_5);
-        mPollChoice6 = (EditText) findViewById(R.id.message_poll_6);
-        mPollChoice7 = (EditText) findViewById(R.id.message_poll_7);
-        mPollChoice8 = (EditText) findViewById(R.id.message_poll_8);
-        mPollChoice9 = (EditText) findViewById(R.id.message_poll_9);
-        mPollChoice10 = (EditText) findViewById(R.id.message_poll_10);
+        mPollTitle = (EditText) sender.findViewById(R.id.message_poll_title);
+        mPollChoice1 = (EditText) sender.findViewById(R.id.message_poll_1);
+        mPollChoice2 = (EditText) sender.findViewById(R.id.message_poll_2);
+        mPollChoice3 = (EditText) sender.findViewById(R.id.message_poll_3);
+        mPollChoice4 = (EditText) sender.findViewById(R.id.message_poll_4);
+        mPollChoice5 = (EditText) sender.findViewById(R.id.message_poll_5);
+        mPollChoice6 = (EditText) sender.findViewById(R.id.message_poll_6);
+        mPollChoice7 = (EditText) sender.findViewById(R.id.message_poll_7);
+        mPollChoice8 = (EditText) sender.findViewById(R.id.message_poll_8);
+        mPollChoice9 = (EditText) sender.findViewById(R.id.message_poll_9);
+        mPollChoice10 = (EditText) sender.findViewById(R.id.message_poll_10);
 
-        mCloseOpts = (RadioGroup) findViewById(R.id.close_opts);
+        mCloseOpts = (RadioGroup) sender.findViewById(R.id.close_opts);
         mCloseOpts.setOnCheckedChangeListener(this);
-        mCloseAllowList = (EditText) findViewById(R.id.close_allowed_list);
-        mCloseDenyList = (EditText) findViewById(R.id.close_denied_list);
-        mCloseText = (EditText) findViewById(R.id.close_text);
+        mCloseAllowList = (EditText) sender.findViewById(R.id.close_allowed_list);
+        mCloseDenyList = (EditText) sender.findViewById(R.id.close_denied_list);
+        mCloseText = (EditText) sender.findViewById(R.id.close_text);
 
-        mCustomAvatar = (CheckBox) findViewById(R.id.message_custom_avatar);
-        mAvatars = (LinearLayout) findViewById(R.id.message_avatars);
+        mCustomAvatar = (CheckBox) sender.findViewById(R.id.message_custom_avatar);
+        mAvatars = (LinearLayout) sender.findViewById(R.id.message_avatars);
         mCustomAvatar.setOnCheckedChangeListener(this);
 
-        mShowOptionals = (CheckBox) findViewById(R.id.message_optional);
+        mShowOptionals = (CheckBox) sender.findViewById(R.id.message_optional);
         mShowOptionals.setOnCheckedChangeListener(this);
-        mShowPoll = (CheckBox) findViewById(R.id.message_poll);
+        mShowPoll = (CheckBox) sender.findViewById(R.id.message_poll);
         mShowPoll.setOnCheckedChangeListener(this);
-        mSubscribe = (CheckBox) findViewById(R.id.message_subscribe);
-        mShowAndClose = (CheckBox) findViewById(R.id.message_close);
+        mSubscribe = (CheckBox) sender.findViewById(R.id.message_subscribe);
+        mShowAndClose = (CheckBox) sender.findViewById(R.id.message_close);
         mShowAndClose.setOnCheckedChangeListener(this);
 
-        optionals.add(findViewById(R.id.message_themes_hint));
+        optionals.add(sender.findViewById(R.id.message_themes_hint));
         optionals.add(themesText);
-        optionals.add(findViewById(R.id.message_music_hint));
+        optionals.add(sender.findViewById(R.id.message_music_hint));
         optionals.add(musicText);
-        optionals.add(findViewById(R.id.message_mood_hint));
+        optionals.add(sender.findViewById(R.id.message_mood_hint));
         optionals.add(moodText);
 
         pollScheme.add(mPollTitle);
@@ -210,58 +217,46 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
         pollScheme.add(mPollChoice9);
         pollScheme.add(mPollChoice10);
 
-        commentElements.add(findViewById(R.id.message_content_hint));
-        commentElements.add(findViewById(R.id.message_specials));
+        commentElements.add(sender.findViewById(R.id.message_content_hint));
+        commentElements.add(sender.findViewById(R.id.message_specials));
         commentElements.add(contentText);
         commentElements.add(mSubscribe);
 
-        postElements.add(findViewById(R.id.message_title_hint));
+        postElements.add(sender.findViewById(R.id.message_title_hint));
         postElements.add(titleText);
-        postElements.add(findViewById(R.id.message_content_hint));
-        postElements.add(findViewById(R.id.message_specials));
+        postElements.add(sender.findViewById(R.id.message_content_hint));
+        postElements.add(sender.findViewById(R.id.message_specials));
         postElements.add(contentText);
         postElements.add(mShowOptionals);
         postElements.add(mShowAndClose);
         postElements.add(mShowPoll);
 
-        umailElements.add(findViewById(R.id.message_to_hint));
+        umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
-        umailElements.add(findViewById(R.id.message_title_hint));
+        umailElements.add(sender.findViewById(R.id.message_title_hint));
         umailElements.add(titleText);
-        umailElements.add(findViewById(R.id.message_content_hint));
-        umailElements.add(findViewById(R.id.message_specials));
+        umailElements.add(sender.findViewById(R.id.message_content_hint));
+        umailElements.add(sender.findViewById(R.id.message_specials));
         umailElements.add(contentText);
         umailElements.add(mGetReceipt);
         umailElements.add(mCopyMessage);
+
+        return sender;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu)
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.message_sender_a, menu);
 
-        return super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        switch(item.getItemId())
-        {
-            case R.id.menu_special_paste:
-                DialogFragment newFragment = PasteSelector.newInstance();
-                newFragment.show(getSupportFragmentManager(), "selector");
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onDestroy()
+    public void onDestroyView()
     {
         mLooper.quit();
-        super.onDestroy();
+        super.onDestroyView();
     }
 
     Handler.Callback HttpCallback = new Handler.Callback()
@@ -356,10 +351,10 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     {
                         String URL = "http://www.diary.ru/options/member/?avatar";
                         mDHCL.postPage(URL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
-                        Toast.makeText(getApplicationContext(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
                     }
-                    case HANDLE_UPLOAD_FILE:
+                    case Utils.HANDLE_UPLOAD_FILE:
                     {
                         try
                         {
@@ -390,16 +385,16 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                                 result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
                                 if(result.length() > 0)
                                 {
-                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_UPLOAD_FILE, result));
+                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, result));
                                     pd.dismiss();
                                 }
                                 else
-                                    Toast.makeText(MessageSender.this, getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                                    Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                                 //resEntity.consumeContent();
                             }
                         } catch (Exception e)
                         {
-                            Toast.makeText(MessageSender.this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
                         }
                         return true;
                     }
@@ -428,17 +423,15 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     // Пост опубликован, возвращаемся
                     pd.dismiss();
 
-                    Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
-                    returnIntent.putExtra("url", "");
-                    returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(returnIntent);
-                    finish();
+                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    transaction.remove(MessageSender.this);
+                    transaction.commit();
                     break;
                 }
                 case HANDLE_UMAIL_ACK:
                 {
                     pd.dismiss();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageSender.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(android.R.string.ok).setCancelable(false).setMessage(R.string.message_send_ok);
                     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
                     {
@@ -446,7 +439,9 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            finish();
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.remove(MessageSender.this);
+                            transaction.commit();
                         }
                     });
                     builder.create().show();
@@ -455,7 +450,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                 case HANDLE_UMAIL_REJ:
                 {
                     pd.dismiss();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MessageSender.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                     builder.setTitle(android.R.string.no).setCancelable(false).setMessage(R.string.message_send_error);
                     builder.setPositiveButton(android.R.string.no, new DialogInterface.OnClickListener()
                     {
@@ -463,10 +458,9 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            Intent returnIntent = new Intent(getApplicationContext(), UmailListActivity.class);
-                            returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                            startActivity(returnIntent);
-                            finish();
+                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+                            transaction.remove(MessageSender.this);
+                            transaction.commit();
                         }
                     });
                     builder.create().show();
@@ -476,7 +470,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                 {
                     for(int i = 0; i < avatarMap.size(); i++)
                     {
-                        ImageButton current = new ImageButton(MessageSender.this);
+                        ImageButton current = new ImageButton(getActivity());
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSender.this);
@@ -485,7 +479,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     pd.dismiss();
                     break;
                 }
-                case HANDLE_UPLOAD_FILE:
+                case Utils.HANDLE_UPLOAD_FILE:
                 {
                     int cursorPos = contentText.getSelectionStart();
                     contentText.setText(contentText.getText().toString().substring(0, cursorPos) + message.obj + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
@@ -506,7 +500,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
     /* (non-Javadoc)
      * @see android.app.Activity#onStart()
      */
-    @Override
+    /*@Override
     protected void onStart()
     {
         super.onStart();
@@ -605,7 +599,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
             mPost.deserialize(intent.getStringExtra("postContents"));
             prepareUi((Post) mPost);
         }
-    }
+    }*/
 
     private void prepareUi(Comment comment)
     {
@@ -686,12 +680,12 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                 // Добавляем параметры из настроек
                 postParams.add(new BasicNameValuePair("signature", mSignature));
                 postParams.add(new BasicNameValuePair("action", "dosend"));
-                pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, false);
+                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, false);
 
                 // Если пост
                 if(mTypeId.equals("DiaryId"))
                 {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
@@ -705,7 +699,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     if(mShowOptionals.isChecked())
                     {
-                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.tags", "")));
+                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + mService.mPreferences.getString("post.tags", "")));
                         postParams.add(new BasicNameValuePair("current_music", musicText.getText().toString()));
                         postParams.add(new BasicNameValuePair("current_mood", moodText.getText().toString()));
                     }
@@ -891,7 +885,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                 }
                 else if(mTypeId.equals("PostId"))  // если коммент
                 {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
@@ -937,7 +931,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                 }
                 else if(mTypeId.equals("umailTo"))  // если почта
                 {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + NetworkService.getInstance(this).mPreferences.getString("post.signature", "")));
+                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("module", "umail"));
                     postParams.add(new BasicNameValuePair("act", "umail_send"));
                     postParams.add(new BasicNameValuePair("from_folder", ""));
@@ -955,7 +949,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
             {
                 final ImageButton imgbutton = (ImageButton) view;
                 int oldColor = getColorFromPicture(imgbutton);
-                AmbilWarnaDialog dialog = new AmbilWarnaDialog(MessageSender.this, oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener()
+                AmbilWarnaDialog dialog = new AmbilWarnaDialog(getActivity(), oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener()
                 {
                     public void onOk(AmbilWarnaDialog dialog, int color)
                     {
@@ -1043,7 +1037,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                     mAvatars.setVisibility(View.VISIBLE);
                     if(avatarMap == null)
                     {
-                        pd = ProgressDialog.show(MessageSender.this, getString(R.string.loading), getString(R.string.sending_data), true, true);
+                        pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, true);
                         mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
                     }
                 }
@@ -1081,7 +1075,7 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
         if(cursorPos == -1)
             cursorPos = contentText.getText().length();
 
-        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         CharSequence paste = clipboard.getText();
         if(paste == null || !pasteClipboard)
             paste = "";
@@ -1135,85 +1129,10 @@ public class MessageSender extends FragmentActivity implements OnClickListener, 
                         startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), 0);
                     } catch (android.content.ActivityNotFoundException ex)
                     {
-                        Toast.makeText(this, getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
                     }
                 break;
             }
         }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data)
-    {
-        switch (requestCode) {
-            case 0:
-                if (resultCode == RESULT_OK)
-                {
-                    Uri uri = data.getData();
-                    File file = null;
-                    if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme()))
-                    {
-                        String[] projection = { "_data" };
-                        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-                        int column_index = cursor.getColumnIndex("_data");
-                        if (cursor.moveToFirst())
-                            file = new File(cursor.getString(column_index));
-
-                    }
-                    else if ("file".equalsIgnoreCase(uri.getScheme()))
-                        file = new File(uri.getPath());
-
-                    try
-                    {
-                        if (file != null)
-                        {
-                            final Message msg = mHandler.obtainMessage(HANDLE_UPLOAD_FILE, file.getCanonicalPath());
-                            msg.arg1 = 3;
-                            AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(MessageSender.this);
-                            DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener()
-                            {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which)
-                                {
-                                    switch(which)
-                                    {
-                                        case DialogInterface.BUTTON_NEGATIVE:
-                                            msg.arg1 = 1;
-                                            break;
-                                        case DialogInterface.BUTTON_NEUTRAL:
-                                            msg.arg1 = 2;
-                                            break;
-                                        case DialogInterface.BUTTON_POSITIVE:
-                                        default:
-                                            msg.arg1 = 3;
-                                            break;
-                                    }
-
-                                    pd = new ProgressDialog(MessageSender.this);
-                                    pd.setIndeterminate(false);
-                                    pd.setTitle(R.string.loading);
-                                    pd.setMessage(getString(R.string.sending_data));
-                                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                                    pd.show();
-                                    mHandler.sendMessage(msg);
-                                }
-                            };
-                            origOrMoreOrLink.setTitle(R.string.howto_send_img);
-                            origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
-                            origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
-                            origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
-                            origOrMoreOrLink.create().show();
-                        }
-                        else
-                            Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
-                    } catch (IOException e)
-                    {
-                        Toast.makeText(this, getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
-                    }
-                }
-                break;
-        }
-
-        super.onActivityResult(requestCode, resultCode, data);
     }
 }
