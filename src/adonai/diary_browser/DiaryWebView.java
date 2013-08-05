@@ -197,12 +197,8 @@ public class DiaryWebView extends WebView
                 {
                     try
                     {
-                        Intent postIntent = new Intent(getContext(), MessageSenderFragment.class);
-                        postIntent.putExtra("TypeId", "umailTo");
-                        postIntent.putExtra("umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"));
-                        postIntent.putExtra("signature", mActivity.mUser.signature);
-                        postIntent.putExtra("sendURL", "http://www.diary.ru/diary.php");
-                        getContext().startActivity(postIntent);
+                        mActivity.messagePane.prepareFragment(mActivity.mUser.signature, "http://www.diary.ru/diary.php", "umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"), null);
+                        mActivity.slider.openPane();
                     }
                     catch (UnsupportedEncodingException e)
                     {

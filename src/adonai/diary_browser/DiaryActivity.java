@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
@@ -16,6 +17,10 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 public abstract class DiaryActivity extends FragmentActivity implements Callback
 {
     private static final int HANDLE_APP_START = 0;
+
+    DiarySlidePane slider;
+    DiaryFragment mainPane;
+    MessageSenderFragment messagePane;
 
     Handler mUiHandler;
     NetworkService mService;

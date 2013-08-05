@@ -1,9 +1,5 @@
 package adonai.diary_browser;
 
-import adonai.diary_browser.entities.*;
-import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -19,7 +15,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.Html;
 import android.text.Spanned;
@@ -27,8 +22,11 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.view.*;
+import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -36,15 +34,33 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.*;
+import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
+import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.ExpandableListView.OnGroupClickListener;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+
+import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.CommentsPage;
+import adonai.diary_browser.entities.DiaryListArrayAdapter;
+import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.DiscListArrayAdapter;
+import adonai.diary_browser.entities.DiscPage;
+import adonai.diary_browser.entities.ListPage;
+import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.preferences.PreferencesScreen;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
 {
@@ -71,11 +87,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     DiscListArrayAdapter mDiscussionsAdapter;
-
-    // Видимые объекты
-    DiarySlidePane slider;
-    DiaryListFragment mainPane;
-    MessageSenderFragment messagePane;
 
     TextView mLogin;
     Button mDiscussNum;
@@ -827,9 +838,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     public void onBackPressed()
     {
-        slider.closePane();
-
-        if(browserHistory.hasPrevious())
+        if(slider.isOpen())
+            slider.closePane();
+        else if(browserHistory.hasPrevious())
         {
             browserHistory.moveBack();
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(browserHistory.getUrl(), false));

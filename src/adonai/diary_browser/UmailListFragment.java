@@ -8,13 +8,11 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class UmailListFragment extends Fragment
+public class UmailListFragment extends DiaryFragment
 {
-    int mCurrentComponent = 1;
-    UserData mUser;
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        mCurrentComponent = 1;
         this.setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_umail, container, false);
     }

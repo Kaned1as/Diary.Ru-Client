@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -11,11 +10,8 @@ import android.view.ViewGroup;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
 
-public class DiaryListFragment extends Fragment
+public class DiaryListFragment extends DiaryFragment
 {
-    int mCurrentComponent = 0;
-    UserData mUser;
-
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         setHasOptionsMenu(true);

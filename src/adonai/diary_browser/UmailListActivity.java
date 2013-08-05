@@ -1,12 +1,5 @@
 package adonai.diary_browser;
 
-import adonai.diary_browser.entities.DiaryListArrayAdapter;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
-
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,7 +10,9 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.view.*;
+import android.view.ContextThemeWrapper;
+import android.view.MenuItem;
+import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -26,6 +21,12 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
+
+import adonai.diary_browser.entities.DiaryListArrayAdapter;
+import adonai.diary_browser.entities.ListPage;
+import adonai.diary_browser.entities.UmailPage;
+import adonai.diary_browser.preferences.PreferencesScreen;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener
 {
@@ -37,11 +38,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
     static final int PART_WEB = 0;
     static final int PART_LIST = 1;
-
-    // Видимые объекты
-    DiarySlidePane slider;
-    UmailListFragment mainPane;
-    MessageSenderFragment messagePane;
 
     ListView mFolderBrowser;
     DiaryListArrayAdapter mFolderAdapter;
@@ -138,7 +134,9 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     @Override
     public void onBackPressed()
     {
-        if(mainPane.mCurrentComponent == PART_WEB)
+        if(slider.isOpen())
+            slider.closePane();
+        else if(mainPane.mCurrentComponent == PART_WEB)
             setCurrentVisibleComponent(PART_LIST);
         else
         {
