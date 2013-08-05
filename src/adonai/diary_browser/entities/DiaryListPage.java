@@ -8,7 +8,7 @@ public class DiaryListPage extends ArrayList<ListPage>
 {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
-    private String pageURL = null;
+    private String pageURL = "";
 
     public Spanned getPageLinks()
     {

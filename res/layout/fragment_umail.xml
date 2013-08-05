@@ -1,0 +1,68 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+
+    <TabWidget
+        android:id="@+id/folder_selector"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:measureWithLargestChild="false"
+        android:minHeight="30dip"
+        android:background="#edd8bd"
+        android:paddingTop="5dp">
+
+        <TextView
+            android:id="@+id/incoming"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
+            android:gravity="center"
+            android:tag="0"
+            android:text="@string/incoming_mail"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/outcoming"
+            android:layout_width="wrap_content"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:background="@android:drawable/btn_default"
+            android:gravity="center"
+            android:tag="0"
+            android:text="@string/outcoming_mail"
+            android:textStyle="bold"/>
+
+    </TabWidget>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#800000"/>
+    <FrameLayout
+        android:id="@android:id/tabcontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <ListView
+            android:id="@+id/ufolder_browser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
+            android:divider="@null"
+            android:background="#edd8bd"
+            android:listSelector="@drawable/list_item_selector">
+        </ListView>
+
+        <adonai.diary_browser.DiaryWebView
+            android:id="@+id/page_browser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+        </adonai.diary_browser.DiaryWebView>
+    </FrameLayout>
+
+  
+
+</LinearLayout>

@@ -18,7 +18,7 @@ public class DiaryListFragment extends Fragment
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        this.setHasOptionsMenu(true);
+        setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_diary_list, container, false);
     }
 

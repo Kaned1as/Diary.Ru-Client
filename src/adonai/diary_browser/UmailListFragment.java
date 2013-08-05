@@ -1,0 +1,46 @@
+package adonai.diary_browser;
+
+import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+public class UmailListFragment extends Fragment
+{
+    int mCurrentComponent = 0;
+    UserData mUser;
+
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+    {
+        this.setHasOptionsMenu(true);
+        return inflater.inflate(R.layout.fragment_umail, container, false);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
+    {
+        inflater.inflate(R.menu.umail_list_a, menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu)
+    {
+
+        // Только если это письмо из папки входящих
+        if(mCurrentComponent == UmailListActivity.PART_WEB && mUser.currentUmails.getURL().equals(UmailListActivity.inFolderAddress)) // Если мы в папке "входящие"
+        {
+            menu.findItem(R.id.menu_reply_umail).setVisible(true);
+        }
+        else
+        {
+            menu.findItem(R.id.menu_reply_umail).setVisible(false);
+        }
+
+        super.onPrepareOptionsMenu(menu);
+    }
+}

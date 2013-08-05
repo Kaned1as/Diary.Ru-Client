@@ -30,7 +30,11 @@
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
         </activity>
-        <activity android:name=".UmailListActivity" android:label="@string/umail_activity_title" android:configChanges="keyboard|keyboardHidden|orientation|screenSize" android:launchMode="singleTask"/>
+        <activity android:name="adonai.diary_browser.UmailListActivity"
+                  android:label="@string/umail_activity_title"
+                  android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+                  android:windowSoftInputMode="stateHidden"
+                  android:launchMode="singleTask"/>
         <activity
             android:name="adonai.diary_browser.LaunchActivity"
             android:label="@string/title_activity_launch" >
