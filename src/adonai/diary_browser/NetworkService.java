@@ -487,7 +487,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Post result = new Post();
 
         result.title = rootNode.select("input#postTitle.text").val();
-        result.content = rootNode.select("textarea#messagePane").text();
+        result.content = rootNode.select("textarea#message").text();
 
         result.themes = rootNode.select("input#tags.text").val();
         result.mood = rootNode.select("input#atMood.text").val();
@@ -524,7 +524,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Comment serializeCommentEditPage(String dataPage)
     {
         notifyListeners(Utils.HANDLE_PROGRESS, null);
-        Element rootNode = Jsoup.parse(dataPage).select("textarea#messagePane").first(); // выбираем окошко с текстом
+        Element rootNode = Jsoup.parse(dataPage).select("textarea#message").first(); // выбираем окошко с текстом
         Comment result = new Comment();
 
         result.content = rootNode.text();

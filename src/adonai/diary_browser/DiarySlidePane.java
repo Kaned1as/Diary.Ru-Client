@@ -24,11 +24,6 @@ public class DiarySlidePane extends SlidingPaneLayout
         super(context, attrs, defStyle);
     }
 
-    public boolean isSlideRestrict()
-    {
-        return slideRestrict;
-    }
-
     @Override
     public boolean closePane()
     {

@@ -497,6 +497,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mTypeId = typeId;
         mId = id;
 
+        titleText.setText("");
+        contentText.setText("");
+
+        mShowOptionals.setChecked(false);
+        mShowPoll.setChecked(false);
+        mShowAndClose.setChecked(false);
+        mCustomAvatar.setChecked(false);
+
         // Если это пост
         if(mTypeId.equals("DiaryId"))
         {

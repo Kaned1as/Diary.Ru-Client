@@ -164,23 +164,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 if(pd != null)
                     pd.setMessage(getString(R.string.parsing_data));
                 return true;
-            /*
-            default:
-                super.handleMessage(messagePane);
-                pd.dismiss();
-                if((messagePane.what & Utils.DIARY_HANDLERS_MASK) != 0 && messagePane.obj instanceof Pair) // Если это команда для другой активности
-                {
-                    if(((Pair<?, ?>)messagePane.obj).first instanceof String) // Если это запрос на страничку
-                    {
-                        Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
-                        returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        returnIntent.putExtra("url", ((Pair<?, ?>)messagePane.obj).first.toString());
-                        startActivity(returnIntent);
-                        finish();
-                    }
-                }
-                return false;
-                */
         }
 
         super.handleMessage(message);
