@@ -38,8 +38,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     static final int PART_WEB = 0;
     static final int PART_LIST = 1;
 
-    private int mCurrentComponent = 1;
-
     // Видимые объекты
     DiarySlidePane slider;
     UmailListFragment mainPane;
@@ -140,7 +138,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     @Override
     public void onBackPressed()
     {
-        if(mCurrentComponent == PART_WEB)
+        if(mainPane.mCurrentComponent == PART_WEB)
             setCurrentVisibleComponent(PART_LIST);
         else
         {
@@ -281,6 +279,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     {   
         mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
         mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
-        mCurrentComponent = needed;
+        mainPane.mCurrentComponent = needed;
     }
 }

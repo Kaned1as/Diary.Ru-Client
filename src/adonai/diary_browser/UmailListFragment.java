@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 
 public class UmailListFragment extends Fragment
 {
-    int mCurrentComponent = 0;
+    int mCurrentComponent = 1;
     UserData mUser;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -30,7 +30,6 @@ public class UmailListFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu(Menu menu)
     {
-
         // Только если это письмо из папки входящих
         if(mCurrentComponent == UmailListActivity.PART_WEB && mUser.currentUmails.getURL().equals(UmailListActivity.inFolderAddress)) // Если мы в папке "входящие"
         {
