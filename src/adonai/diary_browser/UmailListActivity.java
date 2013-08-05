@@ -52,7 +52,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
 
-        setContentView(R.layout.umail_list_a);
+        setContentView(R.layout.activity_umail);
 
         mPageBrowser = (DiaryWebView) findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
@@ -166,15 +166,15 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 return true;
             /*
             default:
-                super.handleMessage(message);
+                super.handleMessage(messagePane);
                 pd.dismiss();
-                if((message.what & Utils.DIARY_HANDLERS_MASK) != 0 && message.obj instanceof Pair) // Если это команда для другой активности
+                if((messagePane.what & Utils.DIARY_HANDLERS_MASK) != 0 && messagePane.obj instanceof Pair) // Если это команда для другой активности
                 {
-                    if(((Pair<?, ?>)message.obj).first instanceof String) // Если это запрос на страничку
+                    if(((Pair<?, ?>)messagePane.obj).first instanceof String) // Если это запрос на страничку
                     {
                         Intent returnIntent = new Intent(getApplicationContext(), DiaryListActivity.class);
                         returnIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        returnIntent.putExtra("url", ((Pair<?, ?>)message.obj).first.toString());
+                        returnIntent.putExtra("url", ((Pair<?, ?>)messagePane.obj).first.toString());
                         startActivity(returnIntent);
                         finish();
                     }
@@ -185,6 +185,12 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
         super.handleMessage(message);
         return true;
+    }
+
+    @Override
+    protected void onFragmentRemove(boolean reload)
+    {
+
     }
 
     public void onClick(View view)
@@ -267,7 +273,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
     private void newUmail(String receiver)
     {
-        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
+        Intent postIntent = new Intent(getApplicationContext(), MessageSenderFragment.class);
 
         postIntent.putExtra("TypeId", "umailTo");
         postIntent.putExtra("umailTo", receiver);

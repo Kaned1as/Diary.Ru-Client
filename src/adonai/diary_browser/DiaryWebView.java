@@ -197,7 +197,7 @@ public class DiaryWebView extends WebView
                 {
                     try
                     {
-                        Intent postIntent = new Intent(getContext(), MessageSender.class);
+                        Intent postIntent = new Intent(getContext(), MessageSenderFragment.class);
                         postIntent.putExtra("TypeId", "umailTo");
                         postIntent.putExtra("umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"));
                         postIntent.putExtra("signature", mActivity.mUser.signature);

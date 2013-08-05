@@ -118,6 +118,7 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
         {
             Toast.makeText(this, R.string.invalid_number, Toast.LENGTH_SHORT);
         }
-
     }
+
+    protected abstract void onFragmentRemove(boolean reload);
 }

@@ -3,14 +3,11 @@ package adonai.diary_browser;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -18,17 +15,13 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.*;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -39,7 +32,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
@@ -49,7 +41,6 @@ import org.jsoup.select.Elements;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,7 +49,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
-public class MessageSender extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener, PasteSelector.PasteAcceptor
+public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
 
     private static final int HANDLE_DO_POST 		= 0;
@@ -81,6 +72,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
     EditText musicText;
     EditText moodText;
     Button mPublish;
+    Button mCancel;
     CheckBox mShowOptionals;
     CheckBox mShowPoll;
     CheckBox mSubscribe;
@@ -88,6 +80,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
     CheckBox mGetReceipt;
     CheckBox mCopyMessage;
     CheckBox mCustomAvatar;
+    TextView mTitle;
 
     EditText mPollTitle;
     EditText mPollChoice1;
@@ -124,22 +117,17 @@ public class MessageSender extends Fragment implements OnClickListener, android.
     String mId;
     String mTypeId;
     NetworkService mService;
+
     SparseArray<Object> avatarMap;
 
     DiaryHttpClient mDHCL;
     String mSendURL;
     Comment mPost;
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onCreate(android.os.Bundle)
-     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        mService = NetworkService.getInstance(getActivity());
-        assert(mService != null);
-
-        View sender = inflater.inflate(R.layout.message_sender_a, container, false);
+        View sender = inflater.inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
         postParams = new ArrayList<NameValuePair>();
 
@@ -159,7 +147,10 @@ public class MessageSender extends Fragment implements OnClickListener, android.
         musicText = (EditText) sender.findViewById(R.id.message_music);
         moodText = (EditText) sender.findViewById(R.id.message_mood);
         mPublish = (Button) sender.findViewById(R.id.message_publish);
+        mCancel = (Button) sender.findViewById(R.id.message_cancel);
+        mTitle = (TextView) sender.findViewById(R.id.fragment_title);
         mPublish.setOnClickListener(this);
+        mCancel.setOnClickListener(this);
 
         mLeftGradient = (ImageButton) sender.findViewById(R.id.left_gradient);
         mLeftGradient.setOnClickListener(this);
@@ -423,9 +414,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                     // Пост опубликован, возвращаемся
                     pd.dismiss();
 
-                    FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    transaction.remove(MessageSender.this);
-                    transaction.commit();
+                    closeMe(true);
                     break;
                 }
                 case HANDLE_UMAIL_ACK:
@@ -439,9 +428,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.remove(MessageSender.this);
-                            transaction.commit();
+                            closeMe(false);
                         }
                     });
                     builder.create().show();
@@ -458,9 +445,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                         @Override
                         public void onClick(DialogInterface dialog, int which)
                         {
-                            FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
-                            transaction.remove(MessageSender.this);
-                            transaction.commit();
+                            closeMe(false);
                         }
                     });
                     builder.create().show();
@@ -473,7 +458,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                         ImageButton current = new ImageButton(getActivity());
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(avatarMap.keyAt(i));
-                        current.setOnClickListener(MessageSender.this);
+                        current.setOnClickListener(MessageSenderFragment.this);
                         mAvatars.addView(current);
                     }
                     pd.dismiss();
@@ -497,34 +482,25 @@ public class MessageSender extends Fragment implements OnClickListener, android.
         }
     };
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onStart()
-     */
-    /*@Override
-    protected void onStart()
+    public void prepareFragment(String signature, String sendURL, String typeId, String id, String contents)
     {
-        super.onStart();
-        Intent intent = getIntent();
+        mService = NetworkService.getInstance(getActivity());
+        assert(mService != null);
 
-        if(NetworkService.getInstance(this) == null)
-        {
-            finish();
-            return;
-        }
+        mDHCL = mService.mDHCL;
 
         // обязательно
-        mDHCL = NetworkService.getInstance(this).mDHCL;
-        mSignature = intent.getStringExtra("signature");
-        mSendURL = intent.getStringExtra("sendURL");
+        mSignature = signature;
+        mSendURL = sendURL;
 
         // одно из двух
-        mTypeId = intent.getStringExtra("TypeId");
-        mId = intent.getStringExtra(mTypeId);
+        mTypeId = typeId;
+        mId = id;
 
         // Если это пост
         if(mTypeId.equals("DiaryId"))
         {
-            setTitle(R.string.new_post);
+            mTitle.setText(R.string.new_post);
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -537,7 +513,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
         }
         else if (mTypeId.equals("PostId")) // если это комментарий
         {
-            setTitle(R.string.new_comment);
+            mTitle.setText(R.string.new_comment);
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -551,7 +527,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
         }
         else if(mTypeId.equals("umailTo")) // Если почта
         {
-            setTitle(R.string.new_umail);
+            mTitle.setText(R.string.new_umail);
 
             for(View v : commentElements)
                 v.setVisibility(View.GONE);
@@ -567,7 +543,7 @@ public class MessageSender extends Fragment implements OnClickListener, android.
         }
         else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
         {
-            setTitle(R.string.edit_comment);
+            mTitle.setText(R.string.edit_comment);
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -579,12 +555,12 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                 v.setVisibility(View.VISIBLE);
 
             mPost = new Comment();
-            mPost.deserialize(intent.getStringExtra("commentContents"));
+            mPost.deserialize(contents);
             prepareUi(mPost);
         }
         else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
         {
-            setTitle(R.string.edit_post);
+            mTitle.setText(R.string.edit_post);
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -596,10 +572,10 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                 v.setVisibility(View.VISIBLE);
 
             mPost = new Post();
-            mPost.deserialize(intent.getStringExtra("postContents"));
+            mPost.deserialize(contents);
             prepareUi((Post) mPost);
         }
-    }*/
+    }
 
     private void prepareUi(Comment comment)
     {
@@ -672,6 +648,9 @@ public class MessageSender extends Fragment implements OnClickListener, android.
 
         switch(view.getId())
         {
+            case R.id.message_cancel:
+                closeMe(false);
+                break;
             case R.id.message_publish:
             {
                 // TODO: Сохранение в черновики
@@ -921,8 +900,6 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                     postParams.add(new BasicNameValuePair("open_uri", ""));
 
                     postParams.add(new BasicNameValuePair("write_from", "0"));
-                    //postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
-                    //postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
 
                     postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
                     postParams.add(new BasicNameValuePair("attachment1", ""));
@@ -1068,7 +1045,6 @@ public class MessageSender extends Fragment implements OnClickListener, android.
     }
 
     @SuppressWarnings("deprecation")
-    @Override
     public void acceptDialogClick(View view, boolean pasteClipboard)
     {
         int cursorPos = contentText.getSelectionStart();
@@ -1134,5 +1110,11 @@ public class MessageSender extends Fragment implements OnClickListener, android.
                 break;
             }
         }
+    }
+
+    private void closeMe(boolean reload)
+    {
+        if(getActivity() instanceof  DiaryActivity)
+            ((DiaryActivity)getActivity()).onFragmentRemove(reload);
     }
 }

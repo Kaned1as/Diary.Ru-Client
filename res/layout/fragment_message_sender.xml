@@ -2,13 +2,20 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/scroll"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content" >
+    android:layout_height="match_parent" >
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical" >
+
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:id="@+id/fragment_title"
+                android:layout_gravity="center"/>
 
         <TextView
             android:id="@+id/message_to_hint"
@@ -34,7 +41,7 @@
             android:layout_height="wrap_content"
             android:text="@string/message_title" />
 
-    <EditText
+        <EditText
         android:id="@+id/message_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -360,20 +367,41 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/horizontalScrollView">
-            <LinearLayout
-            android:id="@+id/message_avatars"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" >
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:id="@+id/message_avatars"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" >
 
-            </LinearLayout>
+                </LinearLayout>
         </HorizontalScrollView>
 
-        <Button
-        android:id="@+id/message_publish"
-        android:layout_width="165dp"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:text="@string/message_publish" />
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="left|center_vertical"
+                android:layout_marginTop="20dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp">
 
-</LinearLayout>
+            <Button
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@android:string/cancel"
+                    android:id="@+id/message_cancel"
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center_horizontal"/>
+
+            <Button
+                    android:id="@+id/message_publish"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:text="@string/message_publish"
+                    android:layout_weight="1"
+                    android:layout_margin="5dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
     </ScrollView>

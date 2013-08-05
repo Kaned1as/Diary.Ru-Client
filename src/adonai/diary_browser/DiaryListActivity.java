@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.text.Html;
@@ -47,7 +46,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener {
+public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
+{
 
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                               =   0x100;
@@ -63,20 +63,19 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public static final int TAB_DISCUSSIONS = 3;
 
     int mCurrentTab = 0;
-    int mCurrentComponent = 0;
 
-    private static final int PART_LIST = 0;
-    private static final int PART_WEB = 1;
-    private static final int PART_DISC_LIST = 2;
+    static final int PART_LIST = 0;
+    static final int PART_WEB = 1;
+    static final int PART_DISC_LIST = 2;
 
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     DiscListArrayAdapter mDiscussionsAdapter;
 
     // Видимые объекты
-    SlidingPaneLayout slider;
-    Fragment mainPane;
-    MessageSender message;
+    DiarySlidePane slider;
+    DiaryListFragment mainPane;
+    MessageSenderFragment messagePane;
 
     TextView mLogin;
     Button mDiscussNum;
@@ -126,45 +125,39 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
     };
 
+    SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener()
+    {
+        @Override
+        public void onPanelSlide(View view, float v)
+        {
+        }
+
+        @Override
+        public void onPanelOpened(View view)
+        {
+            messagePane.setHasOptionsMenu(true);
+            mainPane.setHasOptionsMenu(false);
+        }
+
+        @Override
+        public void onPanelClosed(View view)
+        {
+            messagePane.setHasOptionsMenu(false);
+            mainPane.setHasOptionsMenu(true);
+        }
+    };
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
-        slider = (SlidingPaneLayout) findViewById(R.id.slider);
-        slider.setPanelSlideListener(new SlidingPaneLayout.PanelSlideListener()
-        {
+        slider = (DiarySlidePane) findViewById(R.id.slider);
+        slider.setPanelSlideListener(sliderListener);
+        slider.setSliderFadeColor(getResources().getColor(R.color.diary));
 
-            @Override
-            public void onPanelSlide(View view, float v)
-            {
-            }
-
-            @Override
-            public void onPanelOpened(View view)
-            {
-
-                if(view == mainPane.getView())
-                {
-                        mainPane.setHasOptionsMenu(true);
-                        message.setHasOptionsMenu(false);
-                }
-                else if(view == message.getView())
-                {
-                    mainPane.setHasOptionsMenu(false);
-                    message.setHasOptionsMenu(true);
-                }
-            }
-
-            @Override
-            public void onPanelClosed(View view)
-            {
-
-            }
-        });
-
-        mainPane = getSupportFragmentManager().findFragmentById(R.id.main_pane);
-        message = new MessageSender();
+        mainPane = (DiaryListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
+        messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
 
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
@@ -268,60 +261,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu)
-    {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.diary_list_a, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu)
-    {
-        // Только если это дневник
-        if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
-        {
-            menu.findItem(R.id.menu_tags).setVisible(true);
-            menu.findItem(R.id.menu_new_post).setVisible(true);
-        }
-        else
-        {
-            menu.findItem(R.id.menu_tags).setVisible(false);
-            menu.findItem(R.id.menu_new_post).setVisible(false);
-        }
-
-        // Только если это пост
-        if(mCurrentComponent == PART_WEB && mUser.currentDiaryPage.getClass().equals(CommentsPage.class))
-            menu.findItem(R.id.menu_new_comment).setVisible(true);
-        else
-            menu.findItem(R.id.menu_new_comment).setVisible(false);
-
-
-        // Для всех веб-страничек
-        if(mCurrentComponent == PART_WEB)
-            menu.setGroupVisible(R.id.group_web, true);
-        else
-            menu.setGroupVisible(R.id.group_web, false);
-
-        // Для всех списков
-        if(mCurrentComponent == PART_LIST)
-        {
-            menu.findItem(R.id.menu_share).setVisible(false);
-            menu.findItem(R.id.menu_subscr_list).setVisible(true);
-        }
-        else
-        {
-            menu.findItem(R.id.menu_share).setVisible(true);
-            menu.findItem(R.id.menu_subscr_list).setVisible(false);
-        }
-
-
-
-        return super.onPrepareOptionsMenu(menu);
-    }
-
     // старые телефоны тоже должны работать
     @SuppressWarnings("deprecation")
     @Override
@@ -420,6 +359,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_START:
                 mService.addListener(this);
                 mUser.setOnDataChangeListener(this);
+                mainPane.mUser = mUser;
+
+
 
                 if(pageToLoad != null && mUser.isAuthorised)
                 {
@@ -512,8 +454,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
-                    invalidateOptionsMenu();
+                supportInvalidateOptionsMenu();
 
                 break;
             case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
@@ -526,8 +467,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 setTitle(mUser.currentDiaryPage.getContent().title());
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
-                    invalidateOptionsMenu(); // PART_WEB
+                supportInvalidateOptionsMenu(); // PART_WEB
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 setCurrentVisibleComponent(PART_DISC_LIST);
@@ -537,8 +477,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 browserHistory.add(mUser.discussions.getURL());
                 handleTabChange(mUser.discussions.getURL());
 
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) 
-                    invalidateOptionsMenu(); // PART_DISC_LIST
+                supportInvalidateOptionsMenu(); // PART_DISC_LIST
                 break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 mPullToRefreshAttacher.setRefreshComplete();
@@ -643,6 +582,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         super.handleMessage(message);
         return true;
+    }
+
+    @Override
+    protected void onFragmentRemove(boolean reload)
+    {
+        slider.closePane();
+        if(reload)
+            reloadContent();
     }
 
     private void handleTabChange(String url)
@@ -866,20 +813,22 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
         mDiscussionBrowser.setVisibility(needed == PART_DISC_LIST ? View.VISIBLE : View.GONE);
 
-        mCurrentComponent = needed;
+        mainPane.mCurrentComponent = needed;
     }
 
     private void reloadContent()
     {
-        if(mCurrentComponent == PART_WEB)
+        if(mainPane.mCurrentComponent == PART_WEB)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
-        else if (mCurrentComponent == PART_LIST)
+        else if (mainPane.mCurrentComponent == PART_LIST)
             handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.favoritesURL, true));
     }
 
     @Override
     public void onBackPressed()
     {
+        slider.closePane();
+
         if(browserHistory.hasPrevious())
         {
             browserHistory.moveBack();
@@ -913,17 +862,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if(((DiaryPage)mUser.currentDiaryPage).getDiaryID().equals(""))
             return;
 
-        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-
-        postIntent.putExtra("TypeId", "DiaryId");
-        postIntent.putExtra("DiaryId", ((DiaryPage)mUser.currentDiaryPage).getDiaryID());
-
-        postIntent.putExtra("signature", mUser.signature);
-        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.slider, message);
-        transaction.commit();
+        messagePane.prepareFragment(mUser.signature, ((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", "DiaryId", ((DiaryPage) mUser.currentDiaryPage).getDiaryID(), null);
+        slider.openPane();
     }
 
     public void newCommentPost()
@@ -933,49 +873,20 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if(((CommentsPage)mUser.currentDiaryPage).getPostID().equals(""))
             return;
 
-        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-
-        postIntent.putExtra("TypeId", "PostId");
-        postIntent.putExtra("PostId", ((CommentsPage)mUser.currentDiaryPage).getPostID());
-
-        postIntent.putExtra("signature", mUser.signature);
-        postIntent.putExtra("sendURL", ((CommentsPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.slider, message);
-        transaction.commit();
+        messagePane.prepareFragment(mUser.signature, ((CommentsPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", "PostId", ((CommentsPage) mUser.currentDiaryPage).getPostID(), null);
+        slider.openPane();
     }
 
     public void editPost(Post post)
     {
-        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-
-        postIntent.putExtra("TypeId", "PostEditId");
-        postIntent.putExtra("PostEditId", post.postID);
-
-        postIntent.putExtra("signature", mUser.signature);
-        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-        postIntent.putExtra("postContents", post.serialize());
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.slider, message);
-        transaction.commit();
+        messagePane.prepareFragment(mUser.signature, ((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", "PostEditId", post.postID, post.serialize());
+        slider.openPane();
     }
 
     public void editComment(Comment comment)
     {
-        Intent postIntent = new Intent(getApplicationContext(), MessageSender.class);
-
-        postIntent.putExtra("TypeId", "CommentEditId");
-        postIntent.putExtra("CommentEditId", comment.commentID);
-
-        postIntent.putExtra("signature", mUser.signature);
-        postIntent.putExtra("sendURL", ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php");
-        postIntent.putExtra("commentContents", comment.serialize());
-
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(R.id.slider, message);
-        transaction.commit();
+        messagePane.prepareFragment(mUser.signature, ((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", "CommentEditId", comment.commentID, comment.serialize());
+        slider.openPane();
     }
 
     @Override
@@ -1003,7 +914,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     {
                         if (file != null)
                         {
-                            final Message msg = message.mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
+                            final Message msg = messagePane.mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
                             msg.arg1 = 3;
                             AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(DiaryListActivity.this);
                             DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener()
@@ -1031,7 +942,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                                     pd.setMessage(getString(R.string.sending_data));
                                     pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                                     pd.show();
-                                    message.mHandler.sendMessage(msg);
+                                    messagePane.mHandler.sendMessage(msg);
                                 }
                             };
                             origOrMoreOrLink.setTitle(R.string.howto_send_img);
@@ -1051,5 +962,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @SuppressWarnings("deprecation")
+    @Override
+    public void acceptDialogClick(View view, boolean pasteClipboard)
+    {
+        messagePane.acceptDialogClick(view, pasteClipboard);
     }
 }
