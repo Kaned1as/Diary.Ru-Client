@@ -4,7 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.GestureDetector;
@@ -105,6 +105,15 @@ public class DiaryWebView extends WebView
 
 
             return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e)
+        {
+            Message msg = Message.obtain(mActivity.mUiHandler, Utils.HANDLE_NAME_CLICK);
+            mActivity.mPageBrowser.requestFocusNodeHref(msg);
+
+            return super.onSingleTapConfirmed(e);
         }
     }
 

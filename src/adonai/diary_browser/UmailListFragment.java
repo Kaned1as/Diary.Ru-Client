@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,7 +20,6 @@ public class UmailListFragment extends DiaryFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
         inflater.inflate(R.menu.umail_list_a, menu);
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 

@@ -20,7 +20,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
-import android.util.DisplayMetrics;
 import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -65,13 +64,6 @@ import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
 {
 
-    // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK                               =   0x100;
-    static final int HANDLE_UPDATE_HEADERS                            =   0x200;
-
-
-    // дополнительные команды хэндлерам
-
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -101,9 +93,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     ImageButton mUmailButton;
     ImageButton mScrollButton;
     LinearLayout mTabs;
-
-    // Сервисные объекты
-    DisplayMetrics gMetrics;
 
     public BrowseHistory browserHistory;
     Handler mUiHandler;
@@ -184,7 +173,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     public void handleDataChange()
     {
-        mUiHandler.sendEmptyMessage(HANDLE_UPDATE_HEADERS);
+        mUiHandler.sendEmptyMessage(Utils.HANDLE_UPDATE_HEADERS);
     }
 
     public void initializeUI(View main)
@@ -192,11 +181,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
             getActionBar().setHomeButtonEnabled(true);
 
-        gMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(gMetrics);
-
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
+        mPageBrowser.setOnClickListener(this);
         registerForContextMenu(mPageBrowser);
         mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
 
@@ -341,7 +328,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         if(v.getId() == R.id.page_browser)
         {
-            Message msg = Message.obtain(mUiHandler, HANDLE_IMAGE_CLICK);
+            Message msg = Message.obtain(mUiHandler, Utils.HANDLE_IMAGE_CLICK);
             mPageBrowser.requestImageRef(msg);
         }
     }
@@ -393,7 +380,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if(pd != null)
                     pd.setMessage(getString(R.string.sorting_data));
                 return true;
-            case HANDLE_UPDATE_HEADERS:
+            case Utils.HANDLE_UPDATE_HEADERS:
                 // обрабатываем обновление контента
                 mLogin.setText(mUser.userName);
                 if(mUser.newDiaryCommentsNum != 0)
@@ -500,7 +487,19 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 int pos = (Integer) message.obj;
                 mDiscussionBrowser.expandGroup(pos);
                 break;
-            case HANDLE_IMAGE_CLICK:
+            case Utils.HANDLE_NAME_CLICK:
+            {
+                String href = message.getData().getString("url");
+                if(href != null && href.contains("#form") && slider.isDouble())
+                {
+                    slider.openPane();
+                    String name = message.getData().getString("title");
+                    if(name != null)
+                        messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L],");
+                }
+                break;
+            }
+            case Utils.HANDLE_IMAGE_CLICK:
             {
                 final String src = message.getData().getString("url");
                 if(src == null) // нет картинки!
@@ -653,7 +652,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void onClick(View view)
-    {	
+    {
+        if(view == mPageBrowser)
+        {
+
+        }
         if (view == mExitButton)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());

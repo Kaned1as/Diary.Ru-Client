@@ -22,7 +22,6 @@ public class DiaryListFragment extends DiaryFragment
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
         inflater.inflate(R.menu.diary_list_a, menu);
-
         super.onCreateOptionsMenu(menu, inflater);
     }
 

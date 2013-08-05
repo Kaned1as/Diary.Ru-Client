@@ -1,11 +1,12 @@
 package adonai.diary_browser;
 
+import android.app.AlertDialog;
+import android.content.Context;
+
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.TagsPage;
-import android.app.AlertDialog;
-import android.content.Context;
 
 public class Utils 
 {
@@ -31,6 +32,11 @@ public class Utils
     static final int HANDLE_DELETE_COMMENT                          =  11 | DIARY_HANDLERS_MASK;
     static final int HANDLE_EDIT_COMMENT                            =  12 | DIARY_HANDLERS_MASK;
     static final int HANDLE_UPLOAD_FILE                             =  13 | DIARY_HANDLERS_MASK;
+
+    // Команды хэндлеру вида
+    static final int HANDLE_IMAGE_CLICK                             =  20 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_UPDATE_HEADERS                          =  21 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_NAME_CLICK                              =  22 | DIARY_HANDLERS_MASK;
 
 
     static final int UMAIL_HANDLERS_MASK                            = 0x20000000;

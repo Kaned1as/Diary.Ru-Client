@@ -38,6 +38,11 @@ public class DiarySlidePane extends SlidingPaneLayout
         return super.openPane();
     }
 
+    public boolean isDouble()
+    {
+        return !slideRestrict;
+    }
+
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev)
     {
