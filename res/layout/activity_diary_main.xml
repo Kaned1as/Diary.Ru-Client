@@ -7,13 +7,13 @@
 
     <fragment android:name="adonai.diary_browser.MessageSenderFragment"
               android:layout_height="match_parent"
-              android:layout_width="match_parent"
+              android:layout_width="350dp"
               android:id="@+id/message_pane" />
 
     <fragment android:name="adonai.diary_browser.DiaryListFragment"
               android:layout_height="match_parent"
               android:layout_width="match_parent"
-              android:id="@+id/main_pane"
-              android:layout_weight="1" />
+              android:layout_weight="1"
+              android:id="@+id/main_pane" />
 
 </adonai.diary_browser.DiarySlidePane>

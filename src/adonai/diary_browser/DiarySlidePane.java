@@ -51,4 +51,16 @@ public class DiarySlidePane extends SlidingPaneLayout
         else
             return super.onInterceptTouchEvent(ev);
     }
+
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b)
+    {
+
+        // Хак для маленьких экранов! Делаем форму отправки сообщений всегда видной полностью
+        LayoutParams childLP = (LayoutParams) getChildAt(0).getLayoutParams();
+        if(changed && childLP.width > getWidth())
+            childLP.width = LayoutParams.MATCH_PARENT;
+
+        super.onLayout(changed, l, t, r, b);
+    }
 }

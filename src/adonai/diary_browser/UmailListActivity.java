@@ -79,7 +79,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
         slider = (DiarySlidePane) findViewById(R.id.slider);
         slider.setPanelSlideListener(sliderListener);
-        slider.setSliderFadeColor(getResources().getColor(R.color.diary));
+        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
 
         mainPane = (UmailListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
