@@ -125,36 +125,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
     };
 
-    SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener()
-    {
-        @Override
-        public void onPanelSlide(View view, float v)
-        {
-        }
-
-        @Override
-        public void onPanelOpened(View view)
-        {
-            messagePane.setHasOptionsMenu(true);
-            mainPane.setHasOptionsMenu(false);
-        }
-
-        @Override
-        public void onPanelClosed(View view)
-        {
-            messagePane.setHasOptionsMenu(false);
-            mainPane.setHasOptionsMenu(true);
-        }
-    };
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
-        slider = (DiarySlidePane) findViewById(R.id.slider);
-        slider.setPanelSlideListener(sliderListener);
-        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
 
         mainPane = (DiaryListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
@@ -357,9 +332,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_START:
                 mService.addListener(this);
                 mUser.setOnDataChangeListener(this);
-                mainPane.mUser = mUser;
-
-
 
                 if(pageToLoad != null && mUser.isAuthorised)
                 {

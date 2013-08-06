@@ -10,6 +10,8 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.SlidingPaneLayout;
+import android.view.View;
 import android.widget.Toast;
 
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
@@ -33,6 +35,30 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
     DiaryWebView mPageBrowser;
     protected PullToRefreshAttacher mPullToRefreshAttacher;
 
+    SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener()
+    {
+        @Override
+        public void onPanelSlide(View view, float v)
+        {
+            messagePane.setHasOptionsMenu(false);
+            mainPane.setHasOptionsMenu(false);
+        }
+
+        @Override
+        public void onPanelOpened(View view)
+        {
+            messagePane.setHasOptionsMenu(true);
+            mainPane.setHasOptionsMenu(false);
+        }
+
+        @Override
+        public void onPanelClosed(View view)
+        {
+            messagePane.setHasOptionsMenu(false);
+            mainPane.setHasOptionsMenu(true);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -48,10 +74,12 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
         if(getIntent().getData() != null && pageToLoad == null)
             pageToLoad = getIntent().getDataString();
 
+        slider = (DiarySlidePane) findViewById(R.id.slider);
+        slider.setPanelSlideListener(sliderListener);
+        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
+
         super.onStart();
     }
-
-
 
     @Override
     public boolean handleMessage(Message msg)

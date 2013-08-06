@@ -74,12 +74,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
     {
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
-
         setContentView(R.layout.activity_umail);
-
-        slider = (DiarySlidePane) findViewById(R.id.slider);
-        slider.setPanelSlideListener(sliderListener);
-        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
 
         mainPane = (UmailListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
@@ -154,7 +149,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         {
             case Utils.HANDLE_START:
                 mService.addListener(this);
-                mainPane.mUser = mUser;
 
                 if(pageToLoad != null)
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, pageToLoad);

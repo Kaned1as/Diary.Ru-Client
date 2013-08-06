@@ -12,8 +12,10 @@ import adonai.diary_browser.entities.DiaryPage;
 
 public class DiaryListFragment extends DiaryFragment
 {
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
+        super.onCreateView(inflater, container, savedInstanceState);
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_diary_list, container, false);
     }
@@ -28,6 +30,7 @@ public class DiaryListFragment extends DiaryFragment
     @Override
     public void onPrepareOptionsMenu(Menu menu)
     {
+        super.onPrepareOptionsMenu(menu);
         // Только если это дневник
         if(mCurrentComponent == DiaryListActivity.PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
         {

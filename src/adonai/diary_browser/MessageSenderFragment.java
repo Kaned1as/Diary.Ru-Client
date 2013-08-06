@@ -72,7 +72,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     EditText musicText;
     EditText moodText;
     Button mPublish;
-    Button mCancel;
     CheckBox mShowOptionals;
     CheckBox mShowPoll;
     CheckBox mSubscribe;
@@ -81,6 +80,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     CheckBox mCopyMessage;
     CheckBox mCustomAvatar;
     TextView mTitle;
+    TextView mCurrentPage;
 
     EditText mPollTitle;
     EditText mPollChoice1;
@@ -147,10 +147,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         musicText = (EditText) sender.findViewById(R.id.message_music);
         moodText = (EditText) sender.findViewById(R.id.message_mood);
         mPublish = (Button) sender.findViewById(R.id.message_publish);
-        mCancel = (Button) sender.findViewById(R.id.message_cancel);
         mTitle = (TextView) sender.findViewById(R.id.fragment_title);
         mPublish.setOnClickListener(this);
-        mCancel.setOnClickListener(this);
 
         mLeftGradient = (ImageButton) sender.findViewById(R.id.left_gradient);
         mLeftGradient.setOnClickListener(this);
@@ -486,7 +484,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     {
         mService = NetworkService.getInstance(getActivity());
         assert(mService != null);
-
         mDHCL = mService.mDHCL;
 
         // обязательно
@@ -509,6 +506,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         if(mTypeId.equals("DiaryId"))
         {
             mTitle.setText(R.string.new_post);
+            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -522,6 +520,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         else if (mTypeId.equals("PostId")) // если это комментарий
         {
             mTitle.setText(R.string.new_comment);
+            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -536,6 +535,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         else if(mTypeId.equals("umailTo")) // Если почта
         {
             mTitle.setText(R.string.new_umail);
+            mCurrentPage.setVisibility(View.GONE);
 
             for(View v : commentElements)
                 v.setVisibility(View.GONE);
@@ -552,6 +552,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
         {
             mTitle.setText(R.string.edit_comment);
+            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -569,6 +570,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
         {
             mTitle.setText(R.string.edit_post);
+            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
             for(View v : umailElements)
                 v.setVisibility(View.GONE);
@@ -656,9 +658,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         switch(view.getId())
         {
-            case R.id.message_cancel:
-                closeMe(false);
-                break;
             case R.id.message_publish:
             {
                 // TODO: Сохранение в черновики

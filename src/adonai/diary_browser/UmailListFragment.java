@@ -26,6 +26,7 @@ public class UmailListFragment extends DiaryFragment
     @Override
     public void onPrepareOptionsMenu(Menu menu)
     {
+        super.onPrepareOptionsMenu(menu);
         // Только если это письмо из папки входящих
         if(mCurrentComponent == UmailListActivity.PART_WEB && mUser.currentUmails.getURL().equals(UmailListActivity.inFolderAddress)) // Если мы в папке "входящие"
         {
