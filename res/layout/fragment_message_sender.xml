@@ -3,13 +3,16 @@
     android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-        >
+    android:background="@color/diary_main"
+    android:fillViewport="false">
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp">
 
         <TextView
                 android:layout_width="fill_parent"
@@ -60,7 +63,8 @@
         android:hint="@string/message_title"
         android:imeOptions="actionNext"
         android:inputType="textCapWords"
-        android:maxLines="1" />
+        android:maxLines="1"
+                />
 
     <TextView
         android:id="@+id/message_content_hint"
@@ -76,13 +80,13 @@
 
         <ImageButton
             android:id="@+id/left_gradient"
-            style="?android:attr/buttonStyleSmall"
             android:layout_width="50dip"
             android:layout_height="50dip"
             android:contentDescription="@string/gradient_button"
             android:cropToPadding="true"
             android:src="@android:color/white"
-            android:layout_weight="0"/>
+            android:layout_weight="0"
+            style="?android:attr/buttonStyleSmall"/>
 
         <Button
             android:id="@+id/set_gradient"
@@ -375,7 +379,8 @@
         android:id="@+id/message_custom_avatar"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/select_custom_avatar" />
+        android:text="@string/select_custom_avatar"
+        android:checked="false"/>
 
         <HorizontalScrollView
                 android:layout_width="wrap_content"
@@ -405,7 +410,8 @@
                     android:layout_gravity="center_horizontal"
                     android:text="@string/message_publish"
                     android:layout_weight="1"
-                    android:layout_margin="5dp"/>
+                    android:layout_margin="5dp"
+                    android:shadowColor="@color/diary_divider"/>
         </LinearLayout>
 
     </LinearLayout>

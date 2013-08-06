@@ -1,3 +1,12 @@
 <resources>
     <style name="DiaryTheme" parent="android:Theme.Light" />
+
+    <style name="Classic" parent="android:Theme.Light">
+        <item name="android:textColor">@color/diary_divider</item>
+        <item name="android:checkboxStyle">@style/Classic.CheckBoxStyle</item>
+    </style>
+
+    <style name="Classic.CheckBoxStyle" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:textColor">@color/diary_divider</item>
+    </style>
 </resources>

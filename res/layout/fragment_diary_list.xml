@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="30dip"
         android:gravity="right"
-        android:background="#edd8bd">
+        android:background="@color/diary_main">
 
         <ImageButton
             android:id="@+id/quotes_button"
@@ -88,7 +88,7 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/tabs"
-                android:background="#edd8bd"
+                android:background="@color/diary_main"
                 android:showDividers="middle"
                 android:clickable="false"
                 >

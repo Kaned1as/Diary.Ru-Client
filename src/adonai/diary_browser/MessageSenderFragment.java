@@ -19,6 +19,7 @@ import android.os.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.SparseArray;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -127,7 +128,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View sender = inflater.inflate(R.layout.fragment_message_sender, container, false);
+        Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.Classic);
+        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+
+        View sender = localInflater.inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
         postParams = new ArrayList<NameValuePair>();
 
