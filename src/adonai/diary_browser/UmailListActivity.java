@@ -47,28 +47,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
     Handler mUiHandler;
 
-    SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener()
-    {
-        @Override
-        public void onPanelSlide(View view, float v)
-        {
-        }
-
-        @Override
-        public void onPanelOpened(View view)
-        {
-            messagePane.setHasOptionsMenu(true);
-            mainPane.setHasOptionsMenu(false);
-        }
-
-        @Override
-        public void onPanelClosed(View view)
-        {
-            messagePane.setHasOptionsMenu(false);
-            mainPane.setHasOptionsMenu(true);
-        }
-    };
-
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -79,7 +57,11 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mainPane = (UmailListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
 
-        View main = mainPane.getView();
+        initializeUI(mainPane.getView());
+    }
+
+    public void initializeUI(View main)
+    {
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);

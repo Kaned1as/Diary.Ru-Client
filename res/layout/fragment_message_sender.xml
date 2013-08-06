@@ -17,7 +17,8 @@
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:id="@+id/fragment_title"
                 android:layout_gravity="center"
-                android:focusable="false"/>
+                android:focusable="false"
+                android:gravity="center_horizontal"/>
 
         <TextView
                 android:layout_width="match_parent"

@@ -147,8 +147,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         musicText = (EditText) sender.findViewById(R.id.message_music);
         moodText = (EditText) sender.findViewById(R.id.message_mood);
         mPublish = (Button) sender.findViewById(R.id.message_publish);
-        mTitle = (TextView) sender.findViewById(R.id.fragment_title);
         mPublish.setOnClickListener(this);
+        mTitle = (TextView) sender.findViewById(R.id.fragment_title);
+        mCurrentPage = (TextView) sender.findViewById(R.id.fragment_page);
 
         mLeftGradient = (ImageButton) sender.findViewById(R.id.left_gradient);
         mLeftGradient.setOnClickListener(this);
