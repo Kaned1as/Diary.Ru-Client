@@ -3,11 +3,14 @@ package adonai.diary_browser;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
@@ -15,6 +18,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.*;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -42,6 +46,7 @@ import org.jsoup.select.Elements;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -499,13 +504,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mTypeId = typeId;
         mId = id;
 
-        titleText.setText("");
-        contentText.setText("");
-
-        mShowOptionals.setChecked(false);
-        mShowPoll.setChecked(false);
-        mShowAndClose.setChecked(false);
-        mCustomAvatar.setChecked(false);
+        clearPage();
 
         // Если это пост
         if(mTypeId.equals("DiaryId"))
@@ -1124,9 +1123,118 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        switch (requestCode)
+        {
+            case 0:
+                if (resultCode == Activity.RESULT_OK)
+                {
+                    Uri uri = data.getData();
+                    File file = null;
+                    if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme()))
+                    {
+                        String[] projection = { "_data" };
+                        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
+                        int column_index = cursor.getColumnIndex("_data");
+                        if (cursor.moveToFirst())
+                            file = new File(cursor.getString(column_index));
+
+                    }
+                    else if ("file".equalsIgnoreCase(uri.getScheme()))
+                        file = new File(uri.getPath());
+
+                    try
+                    {
+                        if (file != null)
+                        {
+                            final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
+                            msg.arg1 = 3;
+                            AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(getActivity());
+                            DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener()
+                            {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which)
+                                {
+                                    switch(which)
+                                    {
+                                        case DialogInterface.BUTTON_NEGATIVE:
+                                            msg.arg1 = 1;
+                                            break;
+                                        case DialogInterface.BUTTON_NEUTRAL:
+                                            msg.arg1 = 2;
+                                            break;
+                                        case DialogInterface.BUTTON_POSITIVE:
+                                        default:
+                                            msg.arg1 = 3;
+                                            break;
+                                    }
+
+                                    pd = new ProgressDialog(getActivity());
+                                    pd.setIndeterminate(false);
+                                    pd.setTitle(R.string.loading);
+                                    pd.setMessage(getString(R.string.sending_data));
+                                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                    pd.show();
+                                    mHandler.sendMessage(msg);
+                                }
+                            };
+                            origOrMoreOrLink.setTitle(R.string.howto_send_img);
+                            origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
+                            origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
+                            origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
+                            origOrMoreOrLink.create().show();
+                        }
+                        else
+                            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e)
+                    {
+                        Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void closeMe(boolean reload)
     {
         if(getActivity() instanceof  DiaryActivity)
             ((DiaryActivity)getActivity()).onFragmentRemove(reload);
+    }
+
+    private void clearPage()
+    {
+        titleText.setText("");
+        contentText.setText("");
+        toText.setText("");
+
+        mShowOptionals.setChecked(false);
+        themesText.setText("");
+        musicText.setText("");
+        moodText.setText("");
+
+        mShowPoll.setChecked(false);
+        mPollTitle.setText("");
+        mPollChoice1.setText("");
+        mPollChoice2.setText("");
+        mPollChoice3.setText("");
+        mPollChoice4.setText("");
+        mPollChoice5.setText("");
+        mPollChoice6.setText("");
+        mPollChoice7.setText("");
+        mPollChoice8.setText("");
+        mPollChoice9.setText("");
+        mPollChoice10.setText("");
+
+        mShowAndClose.setChecked(false);
+        mCloseOpts.check(R.id.close_only_reg);
+        mCloseText.setText("");
+        mCloseAllowList.setText("");
+        mCloseDenyList.setText("");
+
+        mCustomAvatar.setChecked(false);
     }
 }
