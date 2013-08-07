@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -219,7 +218,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 newUmail(null);
                 return true;
             case R.id.menu_reply_umail:
-                newUmail(((UmailPage)mUser.currentUmailPage).getSender_Name());
+                newUmail((UmailPage)mUser.currentUmailPage);
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
@@ -243,9 +242,9 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         }
     }
 
-    private void newUmail(String receiver)
+    private void newUmail(UmailPage receiver)
     {
-        messagePane.prepareFragment(mUser.signature, "http://www.diary.ru/diary.php", "umailTo", receiver, null);
+        messagePane.prepareFragment(mUser.signature, "http://www.diary.ru/diary.php", "umailTo", receiver.getSenderName(), receiver.getMessageTheme());
         slider.openPane();
     }
 

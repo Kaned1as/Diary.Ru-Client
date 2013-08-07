@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import adonai.diary_browser.entities.*;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -12,8 +11,13 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.*;
+import android.os.Handler;
 import android.os.Handler.Callback;
+import android.os.HandlerThread;
+import android.os.IBinder;
+import android.os.Looper;
+import android.os.Message;
+import android.os.PowerManager;
 import android.text.Html;
 import android.util.Pair;
 import android.webkit.CookieManager;
@@ -21,6 +25,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -38,6 +43,19 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.CommentsPage;
+import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.DiscListPage;
+import adonai.diary_browser.entities.DiscPage;
+import adonai.diary_browser.entities.ListPage;
+import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.TagsPage;
+import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.entities.UmailPage;
+import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
@@ -865,8 +883,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        scannedUmail.setUmail_URL(mDHCL.currentURL);
-        scannedUmail.setUmail_ID(scannedUmail.getUmail_URL().substring(scannedUmail.getUmail_URL().lastIndexOf('=') + 1));
+        scannedUmail.setUmailURL(mDHCL.currentURL);
+        scannedUmail.setUmailID(scannedUmail.getUmailURL().substring(scannedUmail.getUmailURL().lastIndexOf('=') + 1));
         notifyListeners(Utils.HANDLE_PROGRESS_2, null);
 
         Elements mailArea = rootNode.select("table.box, table.box + div");
@@ -875,7 +893,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Element sender = mailArea.select("div[style^=float:left] > b").first();
         if(sender != null)
-            scannedUmail.setSender_Name(sender.text());
+            scannedUmail.setSenderName(sender.text());
+
+        Element theme = mailArea.select("tbody td").last();
+        if(theme != null)
+            scannedUmail.setMessageTheme(theme.text());
 
         Elements result = mailArea.clone();
         Document resultPage = Document.createShell(mDHCL.currentURL);

@@ -2,44 +2,54 @@ package adonai.diary_browser.entities;
 
 public class UmailPage extends WebPage
 {
-    private String umail_ID = "";
-    private String umail_URL = "";
-    private String sender_Name = "";
-    
-    
+    private String umailID = "";
+    private String umailURL = "";
+    private String senderName = "";
+    private String messageTheme = "";
+
+    public String getMessageTheme()
+    {
+        return messageTheme;
+    }
+
+    public void setMessageTheme(String messageTheme)
+    {
+        this.messageTheme = "Re: " + messageTheme;
+    }
+
     @Override
     public String getPageURL()
     {
-        return umail_URL;
+        return umailURL;
     }
 
-    public String getUmail_ID()
+    public String getUmailID()
     {
-        return umail_ID;
+        return umailID;
     }
 
-    public void setUmail_ID(String umail_ID)
+    public void setUmailID(String umailID)
     {
-        this.umail_ID = umail_ID;
+        this.umailID = umailID;
     }
 
-    public String getUmail_URL()
+    public String getUmailURL()
     {
-        return umail_URL;
+        return umailURL;
     }
 
-    public void setUmail_URL(String umail_URL)
+    public void setUmailURL(String umailURL)
     {
-        this.umail_URL = umail_URL;
+        this.umailURL = umailURL;
     }
 
-    public String getSender_Name()
+    public String getSenderName()
     {
-        return sender_Name;
+        return senderName;
     }
 
-    public void setSender_Name(String sender_Name)
+    public void setSenderName(String senderName)
     {
-        this.sender_Name = sender_Name;
+        this.senderName = senderName;
     }
 }

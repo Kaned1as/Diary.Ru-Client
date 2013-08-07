@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -8,7 +7,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.view.View;
@@ -102,6 +100,7 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
             break;
         case Utils.HANDLE_CONNECTIVITY_ERROR:
             Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
+            mPullToRefreshAttacher.setRefreshComplete();
             break;
         case Utils.HANDLE_JUST_DO_GET:
             Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();

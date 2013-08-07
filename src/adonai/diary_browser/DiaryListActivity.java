@@ -1,21 +1,16 @@
 package adonai.diary_browser;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -625,10 +620,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void onClick(View view)
     {
-        if(view == mPageBrowser)
-        {
-
-        }
         if (view == mExitButton)
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());

@@ -1,8 +1,5 @@
 package adonai.diary_browser;
 
-import adonai.diary_browser.entities.Comment;
-import adonai.diary_browser.entities.Post;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -19,9 +16,12 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.*;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Looper;
+import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -30,7 +30,16 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -43,7 +52,6 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import yuku.ambilwarna.AmbilWarnaDialog;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,6 +62,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+
+import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.Post;
+import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
@@ -552,6 +564,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
             if(mId != null)
                 toText.setText(mId);
+            if(contents != null)
+                titleText.setText(contents);
         }
         else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
         {
