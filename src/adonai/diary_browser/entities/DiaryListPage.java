@@ -1,7 +1,8 @@
 package adonai.diary_browser.entities;
 
-import java.util.ArrayList;
 import android.text.Spanned;
+
+import java.util.ArrayList;
 
 
 public class DiaryListPage extends ArrayList<ListPage>
@@ -9,6 +10,15 @@ public class DiaryListPage extends ArrayList<ListPage>
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
     private String pageURL = "";
+
+    public DiaryListPage()
+    {
+    }
+
+    public DiaryListPage(String pageURL)
+    {
+        this.pageURL = pageURL;
+    }
 
     public Spanned getPageLinks()
     {
@@ -21,9 +31,5 @@ public class DiaryListPage extends ArrayList<ListPage>
     public String getURL()
     {
         return pageURL;
-    }
-    public void setURL(String _URL)
-    {
-        this.pageURL = _URL;
     }
 }

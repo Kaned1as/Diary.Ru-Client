@@ -48,6 +48,7 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.DiaryProfilePage;
 import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
@@ -555,8 +556,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
      */
     private void serializeDiaryListPage(String dataPage)
     {
-        mUser.currentDiaries = new DiaryListPage();
-        mUser.currentDiaries.setURL(mDHCL.currentURL);
+        mUser.currentDiaries = new DiaryListPage(mDHCL.currentURL);
 
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
@@ -607,13 +607,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeDiaryPage(String dataPage) throws IOException
     {
-        DiaryPage scannedDiary = new DiaryPage();
+        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
 
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        scannedDiary.setDiaryURL(mDHCL.currentURL);
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
@@ -740,6 +739,31 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedPost;
     }
 
+
+    private void serializeProfilePage(String dataPage)
+    {
+        DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
+        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        Document rootNode = Jsoup.parse(dataPage);
+        mUser.parseData(rootNode);
+
+        Elements effectiveAreas = rootNode.select("div#contant");
+        Elements result = effectiveAreas.clone();
+        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+
+        Document resultPage = Document.createShell(mDHCL.currentURL);
+        resultPage.title(rootNode.title());
+        for(Element to : result)
+        {
+            resultPage.body().appendChild(to);
+        }
+
+        parseContent(resultPage);
+
+        profilePage.setContent(resultPage);
+        mUser.currentDiaryPage = profilePage;
+    }
+
     private void serializeTagsPage(String dataPage) throws IOException
     {
         TagsPage scannedTags = new TagsPage();
@@ -825,8 +849,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeUmailListPage(String dataPage)
     {
-        mUser.currentUmails = new DiaryListPage();
-        mUser.currentUmails.setURL(mDHCL.currentURL);
+        mUser.currentUmails = new DiaryListPage(mDHCL.currentURL);
 
         notifyListeners(Utils.HANDLE_PROGRESS, null);
         Document rootNode = Jsoup.parse(dataPage);
@@ -969,6 +992,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 else if(handled == TagsPage.class)
                 {
                     serializeTagsPage(dataPage);
+                    mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                }
+                else if(handled == DiaryProfilePage.class)
+                {
+                    serializeProfilePage(dataPage);
                     mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                 }
                 else

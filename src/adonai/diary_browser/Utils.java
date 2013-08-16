@@ -6,6 +6,7 @@ import android.content.Context;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.DiaryProfilePage;
 import adonai.diary_browser.entities.TagsPage;
 
 public class Utils 
@@ -69,6 +70,9 @@ public class Utils
 
         if(response.contains("class=\"table r\""))
             return DiaryListPage.class;
+
+        if(response.contains("name=\"membershiplist\""))
+            return DiaryProfilePage.class;
 
         return null; // not found
     }

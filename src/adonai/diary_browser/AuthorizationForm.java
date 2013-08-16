@@ -18,7 +18,8 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 	SharedPreferences mPreferences;
 	
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         
@@ -30,22 +31,26 @@ public class AuthorizationForm extends Activity implements OnClickListener {
     }
     
     @Override
-	protected void onStart() {
+	protected void onStart()
+    {
 		super.onStart();
         mUsername.setText(mPreferences.getString(Utils.KEY_USERNAME, ""));
         mPassword.setText(mPreferences.getString(Utils.KEY_PASSWORD, ""));
 	}
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
+    public boolean onCreateOptionsMenu(Menu menu)
+    {
         getMenuInflater().inflate(R.menu.authorization_form_a, menu);
         return true;
     }
 
-	public void onClick(View v) {
+	public void onClick(View v)
+    {
 		switch(v.getId()) {
 		case R.id.login_button:
-			if(mUsername.getText().toString().equals("") || mPassword.getText().toString().equals("")) {
+			if(mUsername.getText().toString().equals("") || mPassword.getText().toString().equals(""))
+            {
 				Toast.makeText(this, R.string.details_missing, Toast.LENGTH_LONG).show();
 				return;
 			}

@@ -220,7 +220,7 @@ public class DiaryWebView extends WebView
 
 
                 // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
-                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature=") || url.contains("down&signature="))
+                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature=") || url.contains("down&signature=") || url.contains("?fav_add&userid=") || url.contains("?fav_del&userid="))
                 {
                     mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
                     return true;

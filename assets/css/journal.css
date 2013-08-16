@@ -170,7 +170,7 @@ postLinks li.addToQuote
 }
 
 /* пока не работают */
-.postLinks li.profile, .postLinks li.quote_comment, .postLinks li.quote_post
+.postLinks li.quote_comment, .postLinks li.quote_post
 {
     display: none;
 }
@@ -311,6 +311,28 @@ a:hover
     margin-top: 20px;
     background-color: #edd8bd;
     border-radius: 12px;
+}
+
+#contant
+{
+    border-radius: 12px;
+    border: 2px dotted #c7b29b;
+    padding: 5px;
+    background-color: #fde8cd;
+}
+
+p[align=justify]
+{
+    background-color: #fdf8dd;
+    border-radius: 12px;
+    padding: 5px;
+}
+
+h6
+{
+    font-size: 150%;
+    margin: 0px;
+    padding: 0px;
 }
 
 #epigraph, .list_box

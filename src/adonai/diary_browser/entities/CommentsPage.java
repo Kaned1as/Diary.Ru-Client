@@ -4,7 +4,7 @@ public class CommentsPage extends DiaryPage
 {
     private String postID = "";
     private String postURL = "";
-    
+
     public String getPostID()
     {
         return postID;
