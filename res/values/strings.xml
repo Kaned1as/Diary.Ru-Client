@@ -134,4 +134,5 @@
     <string name="pack_inlink">In link</string>
     <string name="howto_send_img">How to place image?</string>
     <string name="upload_progress">Uploaded:</string>
+    <string name="closed_error">This page is closed by its author</string>
 </resources>

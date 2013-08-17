@@ -22,8 +22,8 @@ public class Utils
     static final int DIARY_HANDLERS_MASK                            = 0x10000000;
     static final int HANDLE_AUTHORIZATION_ERROR                     =  -1 | DIARY_HANDLERS_MASK;
     static final int HANDLE_SET_HTTP_COOKIE                         =   2 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DIARIES_DATA                        =   3 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DIARY_PAGE_DATA                     =   4 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_LIST_PAGE_DATA                      =   3 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_GET_WEB_PAGE_DATA                       =   4 | DIARY_HANDLERS_MASK;
     static final int HANDLE_PICK_URL                                =   5 | DIARY_HANDLERS_MASK;
     static final int HANDLE_GET_DISCUSSIONS_DATA                    =   6 | DIARY_HANDLERS_MASK;
     static final int HANDLE_GET_DISCUSSION_LIST_DATA                =   7 | DIARY_HANDLERS_MASK;
@@ -51,6 +51,7 @@ public class Utils
     static final int HANDLE_PROGRESS_2                              =   11 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CONNECTIVITY_ERROR                      =  -20 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_SERVICE_ERROR                           =  -30 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_CLOSED_ERROR                            =  -40 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
 
     static String javascriptContent =    "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
                                          "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +

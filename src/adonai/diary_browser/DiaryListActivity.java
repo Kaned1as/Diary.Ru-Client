@@ -184,7 +184,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefreshStarted(View view)
             {
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
+                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
             }
         });
 
@@ -270,7 +270,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage)mUser.currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)mUser.currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.subscribersURL, false));
+                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.subscribersURL, false));
                 return true;
             case R.id.menu_refresh:
                 reloadContent();
@@ -385,7 +385,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 else
                     setCurrentTab(TAB_FAVOURITES, false);
                 return true;
-            case Utils.HANDLE_GET_DIARIES_DATA:
+            case Utils.HANDLE_GET_LIST_PAGE_DATA:
                 setCurrentVisibleComponent(PART_LIST);
                 mDiaryBrowser.setAdapter(null);
                 mDiaryBrowser.removeFooterView(mDiaryBrowser.findViewWithTag("footer"));
@@ -419,10 +419,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
-                supportInvalidateOptionsMenu();
+                supportInvalidateOptionsMenu(); // PART_LIST
 
                 break;
-            case Utils.HANDLE_GET_DIARY_PAGE_DATA: // the most important part!
+            case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
 
@@ -676,7 +676,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
         else if (view.getTag() != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
+            handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
         }
     }
 
@@ -760,7 +760,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch (index)
         {
             case TAB_FAVOURITES:
-                handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.favoritesURL, false));
+                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.favoritesURL, false));
             break;
             case TAB_FAV_POSTS:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false));
@@ -798,7 +798,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if(mainPane.mCurrentComponent == PART_WEB)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
-            handleBackground(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(mUser.favoritesURL, true));
+            handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.favoritesURL, true));
     }
 
     @Override

@@ -300,7 +300,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE, null);
                     return true;
                 }
-                case Utils.HANDLE_GET_DIARIES_DATA:
+                case Utils.HANDLE_GET_LIST_PAGE_DATA:
                 // TODO: Исправить все к чертям!! Поставить строгое извлечение по
                 // столбцам таблицы, идиот!!
                 {
@@ -322,7 +322,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         mCache.putPageToCache(URL, mUser.currentDiaries);
                     }
 
-                    notifyListeners(Utils.HANDLE_GET_DIARIES_DATA, null);
+                    notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
                     return true;
                 }
                 case Utils.HANDLE_GET_DISCUSSIONS_DATA:
@@ -570,39 +570,26 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         if(pages != null)
             mUser.currentDiaries.setPageLinks(Html.fromHtml(pages.outerHtml()));
 
-        Elements rows = table.getElementsByTag("td");
-        Element title = null, author = null, last_post = null;
+        Elements rows = table.select("tr:gt(0)");
         for (Element row : rows)
         {
-            if (title == null && row.hasClass("l"))
-                title = row.getElementsByClass("withfloat").first();
+            ListPage diary = new ListPage();
+            Elements columns = row.children();
+            diary.setTitle(columns.get(1).getElementsMatchingOwnText(".+").first().text());
+            diary.setPageHint(columns.get(1).getElementsByTag("em").text());
+            diary.setURL(columns.get(1).children().attr("href"));
 
-            if (author == null)
-                author = row.getElementsByAttributeValue("target", "_blank").first();
+            diary.setAuthor(columns.get(2).text());
+            String authorData = columns.get(2).children().attr("href");
+            diary.setAuthorURL(authorData);
+            diary.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
 
-            if (last_post == null)
-                if (row.className().equals(""))
-                    last_post = row.getElementsByClass("withfloat").first();
+            diary.setLastUpdate(columns.get(5).text());
+            diary.setLastUpdateURL(columns.get(5).children().attr("href"));
 
-            if (title != null && author != null && last_post != null)
-            {
-                ListPage diary = new ListPage();
-                diary.setTitle(title.getElementsByTag("b").text());
-                diary.setPageHint(title.getElementsByTag("em").text());
-                diary.setURL(title.attr("href"));
-
-                diary.setAuthor(author.text());
-                String authorData = author.attr("href");
-                diary.setAuthorURL(authorData);
-                diary.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
-
-                diary.setLastUpdate(last_post.text());
-                diary.setLastUpdateURL(last_post.attr("href"));
-
-                mUser.currentDiaries.add(diary);
-                title = author = last_post = null;
-            }
+            mUser.currentDiaries.add(diary);
         }
+
     }
 
     private void serializeDiaryPage(String dataPage) throws IOException
@@ -935,29 +922,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void checkUrlAndHandle(String URL, boolean reload)
     {   
         Class<?> handled;
-        WebPage cachedPage = null;
+        Object cachedPage = null;
         String dataPage = null;
 
         try
         {
             if(mCache.hasPage(URL) && !reload)
             {
-                // Особый обработчик для случая с списками
-                if(mCache.loadPageFromCache(URL) instanceof DiaryListPage)
-                {
-                    mDHCL.currentURL = URL;
-                    mHandler.sendMessage(mHandler.obtainMessage(Utils.HANDLE_GET_DIARIES_DATA, new Pair<String, Boolean>(URL, false)));
-                    return;
-                }
-
-                if(mCache.loadPageFromCache(URL) instanceof DiscListPage)
-                {
-                    mDHCL.currentURL = URL;
-                    mHandler.sendMessage(mHandler.obtainMessage(Utils.HANDLE_GET_DISCUSSIONS_DATA, new Pair<String, Boolean>(URL, false)));
-                    return;
-                }
-
-                cachedPage = (WebPage) mCache.loadPageFromCache(URL);
+                cachedPage = mCache.loadPageFromCache(URL);
                 handled = cachedPage.getClass();
             }
             else
@@ -974,42 +946,75 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
             if(handled != null) // Если это страничка дайри
             {
-                if(cachedPage != null)
+                if(cachedPage != null) // если страничка была в кэше
                 {
                     mDHCL.currentURL = URL;
-                    mUser.currentDiaryPage = (WebPage) mCache.loadPageFromCache(URL);
-                }
-                else if(handled == DiaryPage.class)
-                {
-                    serializeDiaryPage(dataPage);
-                    mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                }
-                else if (handled == CommentsPage.class)
-                {
-                    serializeCommentsPage(dataPage);
-                    mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                }
-                else if(handled == TagsPage.class)
-                {
-                    serializeTagsPage(dataPage);
-                    mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                }
-                else if(handled == DiaryProfilePage.class)
-                {
-                    serializeProfilePage(dataPage);
-                    mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                }
-                else
-                    return;
 
-                notifyListeners(Utils.HANDLE_GET_DIARY_PAGE_DATA, null);
+                    // Особый обработчик для случая с списками
+                    if(cachedPage instanceof DiaryListPage)
+                    {
+                        mUser.currentDiaries = (DiaryListPage) cachedPage;
+                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
+                    }
+
+                    if(cachedPage instanceof DiscListPage)
+                    {
+                        mUser.discussions = (DiscListPage) cachedPage;
+                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
+                    }
+
+                    if(cachedPage instanceof WebPage)
+                    {
+                        mUser.currentDiaryPage = (WebPage) cachedPage;
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                    }
+                }
+                else // если нет такого кэша
+                {
+                    if(handled == DiaryPage.class)
+                    {
+                        serializeDiaryPage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                    }
+                    else if (handled == CommentsPage.class)
+                    {
+                        serializeCommentsPage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                    }
+                    else if(handled == TagsPage.class)
+                    {
+                        serializeTagsPage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                    }
+                    else if(handled == DiaryProfilePage.class)
+                    {
+                        serializeProfilePage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                    }
+                    else if(handled == DiaryListPage.class)
+                    {
+                        serializeDiaryListPage(dataPage);
+                        mCache.putPageToCache(URL, mUser.currentDiaries);
+                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
+                    }
+                }
             }
-            else
+            else // неопознанная страничка
             {
-                notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
-                Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-                // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
-                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                assert(cachedPage == null);
+                if(dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
+                    notifyListeners(Utils.HANDLE_CLOSED_ERROR, null);
+                else
+                {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                    Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                    // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
+                    startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                }
             }
         }
         catch (Exception e)
