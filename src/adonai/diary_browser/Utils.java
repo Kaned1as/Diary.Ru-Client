@@ -7,6 +7,7 @@ import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryProfilePage;
+import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.TagsPage;
 
 public class Utils 
@@ -74,6 +75,9 @@ public class Utils
 
         if(response.contains("name=\"membershiplist\""))
             return DiaryProfilePage.class;
+
+        if(response.contains("id=\"all_bits\""))
+            return DiscListPage.class;
 
         return null; // not found
     }

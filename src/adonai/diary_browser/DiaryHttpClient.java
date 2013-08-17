@@ -1,14 +1,7 @@
 package adonai.diary_browser;
 
-import java.io.File;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -20,6 +13,12 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
+
+import java.io.File;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.URI;
 
 public class DiaryHttpClient 
 {
@@ -148,7 +147,7 @@ public class DiaryHttpClient
         @Override
         public void writeTo(OutputStream out) throws IOException
         {
-            super.writeTo(out instanceof CountingOutputStream? out: new CountingOutputStream(out, listener));
+            super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
         }
     }
 }

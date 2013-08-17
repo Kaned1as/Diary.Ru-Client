@@ -184,7 +184,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefreshStarted(View view)
             {
-                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaries.getURL(), true));
             }
         });
 
@@ -194,7 +194,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefreshStarted(View view)
             {
-                handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, new Pair<String, Boolean>(mUser.discussionsURL, true));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.discussionsURL, true));
             }
         });
 
@@ -270,7 +270,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage)mUser.currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)mUser.currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
-                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.subscribersURL, false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.subscribersURL, false));
                 return true;
             case R.id.menu_refresh:
                 reloadContent();
@@ -676,7 +676,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
         else if (view.getTag() != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>((String)view.getTag(), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>((String)view.getTag(), false));
         }
     }
 
@@ -760,7 +760,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch (index)
         {
             case TAB_FAVOURITES:
-                handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.favoritesURL, false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.favoritesURL, false));
             break;
             case TAB_FAV_POSTS:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.ownDiaryURL + "?favorite", false));
@@ -775,7 +775,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if(mUser.newDiscussNum != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.newDiscussLink, true));
                 else
-                    handleBackground(Utils.HANDLE_GET_DISCUSSIONS_DATA, new Pair<String, Boolean>(mUser.discussionsURL, false));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.discussionsURL, false));
             break;
             default:
                 Utils.showDevelSorry(this);
@@ -798,7 +798,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if(mainPane.mCurrentComponent == PART_WEB)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
-            handleBackground(Utils.HANDLE_GET_LIST_PAGE_DATA, new Pair<String, Boolean>(mUser.favoritesURL, true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.favoritesURL, true));
     }
 
     @Override

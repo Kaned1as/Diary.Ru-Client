@@ -300,54 +300,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE, null);
                     return true;
                 }
-                case Utils.HANDLE_GET_LIST_PAGE_DATA:
-                // TODO: Исправить все к чертям!! Поставить строгое извлечение по
-                // столбцам таблицы, идиот!!
-                {
-                    String URL = ((Pair<String, Boolean>) message.obj).first;
-                    boolean reload = ((Pair<String, Boolean>) message.obj).second;
-                    // Если страничка дневников есть в комментах
-                    if(mCache.hasPage(URL) && !reload)
-                        mUser.currentDiaries = (DiaryListPage) mCache.loadPageFromCache(URL);
-                    else
-                    {
-                        HttpResponse page = mDHCL.postPage(URL, null);
-                        if(page == null)
-                        {
-                            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
-                            return false;
-                        }
-                        String favListPage = EntityUtils.toString(page.getEntity());
-                        serializeDiaryListPage(favListPage);
-                        mCache.putPageToCache(URL, mUser.currentDiaries);
-                    }
-
-                    notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
-                    return true;
-                }
-                case Utils.HANDLE_GET_DISCUSSIONS_DATA:
-                {
-                    String URL = ((Pair<String, Boolean>) message.obj).first;
-                    boolean reload = ((Pair<String, Boolean>) message.obj).second;
-
-                    if(mCache.hasPage(URL) && !reload)
-                        mUser.discussions = (DiscListPage) mCache.loadPageFromCache(URL);
-                    else
-                    {
-                        HttpResponse page = mDHCL.postPage(URL, null);
-                        if(page == null)
-                        {
-                            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
-                            return false;
-                        }
-                        String dataPage = EntityUtils.toString(page.getEntity());
-                        serializeDiscussionsPage(dataPage);
-                        mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
-                    }
-
-                    notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
-                    return true;
-                }
                 case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
                 {
 
@@ -1001,6 +953,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         mCache.putPageToCache(URL, mUser.currentDiaries);
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
                     }
+                    else if(handled == DiscListPage.class)
+                    {
+                        serializeDiscussionsPage(dataPage);
+                        mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
+                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
+                    }
                 }
             }
             else // неопознанная страничка
@@ -1066,7 +1024,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 
-    // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foregound-режиме
+    // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foreground-режиме
     private Notification createNotification(WebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);

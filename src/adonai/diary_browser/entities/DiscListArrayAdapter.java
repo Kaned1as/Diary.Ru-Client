@@ -1,13 +1,13 @@
 package adonai.diary_browser.entities;
 
-import java.util.ArrayList;
-import adonai.diary_browser.R;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
+
+import adonai.diary_browser.R;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter
 {
@@ -52,7 +52,6 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
 
     public boolean hasStableIds()
     {
-        // TODO Auto-generated method stub
         return false;
     }
 
