@@ -157,4 +157,7 @@
     <string name="howto_send_img">Как разместить изображение?</string>
     <string name="upload_progress">Загружено:</string>
     <string name="closed_error">Эта страница закрыта её автором</string>
+    <string name="delete_umails">Удалить отмеченные</string>
+    <string name="select_items">Выберите письма</string>
+    <string name="selected">Выбрано:</string>
 </resources>

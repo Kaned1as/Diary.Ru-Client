@@ -135,4 +135,7 @@
     <string name="howto_send_img">How to place image?</string>
     <string name="upload_progress">Uploaded:</string>
     <string name="closed_error">This page is closed by its author</string>
+    <string name="delete_umails">Delete selected</string>
+    <string name="select_items">Select items</string>
+    <string name="selected">Selected:</string>
 </resources>

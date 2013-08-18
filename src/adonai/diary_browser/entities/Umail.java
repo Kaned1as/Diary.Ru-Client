@@ -13,4 +13,9 @@ public class Umail extends ListPage
     {
         this.isRead = isRead;
     }
+
+    public long getId()
+    {
+        return Long.valueOf(getURL().substring(getURL().lastIndexOf('=') + 1));
+    }
 }

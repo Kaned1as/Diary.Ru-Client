@@ -251,6 +251,26 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_JUST_DO_GET, null);
                     break;
                 }
+                case Utils.HANDLE_DELETE_UMAILS:
+                {
+                    Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
+                    long[] ids = ((Pair<long[], Integer>) message.obj).first;
+
+                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
+                    nameValuePairs.add(new BasicNameValuePair("module", "umail"));
+                    nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
+                    nameValuePairs.add(new BasicNameValuePair("move_to_folder", "0"));
+                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.signature));
+                    nameValuePairs.add(new BasicNameValuePair("delm", "Удалить отмеченные"));
+                    for(long id : ids)
+                        nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
+
+                    mDHCL.postPage("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+
+                    notifyListeners(Utils.HANDLE_DELETE_UMAILS, null);
+                    break;
+                }
                 case Utils.HANDLE_SET_HTTP_COOKIE:
                 {
                     List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -460,7 +480,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         result.title = rootNode.select("input#postTitle.text").val();
         result.content = rootNode.select("textarea#message").text();
 
-        result.themes = rootNode.select("input#tags.text").val();
+        Elements communityThemes = rootNode.select("input[id^=favtg][checked]");
+        for(Element theme : communityThemes)
+            result.themes += theme.val() + ";";
+
+        result.themes += rootNode.select("input#tags.text").val();
         result.mood = rootNode.select("input#atMood.text").val();
         result.music = rootNode.select("input#atMusic.text").val();
 

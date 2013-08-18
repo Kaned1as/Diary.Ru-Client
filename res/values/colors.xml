@@ -6,4 +6,5 @@
     <color name="diary_transparent">#80ed9f65</color>
     <color name="diary_pressed">#ffed6c38</color>
     <color name="transparent">#00000000</color>
+    <color name="selected">#8000D0ff</color>
 </resources>

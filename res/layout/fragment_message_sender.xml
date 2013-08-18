@@ -44,7 +44,8 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:hint="@string/message_to"
-            android:visibility="gone" >
+            android:visibility="gone"
+            android:inputType="textNoSuggestions|textPersonName">
 
             <requestFocus />
         </EditText>
@@ -62,7 +63,7 @@
         android:ems="10"
         android:hint="@string/message_title"
         android:imeOptions="actionNext"
-        android:inputType="textCapWords"
+        android:inputType="textCapWords|textEmailSubject"
         android:maxLines="1"
                 />
 

@@ -1,8 +1,5 @@
 package adonai.diary_browser.entities;
 
-import java.util.List;
-
-import adonai.diary_browser.R;
 import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
@@ -10,14 +7,51 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import adonai.diary_browser.R;
+
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
 {
-    
+    ArrayList<Long> checkedIds = new ArrayList<Long>();
+
     public DiaryListArrayAdapter(Context context, int textViewResourceId, List<ListPage> objects)
     {
         super(context, textViewResourceId, objects);
     }
-    
+
+    public void addSelection(Long id)
+    {
+        checkedIds.add(id);
+    }
+
+    public void removeSelection(Long id)
+    {
+        checkedIds.remove(id);
+    }
+
+    public void clearSelections()
+    {
+        checkedIds.clear();
+    }
+
+    @Override
+    public long getItemId(int position)
+    {
+        ListPage page = getItem(position);
+        if(page instanceof Umail)
+            return ((Umail) page).getId();
+        else
+            return position;
+    }
+
+    @Override
+    public boolean hasStableIds()
+    {
+        return true;
+    }
+
     @Override
     public View getView(int pos, View convertView, ViewGroup parent)
     {
@@ -34,6 +68,11 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         author.setText(diary.getAuthor());
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
+
+        if(checkedIds.contains(getItemId(pos)))
+            view.setBackgroundColor(getContext().getResources().getColor(R.color.selected));
+        else
+            view.setBackgroundResource(R.drawable.item_background);
 
         if(diary instanceof Umail)
             title.setTextColor(((Umail)diary).isRead() ? Color.BLACK : Color.RED);

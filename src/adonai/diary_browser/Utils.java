@@ -44,6 +44,7 @@ public class Utils
     static final int UMAIL_HANDLERS_MASK                            = 0x20000000;
     static final int HANDLE_OPEN_FOLDER                             =   2 | UMAIL_HANDLERS_MASK;
     static final int HANDLE_OPEN_MAIL                               =   3 | UMAIL_HANDLERS_MASK;
+    static final int HANDLE_DELETE_UMAILS                           =   4 | UMAIL_HANDLERS_MASK;
 
     static final int HANDLE_START                                   =   1  | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
     static final int HANDLE_GET_IMAGE                               =   2  | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
