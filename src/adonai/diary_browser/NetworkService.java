@@ -32,6 +32,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
+import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
@@ -206,7 +207,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    HttpResponse page = mDHCL.postPage(mUser.favoritesURL, null); // подойдет любая ссылка с дневников
+                    HttpResponse page = mDHCL.postPage(mUser.favoritesURL, new BasicHttpEntity()); // подойдет любая ссылка с дневников
                     if(page == null)
                         return false;
 
