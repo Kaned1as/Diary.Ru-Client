@@ -219,6 +219,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                     mFolderBrowser.addFooterView(LL);
                 }
                 mFolderBrowser.setAdapter(mFolderAdapter);
+                mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu();
                 break;

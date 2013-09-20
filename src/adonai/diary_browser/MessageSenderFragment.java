@@ -95,6 +95,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     CheckBox mSubscribe;
     CheckBox mShowAndClose;
     CheckBox mGetReceipt;
+    CheckBox mRequote;
     CheckBox mCopyMessage;
     CheckBox mCustomAvatar;
     TextView mTitle;
@@ -160,6 +161,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         toText = (EditText) sender.findViewById(R.id.message_to);
         mGetReceipt = (CheckBox) sender.findViewById(R.id.message_getreceipt);
+        mRequote = (CheckBox) sender.findViewById(R.id.message_requote);
         mCopyMessage = (CheckBox) sender.findViewById(R.id.message_copy);
 
         titleText = (EditText) sender.findViewById(R.id.message_title);
@@ -250,6 +252,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         umailElements.add(sender.findViewById(R.id.message_specials));
         umailElements.add(contentText);
         umailElements.add(mGetReceipt);
+        umailElements.add(mRequote);
         umailElements.add(mCopyMessage);
 
         return sender;
@@ -941,6 +944,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
                     postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
+                    postParams.add(new BasicNameValuePair("requote", mRequote.isChecked() ? "yes" : ""));
 
                     mHandler.sendEmptyMessage(HANDLE_DO_UMAIL);
                 }
@@ -1111,6 +1115,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             {
                 contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<a href=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
                 contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                break;
+            }
+            case R.id.button_more:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "[MORE=" + getString(R.string.read_more) + "]" + paste.toString() + "[/MORE]" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("[/MORE]", cursorPos));
                 break;
             }
             case R.id.button_image:

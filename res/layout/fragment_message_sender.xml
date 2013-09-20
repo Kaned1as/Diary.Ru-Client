@@ -137,10 +137,19 @@
         android:visibility="gone" />
 
     <CheckBox
+            android:id="@+id/message_requote"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/message_requote"
+            android:visibility="gone" />
+
+    <CheckBox
         android:id="@+id/message_copy"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/message_copy"
+        android:checked="true"
         android:visibility="gone" />
 
     <CheckBox

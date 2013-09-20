@@ -160,4 +160,7 @@
     <string name="delete_umails">Удалить отмеченные</string>
     <string name="select_items">Выберите письма</string>
     <string name="selected">Выбрано:</string>
+    <string name="more">Тэг MORE</string>
+    <string name="read_more">читать дальше</string>
+    <string name="message_requote">Цитировать предыдущую переписку</string>
 </resources>

@@ -64,4 +64,11 @@
         android:id="@+id/button_image"
         android:drawableLeft="@drawable/image"/>
 
+    <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/more"
+            android:id="@+id/button_more"
+            android:drawableLeft="@drawable/more"/>
+
 </LinearLayout>
