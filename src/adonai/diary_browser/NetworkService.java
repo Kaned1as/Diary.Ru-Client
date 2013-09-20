@@ -584,6 +584,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedDiary.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
         }
 
+        // заполняем ссылки (пока что только какие можем обработать)
+        // TODO: сделать generic-обработчик всех таких ссылок и вынести в новую процедуру (убрать tags)
+        Elements userLinks = rootNode.select("div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
+        for(Element link : userLinks)
+            if(link.id().equals("communityMyPosts") || link.id().equals("communityFav") || link.id().equals("communityQuote") ||
+               link.id().equals("authorFav") || link.id().equals("authorQuot"))
+                scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
+
         notifyListeners(Utils.HANDLE_PROGRESS_2, null);
         Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post], div.pageBar");
         if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
@@ -676,6 +684,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             String Id = diaryTag.getElementsByTag("a").last().attr("href");
             scannedPost.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
         }
+
+        Elements userLinks = rootNode.select("div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
+        for(Element link : userLinks)
+            if(link.id().equals("communityMyPosts") || link.id().equals("communityFav") || link.id().equals("communityQuote") ||
+               link.id().equals("authorFav") || link.id().equals("authorQuot"))
+                scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2, null);
         Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment], div.pageBar");

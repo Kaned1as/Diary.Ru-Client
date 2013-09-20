@@ -7,11 +7,15 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.Map;
+
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
 
 public class DiaryListFragment extends DiaryFragment
 {
+    public static int GROUP_PAGE_LINKS = 100;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
@@ -31,6 +35,10 @@ public class DiaryListFragment extends DiaryFragment
     public void onPrepareOptionsMenu(Menu menu)
     {
         super.onPrepareOptionsMenu(menu);
+
+        if(mUser == null)
+            return;
+
         // Только если это дневник
         if(mCurrentComponent == DiaryListActivity.PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
         {
@@ -68,8 +76,10 @@ public class DiaryListFragment extends DiaryFragment
             menu.findItem(R.id.menu_subscr_list).setVisible(false);
         }
 
-
-
-        super.onPrepareOptionsMenu(menu);
+        menu.removeGroup(GROUP_PAGE_LINKS);
+        // добавляем ссылки дневника, если они есть
+        if(mUser.currentDiaryPage instanceof DiaryPage)
+            for(String linkName : ((DiaryPage) mUser.currentDiaryPage).userLinks.keySet())
+                menu.add(GROUP_PAGE_LINKS, 0, 0, linkName);
     }
 }

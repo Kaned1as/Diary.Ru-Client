@@ -234,6 +234,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
+        if(item.getGroupId() == DiaryListFragment.GROUP_PAGE_LINKS)
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage) mUser.currentDiaryPage).userLinks.get(item.getTitle()), false));
+
+
         switch(item.getItemId())
         {
             case R.id.menu_new_post:
