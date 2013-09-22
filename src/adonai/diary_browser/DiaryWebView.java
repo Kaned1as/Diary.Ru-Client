@@ -19,7 +19,7 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
 
 // не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
 // Это была шутка.

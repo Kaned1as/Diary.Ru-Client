@@ -23,6 +23,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Android-ColorPicker" />
     <orderEntry type="library" name="libs" level="project" />
+    <orderEntry type="module" module-name="actionbarcompat" />
     <orderEntry type="module" module-name="ActionBar-PullToRefresh" />
   </component>
 </module>

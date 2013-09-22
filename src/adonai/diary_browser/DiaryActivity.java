@@ -12,7 +12,7 @@ import android.support.v4.widget.SlidingPaneLayout;
 import android.view.View;
 import android.widget.Toast;
 
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
 
 public abstract class DiaryActivity extends FragmentActivity implements Callback
 {

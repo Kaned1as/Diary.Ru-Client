@@ -4,10 +4,9 @@
       <root url="jar://$PROJECT_DIR$/libs/android-support-v4.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/jsoup-1.7.1.jar!/" />
       <root url="jar://$PROJECT_DIR$/libs/httpmime-4.2.5.jar!/" />
+      <root url="jar://$PROJECT_DIR$/libs/android-support-v7-appcompat.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES>
-      <root url="jar://$APPLICATION_HOME_DIR$/sdk/extras/android/m2repository/com/android/support/support-v4/18.0.0/support-v4-18.0.0-sources.jar!/" />
-    </SOURCES>
+    <SOURCES />
   </library>
 </component>

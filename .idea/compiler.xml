@@ -6,6 +6,7 @@
       <directory url="file://$PROJECT_DIR$/../Android-ColorPicker/gen" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/../ActionBar-PullToRefresh/library/gen" includeSubdirectories="true" />
       <directory url="file://$PROJECT_DIR$/gen" includeSubdirectories="true" />
+      <directory url="file://$PROJECT_DIR$/../ActionBar-PullToRefresh/extras/actionbarcompat/gen" includeSubdirectories="true" />
     </excludeFromCompile>
     <resourceExtensions />
     <wildcardResourcePatterns>
