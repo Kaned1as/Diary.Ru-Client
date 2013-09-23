@@ -22,7 +22,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.util.Pair;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -36,6 +36,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -313,17 +315,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     }
                     case HANDLE_GET_SMILIES:
                     {
-                        String URL = "http://www.diary.ru/smile.php";
+                        String URL = message.obj != null ? (String) message.obj : "http://www.diary.ru/smile.php";
                         HttpResponse page = mDHCL.getPage(URL);
                         String result = EntityUtils.toString(page.getEntity());
                         Document rootNode = Jsoup.parse(result);
                         Elements smilies = rootNode.select("tr img");
                         Elements smileLinks = rootNode.select("ul a");
 
+                        smileMap = new HashMap<String, Object>();
                         for(Element smilie : smilies)
                         {
                             String tag = smilie.parent().attr("onclick");
-                            smileMap.put(tag.substring(tag.indexOf(':'), tag.lastIndexOf(':') + 1), smilie.attr("src"));
+                            smileMap.put(tag.substring(tag.indexOf("('") + 2, tag.lastIndexOf("')")), smilie.attr("src"));
                         }
 
                         // распараллеливаем получение аватарок
@@ -351,13 +354,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         while(true)
                         {
                             int remaining = 0;
-                            for(int i = 0; i < smileMap.size(); i++)
+                            for(String id : smileMap.keySet())
                             {
-                                if(smileMap.valueAt(i) instanceof FutureTask)
+                                if(smileMap.get(id) instanceof FutureTask)
                                 {
-                                    FutureTask<Drawable> future = (FutureTask<Drawable>) avatarMap.valueAt(i);
+                                    FutureTask<Drawable> future = (FutureTask<Drawable>) smileMap.get(id);
                                     if(future.isDone())
-                                        smileMap.setValueAt(i, future.get());
+                                        smileMap.put(id, future.get());
                                     else
                                         remaining++;
                                 }
@@ -366,7 +369,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 break;
                         }
 
-                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_SMILIES, new Pair<Elements, Elements>(smilies, smileLinks)));
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_SMILIES, smileLinks));
                         return true;
                     }
                     case HANDLE_REQUEST_AVATARS:
@@ -447,8 +450,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             MultipartEntity mpEntity = new MultipartEntity();
                             ContentBody cbFile = new DiaryHttpClient.CountingFileBody(file, "image/*", new DiaryHttpClient.ProgressListener()
                             {
-                                long decade;
-
                                 @Override
                                 public void transferred(long transferredBytes)
                                 {
@@ -568,15 +569,37 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     pd.setProgress((int)message.obj);
                     break;
                 case HANDLE_GET_SMILIES:
-                    Elements smilies = ((Pair<Elements, Elements>) message.obj).first;
-                    Elements smileLinks = ((Pair<Elements, Elements>) message.obj).second;
+                    Elements smileLinks = (Elements) message.obj;
 
-                    for(Element smile : smilies)
+                    mSmilies.removeAllViews();
+                    for(Map.Entry<String, Object> smile : smileMap.entrySet())
                     {
                         ImageButton current = new ImageButton(themeWrapper);
+                        current.setTag(smile.getKey());
 
+                        DisplayMetrics dm = new DisplayMetrics();
+                        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+                        current.setMinimumHeight(dm.densityDpi / 4);
+                        current.setMaxHeight(dm.densityDpi / 4);
+                        current.setMinimumWidth(dm.densityDpi / 4);
+                        current.setMaxWidth(dm.densityDpi / 4);
+                        current.setScaleType(ImageView.ScaleType.FIT_XY);
+                        current.setImageDrawable((Drawable) smile.getValue());
+                        current.setOnClickListener(MessageSenderFragment.this);
+                        mSmilies.addView(current);
                     }
 
+                    mSmilieButtons.removeAllViews();
+                    for(Element link : smileLinks)
+                    {
+                        Button current = new Button(themeWrapper);
+                        current.setTag(link.attr("href"));
+                        current.setText(link.text());
+                        current.setOnClickListener(MessageSenderFragment.this);
+                        mSmilieButtons.addView(current);
+                    }
+
+                    pd.dismiss();
                     break;
                 default:
                     break;
@@ -749,7 +772,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     public void onClick(View view) 
     {
-        if(view instanceof ImageButton && view.getTag() != null)
+        if(view instanceof ImageButton && view.getTag() != null && view.getParent() == mAvatars)
         {
             postParams.clear();
             postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag().toString()));
@@ -758,6 +781,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
         }
 
+        if(view instanceof ImageButton && view.getTag() != null && view.getParent() == mSmilies)
+            contentText.append((CharSequence) view.getTag());
+
+        if(view instanceof Button && view.getTag() != null && view.getParent() == mSmilieButtons)
+        {
+            pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, view.getTag()));
+        }
         switch(view.getId())
         {
             case R.id.message_publish:
@@ -1081,7 +1112,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
             break;
             case R.id.message_show_smilies:
-                mHandler.sendEmptyMessage(HANDLE_GET_SMILIES);
+                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, null));
             break;
         }
     }
@@ -1127,7 +1159,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     mAvatars.setVisibility(View.VISIBLE);
                     if(avatarMap == null)
                     {
-                        pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, true);
+                        pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
                         mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
                     }
                 }
