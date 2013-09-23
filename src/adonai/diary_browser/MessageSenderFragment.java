@@ -57,6 +57,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -152,6 +153,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     DiaryHttpClient mDHCL;
     String mSendURL;
     Comment mPost;
+
+    CacheManager mCache = CacheManager.getInstance();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -317,21 +320,26 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     case HANDLE_GET_SMILIES:
                     {
                         String URL = message.obj != null ? (String) message.obj : "http://www.diary.ru/smile.php";
-                        HttpResponse page = mDHCL.getPage(URL);
-                        String result = EntityUtils.toString(page.getEntity());
+                        String URLValid = URL.replaceAll("[:/]", "_"); // не содержащее недопустимых символов для ФС имя
+                        String result;
+                        if(mCache.hasData(getActivity(), URLValid))
+                            result = new String(mCache.retrieveData(getActivity(), URLValid));
+                        else
+                        {
+                            HttpResponse page = mDHCL.getPage(URL);
+                            result = EntityUtils.toString(page.getEntity());
+                            mCache.cacheData(getActivity(), result.getBytes(), URLValid);
+                        }
                         Document rootNode = Jsoup.parse(result);
                         Elements smilies = rootNode.select("tr img");
                         Elements smileLinks = rootNode.select("ul a");
 
                         smileMap = new HashMap<String, Object>();
                         for(Element smilie : smilies)
-                        {
-                            String tag = smilie.parent().attr("onclick");
-                            smileMap.put(tag.substring(tag.indexOf("('") + 2, tag.lastIndexOf("')")), smilie.attr("src"));
-                        }
+                            smileMap.put(smilie.attr("alt"), smilie.attr("src"));
 
-                        // распараллеливаем получение аватарок
-                        // в массиве теперь будет храниться ID аватара - задача загрузки аватара
+                        // распараллеливаем получение смайликов
+                        // в массиве теперь будет храниться строка вызова смайлика - задача загрузки аватара
                         ExecutorService executor = Executors.newFixedThreadPool(smileMap.size());
                         for(String id : smileMap.keySet())
                         {
@@ -341,10 +349,28 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public Drawable call() throws Exception
                                 {
-                                    HttpResponse page = mDHCL.getPage(url);
-                                    InputStream is = page.getEntity().getContent();
-                                    Bitmap smilie = BitmapFactory.decodeStream(is);
+                                    String name = url.substring(url.lastIndexOf('/') + 1);
+                                    byte[] outputBytes;
 
+                                    if(mCache.hasData(getActivity(), name))
+                                        outputBytes = mCache.retrieveData(getActivity(), name);
+                                    else
+                                    {
+                                        HttpResponse page = mDHCL.getPage(url);
+                                        // getting bytes of image
+                                        InputStream is = page.getEntity().getContent();
+                                        byte[] buffer = new byte[8192];
+                                        int bytesRead;
+                                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                                        while ((bytesRead = is.read(buffer)) != -1)
+                                            output.write(buffer, 0, bytesRead);
+
+                                        outputBytes = output.toByteArray();
+                                        // caching image
+                                        mCache.cacheData(getActivity(), outputBytes, name);
+                                    }
+
+                                    Bitmap smilie = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
                                     // scale smilie to larger size
                                     DisplayMetrics dm = new DisplayMetrics();
                                     getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
@@ -362,7 +388,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         {
                             int remaining = 0;
                             for(String id : smileMap.keySet())
-                            {
                                 if(smileMap.get(id) instanceof FutureTask)
                                 {
                                     FutureTask<Drawable> future = (FutureTask<Drawable>) smileMap.get(id);
@@ -371,7 +396,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                     else
                                         remaining++;
                                 }
-                            }
                             if(remaining == 0)
                                 break;
                         }
@@ -424,16 +448,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         {
                             int remaining = 0;
                             for(int i = 0; i < avatarMap.size(); i++)
-                            {
                                 if(avatarMap.valueAt(i) instanceof FutureTask)
                                 {
                                     FutureTask<Drawable> future = (FutureTask<Drawable>) avatarMap.valueAt(i);
-                                if(future.isDone())
-                                    avatarMap.setValueAt(i, future.get());
-                                else
-                                    remaining++;
+                                    if(future.isDone())
+                                        avatarMap.setValueAt(i, future.get());
+                                    else
+                                        remaining++;
                                 }
-                            }
                             if(remaining == 0)
                                 break;
                         }
@@ -596,7 +618,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     {
                         if(link.text().equals(""))
                             continue;
-                        
+
                         Button current = new Button(themeWrapper);
                         current.setTag(link.attr("href"));
                         current.setText(link.text());
