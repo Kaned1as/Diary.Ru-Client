@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -342,7 +343,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 {
                                     HttpResponse page = mDHCL.getPage(url);
                                     InputStream is = page.getEntity().getContent();
-                                    return BitmapDrawable.createFromStream(is, url);
+                                    Bitmap smilie = BitmapFactory.decodeStream(is);
+
+                                    // scale smilie to larger size
+                                    DisplayMetrics dm = new DisplayMetrics();
+                                    getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+                                    smilie = Bitmap.createScaledBitmap(smilie, (int) (smilie.getWidth() * dm.density), (int) (smilie.getHeight() * dm.density), false);
+                                    return new BitmapDrawable(getResources(), smilie);
                                 }
 
                             });
@@ -577,13 +584,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         ImageButton current = new ImageButton(themeWrapper);
                         current.setTag(smile.getKey());
 
-                        DisplayMetrics dm = new DisplayMetrics();
-                        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-                        current.setMinimumHeight(dm.densityDpi / 4);
-                        current.setMaxHeight(dm.densityDpi / 4);
-                        current.setMinimumWidth(dm.densityDpi / 4);
-                        current.setMaxWidth(dm.densityDpi / 4);
-                        current.setScaleType(ImageView.ScaleType.FIT_XY);
+                        current.setScaleType(ImageView.ScaleType.FIT_CENTER);
+                        current.setAdjustViewBounds(true);
                         current.setImageDrawable((Drawable) smile.getValue());
                         current.setOnClickListener(MessageSenderFragment.this);
                         mSmilies.addView(current);
@@ -592,6 +594,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     mSmilieButtons.removeAllViews();
                     for(Element link : smileLinks)
                     {
+                        if(link.text().equals(""))
+                            continue;
+                        
                         Button current = new Button(themeWrapper);
                         current.setTag(link.attr("href"));
                         current.setText(link.text());
