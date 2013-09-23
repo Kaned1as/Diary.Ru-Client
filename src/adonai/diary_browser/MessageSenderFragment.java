@@ -22,6 +22,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
@@ -50,6 +51,7 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -78,10 +80,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_REQUEST_AVATARS = 5;
     private static final int HANDLE_SET_AVATAR      = 6;
     private static final int HANDLE_PROGRESS        = 8;
+    private static final int HANDLE_GET_SMILIES     = 9;
 
     ImageButton mLeftGradient;
     ImageButton mRightGradient;
     Button mSetGradient;
+    Button mPublish;
+    Button mShowSmilies;
 
     EditText toText;
     EditText titleText;
@@ -89,7 +94,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     EditText themesText;
     EditText musicText;
     EditText moodText;
-    Button mPublish;
     CheckBox mShowOptionals;
     CheckBox mShowPoll;
     CheckBox mSubscribe;
@@ -123,7 +127,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     Looper mLooper;
     ProgressDialog pd;
 
-    LinearLayout mAvatars;
+    LinearLayout mAvatars, mSmilies, mSmilieButtons;
     List<View> postElements = new ArrayList<View>();
     List<View> commentElements = new ArrayList<View>();
     List<View> umailElements = new ArrayList<View>();
@@ -137,8 +141,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     String mTypeId;
     NetworkService mService;
 
-    SparseArray<Object> avatarMap;
+    SparseArray<Object> avatarMap, smileMap;
 
+    Context themeWrapper;
     DiaryHttpClient mDHCL;
     String mSendURL;
     Comment mPost;
@@ -146,8 +151,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        Context contextThemeWrapper = new ContextThemeWrapper(getActivity(), R.style.Classic);
-        LayoutInflater localInflater = inflater.cloneInContext(contextThemeWrapper);
+        themeWrapper = new ContextThemeWrapper(getActivity(), R.style.Classic);
+        LayoutInflater localInflater = inflater.cloneInContext(themeWrapper);
 
         View sender = localInflater.inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
@@ -210,6 +215,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mSubscribe = (CheckBox) sender.findViewById(R.id.message_subscribe);
         mShowAndClose = (CheckBox) sender.findViewById(R.id.message_close);
         mShowAndClose.setOnCheckedChangeListener(this);
+
+        mShowSmilies = (Button) sender.findViewById(R.id.message_show_smilies);
+        mShowSmilies.setOnClickListener(this);
+        mSmilies = (LinearLayout) sender.findViewById(R.id.message_smilies);
+        mSmilieButtons = (LinearLayout) sender.findViewById(R.id.message_smilies_types);
 
         optionals.add(sender.findViewById(R.id.message_themes_hint));
         optionals.add(themesText);
@@ -297,6 +307,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_ACK);
                         else
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_REJ);
+                        return true;
+                    }
+                    case HANDLE_GET_SMILIES:
+                    {
+                        String URL = "http://www.diary.ru/smile.php";
+                        HttpResponse page = mDHCL.getPage(URL);
+                        String result = EntityUtils.toString(page.getEntity());
+                        Document rootNode = Jsoup.parse(result);
+                        Elements smilies = rootNode.select("tr img");
+                        Elements smileLinks = rootNode.select("ul a");
+
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_SMILIES, new Pair<Elements, Elements>(smilies, smileLinks)));
                         return true;
                     }
                     case HANDLE_REQUEST_AVATARS:
@@ -478,7 +500,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 {
                     for(int i = 0; i < avatarMap.size(); i++)
                     {
-                        ImageButton current = new ImageButton(getActivity());
+                        ImageButton current = new ImageButton(themeWrapper);
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -496,6 +518,17 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
                 case HANDLE_PROGRESS:
                     pd.setProgress((int)message.obj);
+                    break;
+                case HANDLE_GET_SMILIES:
+                    Elements smilies = ((Pair<Elements, Elements>) message.obj).first;
+                    Elements smileLinks = ((Pair<Elements, Elements>) message.obj).second;
+
+                    for(Element smile : smilies)
+                    {
+                        ImageButton current = new ImageButton(themeWrapper);
+
+                    }
+
                     break;
                 default:
                     break;
@@ -998,6 +1031,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
                 contentText.setText(newText);
             }
+            break;
+            case R.id.message_show_smilies:
+                mHandler.sendEmptyMessage(HANDLE_GET_SMILIES);
             break;
         }
     }

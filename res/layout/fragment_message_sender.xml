@@ -73,43 +73,91 @@
         android:layout_height="wrap_content"
         android:text="@string/message_content" />
 
-    <LinearLayout
-        android:id="@+id/message_specials"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical" >
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/message_additions"
+            android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/left_gradient"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:contentDescription="@string/gradient_button"
-            android:cropToPadding="true"
-            android:src="@android:color/white"
-            android:layout_weight="0"
-            style="?android:attr/buttonStyleSmall"/>
+            <LinearLayout
+                android:id="@+id/message_specials"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/set_gradient"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="0dp"
-            android:layout_height="50dip"
-            android:contentDescription="@string/gradient_button"
-            android:text="@string/gradient_button"
-            android:layout_weight="1"/>
+                <ImageButton
+                    android:id="@+id/left_gradient"
+                    android:layout_width="50dip"
+                    android:layout_height="50dip"
+                    android:contentDescription="@string/gradient_button"
+                    android:cropToPadding="true"
+                    android:src="@android:color/white"
+                    android:layout_weight="0"
+                    style="?android:attr/buttonStyleSmall"
+                    android:adjustViewBounds="false" />
 
-        <ImageButton
-            android:id="@+id/right_gradient"
-            style="?android:attr/buttonStyleSmall"
-            android:layout_width="50dip"
-            android:layout_height="50dip"
-            android:contentDescription="@string/gradient_button"
-            android:cropToPadding="true"
-            android:scaleType="center"
-            android:src="@android:color/black"
-            android:layout_weight="0"/>
+                <Button
+                    android:id="@+id/set_gradient"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="0dp"
+                    android:layout_height="50dip"
+                    android:contentDescription="@string/gradient_button"
+                    android:text="@string/gradient_button"
+                    android:layout_weight="1"/>
 
-    </LinearLayout>
+                <ImageButton
+                    android:id="@+id/right_gradient"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="50dip"
+                    android:layout_height="50dip"
+                    android:contentDescription="@string/gradient_button"
+                    android:cropToPadding="true"
+                    android:scaleType="center"
+                    android:src="@android:color/black"
+                    android:layout_weight="0"/>
+
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/smiletype_scroll"
+                android:fillViewport="true">
+
+                <LinearLayout
+                    android:id="@+id/message_smilies_types"
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/smilies"
+                        android:id="@+id/message_show_smilies" />
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+            <HorizontalScrollView
+                android:id="@+id/message_smilies_scroll"
+                android:fillViewport="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/message_smilies"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                </LinearLayout>
+
+            </HorizontalScrollView>
+
+        </LinearLayout>
 
     <EditText
         android:id="@+id/message_content"
