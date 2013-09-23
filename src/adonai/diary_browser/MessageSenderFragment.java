@@ -60,6 +60,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -141,7 +142,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     String mTypeId;
     NetworkService mService;
 
-    SparseArray<Object> avatarMap, smileMap;
+    SparseArray<Object> avatarMap;
+    Map<String, Object> smileMap;
 
     Context themeWrapper;
     DiaryHttpClient mDHCL;
@@ -317,6 +319,52 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         Document rootNode = Jsoup.parse(result);
                         Elements smilies = rootNode.select("tr img");
                         Elements smileLinks = rootNode.select("ul a");
+
+                        for(Element smilie : smilies)
+                        {
+                            String tag = smilie.parent().attr("onclick");
+                            smileMap.put(tag.substring(tag.indexOf(':'), tag.lastIndexOf(':') + 1), smilie.attr("src"));
+                        }
+
+                        // распараллеливаем получение аватарок
+                        // в массиве теперь будет храниться ID аватара - задача загрузки аватара
+                        ExecutorService executor = Executors.newFixedThreadPool(smileMap.size());
+                        for(String id : smileMap.keySet())
+                        {
+                            final String url = (String) smileMap.get(id);
+                            FutureTask<Drawable> future = new FutureTask<Drawable>(new Callable<Drawable>()
+                            {
+                                @Override
+                                public Drawable call() throws Exception
+                                {
+                                    HttpResponse page = mDHCL.getPage(url);
+                                    InputStream is = page.getEntity().getContent();
+                                    return BitmapDrawable.createFromStream(is, url);
+                                }
+
+                            });
+                            smileMap.put(id, future);
+                            executor.execute(future);
+                        }
+
+                        // по мере выполнения задач переписываем массив по кусочкам на результат задачи
+                        while(true)
+                        {
+                            int remaining = 0;
+                            for(int i = 0; i < smileMap.size(); i++)
+                            {
+                                if(smileMap.valueAt(i) instanceof FutureTask)
+                                {
+                                    FutureTask<Drawable> future = (FutureTask<Drawable>) avatarMap.valueAt(i);
+                                    if(future.isDone())
+                                        smileMap.setValueAt(i, future.get());
+                                    else
+                                        remaining++;
+                                }
+                            }
+                            if(remaining == 0)
+                                break;
+                        }
 
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_GET_SMILIES, new Pair<Elements, Elements>(smilies, smileLinks)));
                         return true;
