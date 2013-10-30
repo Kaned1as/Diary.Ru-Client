@@ -251,7 +251,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case R.id.menu_share:
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
-                sendIntent.putExtra(Intent.EXTRA_TEXT, mUser.currentDiaryPage.getContent().title() + "\n" + mUser.currentDiaryPage.getPageURL());
+                sendIntent.putExtra(Intent.EXTRA_TITLE, mUser.currentDiaryPage.getContent().title());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, mUser.currentDiaryPage.getPageURL());
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
             case R.id.menu_about:
