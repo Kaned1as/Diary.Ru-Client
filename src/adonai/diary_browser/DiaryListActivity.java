@@ -230,7 +230,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     // старые телефоны тоже должны работать
-    @SuppressWarnings("deprecation")
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
     {
@@ -250,9 +249,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 startActivity(new Intent(this, PreferencesScreen.class));
                 return true;
             case R.id.menu_share:
-                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + mUser.currentDiaryPage.getPageURL(), Toast.LENGTH_SHORT).show();
-                clipboard.setText(mUser.currentDiaryPage.getPageURL());
+                Intent sendIntent = new Intent(Intent.ACTION_SEND);
+                sendIntent.setType("text/plain");
+                sendIntent.putExtra(Intent.EXTRA_TEXT, mUser.currentDiaryPage.getContent().title() + "\n" + mUser.currentDiaryPage.getPageURL());
+                startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
             case R.id.menu_about:
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);

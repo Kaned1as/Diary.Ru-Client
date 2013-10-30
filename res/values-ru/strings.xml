@@ -70,7 +70,7 @@
     <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из
         памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.
     </string>
-    <string name="menu_share">Поделиться</string>
+    <string name="menu_share">Отправить</string>
     <string name="copied">Скопировано:</string>
     <string name="message_close">Закрытый пост</string>
     <string name="message_close_only_reg">Только для зарегистрированных</string>

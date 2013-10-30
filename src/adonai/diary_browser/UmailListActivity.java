@@ -302,7 +302,10 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
     private void newUmail(UmailPage receiver)
     {
-        messagePane.prepareFragment(mUser.signature, "http://www.diary.ru/diary.php", "umailTo", receiver.getSenderName(), receiver.getMessageTheme());
+        if(receiver != null)
+            messagePane.prepareFragment(mUser.signature, "http://www.diary.ru/diary.php", "umailTo", receiver.getSenderName(), receiver.getMessageTheme());
+        else
+            messagePane.prepareFragment(mUser.signature, "http://www.diary.ru/diary.php", "umailTo", "", "");
         slider.openPane();
     }
 
