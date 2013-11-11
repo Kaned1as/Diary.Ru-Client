@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -58,7 +60,6 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAt
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
 {
-
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -315,14 +316,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         if(intent.getStringExtra("url") != null)
         {
-            if(intent.getStringExtra("url").equals("")) // default case
-                pageToLoad = mService.mUser.currentDiaryPage.getPageURL();
-            else
-                pageToLoad = intent.getStringExtra("url");
+            pageToLoad = intent.getStringExtra("url");
         }
         if(intent.getData() != null)
             pageToLoad = intent.getDataString();
     }
+
+
 
     @Override
     public boolean handleMessage(Message message)
@@ -340,7 +340,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 else if (!mUser.isAuthorised)
                 {
-                    pd = ProgressDialog.show(DiaryListActivity.this, getString(R.string.loading), getString(R.string.please_wait), true, true);
+                    pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
                     handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
                 }
                 return true;
@@ -425,7 +425,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
-
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);

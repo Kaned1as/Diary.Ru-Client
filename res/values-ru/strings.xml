@@ -164,4 +164,9 @@
     <string name="read_more">читать дальше</string>
     <string name="message_requote">Цитировать предыдущую переписку</string>
     <string name="smilies">Смайлы</string>
+    <string name="ad_title">Уведомление</string>
+    <string name="ad_text">Помните, что Diary.Ru Клиент - это маленький некоммерческий проект с открытым исходным кодом, который преимущественно разрабатываю я один. &lt;br/>&lt;br/> Если желаете поддержать развитие проекта, можете это сделать сейчас. &lt;br/> Если у вас есть вопросы или предложения по работе клиента, пишите в &lt;a href="http://antic1tizen.diary.ru/p193090337.htm">сообщество&lt;/a> &lt;br/>  (Данное уведомление можно отключить в настройках)</string>
+    <string name="help">Помочь проекту…</string>
+    <string name="later">Позже</string>
+    <string name="thanks">Вы только что сделали мир немного лучше!</string>
 </resources>

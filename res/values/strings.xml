@@ -142,4 +142,9 @@
     <string name="read_more">read more</string>
     <string name="message_requote">Requote previous message</string>
     <string name="smilies">Smilies</string>
+    <string name="ad_title">Notification</string>
+    <string name="ad_text">You should remember that Diary.Ru Client is a small non-commercial open-source application that I develop primarily solely. Your help is appreciated to develop this program.</string>
+    <string name="help">Help…</string>
+    <string name="later">Later</string>
+    <string name="thanks">God bless you!</string>
 </resources>

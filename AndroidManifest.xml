@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="130"
-    android:versionName="1.3.0" android:installLocation="auto">
+    android:versionCode="133"
+    android:versionName="1.3.3" android:installLocation="auto">
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -10,6 +10,7 @@
         <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
         <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
         <uses-permission android:name="android.permission.WAKE_LOCK" />
+        <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
         android:icon="@drawable/ic_launcher"
