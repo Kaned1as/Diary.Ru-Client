@@ -125,42 +125,37 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
                 // Показываем страничку изменений
                 try
                 {
-                    String current = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-                    String stored = mService.mPreferences.getString("version", "");
-                    if(!current.equals(stored))
+                    final String current = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                    final String stored = mService.mPreferences.getString("stored.version", "");
+                    boolean show = mService.mPreferences.getBoolean("show.version", true);
+                    if(show && !current.equals(stored))
                     {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                        TextView message = new TextView(this);
-                        message.setMovementMethod(LinkMovementMethod.getInstance());
-                        message.setGravity(Gravity.CENTER_HORIZONTAL);
-                        message.setText(Html.fromHtml(getString(R.string.ad_text)));
-                        builder.setTitle(R.string.ad_title).setView(message);
-                        builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener()
+                        mUiHandler.postDelayed(new Runnable()
                         {
                             @Override
-                            public void onClick(DialogInterface dialog, int which)
+                            public void run()
                             {
-                                mHelper.launchPurchaseFlow(DiaryActivity.this, SKU_DONATE, 6666, new IabHelper.OnIabPurchaseFinishedListener()
+                                AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
+                                TextView message = new TextView(DiaryActivity.this);
+                                message.setMovementMethod(LinkMovementMethod.getInstance());
+                                message.setGravity(Gravity.CENTER_HORIZONTAL);
+                                message.setText(Html.fromHtml(getString(R.string.ad_text)));
+                                builder.setTitle(R.string.ad_title).setView(message);
+                                builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener()
                                 {
                                     @Override
-                                    public void onIabPurchaseFinished(IabResult result, Purchase info)
+                                    public void onClick(DialogInterface dialog, int which)
                                     {
-                                        if(result.isSuccess())
-                                        {
-                                            AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
-                                            builder.setTitle(R.string.completed).setCancelable(false).setMessage(R.string.thanks);
-                                            builder.setPositiveButton(android.R.string.ok, null);
-                                            builder.create().show();
-                                        }
+                                        purchaseGift();
                                     }
-                                }, "NothingAndNowhere" + mUser.userName);
+                                });
+                                builder.setNegativeButton(R.string.later, null);
+                                builder.create().show();
                             }
-                        });
-                        builder.setNegativeButton(R.string.later, null);
-                        builder.create().show();
+                        }, 15000);
 
                         SharedPreferences.Editor updater = mService.mPreferences.edit();
-                        updater.putString("version", current);
+                        updater.putString("stored.version", current);
                         updater.commit();
                     }
 
@@ -194,6 +189,25 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
         }
 
         return true;
+    }
+
+    protected void purchaseGift()
+    {
+        if(mCanBuy)
+            mHelper.launchPurchaseFlow(DiaryActivity.this, SKU_DONATE, 6666, new IabHelper.OnIabPurchaseFinishedListener()
+            {
+                @Override
+                public void onIabPurchaseFinished(IabResult result, Purchase info)
+                {
+                    if(result.isSuccess())
+                    {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
+                        builder.setTitle(R.string.completed).setMessage(R.string.thanks);
+                        builder.setPositiveButton(android.R.string.ok, null);
+                        builder.create().show();
+                    }
+                }
+            }, "NothingAndNowhere" + mUser.userName);
     }
 
     public void handleBackground(int opCode, Object body)

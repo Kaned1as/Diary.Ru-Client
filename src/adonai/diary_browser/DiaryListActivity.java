@@ -246,6 +246,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case R.id.menu_new_comment:
                 newCommentPost();
                 return true;
+            case R.id.menu_purchase:
+                purchaseGift();
+                return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
                 return true;

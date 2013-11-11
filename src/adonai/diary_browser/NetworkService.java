@@ -1006,7 +1006,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_CLOSED_ERROR, null);
                 else
                 {
-                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
                     Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
                     // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
                     startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));

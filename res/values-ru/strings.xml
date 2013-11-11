@@ -169,4 +169,8 @@
     <string name="help">Помочь проекту…</string>
     <string name="later">Позже</string>
     <string name="thanks">Вы только что сделали мир немного лучше!</string>
+    <string name="show_version">Показывать дисклеймер</string>
+    <string name="show_version_sum">Показывать список изменений и просьбы к сообществу после обновления обновлении</string>
+    <string name="confirmation">Подтвердите действие</string>
+    <string name="clear_contents">Вы собираетесь отправить сообщение в тот же дневник. Желаете очистить поля ввода?</string>
 </resources>

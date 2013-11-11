@@ -147,4 +147,8 @@
     <string name="help">Help…</string>
     <string name="later">Later</string>
     <string name="thanks">God bless you!</string>
+    <string name="show_version">Show version info</string>
+    <string name="show_version_sum">Show ad screen on app start</string>
+    <string name="confirmation">Confirm action</string>
+    <string name="clear_contents">You attempt to write to the same diary. Should I clear message pane?</string>
 </resources>

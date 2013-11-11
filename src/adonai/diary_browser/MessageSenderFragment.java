@@ -151,7 +151,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     Context themeWrapper;
     DiaryHttpClient mDHCL;
-    String mSendURL;
+    String mSendURL = "";
     Comment mPost;
 
     CacheManager mCache = CacheManager.getInstance();
@@ -642,6 +642,24 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         assert(mService != null);
         mDHCL = mService.mDHCL;
 
+        if(mSendURL.equals(sendURL))
+        {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
+            builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+            {
+                @Override
+                public void onClick(DialogInterface dialog, int which)
+                {
+                    clearPage();
+                }
+            });
+            builder.setNegativeButton(android.R.string.no, null);
+            builder.create().show();
+        }
+        else
+            clearPage();
+
         // обязательно
         mSignature = signature;
         mSendURL = sendURL;
@@ -649,9 +667,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         // одно из двух
         mTypeId = typeId;
         mId = id;
-
-        clearPage();
-
         // Если это пост
         if(mTypeId.equals("DiaryId"))
         {

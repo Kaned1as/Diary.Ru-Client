@@ -10,6 +10,13 @@
         android:title="@string/new_comment" 
         android:icon="@android:drawable/ic_menu_add"
         android:showAsAction="always|withText" />
+
+    <item android:id="@+id/menu_purchase"
+          android:orderInCategory="102"
+          android:title="@string/help"
+          android:icon="@android:drawable/ic_menu_agenda"
+          android:showAsAction="never" />
+
     <item android:id="@+id/menu_tags" android:title="@string/diary_tags" android:icon="@android:drawable/ic_menu_agenda"/>
     <group android:id="@+id/group_all" android:menuCategory="container">
         <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share"/>
