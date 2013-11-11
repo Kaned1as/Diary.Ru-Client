@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.android.vending.util.IabHelper;
 import com.android.vending.util.IabResult;
+import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
@@ -28,7 +29,7 @@ import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAt
 public abstract class DiaryActivity extends FragmentActivity implements Callback
 {
     private static final int HANDLE_APP_START = 0;
-    private static final String SKU_DONATE = "SMALL";
+    private static final String SKU_DONATE = "small";
 
     protected IabHelper mHelper;
     protected boolean mCanBuy = false;
@@ -206,6 +207,19 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
                         builder.setPositiveButton(android.R.string.ok, null);
                         builder.create().show();
                     }
+
+                    mHelper.queryInventoryAsync(false, new IabHelper.QueryInventoryFinishedListener()
+                    {
+                        @Override
+                        public void onQueryInventoryFinished(IabResult result, Inventory inv)
+                        {
+                            if(result.isSuccess())
+                            {
+                                if(inv.getPurchase(SKU_DONATE) != null)
+                                mHelper.consumeAsync(inv.getPurchase(SKU_DONATE), null);
+                            }
+                        }
+                    });
                 }
             }, "NothingAndNowhere" + mUser.userName);
     }
