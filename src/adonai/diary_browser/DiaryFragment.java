@@ -10,14 +10,4 @@ import android.view.ViewGroup;
 public class DiaryFragment extends Fragment
 {
     int mCurrentComponent = 0;
-    UserData mUser;
-
-    @Override
-    public void onPrepareOptionsMenu(Menu menu)
-    {
-        super.onPrepareOptionsMenu(menu);
-
-        assert(getActivity() instanceof  DiaryActivity);
-        mUser = ((DiaryActivity)getActivity()).mUser;
-    }
 }

@@ -1069,4 +1069,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         return notification;
     }
+
+    public void newSession()
+    {
+        mUser = new UserData();
+        mDHCL = new DiaryHttpClient();
+        mCache.clear();
+    }
 }

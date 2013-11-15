@@ -14,6 +14,7 @@ public class Utils
 {
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
+    public static final String KEY_USERPASS_CACHE = "diary.password.cache";
     public static final String mPrefsFile = "diary.shared.prefs";
 
     static final int VIEW_SCROLL_UP                                 =   1;

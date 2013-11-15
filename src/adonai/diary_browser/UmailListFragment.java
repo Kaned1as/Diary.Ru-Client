@@ -27,6 +27,7 @@ public class UmailListFragment extends DiaryFragment
     public void onPrepareOptionsMenu(Menu menu)
     {
         super.onPrepareOptionsMenu(menu);
+        UserData mUser = ((DiaryActivity)getActivity()).getUser();
         // Только если это письмо из папки входящих
         if(mCurrentComponent == UmailListActivity.PART_WEB && mUser.currentUmails.getURL().equals(UmailListActivity.inFolderAddress)) // Если мы в папке "входящие"
         {

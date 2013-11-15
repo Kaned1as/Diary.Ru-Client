@@ -31,6 +31,11 @@ public class CacheManager
     {
     	browseCache.put(URL, page);
     }
+
+    public void clear()
+    {
+        browseCache.clear();
+    }
     
     public static CacheManager getInstance()
     {

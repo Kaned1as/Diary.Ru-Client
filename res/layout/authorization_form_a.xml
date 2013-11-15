@@ -27,6 +27,13 @@
         android:textStyle="bold"
         android:typeface="normal" />
 
+    <Spinner
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/login_spinner"
+        android:layout_margin="10dp"
+        android:visibility="gone" />
+
     <EditText
         android:id="@+id/login_text"
         android:layout_width="fill_parent"
@@ -60,7 +67,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dip"
+        android:layout_marginTop="30dip"
         android:minWidth="200dip"
         android:text="@string/login" />
 

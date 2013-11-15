@@ -46,9 +46,9 @@ public class DiaryWebView extends WebView
                 return;
 
             if(mActivity instanceof DiaryListActivity)
-                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.mUser.currentDiaryPage.getPageURL(), true));
+                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.getUser().currentDiaryPage.getPageURL(), true));
             else if(mActivity instanceof UmailListActivity)
-                mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.mUser.currentUmailPage.getPageURL());
+                mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.getUser().currentUmailPage.getPageURL());
         }
     };
 
@@ -208,7 +208,7 @@ public class DiaryWebView extends WebView
                 {
                     try
                     {
-                        mActivity.messagePane.prepareFragment(mActivity.mUser.signature, "http://www.diary.ru/diary.php", "umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"), null);
+                        mActivity.messagePane.prepareFragment(mActivity.getUser().signature, "http://www.diary.ru/diary.php", "umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"), null);
                         mActivity.slider.openPane();
                     }
                     catch (UnsupportedEncodingException e)
@@ -229,7 +229,7 @@ public class DiaryWebView extends WebView
             if(mActivity instanceof DiaryListActivity)
                 ((DiaryListActivity)mActivity).browserHistory.setPosition(getScrollY());
 
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.mUser.currentDiaryPage.getPageURL())));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.getUser().currentDiaryPage.getPageURL())));
             return true;
         }
     }

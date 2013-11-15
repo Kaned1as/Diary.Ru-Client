@@ -44,7 +44,6 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
 
     DiaryHttpClient mDHCL;
     String pageToLoad;
-    UserData mUser;
 
     DiaryWebView mPageBrowser;
     protected PullToRefreshAttacher mPullToRefreshAttacher;
@@ -95,15 +94,20 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
     }
 
     @Override
+    protected void onStart()
+    {
+        super.onStart();
+        slider = (DiarySlidePane) findViewById(R.id.slider);
+        slider.setPanelSlideListener(sliderListener);
+        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
+    }
+
+    @Override
     public void onResume()
     {
         mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
         if(getIntent().getData() != null && pageToLoad == null)
             pageToLoad = getIntent().getDataString();
-
-        slider = (DiarySlidePane) findViewById(R.id.slider);
-        slider.setPanelSlideListener(sliderListener);
-        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
 
         super.onResume();
     }
@@ -119,7 +123,6 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
                 mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 50);
             else
             {
-                mUser = mService.mUser;
                 mDHCL = mService.mDHCL;
                 mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 
@@ -221,7 +224,7 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
                         }
                     });
                 }
-            }, "NothingAndNowhere" + mUser.userName);
+            }, "NothingAndNowhere" + getUser().userName);
     }
 
     public void handleBackground(int opCode, Object body)
@@ -265,6 +268,14 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
     {
         mHelper.dispose();
         super.onDestroy();
+    }
+
+    protected UserData getUser()
+    {
+        if(mService == null)
+            return null;
+
+        return mService.mUser;
     }
 
     protected abstract void onFragmentRemove(boolean reload);

@@ -35,6 +35,7 @@ public class DiaryListFragment extends DiaryFragment
     public void onPrepareOptionsMenu(Menu menu)
     {
         super.onPrepareOptionsMenu(menu);
+        UserData mUser = ((DiaryActivity)getActivity()).getUser();
 
         if(mUser == null)
             return;
