@@ -6,8 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -28,8 +26,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
-import android.webkit.MimeTypeMap;
-import android.webkit.URLUtil;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -43,8 +39,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
 import adonai.diary_browser.entities.Comment;
@@ -506,7 +500,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                             case DiaryWebView.IMAGE_SAVE: // save
                             {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, false));
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, true));
                             }
                             break;
                             case DiaryWebView.IMAGE_COPY_URL: // copy
@@ -519,7 +513,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                             case DiaryWebView.IMAGE_OPEN: // open Link
                             {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, true));
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, false));
                             }
                             break;
                         }

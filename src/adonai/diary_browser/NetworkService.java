@@ -911,14 +911,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                 if(page.getEntity().getContentType().getValue().contains("image")) // Just load image, no further processing
                 {
-                    if(reload) // reload - open
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);
-                    else // no reload - save
+                    if(reload) // reload - save
                     {
                         Header srcName = page.getFirstHeader("Content-Disposition");
                         String realName = URLUtil.guessFileName(URL, srcName != null ? srcName.getValue() : null, MimeTypeMap.getFileExtensionFromUrl(URL));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
                     }
+                    else // no reload - open
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);
                     return;
                 }
 
@@ -1073,7 +1073,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void newSession()
     {
         mUser = new UserData();
-        mDHCL = new DiaryHttpClient();
+        mDHCL.cookieStore.clear();
         mCache.clear();
     }
 }

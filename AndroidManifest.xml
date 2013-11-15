@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="135"
-    android:versionName="1.3.5" android:installLocation="auto">
+    android:versionCode="136"
+    android:versionName="1.3.6" android:installLocation="auto">
 
     <uses-sdk
         android:minSdkVersion="7"
@@ -43,12 +43,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
-        </activity>
-        <activity
-            android:name="adonai.diary_browser.ImageViewer">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="adonai.diary_browser.DiaryList" />
         </activity>
         <activity android:name="adonai.diary_browser.preferences.PreferencesScreen"/>
         <service android:name="adonai.diary_browser.NetworkService" android:enabled="true">
