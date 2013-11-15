@@ -431,12 +431,21 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
+                if (message.obj == null)
+                {
+                    mPageBrowser.loadDataWithBaseURL(mUser.currentDiaryPage.getPageURL(), mUser.currentDiaryPage.getContent().html(), null, "utf-8", mUser.currentDiaryPage.getPageURL());
 
-                browserHistory.add(mUser.currentDiaryPage.getPageURL());
-                handleTabChange(mUser.currentDiaryPage.getPageURL());
+                    browserHistory.add(mUser.currentDiaryPage.getPageURL());
+                    handleTabChange(mUser.currentDiaryPage.getPageURL());
 
-                setTitle(mUser.currentDiaryPage.getContent().title());
+                    setTitle(mUser.currentDiaryPage.getContent().title());
+                }
+                else
+                {
+                    String src = (String) message.obj;
+                    mPageBrowser.loadUrl(src);
+                    browserHistory.add(src);
+                }
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu(); // PART_WEB
@@ -469,7 +478,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     slider.openPane();
                     String name = message.getData().getString("title");
                     if(name != null)
-                        messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L],");
+                        messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L], ");
                 }
                 break;
             }
@@ -496,22 +505,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         {
                             case DiaryWebView.IMAGE_SAVE: // save
                             {
-                                // На Андроиде > 2.3.3 используется иной метод сохранения кэша. Просто так картинку не получить, увы.
-                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
-                                {
-                                    Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                    mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, false));
-                                }
-                                else
-                                {
-                                    String hashCode = String.format("%08x", src.hashCode());
-                                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                                    if(file.exists())
-                                    {
-                                        String realName = URLUtil.guessFileName(src, null, MimeTypeMap.getFileExtensionFromUrl(src));
-                                        CacheManager.saveDataToSD(getApplicationContext(), realName, file);
-                                    }
-                                }
+                                Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, false));
                             }
                             break;
                             case DiaryWebView.IMAGE_COPY_URL: // copy
@@ -523,28 +518,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                             break;
                             case DiaryWebView.IMAGE_OPEN: // open Link
                             {
-                             // На Андроиде > 2.3.3 используется иной метод сохранения кэша.
-                                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
-                                {
-                                    Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                    mService.handleRequest(Utils.HANDLE_GET_IMAGE, new Pair<String, Boolean>(src, true));
-                                }
-                                else
-                                {
-                                    String hashCode = String.format("%08x", src.hashCode());
-                                    File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                                    if(file.exists())
-                                        try
-                                        {
-                                            Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-                                            intent.putExtra("image_file", file.getCanonicalPath());
-                                            startActivity(intent);
-                                        }
-                                        catch (IOException e)
-                                        {
-                                            Toast.makeText(DiaryListActivity.this, R.string.file_not_found, Toast.LENGTH_SHORT).show();
-                                        }
-                                }
+                                Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, true));
                             }
                             break;
                         }

@@ -406,7 +406,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     case HANDLE_REQUEST_AVATARS:
                     {
                         String URL = "http://www.diary.ru/options/member/?avatar";
-                        HttpResponse page = mDHCL.postPage(URL, null);
+                        HttpResponse page = mDHCL.getPage(URL);
                         if(page == null)
                             return false;
 
@@ -642,7 +642,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         assert(mService != null);
         mDHCL = mService.mDHCL;
 
-        if(mSendURL.equals(sendURL))
+        if(mSendURL.equals(sendURL) && mId.equals(id))
         {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);

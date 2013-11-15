@@ -59,8 +59,6 @@ public class DiaryHttpClient
             httpPost = new HttpPost(address.toURL().toString());
             if(data != null)
                 httpPost.setEntity(data);
-            else
-                currentURL = address.toURL().toString();
 
             response = httpClient.execute(httpPost, localContext);
         }
@@ -88,6 +86,26 @@ public class DiaryHttpClient
             response = AsyncRetriever.execute(httpGet, localContext);
         }
         catch (Exception e)
+        {
+            System.out.println("HTTPHelp : Null URL: " + e);
+            e.printStackTrace();
+        }
+
+        return response;
+    }
+
+    public HttpResponse getPageAndContext(String url)
+    {
+        HttpResponse response = null;
+        try
+        {
+            URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+            HttpGet httpGet = new HttpGet(address.toURL().toString());
+            currentURL = address.toURL().toString();
+
+            response = httpClient.execute(httpGet, localContext);
+        }
+        catch (Exception e) // неполадки в соединении
         {
             System.out.println("HTTPHelp : Null URL: " + e);
             e.printStackTrace();

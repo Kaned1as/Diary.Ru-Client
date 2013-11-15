@@ -331,7 +331,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(onlyNew)
                         jsURL = jsURL + "&new";
 
-                    HttpResponse page = mDHCL.postPage(jsURL, null);
+                    HttpResponse page = mDHCL.getPageAndContext(jsURL);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -352,7 +352,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_FOLDER:
                 {
-                    HttpResponse page = mDHCL.postPage((String)message.obj, null);
+                    HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -366,7 +366,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_MAIL:
                 {
-                    HttpResponse page = mDHCL.postPage((String)message.obj, null);
+                    HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -376,28 +376,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     serializeUmailPage(uMail);
 
                     notifyListeners(Utils.HANDLE_OPEN_MAIL, null);
-                    return true;
-                }
-                case Utils.HANDLE_GET_IMAGE:
-                {
-                    String src = ((Pair<String, Boolean>) message.obj).first;
-                    boolean openOnLoad = ((Pair<String, Boolean>) message.obj).second;
-                    HttpResponse response = mDHCL.getPage(src);
-                    if(response == null)
-                    {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
-                        return false;
-                    }
-                    Header srcName = response.getFirstHeader("Content-Disposition");
-                    String realName = URLUtil.guessFileName(src, srcName != null ? srcName.getValue() : null, MimeTypeMap.getFileExtensionFromUrl(src));
-                    File newFile = CacheManager.saveDataToSD(getApplicationContext(), realName, response.getEntity().getContent());
-                    if(openOnLoad && newFile != null)
-                    {
-                        Intent intent = new Intent(getApplicationContext(), ImageViewer.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra("image_file", newFile.getCanonicalPath());
-                        startActivity(intent);
-                    }
                     return true;
                 }
                 case Utils.HANDLE_DELETE_POST:
@@ -424,7 +402,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_POST:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.postPage(URL, null);
+                    HttpResponse page = mDHCL.getPageAndContext(URL);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -441,7 +419,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_COMMENT:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.postPage(URL, null);
+                    HttpResponse page = mDHCL.getPageAndContext(URL);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -924,12 +902,26 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
             else
             {
-                HttpResponse page = mDHCL.postPage(URL, null);
+                HttpResponse page = mDHCL.getPageAndContext(URL);
                 if(page == null)
                 {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
                     return;
                 }
+
+                if(page.getEntity().getContentType().getValue().contains("image")) // Just load image, no further processing
+                {
+                    if(reload) // reload - open
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);
+                    else // no reload - save
+                    {
+                        Header srcName = page.getFirstHeader("Content-Disposition");
+                        String realName = URLUtil.guessFileName(URL, srcName != null ? srcName.getValue() : null, MimeTypeMap.getFileExtensionFromUrl(URL));
+                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
+                    }
+                    return;
+                }
+
                 dataPage = EntityUtils.toString(page.getEntity());
                 handled = Utils.checkDiaryUrl(dataPage);
             }
@@ -940,7 +932,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mDHCL.currentURL = URL;
 
-                    // Особый обработчик для случая с списками
                     if(cachedPage instanceof DiaryListPage)
                     {
                         mUser.currentDiaries = (DiaryListPage) cachedPage;
