@@ -143,7 +143,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void initializeUI(View main)
     {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1)
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2)
             getActionBar().setHomeButtonEnabled(true);
 
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
