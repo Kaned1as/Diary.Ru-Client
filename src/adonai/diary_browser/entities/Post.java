@@ -1,5 +1,8 @@
 package adonai.diary_browser.entities;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Post extends Comment
 {
     // Идентификатор дневника
@@ -31,4 +34,6 @@ public class Post extends Comment
     public String closeAccessMode = "";
     public String closeAllowList = "";
     public String closeDenyList = "";
+
+    public Map<String, Boolean> predefinedTags = new HashMap<>();
 }

@@ -1,21 +1,7 @@
 package adonai.diary_browser.entities;
 
-public class Umail extends ListPage
+public class Umail extends Comment
 {
-    private boolean isRead;
-
-    public boolean isRead()
-    {
-        return isRead;
-    }
-
-    public void setRead(boolean isRead)
-    {
-        this.isRead = isRead;
-    }
-
-    public long getId()
-    {
-        return Long.valueOf(getURL().substring(getURL().lastIndexOf('=') + 1));
-    }
+    public String receiver = "";
+    public String messageTheme = "";
 }

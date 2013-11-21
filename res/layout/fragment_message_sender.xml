@@ -169,7 +169,7 @@
         android:inputType="text|textMultiLine|textCapSentences"
         android:minLines="2" />
 
-    <CheckBox
+        <CheckBox
         android:id="@+id/message_subscribe"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -222,7 +222,23 @@
         android:maxLines="1"
         android:visibility="gone" />
 
-    <TextView
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/predef_themes_scroll"
+            android:background="@drawable/layout_border"
+            >
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/message_predef_themes"
+                >
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <TextView
         android:id="@+id/message_music_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

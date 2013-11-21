@@ -40,8 +40,8 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
     public long getItemId(int position)
     {
         ListPage page = getItem(position);
-        if(page instanceof Umail)
-            return ((Umail) page).getId();
+        if(page instanceof UmailListPage)
+            return ((UmailListPage) page).getId();
         else
             return position;
     }
@@ -74,8 +74,8 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         else
             view.setBackgroundResource(R.drawable.item_background);
 
-        if(diary instanceof Umail)
-            title.setTextColor(((Umail)diary).isRead() ? Color.BLACK : Color.RED);
+        if(diary instanceof UmailListPage)
+            title.setTextColor(((UmailListPage)diary).isRead() ? Color.BLACK : Color.RED);
         
         return view;
     }

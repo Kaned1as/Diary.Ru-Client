@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.ListPage;
+import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
@@ -302,10 +303,13 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
     private void newUmail(UmailPage receiver)
     {
+        Umail mail = new Umail();
         if(receiver != null)
-            messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", "umailTo", receiver.getSenderName(), receiver.getMessageTheme());
-        else
-            messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", "umailTo", "", "");
+        {
+            mail.receiver = receiver.getSenderName();
+            mail.messageTheme = receiver.getMessageTheme();
+        }
+        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", "umailTo", "", mail);
         slider.openPane();
     }
 

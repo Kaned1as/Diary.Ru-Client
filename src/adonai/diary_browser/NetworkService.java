@@ -54,7 +54,7 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.TagsPage;
-import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
@@ -458,9 +458,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         result.title = rootNode.select("input#postTitle.text").val();
         result.content = rootNode.select("textarea#message").text();
 
-        Elements communityThemes = rootNode.select("input[id^=favtg][checked]");
+        Elements communityThemes = rootNode.select("input[id^=favtg]");
         for(Element theme : communityThemes)
-            result.themes += theme.val() + ";";
+            result.predefinedTags.put(theme.val(), theme.hasAttr("checked"));
 
         result.themes += rootNode.select("input#tags.text").val();
         result.mood = rootNode.select("input#atMood.text").val();
@@ -833,7 +833,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
             if (title != null && author != null && last_post != null)
             {
-                Umail mail = new Umail();
+                UmailListPage mail = new UmailListPage();
                 mail.setTitle(title.getElementsByTag("b").text());
                 mail.setURL(title.attr("href"));
 

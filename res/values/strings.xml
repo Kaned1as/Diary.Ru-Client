@@ -151,4 +151,5 @@
     <string name="show_version_sum">Show ad screen on app start</string>
     <string name="confirmation">Confirm action</string>
     <string name="clear_contents">You attempt to write to the same diary. Should I clear message pane?</string>
+    <string name="no">No</string>
 </resources>

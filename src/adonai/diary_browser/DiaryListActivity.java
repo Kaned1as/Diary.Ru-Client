@@ -831,13 +831,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void editPost(Post post)
     {
-        messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "PostEditId", post.postID, post.serialize());
+        messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "PostEditId", post.postID, post);
         slider.openPane();
     }
 
     public void editComment(Comment comment)
     {
-        messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "CommentEditId", comment.commentID, comment.serialize());
+        messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "CommentEditId", comment.commentID, comment);
         slider.openPane();
     }
 

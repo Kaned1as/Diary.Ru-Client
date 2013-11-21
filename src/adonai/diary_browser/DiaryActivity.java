@@ -259,7 +259,7 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
         }
         catch (NumberFormatException ex)
         {
-            Toast.makeText(this, R.string.invalid_number, Toast.LENGTH_SHORT);
+            Toast.makeText(this, R.string.invalid_number, Toast.LENGTH_SHORT).show();
         }
     }
 

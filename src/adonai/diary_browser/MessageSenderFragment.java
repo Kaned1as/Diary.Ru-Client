@@ -72,6 +72,7 @@ import java.util.concurrent.FutureTask;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.Umail;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
@@ -132,7 +133,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     Looper mLooper;
     ProgressDialog pd;
 
-    LinearLayout mAvatars, mSmilies, mSmilieButtons;
+    LinearLayout mAvatars, mSmilies, mSmilieButtons, mPredefinedThemes;
     List<View> postElements = new ArrayList<View>();
     List<View> commentElements = new ArrayList<View>();
     List<View> umailElements = new ArrayList<View>();
@@ -228,6 +229,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mShowSmilies.setOnClickListener(this);
         mSmilies = (LinearLayout) sender.findViewById(R.id.message_smilies);
         mSmilieButtons = (LinearLayout) sender.findViewById(R.id.message_smilies_types);
+        mPredefinedThemes = (LinearLayout) sender.findViewById(R.id.message_predef_themes);
 
         optionals.add(sender.findViewById(R.id.message_themes_hint));
         optionals.add(themesText);
@@ -235,6 +237,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         optionals.add(musicText);
         optionals.add(sender.findViewById(R.id.message_mood_hint));
         optionals.add(moodText);
+        optionals.add(mPredefinedThemes);
 
         pollScheme.add(mPollTitle);
         pollScheme.add(mPollChoice1);
@@ -261,6 +264,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mShowOptionals);
         postElements.add(mShowAndClose);
         postElements.add(mShowPoll);
+        postElements.add(mPredefinedThemes);
 
         umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
@@ -636,29 +640,17 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     };
 
-    public void prepareFragment(String signature, String sendURL, String typeId, String id, String contents)
+    public void prepareFragment(String signature, String sendURL, String typeId, String id, Object contents)
     {
+        Boolean checkClear = false;
+        mCustomAvatar.setChecked(false); // всегда скрываем аватарки
+
         mService = NetworkService.getInstance(getActivity());
         assert(mService != null);
         mDHCL = mService.mDHCL;
 
         if(mSendURL.equals(sendURL) && mId.equals(id))
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
-            builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
-            {
-                @Override
-                public void onClick(DialogInterface dialog, int which)
-                {
-                    clearPage();
-                }
-            });
-            builder.setNegativeButton(android.R.string.no, null);
-            builder.create().show();
-        }
-        else
-            clearPage();
+            checkClear = true;
 
         // обязательно
         mSignature = signature;
@@ -681,6 +673,26 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
+
+            mPost = new Post();
+
+            if(checkClear)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
+                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        prepareUi((Post) mPost);
+                    }
+                });
+                builder.setNegativeButton(R.string.no, null);
+                builder.create().show();
+            }
+            else
+                prepareUi((Post) mPost);
         }
         else if (mTypeId.equals("PostId")) // если это комментарий
         {
@@ -696,6 +708,25 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
             for(View v : commentElements)
                 v.setVisibility(View.VISIBLE);
+
+            mPost = new Comment();
+            if(checkClear)
+            {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
+                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which)
+                    {
+                        prepareUi(mPost);
+                    }
+                });
+                builder.setNegativeButton(R.string.no, null);
+                builder.create().show();
+            }
+            else
+                prepareUi(mPost);
         }
         else if(mTypeId.equals("umailTo")) // Если почта
         {
@@ -711,10 +742,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             for(View v : umailElements)
                 v.setVisibility(View.VISIBLE);
 
-            if(mId != null)
-                toText.setText(mId);
-            if(contents != null)
-                titleText.setText(contents);
+            mPost = (Umail) contents;
+            prepareUi((Umail) mPost);
         }
         else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
         {
@@ -730,8 +759,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             for(View v : commentElements)
                 v.setVisibility(View.VISIBLE);
 
-            mPost = new Comment();
-            mPost.deserialize(contents);
+            mPost = (Comment) contents;
             prepareUi(mPost);
         }
         else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
@@ -748,8 +776,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
 
-            mPost = new Post();
-            mPost.deserialize(contents);
+            mPost = (Post) contents;
             prepareUi((Post) mPost);
         }
     }
@@ -759,56 +786,74 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         contentText.setText(comment.content);
     }
 
+    private void prepareUi(Umail mail)
+    {
+        toText.setText(mail.receiver);
+        titleText.setText(mail.messageTheme);
+    }
+
     private void prepareUi(Post post)
     {
         titleText.setText(post.title);
         contentText.setText(post.content);
 
-        if(!"".equals(post.music + post.mood + post.themes))
-        {
+        if(!"".equals(post.music + post.mood + post.themes) || !post.predefinedTags.isEmpty())
             mShowOptionals.setChecked(true);
-            musicText.setText(post.music);
-            moodText.setText(post.mood);
-            themesText.setText(post.themes);
-        }
+        else
+            mShowOptionals.setChecked(false);
+
+        musicText.setText(post.music);
+        moodText.setText(post.mood);
+        themesText.setText(post.themes);
 
         if(!post.pollTitle.equals(""))
-        {
             mShowPoll.setChecked(true);
-            mPollTitle.setText(post.pollTitle);
-            mPollChoice1.setText(post.pollAnswer1);
-            mPollChoice2.setText(post.pollAnswer2);
-            mPollChoice3.setText(post.pollAnswer3);
-            mPollChoice4.setText(post.pollAnswer4);
-            mPollChoice5.setText(post.pollAnswer5);
-            mPollChoice6.setText(post.pollAnswer6);
-            mPollChoice7.setText(post.pollAnswer7);
-            mPollChoice8.setText(post.pollAnswer8);
-            mPollChoice9.setText(post.pollAnswer9);
-            mPollChoice10.setText(post.pollAnswer10);
-        }
+        else
+            mShowPoll.setChecked(false);
+
+        mPollTitle.setText(post.pollTitle);
+        mPollChoice1.setText(post.pollAnswer1);
+        mPollChoice2.setText(post.pollAnswer2);
+        mPollChoice3.setText(post.pollAnswer3);
+        mPollChoice4.setText(post.pollAnswer4);
+        mPollChoice5.setText(post.pollAnswer5);
+        mPollChoice6.setText(post.pollAnswer6);
+        mPollChoice7.setText(post.pollAnswer7);
+        mPollChoice8.setText(post.pollAnswer8);
+        mPollChoice9.setText(post.pollAnswer9);
+        mPollChoice10.setText(post.pollAnswer10);
 
         if(!post.closeAccessMode.equals(""))
-        {
             mShowAndClose.setChecked(true);
-            if(post.closeAccessMode.equals("6"))
-                mCloseOpts.check(R.id.close_only_reg);
-            else if(post.closeAccessMode.equals("1"))
-                mCloseOpts.check(R.id.close_only_fav);
-            else if(post.closeAccessMode.equals("5"))
-                mCloseOpts.check(R.id.close_only_sub);
-            else if(post.closeAccessMode.equals("4"))
-                mCloseOpts.check(R.id.close_only_white);
-            else if(post.closeAccessMode.equals("3"))
-                mCloseOpts.check(R.id.close_for_list);
-            else if(post.closeAccessMode.equals("2"))
-                mCloseOpts.check(R.id.close_only_list);
-            else if(post.closeAccessMode.equals("7"))
-                mCloseOpts.check(R.id.close_for_all);
+        else
+            mShowAndClose.setChecked(false);
 
-            mCloseText.setText(post.closeText);
-            mCloseAllowList.setText(post.closeAllowList);
-            mCloseDenyList.setText(post.closeDenyList);
+        if(post.closeAccessMode.equals("6"))
+            mCloseOpts.check(R.id.close_only_reg);
+        else if(post.closeAccessMode.equals("1"))
+            mCloseOpts.check(R.id.close_only_fav);
+        else if(post.closeAccessMode.equals("5"))
+            mCloseOpts.check(R.id.close_only_sub);
+        else if(post.closeAccessMode.equals("4"))
+            mCloseOpts.check(R.id.close_only_white);
+        else if(post.closeAccessMode.equals("3"))
+            mCloseOpts.check(R.id.close_for_list);
+        else if(post.closeAccessMode.equals("2"))
+            mCloseOpts.check(R.id.close_only_list);
+        else if(post.closeAccessMode.equals("7"))
+            mCloseOpts.check(R.id.close_for_all);
+
+        mCloseText.setText(post.closeText);
+        mCloseAllowList.setText(post.closeAllowList);
+        mCloseDenyList.setText(post.closeDenyList);
+
+        mPredefinedThemes.removeAllViews(); // always clear all checks since we recreate them now
+        for(Map.Entry<String, Boolean> theme : post.predefinedTags.entrySet())
+        {
+            CheckBox current = new CheckBox(themeWrapper);
+            current.setText(theme.getKey());
+            current.setChecked(theme.getValue());
+            mPredefinedThemes.addView(current);
         }
     }
 
@@ -960,6 +1005,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("title", ((Post) mPost).title));
                     if(mShowOptionals.isChecked())
                     {
+                        for(int i = 0; i < mPredefinedThemes.getChildCount(); ++i)
+                        {
+                            CheckBox check = (CheckBox) mPredefinedThemes.getChildAt(i);
+                            if(check.isChecked())
+                                postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
+                        }
+
                         postParams.add(new BasicNameValuePair("themes", ((Post) mPost).themes));
                         postParams.add(new BasicNameValuePair("current_music", ((Post) mPost).music));
                         postParams.add(new BasicNameValuePair("current_mood", ((Post) mPost).mood));
@@ -1385,38 +1437,5 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     {
         if(getActivity() instanceof  DiaryActivity)
             ((DiaryActivity)getActivity()).onFragmentRemove(reload);
-    }
-
-    private void clearPage()
-    {
-        titleText.setText("");
-        contentText.setText("");
-        toText.setText("");
-
-        mShowOptionals.setChecked(false);
-        themesText.setText("");
-        musicText.setText("");
-        moodText.setText("");
-
-        mShowPoll.setChecked(false);
-        mPollTitle.setText("");
-        mPollChoice1.setText("");
-        mPollChoice2.setText("");
-        mPollChoice3.setText("");
-        mPollChoice4.setText("");
-        mPollChoice5.setText("");
-        mPollChoice6.setText("");
-        mPollChoice7.setText("");
-        mPollChoice8.setText("");
-        mPollChoice9.setText("");
-        mPollChoice10.setText("");
-
-        mShowAndClose.setChecked(false);
-        mCloseOpts.check(R.id.close_only_reg);
-        mCloseText.setText("");
-        mCloseAllowList.setText("");
-        mCloseDenyList.setText("");
-
-        mCustomAvatar.setChecked(false);
     }
 }
