@@ -103,7 +103,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     CheckBox mShowOptionals;
     CheckBox mShowPoll;
     CheckBox mSubscribe;
-    CheckBox mShowAndClose;
+    CheckBox mShowCloseOptions;
     CheckBox mGetReceipt;
     CheckBox mRequote;
     CheckBox mCopyMessage;
@@ -133,13 +133,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     Looper mLooper;
     ProgressDialog pd;
 
-    LinearLayout mAvatars, mSmilies, mSmilieButtons, mPredefinedThemes;
+    LinearLayout mAvatars, mOptionals, mPoll, mSmilies, mSmilieButtons, mPredefinedThemes, mMainLayout;
     List<View> postElements = new ArrayList<View>();
     List<View> commentElements = new ArrayList<View>();
     List<View> umailElements = new ArrayList<View>();
 
-    List<View> optionals = new ArrayList<View>();
-    List<View> pollScheme = new ArrayList<View>();
     List<NameValuePair> postParams;
 
     String mSignature;
@@ -172,6 +170,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mLooper = thr.getLooper();
         mHandler = new Handler(mLooper, HttpCallback);
         mUiHandler = new Handler(UiCallback);
+
+        mMainLayout = (LinearLayout) sender.findViewById(R.id.message_main_layout);
 
         toText = (EditText) sender.findViewById(R.id.message_to);
         mGetReceipt = (CheckBox) sender.findViewById(R.id.message_getreceipt);
@@ -219,11 +219,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         mShowOptionals = (CheckBox) sender.findViewById(R.id.message_optional);
         mShowOptionals.setOnCheckedChangeListener(this);
+        mOptionals = (LinearLayout) sender.findViewById(R.id.optionals_layout);
         mShowPoll = (CheckBox) sender.findViewById(R.id.message_poll);
         mShowPoll.setOnCheckedChangeListener(this);
+        mPoll = (LinearLayout) sender.findViewById(R.id.poll_layout);
         mSubscribe = (CheckBox) sender.findViewById(R.id.message_subscribe);
-        mShowAndClose = (CheckBox) sender.findViewById(R.id.message_close);
-        mShowAndClose.setOnCheckedChangeListener(this);
+        mShowCloseOptions = (CheckBox) sender.findViewById(R.id.message_close);
+        mShowCloseOptions.setOnCheckedChangeListener(this);
 
         mShowSmilies = (Button) sender.findViewById(R.id.message_show_smilies);
         mShowSmilies.setOnClickListener(this);
@@ -231,48 +233,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mSmilieButtons = (LinearLayout) sender.findViewById(R.id.message_smilies_types);
         mPredefinedThemes = (LinearLayout) sender.findViewById(R.id.message_predef_themes);
 
-        optionals.add(sender.findViewById(R.id.message_themes_hint));
-        optionals.add(themesText);
-        optionals.add(sender.findViewById(R.id.message_music_hint));
-        optionals.add(musicText);
-        optionals.add(sender.findViewById(R.id.message_mood_hint));
-        optionals.add(moodText);
-        optionals.add(mPredefinedThemes);
-
-        pollScheme.add(mPollTitle);
-        pollScheme.add(mPollChoice1);
-        pollScheme.add(mPollChoice2);
-        pollScheme.add(mPollChoice3);
-        pollScheme.add(mPollChoice4);
-        pollScheme.add(mPollChoice5);
-        pollScheme.add(mPollChoice6);
-        pollScheme.add(mPollChoice7);
-        pollScheme.add(mPollChoice8);
-        pollScheme.add(mPollChoice9);
-        pollScheme.add(mPollChoice10);
-
-        commentElements.add(sender.findViewById(R.id.message_content_hint));
-        commentElements.add(sender.findViewById(R.id.message_specials));
-        commentElements.add(contentText);
         commentElements.add(mSubscribe);
 
         postElements.add(sender.findViewById(R.id.message_title_hint));
         postElements.add(titleText);
-        postElements.add(sender.findViewById(R.id.message_content_hint));
-        postElements.add(sender.findViewById(R.id.message_specials));
-        postElements.add(contentText);
         postElements.add(mShowOptionals);
-        postElements.add(mShowAndClose);
+        postElements.add(mShowCloseOptions);
         postElements.add(mShowPoll);
-        postElements.add(mPredefinedThemes);
 
         umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
         umailElements.add(sender.findViewById(R.id.message_title_hint));
         umailElements.add(titleText);
-        umailElements.add(sender.findViewById(R.id.message_content_hint));
-        umailElements.add(sender.findViewById(R.id.message_specials));
-        umailElements.add(contentText);
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
         umailElements.add(mCopyMessage);
@@ -643,7 +615,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     public void prepareFragment(String signature, String sendURL, String typeId, String id, Object contents)
     {
         Boolean checkClear = false;
-        mCustomAvatar.setChecked(false); // всегда скрываем аватарки
 
         mService = NetworkService.getInstance(getActivity());
         assert(mService != null);
@@ -665,12 +636,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mTitle.setText(R.string.new_post);
             mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
-            for(View v : umailElements)
-                v.setVisibility(View.GONE);
-
-            for(View v : commentElements)
-                v.setVisibility(View.GONE);
-
+            purgeContents();
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
 
@@ -699,13 +665,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mTitle.setText(R.string.new_comment);
             mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
-            for(View v : umailElements)
-                v.setVisibility(View.GONE);
-
-            for(View v : postElements)
-                v.setVisibility(View.GONE);
-
-
+            purgeContents();
             for(View v : commentElements)
                 v.setVisibility(View.VISIBLE);
 
@@ -733,12 +693,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mTitle.setText(R.string.new_umail);
             mCurrentPage.setVisibility(View.GONE);
 
-            for(View v : commentElements)
-                v.setVisibility(View.GONE);
-
-            for(View v : postElements)
-                v.setVisibility(View.GONE);
-
+            purgeContents();
             for(View v : umailElements)
                 v.setVisibility(View.VISIBLE);
 
@@ -750,12 +705,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mTitle.setText(R.string.edit_comment);
             mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
-            for(View v : umailElements)
-                v.setVisibility(View.GONE);
-
-            for(View v : postElements)
-                v.setVisibility(View.GONE);
-
+            purgeContents();
             for(View v : commentElements)
                 v.setVisibility(View.VISIBLE);
 
@@ -767,12 +717,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mTitle.setText(R.string.edit_post);
             mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
-            for(View v : umailElements)
-                v.setVisibility(View.GONE);
-
-            for(View v : commentElements)
-                v.setVisibility(View.GONE);
-
+            purgeContents();
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
 
@@ -824,9 +769,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mPollChoice10.setText(post.pollAnswer10);
 
         if(!post.closeAccessMode.equals(""))
-            mShowAndClose.setChecked(true);
+            mShowCloseOptions.setChecked(true);
         else
-            mShowAndClose.setChecked(false);
+            mShowCloseOptions.setChecked(false);
 
         if(post.closeAccessMode.equals("6"))
             mCloseOpts.check(R.id.close_only_reg);
@@ -947,7 +892,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         postParams.add(new BasicNameValuePair("poll_answer_10", ""));
                     }
 
-                    if(mShowAndClose.isChecked())
+                    if(mShowCloseOptions.isChecked())
                     {
                         postParams.add(new BasicNameValuePair("private_post", "1"));
                         if(!mCloseText.getText().toString().equals(""))
@@ -1054,7 +999,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         postParams.add(new BasicNameValuePair("poll_answer_10", ""));
                     }
 
-                    if(mShowAndClose.isChecked())
+                    if(mShowCloseOptions.isChecked())
                     {
                         postParams.add(new BasicNameValuePair("private_post", "1"));
                         if(!mCloseText.getText().toString().equals(""))
@@ -1227,19 +1172,15 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         {
             case R.id.message_optional:
                 if(isChecked)
-                    for(View view : optionals)
-                        view.setVisibility(View.VISIBLE);
+                    mOptionals.setVisibility(View.VISIBLE);
                 else
-                    for(View view : optionals)
-                        view.setVisibility(View.GONE);
+                    mOptionals.setVisibility(View.GONE);
                 break;
             case R.id.message_poll:
                 if(isChecked)
-                    for(View view : pollScheme)
-                        view.setVisibility(View.VISIBLE);
+                    mPoll.setVisibility(View.VISIBLE);
                 else
-                    for(View view : pollScheme)
-                        view.setVisibility(View.GONE);
+                    mPoll.setVisibility(View.GONE);
                 break;
             case R.id.message_close:
                 if(isChecked)
@@ -1437,5 +1378,17 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     {
         if(getActivity() instanceof  DiaryActivity)
             ((DiaryActivity)getActivity()).onFragmentRemove(reload);
+    }
+
+    private void purgeContents()
+    {
+        for(int i = 0; i < mMainLayout.getChildCount(); ++i)
+        {
+            View curr = mMainLayout.getChildAt(i);
+            if(curr.getTag() == null || !curr.getTag().toString().equals("persistent"))
+                mMainLayout.getChildAt(i).setVisibility(View.GONE);
+            if(curr instanceof CheckBox)
+                ((CheckBox) curr).setChecked(false);
+        }
     }
 }

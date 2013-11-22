@@ -7,7 +7,7 @@
     android:fillViewport="false">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/message_main_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -15,21 +15,23 @@
         android:paddingRight="10dp">
 
         <TextView
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:id="@+id/fragment_title"
-                android:layout_gravity="center"
-                android:focusable="false"
-                android:gravity="center_horizontal"/>
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:id="@+id/fragment_title"
+            android:layout_gravity="center"
+            android:focusable="false"
+            android:gravity="center_horizontal"
+            android:tag="persistent" />
 
         <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:id="@+id/fragment_page"
-                android:layout_gravity="center"
-                android:gravity="center_horizontal"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:id="@+id/fragment_page"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:tag="persistent" />
 
         <TextView
             android:id="@+id/message_to_hint"
@@ -57,27 +59,28 @@
             android:text="@string/message_title" />
 
         <EditText
-        android:id="@+id/message_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/message_title"
-        android:imeOptions="actionNext"
-        android:inputType="textCapWords|textEmailSubject"
-        android:maxLines="1"
-                />
+            android:id="@+id/message_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/message_title"
+            android:imeOptions="actionNext"
+            android:inputType="textCapWords|textEmailSubject"
+            android:maxLines="1" />
 
-    <TextView
-        android:id="@+id/message_content_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_content" />
+        <TextView
+            android:id="@+id/message_content_hint"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_content"
+            android:tag="persistent" />
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:id="@+id/message_additions"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:tag="persistent">
 
             <LinearLayout
                 android:id="@+id/message_specials"
@@ -104,7 +107,7 @@
                     android:layout_height="50dip"
                     android:contentDescription="@string/gradient_button"
                     android:text="@string/gradient_button"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1" />
 
                 <ImageButton
                     android:id="@+id/right_gradient"
@@ -115,7 +118,7 @@
                     android:cropToPadding="true"
                     android:scaleType="center"
                     android:src="@android:color/black"
-                    android:layout_weight="0"/>
+                    android:layout_weight="0" />
 
             </LinearLayout>
 
@@ -159,32 +162,33 @@
 
         </LinearLayout>
 
-    <EditText
-        android:id="@+id/message_content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/message_content"
-        android:ems="10"
-        android:imeOptions="actionSend"
-        android:inputType="text|textMultiLine|textCapSentences"
-        android:minLines="2" />
+        <EditText
+            android:id="@+id/message_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:contentDescription="@string/message_content"
+            android:ems="10"
+            android:imeOptions="actionSend"
+            android:inputType="text|textMultiLine|textCapSentences"
+            android:minLines="2"
+            android:tag="persistent" />
 
         <CheckBox
-        android:id="@+id/message_subscribe"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:checked="true"
-        android:text="@string/message_subscribe"
-        android:visibility="gone" />
+            android:id="@+id/message_subscribe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/message_subscribe"
+            android:visibility="gone" />
 
-    <CheckBox
-        android:id="@+id/message_getreceipt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_need_receipt"
-        android:visibility="gone" />
+        <CheckBox
+            android:id="@+id/message_getreceipt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_need_receipt"
+            android:visibility="gone" />
 
-    <CheckBox
+        <CheckBox
             android:id="@+id/message_requote"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -192,301 +196,293 @@
             android:text="@string/message_requote"
             android:visibility="gone" />
 
-    <CheckBox
-        android:id="@+id/message_copy"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_copy"
-        android:checked="true"
-        android:visibility="gone" />
+        <CheckBox
+            android:id="@+id/message_copy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_copy"
+            android:checked="true"
+            android:visibility="gone" />
 
-    <CheckBox
-        android:id="@+id/message_optional"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_optional" />
+        <CheckBox
+            android:id="@+id/message_optional"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_optional" />
 
-    <TextView
-        android:id="@+id/message_themes_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_themes"
-        android:visibility="gone" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:id="@+id/optionals_layout"
+            android:visibility="gone">
 
-    <EditText
-        android:id="@+id/message_themes"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/message_themes"
-        android:maxLines="1"
-        android:visibility="gone" />
+            <TextView
+                android:id="@+id/message_themes_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_themes" />
 
-        <HorizontalScrollView
+            <EditText
+                android:id="@+id/message_themes"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/message_themes"
+                android:maxLines="1" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/predef_themes_scroll"
+                android:background="@drawable/layout_border">
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/message_predef_themes"></LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/message_music_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_music" />
+
+            <EditText
+                android:id="@+id/message_music"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/message_music"
+                android:maxLines="1" />
+
+            <TextView
+                android:id="@+id/message_mood_hint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_mood" />
+
+            <EditText
+                android:id="@+id/message_mood"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/message_mood"
+                android:maxLines="1" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/message_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_close" />
+
+        <RadioGroup
+            android:id="@+id/close_opts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/predef_themes_scroll"
-            android:background="@drawable/layout_border"
-            >
+            android:layout_marginLeft="25dip"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/close_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="@string/message_close_text" />
+
+            <RadioButton
+                android:id="@+id/close_only_reg"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/message_close_only_reg" />
+
+            <RadioButton
+                android:id="@+id/close_only_fav"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_only_fav" />
+
+            <RadioButton
+                android:id="@+id/close_only_sub"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_only_sub" />
+
+            <RadioButton
+                android:id="@+id/close_only_white"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_only_white" />
+
+            <RadioButton
+                android:id="@+id/close_for_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_for_list" />
+
+            <EditText
+                android:id="@+id/close_denied_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dip"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/message_close_denied_list"
+                android:visibility="gone" />
+
+            <RadioButton
+                android:id="@+id/close_only_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_only_list" />
+
+            <EditText
+                android:id="@+id/close_allowed_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dip"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="@string/message_close_allowed_list"
+                android:visibility="gone" />
+
+            <RadioButton
+                android:id="@+id/close_for_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/message_close_for_all" />
+
+        </RadioGroup>
+
+        <CheckBox
+            android:id="@+id/message_poll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/message_poll" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/poll_layout"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/message_poll_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_title"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_3"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_4"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_5"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_6"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_9"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+
+            <EditText
+                android:id="@+id/message_poll_10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_poll_choice"
+                android:maxLines="1" />
+        </LinearLayout>
+
+        <CheckBox
+            android:id="@+id/message_custom_avatar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_custom_avatar"
+            android:checked="false"
+            android:tag="persistent" />
+
+        <HorizontalScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/avatars_scroll"
+            android:tag="persistent">
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:id="@+id/message_predef_themes"
-                >
+                android:id="@+id/message_avatars"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
             </LinearLayout>
         </HorizontalScrollView>
 
-        <TextView
-        android:id="@+id/message_music_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_music"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_music"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/message_music"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/message_mood_hint"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_mood"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_mood"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:hint="@string/message_mood"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <CheckBox
-        android:id="@+id/message_close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_close" />
-
-    <RadioGroup
-        android:id="@+id/close_opts"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="25dip"
-        android:visibility="gone" >
-
-        <EditText
-            android:id="@+id/close_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/message_publish"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/message_publish"
             android:layout_weight="1"
-            android:hint="@string/message_close_text" />
-
-        <RadioButton
-            android:id="@+id/close_only_reg"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="true"
-            android:text="@string/message_close_only_reg" />
-
-        <RadioButton
-            android:id="@+id/close_only_fav"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_only_fav" />
-
-        <RadioButton
-            android:id="@+id/close_only_sub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_only_sub" />
-
-        <RadioButton
-            android:id="@+id/close_only_white"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_only_white" />
-
-        <RadioButton
-            android:id="@+id/close_for_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_for_list" />
-
-        <EditText
-            android:id="@+id/close_denied_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="25dip"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="@string/message_close_denied_list"
-            android:visibility="gone" />
-
-        <RadioButton
-            android:id="@+id/close_only_list"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_only_list" />
-
-        <EditText
-            android:id="@+id/close_allowed_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="25dip"
-            android:layout_weight="1"
-            android:ems="10"
-            android:hint="@string/message_close_allowed_list"
-            android:visibility="gone" />
-
-        <RadioButton
-            android:id="@+id/close_for_all"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_close_for_all" />
-
-    </RadioGroup>
-
-    <CheckBox
-        android:id="@+id/message_poll"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/message_poll" />
-
-    <EditText
-        android:id="@+id/message_poll_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_title"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_5"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_7"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <EditText
-        android:id="@+id/message_poll_8"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-    
-    <EditText
-        android:id="@+id/message_poll_9"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-    
-    <EditText
-        android:id="@+id/message_poll_10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="@string/message_poll_choice"
-        android:maxLines="1"
-        android:visibility="gone" />
-
-    <CheckBox
-        android:id="@+id/message_custom_avatar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select_custom_avatar"
-        android:checked="false"/>
-
-        <HorizontalScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/horizontalScrollView">
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:id="@+id/message_avatars"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
-
-                </LinearLayout>
-        </HorizontalScrollView>
-
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="fill_parent"
-                android:layout_gravity="left|center_vertical"
-                android:layout_marginTop="20dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp">
-
-            <Button
-                    android:id="@+id/message_publish"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:text="@string/message_publish"
-                    android:layout_weight="1"
-                    android:layout_margin="5dp"
-                    android:shadowColor="@color/diary_divider"/>
-        </LinearLayout>
+            android:shadowColor="@color/diary_divider"
+            android:paddingLeft="50dp"
+            android:paddingRight="50dp"
+            android:tag="persistent" />
 
     </LinearLayout>
-    </ScrollView>
+</ScrollView>
