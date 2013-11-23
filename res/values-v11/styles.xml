@@ -1,5 +1,5 @@
 <resources>
-    <style name="DiaryTheme" parent="android:Theme.Holo.Light">
+    <style name="DiaryTheme" parent="Theme.AppCompat.Light">
         <item name="android:actionBarStyle">@style/DiaryTheme.ActionBar</item>
         <item name="android:actionMenuTextColor">@android:color/white</item>
     </style>

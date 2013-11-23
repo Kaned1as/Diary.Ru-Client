@@ -41,10 +41,9 @@
       <sourceFolder url="file://$MODULE_DIR$/build-types/debug/resources" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/assets" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/[src]" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src/main/jni" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/res" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/[src]" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/src" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/tests/aidl" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/assets" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests/java" isTestSource="true" />

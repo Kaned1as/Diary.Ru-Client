@@ -10,8 +10,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
@@ -26,7 +26,7 @@ import com.android.vending.util.Purchase;
 
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 
-public abstract class DiaryActivity extends FragmentActivity implements Callback
+public abstract class DiaryActivity extends ActionBarActivity implements Callback
 {
     private static final int HANDLE_APP_START = 0;
     private static final String SKU_DONATE = "small";

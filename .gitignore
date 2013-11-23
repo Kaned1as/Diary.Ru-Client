@@ -2,6 +2,7 @@ gen/
 bin/
 build/
 out/
-/.idea/workspace.xml
-/.idea/inspectionProfiles/*
-/.idea/dictionaries/*
+.gradle/
+.idea/workspace.xml
+.idea/inspectionProfiles/*
+.idea/dictionaries/*

@@ -1,5 +1,5 @@
 <resources>
-    <style name="DiaryTheme" parent="android:Theme.Light" />
+    <style name="DiaryTheme" parent="Theme.AppCompat.Light" />
 
     <style name="Classic" parent="android:Theme.Light">
         <item name="android:textColor">@color/diary_divider</item>
