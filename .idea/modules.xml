@@ -2,10 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../ActionBar-PullToRefresh/library/ActionBar-PullToRefresh.iml" filepath="$PROJECT_DIR$/../ActionBar-PullToRefresh/library/ActionBar-PullToRefresh.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../Android-ColorPicker/Android-ColorPicker.iml" filepath="$PROJECT_DIR$/../Android-ColorPicker/Android-ColorPicker.iml" />
-      <module fileurl="file://$PROJECT_DIR$/Diary.Ru-Client.iml" filepath="$PROJECT_DIR$/Diary.Ru-Client.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../ActionBar-PullToRefresh/extras/actionbarcompat/actionbarcompat.iml" filepath="$PROJECT_DIR$/../ActionBar-PullToRefresh/extras/actionbarcompat/actionbarcompat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contrib/Android-ColorPicker/Android-ColorPicker.iml" filepath="$PROJECT_DIR$/contrib/Android-ColorPicker/Android-ColorPicker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Diary Browser.iml" filepath="$PROJECT_DIR$/Diary Browser.iml" />
+      <module fileurl="file://$PROJECT_DIR$/contrib/contrib.iml" filepath="$PROJECT_DIR$/contrib/contrib.iml" />
     </modules>
   </component>
 </project>

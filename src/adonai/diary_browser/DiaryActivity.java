@@ -24,7 +24,7 @@ import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 
 public abstract class DiaryActivity extends FragmentActivity implements Callback
 {
@@ -46,7 +46,7 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
     String pageToLoad;
 
     DiaryWebView mPageBrowser;
-    protected PullToRefreshAttacher mPullToRefreshAttacher;
+    protected PullToRefreshLayout mPullToRefreshAttacher;
 
     SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener()
     {
@@ -77,7 +77,6 @@ public abstract class DiaryActivity extends FragmentActivity implements Callback
     {
         super.onCreate(savedInstanceState);
         mUiHandler = new Handler(this);
-        mPullToRefreshAttacher = PullToRefreshAttacher.get(this);
 
         String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjuleYDZj7oG7JeX8+bwJWQrf+DYgqGOSiIA6frTZJ+/C7Jt/+PMbWjd/rOelshuYy5HWqywFjvOPoK18zIRMavS1QtlxIMbA/eaVlk+QKEaqOY0EIuBUEIog9e2H7HMq9BVE7o1j8NFuG0skj2jDYfO2R0OfZS2xetqQcXtEtQLp0osS9GQK20oVfNM+LQyyG5ROcab3TmXXjiR0J43XdD8txhSLRB7gzFflMy9C1zYE7736i/R7NAHdmX6KRWmK+YsbI78Wnoy6xa63npdUTIcTUlUwV9zg6VWxQjSLsWnhkgqqJltmKGXk/d3DGYVlwZBu7XnwU0ufGvC1wBC09wIDAQAB";
         mHelper = new IabHelper(this, base64EncodedPublicKey);

@@ -9,7 +9,6 @@ import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -18,8 +17,6 @@ import android.widget.Toast;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
 
 // не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
 // Это была шутка.
@@ -36,21 +33,6 @@ public class DiaryWebView extends WebView
 
     DiaryActivity mActivity;
     int scrolling = 0;
-
-    public PullToRefreshAttacher.OnRefreshListener refresher = new PullToRefreshAttacher.OnRefreshListener()
-    {
-        @Override
-        public void onRefreshStarted(View view)
-        {
-            if(mActivity == null)
-                return;
-
-            if(mActivity instanceof DiaryListActivity)
-                mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mActivity.getUser().currentDiaryPage.getPageURL(), true));
-            else if(mActivity instanceof UmailListActivity)
-                mActivity.handleBackground(Utils.HANDLE_OPEN_MAIL, mActivity.getUser().currentUmailPage.getPageURL());
-        }
-    };
 
     public DiaryWebView(Context context, AttributeSet attrs)
     {

@@ -31,7 +31,9 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener
 {
@@ -70,7 +72,18 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
-        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
+        mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
+        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener()
+        {
+            @Override
+            public void onRefreshStarted(View view)
+            {
+                if(view == mFolderBrowser)
+                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().currentUmails.getURL());
+                if(view == mPageBrowser)
+                    handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().currentUmailPage.getPageURL());
+            }
+        }).setup(mPullToRefreshAttacher);
 
         mFolderBrowser = (ListView) main.findViewById(R.id.ufolder_browser);
 
@@ -129,14 +142,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
             {
                 ListPage uMail = (ListPage) mFolderBrowser.getAdapter().getItem(position);
                 handleBackground(Utils.HANDLE_OPEN_MAIL, uMail.getURL());
-            }
-        });
-        mPullToRefreshAttacher.addRefreshableView(mFolderBrowser, new PullToRefreshAttacher.OnRefreshListener()
-        {
-            @Override
-            public void onRefreshStarted(View view)
-            {
-                handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().currentUmails.getURL());
             }
         });
 

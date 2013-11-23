@@ -3,24 +3,37 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.6.+'
     }
 }
 apply plugin: 'android'
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:+'
+    compile 'com.android.support:support-v4:+'
+    compile 'com.android.support:appcompat-v7:+'
+    compile project(":contrib:Android-ColorPicker")
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 android {
     compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+    buildToolsVersion "18.1.1"
+
+    defaultConfig {
+        minSdkVersion 7
+        targetSdkVersion 18
+    }
 
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
+            java.srcDirs = [['src']]
+            resources.srcDirs = [['src']]
             aidl.srcDirs = ['src']
             renderscript.srcDirs = ['src']
             res.srcDirs = ['res']

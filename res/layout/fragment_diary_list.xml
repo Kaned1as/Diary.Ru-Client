@@ -145,27 +145,34 @@
             android:layout_height="match_parent"
             android:visibility="visible">
 
-            <ListView
-                android:id="@+id/diary_browser"
+            <uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
+                android:id="@+id/refresher_layout"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:cacheColorHint="@android:color/transparent"
-                android:divider="@null"
-                android:listSelector="@drawable/list_item_selector">
-            </ListView>
+                android:layout_height="match_parent">
 
-            <adonai.diary_browser.DiaryWebView
-                android:id="@+id/page_browser"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-            </adonai.diary_browser.DiaryWebView>
+                <ListView
+                    android:id="@+id/diary_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:cacheColorHint="@android:color/transparent"
+                    android:divider="@null"
+                    android:listSelector="@drawable/list_item_selector">
+                </ListView>
 
-            <ExpandableListView
-                android:id="@+id/discussion_browser"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:divider="@null">
-            </ExpandableListView>
+                <adonai.diary_browser.DiaryWebView
+                    android:id="@+id/page_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" >
+                </adonai.diary_browser.DiaryWebView>
+
+                <ExpandableListView
+                    android:id="@+id/discussion_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:divider="@null">
+                </ExpandableListView>
+
+            </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
 
             <ImageButton
                 android:layout_width="wrap_content"

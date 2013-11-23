@@ -46,22 +46,29 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <ListView
-            android:id="@+id/ufolder_browser"
+        <uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
+            android:id="@+id/refresher_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:cacheColorHint="@android:color/transparent"
-            android:divider="@null"
-            android:background="#edd8bd"
-            android:listSelector="@drawable/list_item_selector"
-            android:choiceMode="multipleChoiceModal">
-        </ListView>
+            android:layout_height="match_parent">
 
-        <adonai.diary_browser.DiaryWebView
-            android:id="@+id/page_browser"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-        </adonai.diary_browser.DiaryWebView>
+            <ListView
+                android:id="@+id/ufolder_browser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:cacheColorHint="@android:color/transparent"
+                android:divider="@null"
+                android:background="#edd8bd"
+                android:listSelector="@drawable/list_item_selector"
+                android:choiceMode="multipleChoiceModal">
+            </ListView>
+
+            <adonai.diary_browser.DiaryWebView
+                android:id="@+id/page_browser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" >
+            </adonai.diary_browser.DiaryWebView>
+
+        </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
     </FrameLayout>
 
   

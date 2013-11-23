@@ -50,7 +50,9 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshAttacher;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
 {
@@ -146,11 +148,24 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2)
             getActionBar().setHomeButtonEnabled(true);
 
+        mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         mPageBrowser.setOnClickListener(this);
         registerForContextMenu(mPageBrowser);
-        mPullToRefreshAttacher.addRefreshableView(mPageBrowser, mPageBrowser.refresher);
+        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener()
+        {
+            @Override
+            public void onRefreshStarted(View view)
+            {
+                if(view == mPageBrowser)
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaryPage.getPageURL(), true));
+                if(view == mDiaryBrowser)
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaries.getURL(), true));
+                if(view == mDiscussionBrowser)
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().discussionsURL, true));
+            }
+        }).setup(mPullToRefreshAttacher);
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
 
@@ -174,24 +189,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(diary.getURL(), false));
             }
         });
-        mPullToRefreshAttacher.addRefreshableView(mDiaryBrowser, new PullToRefreshAttacher.OnRefreshListener()
-        {
-            @Override
-            public void onRefreshStarted(View view)
-            {
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaries.getURL(), true));
-            }
-        });
-
         mDiscussionBrowser = (ExpandableListView) main.findViewById(R.id.discussion_browser);
-        mPullToRefreshAttacher.addRefreshableView(mDiscussionBrowser, new PullToRefreshAttacher.OnRefreshListener()
-        {
-            @Override
-            public void onRefreshStarted(View view)
-            {
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().discussionsURL, true));
-            }
-        });
 
         mTabs = (LinearLayout) main.findViewById(R.id.tabs);
         for(int i = 0; i < mTabs.getChildCount(); i++)

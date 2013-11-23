@@ -4,6 +4,7 @@
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../ActionBar-PullToRefresh" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../Android-ColorPicker" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>
 </project>
 
