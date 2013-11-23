@@ -1,6 +1,7 @@
-/gen/
-/bin/
-/out/
+gen/
+bin/
+build/
+out/
 /.idea/workspace.xml
 /.idea/inspectionProfiles/*
 /.idea/dictionaries/*
