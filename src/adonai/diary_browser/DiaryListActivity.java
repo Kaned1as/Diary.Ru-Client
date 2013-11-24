@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -145,8 +144,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void initializeUI(View main)
     {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.HONEYCOMB_MR2)
-            getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
@@ -159,11 +157,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             public void onRefreshStarted(View view)
             {
                 if(view == mPageBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaryPage.getPageURL(), true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaryPage.getPageURL(), true));
                 if(view == mDiaryBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaries.getURL(), true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaries.getURL(), true));
                 if(view == mDiscussionBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().discussionsURL, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().discussionsURL, true));
             }
         }).setup(mPullToRefreshAttacher);
 
@@ -186,7 +184,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             public void onItemClick(AdapterView<?> parent, View view, int position, long id)
             {
                 ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(diary.getURL(), false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(diary.getURL(), false));
             }
         });
         mDiscussionBrowser = (ExpandableListView) main.findViewById(R.id.discussion_browser);
@@ -227,7 +225,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public boolean onOptionsItemSelected(MenuItem item)
     {
         if(item.getGroupId() == DiaryListFragment.GROUP_PAGE_LINKS)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage) getUser().currentDiaryPage).userLinks.get(item.getTitle()), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage) getUser().currentDiaryPage).userLinks.get(item.getTitle()), false));
 
 
         switch(item.getItemId())
@@ -268,10 +266,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case R.id.menu_tags:
                 // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
                 assert(getUser().currentDiaryPage instanceof DiaryPage); // следим чтобы текущая страничка обязательно была в пределах иерархии
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(((DiaryPage)getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage)getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().subscribersURL, false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().subscribersURL, false));
                 return true;
             case R.id.menu_refresh:
                 reloadContent();
@@ -330,7 +328,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
                 if(pageToLoad != null && getUser().isAuthorised)
                 {
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(pageToLoad, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, true));
                     pageToLoad = null;
                 }
                 else if (!getUser().isAuthorised)
@@ -379,7 +377,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 pd.setMessage(getString(R.string.getting_user_info));
                 if (pageToLoad != null) // Если страничка пришла до авторизации
                 {
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(pageToLoad, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, true));
                     pageToLoad = null;
                 }
                 else
@@ -480,7 +478,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if(src == null) // нет картинки!
                     return false;
 
-                ArrayList<String> itemsBuilder = new ArrayList<String>();
+                ArrayList<String> itemsBuilder = new ArrayList<>();
                 itemsBuilder.add(getString(R.string.image_save));
                 itemsBuilder.add(getString(R.string.image_copy_url));
                 itemsBuilder.add(getString(R.string.image_open));
@@ -498,7 +496,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                             case DiaryWebView.IMAGE_SAVE: // save
                             {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, true));
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, true));
                             }
                             break;
                             case DiaryWebView.IMAGE_COPY_URL: // copy
@@ -511,7 +509,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                             case DiaryWebView.IMAGE_OPEN: // open Link
                             {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(src, false));
+                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, false));
                             }
                             break;
                         }
@@ -622,7 +620,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
         else if (view == mQuotesButton)
         {
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().ownDiaryURL + "?quote", false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL + "?quote", false));
         }
         else if (view == mUmailButton)
         {
@@ -650,7 +648,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
         else if (view.getTag() != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>((String)view.getTag(), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(), false));
         }
     }
 
@@ -668,7 +666,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
     {
         String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
-        handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(link, false));
+        handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(link, false));
         return true;
     }
 
@@ -682,7 +680,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         if(((DiscPage)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
         {
-            ArrayList<Object> params = new ArrayList<Object>();
+            ArrayList<Object> params = new ArrayList<>();
             params.add(groupPosition);
             params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
             params.add(false);
@@ -707,7 +705,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 elv.collapseGroup(groupPosition);
                 return true;
             }
-            ArrayList<Object> params = new ArrayList<Object>();
+            ArrayList<Object> params = new ArrayList<>();
             params.add(groupPosition);
             params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
             params.add(true);
@@ -734,22 +732,22 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch (index)
         {
             case TAB_FAVOURITES:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().favoritesURL, false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().favoritesURL, false));
             break;
             case TAB_FAV_POSTS:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().ownDiaryURL + "?favorite", false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL + "?favorite", false));
             break;
             case TAB_MY_DIARY:
                 if(getUser().newDiaryCommentsNum != 0 && !force)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().newDiaryLink, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().newDiaryLink, true));
                 else
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().ownDiaryURL, false));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL, false));
             break;
             case TAB_DISCUSSIONS:
                 if(getUser().newDiscussNum != 0 && !force)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().newDiscussLink, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().newDiscussLink, true));
                 else
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().discussionsURL, false));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().discussionsURL, false));
             break;
             default:
                 Utils.showDevelSorry(this);
@@ -770,9 +768,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     private void reloadContent()
     {
         if(mainPane.mCurrentComponent == PART_WEB)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().currentDiaryPage.getPageURL(), true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaryPage.getPageURL(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(getUser().favoritesURL, true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().favoritesURL, true));
     }
 
     @Override
@@ -783,7 +781,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         else if(browserHistory.hasPrevious())
         {
             browserHistory.moveBack();
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(browserHistory.getUrl(), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(browserHistory.getUrl(), false));
         }
     }
 

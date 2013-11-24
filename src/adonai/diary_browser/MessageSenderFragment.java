@@ -134,9 +134,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     ProgressDialog pd;
 
     LinearLayout mAvatars, mOptionals, mPoll, mSmilies, mSmilieButtons, mPredefinedThemes, mMainLayout;
-    List<View> postElements = new ArrayList<View>();
-    List<View> commentElements = new ArrayList<View>();
-    List<View> umailElements = new ArrayList<View>();
+    List<View> postElements = new ArrayList<>();
+    List<View> commentElements = new ArrayList<>();
+    List<View> umailElements = new ArrayList<>();
 
     List<NameValuePair> postParams;
 
@@ -163,7 +163,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         View sender = localInflater.inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
-        postParams = new ArrayList<NameValuePair>();
+        postParams = new ArrayList<>();
 
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -310,7 +310,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         Elements smilies = rootNode.select("tr img");
                         Elements smileLinks = rootNode.select("ul a");
 
-                        smileMap = new HashMap<String, Object>();
+                        smileMap = new HashMap<>();
                         for(Element smilie : smilies)
                             smileMap.put(smilie.attr("alt"), smilie.attr("src"));
 
@@ -320,7 +320,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         for(String id : smileMap.keySet())
                         {
                             final String url = (String) smileMap.get(id);
-                            FutureTask<Drawable> future = new FutureTask<Drawable>(new Callable<Drawable>()
+                            FutureTask<Drawable> future = new FutureTask<>(new Callable<Drawable>()
                             {
                                 @Override
                                 public Drawable call() throws Exception
@@ -389,7 +389,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         // собираем пары ID аватара - URL аватара
                         String dataPage = EntityUtils.toString(page.getEntity());
                         Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
-                        avatarMap = new SparseArray<Object>();
+                        avatarMap = new SparseArray<>();
                         for(Element avatarbit : avatardivs)
                         {
                             Integer avId = Integer.valueOf(avatarbit.select("input[name=use_avatar_id]").val());
@@ -404,7 +404,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         for(int i = 0; i < avatarMap.size(); i++)
                         {
                             final String url = (String) avatarMap.valueAt(i);
-                            FutureTask<Drawable> future = new FutureTask<Drawable>(new Callable<Drawable>()
+                            FutureTask<Drawable> future = new FutureTask<>(new Callable<Drawable>()
                             {
                                 @Override
                                 public Drawable call() throws Exception
@@ -773,20 +773,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         else
             mShowCloseOptions.setChecked(false);
 
-        if(post.closeAccessMode.equals("6"))
-            mCloseOpts.check(R.id.close_only_reg);
-        else if(post.closeAccessMode.equals("1"))
-            mCloseOpts.check(R.id.close_only_fav);
-        else if(post.closeAccessMode.equals("5"))
-            mCloseOpts.check(R.id.close_only_sub);
-        else if(post.closeAccessMode.equals("4"))
-            mCloseOpts.check(R.id.close_only_white);
-        else if(post.closeAccessMode.equals("3"))
-            mCloseOpts.check(R.id.close_for_list);
-        else if(post.closeAccessMode.equals("2"))
-            mCloseOpts.check(R.id.close_only_list);
-        else if(post.closeAccessMode.equals("7"))
-            mCloseOpts.check(R.id.close_for_all);
+        switch (post.closeAccessMode)
+        {
+            case "6": mCloseOpts.check(R.id.close_only_reg); break;
+            case "1": mCloseOpts.check(R.id.close_only_fav); break;
+            case "5": mCloseOpts.check(R.id.close_only_sub); break;
+            case "4": mCloseOpts.check(R.id.close_only_white); break;
+            case "3": mCloseOpts.check(R.id.close_for_list); break;
+            case "2": mCloseOpts.check(R.id.close_only_list); break;
+            case "7": mCloseOpts.check(R.id.close_for_all); break;
+        }
 
         mCloseText.setText(post.closeText);
         mCloseAllowList.setText(post.closeAllowList);

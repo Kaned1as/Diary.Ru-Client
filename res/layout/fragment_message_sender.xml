@@ -241,7 +241,8 @@
                     android:orientation="horizontal"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
-                    android:id="@+id/message_predef_themes"></LinearLayout>
+                    android:id="@+id/message_predef_themes"
+                    ></LinearLayout>
             </HorizontalScrollView>
 
             <TextView
@@ -461,7 +462,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/avatars_scroll"
-            android:tag="persistent">
+            android:tag="persistent"
+            android:background="@drawable/layout_border">
 
             <LinearLayout
                 android:orientation="horizontal"

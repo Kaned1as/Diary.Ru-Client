@@ -81,7 +81,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean notify_on_updates;
     boolean keep_device_on;
 
-    private List<DiaryActivity> mListeners = new ArrayList<DiaryActivity>();
+    private List<DiaryActivity> mListeners = new ArrayList<>();
     String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
 
     /*
@@ -256,7 +256,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
                     long[] ids = ((Pair<long[], Integer>) message.obj).first;
 
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    List<NameValuePair> nameValuePairs = new ArrayList<>();
                     nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
                     nameValuePairs.add(new BasicNameValuePair("module", "umail"));
                     nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
@@ -273,7 +273,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_SET_HTTP_COOKIE:
                 {
-                    List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+                    List<NameValuePair> nameValuePairs = new ArrayList<>();
                     nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
                     nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                     nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
@@ -381,14 +381,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_DELETE_POST:
                 {
                     String id = (String) message.obj;
-                    List<NameValuePair> postParams = new ArrayList<NameValuePair>();
+                    List<NameValuePair> postParams = new ArrayList<>();
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("act", "del_post_post"));
                     postParams.add(new BasicNameValuePair("post_id", id));
                     postParams.add(new BasicNameValuePair("yes", "Да"));
                     mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
                     return true;
                 }
                 case Utils.HANDLE_DELETE_COMMENT:
@@ -396,7 +396,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     String id = (String) message.obj;
                     mDHCL.getPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(mUser.currentDiaryPage.getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
                     return true;
                 }
                 case Utils.HANDLE_EDIT_POST:
@@ -437,11 +437,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return false;
             }
         }
-        catch (ParseException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
+        catch (ParseException | IOException e)
         {
             e.printStackTrace();
         }
@@ -1013,42 +1009,39 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
     {
-        if(key.equals("images.autoload"))
+        switch (key)
         {
-            load_images = sharedPreferences.getBoolean(key, false);
-        }
-        else if(key.equals("images.autoload.cache"))
-        {
-            load_cached = sharedPreferences.getBoolean(key, false);
-        }
-        else if(key.equals("service.notify.updates"))
-        {
-            mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);
-            notify_on_updates = sharedPreferences.getBoolean(key, false);
-            if(notify_on_updates)
-                mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
-        }
-        else if(key.equals("service.keep.device.on"))
-        {
-            if(waker.isHeld())
-                waker.release();
+            case "images.autoload":
+                load_images = sharedPreferences.getBoolean(key, false);
+                break;
+            case "images.autoload.cache":
+                load_cached = sharedPreferences.getBoolean(key, false);
+                break;
+            case "service.notify.updates":
+                mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);
+                notify_on_updates = sharedPreferences.getBoolean(key, false);
+                if (notify_on_updates)
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
+                break;
+            case "service.keep.device.on":
+                if (waker.isHeld())
+                    waker.release();
 
-            keep_device_on = sharedPreferences.getBoolean(key, false);
-            if(keep_device_on)
-                waker.acquire();
-        }
-        else if(key.equals("service.always.running"))
-        {
-            is_sticky = sharedPreferences.getBoolean(key, false);
-            if(is_sticky)
-                startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
-            else
-                stopForeground(true);
-        }
-        else if(key.equals("webview.font.size"))
-        {
-            for(DiaryActivity current : mListeners)
-                current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
+                keep_device_on = sharedPreferences.getBoolean(key, false);
+                if (keep_device_on)
+                    waker.acquire();
+                break;
+            case "service.always.running":
+                is_sticky = sharedPreferences.getBoolean(key, false);
+                if (is_sticky)
+                    startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+                else
+                    stopForeground(true);
+                break;
+            case "webview.font.size":
+                for (DiaryActivity current : mListeners)
+                    current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
+                break;
         }
     }
 

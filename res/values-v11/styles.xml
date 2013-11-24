@@ -1,19 +1,24 @@
 <resources>
     <style name="DiaryTheme" parent="Theme.AppCompat.Light">
         <item name="android:actionBarStyle">@style/DiaryTheme.ActionBar</item>
+        <item name="android:actionOverflowButtonStyle">@style/OverFlow</item>
         <item name="android:actionMenuTextColor">@android:color/white</item>
     </style>
 
-    <style name="DiaryTheme.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar">
+    <style name="DiaryTheme.ActionBar" parent="Widget.AppCompat.Light.ActionBar">
         <item name="android:background">@drawable/top_gradient</item>
         <item name="android:backgroundStacked">@drawable/top_gradient</item>
         <item name="android:backgroundSplit">@drawable/top_gradient</item>
         <item name="android:titleTextStyle">@style/DiaryTheme.ActionBar.TitleTextStyle</item>
     </style>
 
+    <style name="OverFlow" parent="@style/Widget.AppCompat.ActionButton.Overflow">
+        <item name="android:src">@drawable/abc_ic_menu_moreoverflow_normal_holo_dark</item>
+    </style>
+
     <style name="DiaryTheme.ActionBar.TitleTextStyle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title">
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">14dp</item>
+        <item name="android:textSize">14sp</item>
     </style>
     <style name="DiaryTheme.ActionBar.MenuTextStyle" parent="android:style/TextAppearance.Holo.Widget.ActionBar.Menu">
         <item name="android:textColor">@android:color/white</item>
