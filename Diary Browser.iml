@@ -70,9 +70,9 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="Android-ColorPicker" exported="" />
     <orderEntry type="library" exported="" name="ComGithubChrisbanesActionbarpulltorefreshExtraAbc091.aar" level="project" />
+    <orderEntry type="library" exported="" name="jsoup-1.7.3" level="project" />
     <orderEntry type="library" exported="" name="support-v4-19.0.0" level="project" />
     <orderEntry type="library" exported="" name="ComGithubChrisbanesActionbarpulltorefreshLibrary091.aar" level="project" />
-    <orderEntry type="library" exported="" name="jsoup-1.7.1" level="project" />
     <orderEntry type="library" exported="" name="httpmime-4.2.5" level="project" />
     <orderEntry type="library" exported="" name="ComAndroidSupportAppcompatV71900.aar" level="project" />
   </component>
