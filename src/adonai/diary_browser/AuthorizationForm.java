@@ -69,7 +69,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
             String[] curr = logKey.split("=logPassSplitter=");
             mLoginPasswordPairs.put(curr[0], curr[1]);
         }
-        mLoginPicker.setAdapter( new ArrayAdapter(this, android.R.layout.simple_spinner_item, mLoginPasswordPairs.keySet().toArray()));
+        mLoginPicker.setAdapter( new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mLoginPasswordPairs.keySet().toArray()));
 	}
 
     @Override
@@ -104,8 +104,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 			break;
 		default:
 			Toast.makeText(this, R.string.not_impl_sc, Toast.LENGTH_LONG).show();
-			return;
-		}
+        }
 		
 	}
 

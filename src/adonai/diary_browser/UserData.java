@@ -1,14 +1,12 @@
 package adonai.diary_browser;
 
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.WebPage;
-
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.util.ArrayList;
 
 public class UserData
 {

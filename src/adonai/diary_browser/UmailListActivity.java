@@ -120,7 +120,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 @Override
                 public boolean onActionItemClicked(ActionMode mode, MenuItem item)
                 {
-                    handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<long[], Integer>(mFolderBrowser.getCheckedItemIds(), getUser().currentUmails.getURL().equals(inFolderAddress) ? 1 : 2));
+                    handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<>(mFolderBrowser.getCheckedItemIds(), getUser().currentUmails.getURL().equals(inFolderAddress) ? 1 : 2));
                     mode.finish();
                     return true;
                 }

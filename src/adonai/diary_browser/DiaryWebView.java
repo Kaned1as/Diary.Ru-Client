@@ -107,7 +107,6 @@ public class DiaryWebView extends WebView
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         settings.setUseWideViewPort(false);
-        settings.setLightTouchEnabled(true);
         setWebViewClient(new DiaryWebClient());
         setWebChromeClient(new WebChromeClient());
     }

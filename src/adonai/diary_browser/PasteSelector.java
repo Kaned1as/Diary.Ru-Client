@@ -21,8 +21,7 @@ public class PasteSelector extends DialogFragment
 
     public static PasteSelector newInstance()
     {
-        PasteSelector frag = new PasteSelector();
-        return frag;
+        return new PasteSelector();
     }
 
     @Override
