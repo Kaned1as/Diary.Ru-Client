@@ -18,6 +18,8 @@ import android.widget.Toast;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import adonai.diary_browser.entities.Umail;
+
 // не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
 // Это была шутка.
 // Если что, я не хотел обидеть никаких печальных разработчиков
@@ -189,7 +191,9 @@ public class DiaryWebView extends WebView
                 {
                     try
                     {
-                        mActivity.messagePane.prepareFragment(mActivity.getUser().signature, "http://www.diary.ru/diary.php", "umailTo", URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251"), null);
+                        Umail withAddress = new Umail();
+                        withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
+                        mActivity.messagePane.prepareFragment(mActivity.getUser().signature, "http://www.diary.ru/diary.php", withAddress);
                         mActivity.slider.openPane();
                     }
                     catch (UnsupportedEncodingException e)

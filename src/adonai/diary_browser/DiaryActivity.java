@@ -277,5 +277,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
         return mService.mUser;
     }
 
-    protected abstract void onFragmentRemove(boolean reload);
+    protected void onMessagePaneRemove(boolean reload)
+    {
+        slider.closePane();
+    }
+
 }

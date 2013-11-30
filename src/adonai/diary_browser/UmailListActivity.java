@@ -247,12 +247,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         return true;
     }
 
-    @Override
-    protected void onFragmentRemove(boolean reload)
-    {
-        slider.closePane();
-    }
-
     public void onClick(View view)
     {
         switch (view.getId())
@@ -314,7 +308,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
             mail.receiver = receiver.getSenderName();
             mail.messageTheme = receiver.getMessageTheme();
         }
-        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", "umailTo", "", mail);
+        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", mail);
         slider.openPane();
     }
 

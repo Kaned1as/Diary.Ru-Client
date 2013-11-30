@@ -143,8 +143,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     List<NameValuePair> postParams;
 
     String mSignature;
-    String mId;
-    String mTypeId;
     NetworkService mService;
 
     SparseArray<Object> avatarMap;
@@ -617,86 +615,106 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     };
 
-    public void prepareFragment(String signature, String sendURL, String typeId, String id, Object contents)
+    public <T extends Comment> void prepareFragment(String signature, String sendURL, T contents)
     {
-        Boolean checkClear = false;
+        Comment oldpost = mPost;
 
         mService = NetworkService.getInstance(getActivity());
         assert(mService != null);
         mDHCL = mService.mDHCL;
 
-        if(mSendURL.equals(sendURL) && mId.equals(id))
-            checkClear = true;
+        mPost = contents;
 
         // обязательно
         mSignature = signature;
         mSendURL = sendURL;
 
-        // одно из двух
-        mTypeId = typeId;
-        mId = id;
-        // Если это пост
-        if(mTypeId.equals("DiaryId"))
+        if(mPost.getClass() == Post.class)
         {
-            mTitle.setText(R.string.new_post);
-            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+            // Если это новый пост
+            if (mPost.postID.equals(""))
+            {
+                mTitle.setText(R.string.new_post);
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
 
-            purgeContents();
-            for(View v : postElements)
-                v.setVisibility(View.VISIBLE);
+                purgeContents();
+                for(View v : postElements)
+                    v.setVisibility(View.VISIBLE);
 
-            if(contents == null)
-                mPost = new Post();
-            else
+                if(oldpost.getClass() == Post.class && ((Post)oldpost).diaryID.equals(((Post)mPost).diaryID))
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
+                    builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            prepareUi((Post) mPost);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.no, null);
+                    builder.create().show();
+                }
+                else
+                    prepareUi((Post) mPost);
+            }
+            else // если редактирование поста
+            {
+                mTitle.setText(R.string.edit_post);
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+
+                purgeContents();
+                for(View v : postElements)
+                    v.setVisibility(View.VISIBLE);
+
                 mPost = (Post) contents;
-
-            if(checkClear)
-            {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
-                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        prepareUi((Post) mPost);
-                    }
-                });
-                builder.setNegativeButton(R.string.no, null);
-                builder.create().show();
-            }
-            else
                 prepareUi((Post) mPost);
-        }
-        else if (mTypeId.equals("PostId")) // если это комментарий
-        {
-            mTitle.setText(R.string.new_comment);
-            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
-
-            purgeContents();
-            for(View v : commentElements)
-                v.setVisibility(View.VISIBLE);
-
-            mPost = new Comment();
-            if(checkClear)
-            {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
-                builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which)
-                    {
-                        prepareUi(mPost);
-                    }
-                });
-                builder.setNegativeButton(R.string.no, null);
-                builder.create().show();
             }
-            else
-                prepareUi(mPost);
         }
-        else if(mTypeId.equals("umailTo")) // Если почта
+        else if (mPost.getClass() == Comment.class)
+        {
+            // если это новый комментарий
+            if(mPost.commentID.equals(""))
+            {
+                mTitle.setText(R.string.new_comment);
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+
+                purgeContents();
+                for(View v : commentElements)
+                    v.setVisibility(View.VISIBLE);
+
+                if(oldpost.getClass() == Comment.class && oldpost.postID.equals(mPost.postID))
+                {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
+                    builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener()
+                    {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which)
+                        {
+                            prepareUi(mPost);
+                        }
+                    });
+                    builder.setNegativeButton(R.string.no, null);
+                    builder.create().show();
+                }
+                else
+                    prepareUi(mPost);
+            }
+            else // редактирование комментария
+            {
+                mTitle.setText(R.string.edit_comment);
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+
+                purgeContents();
+                for(View v : commentElements)
+                    v.setVisibility(View.VISIBLE);
+
+                prepareUi(mPost);
+            }
+        }
+        else if(mPost.getClass() == Umail.class) // Если почта
         {
             mTitle.setText(R.string.new_umail);
             mCurrentPage.setVisibility(View.GONE);
@@ -705,32 +723,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             for(View v : umailElements)
                 v.setVisibility(View.VISIBLE);
 
-            mPost = (Umail) contents;
             prepareUi((Umail) mPost);
-        }
-        else if(mTypeId.equals("CommentEditId")) // Редактирование коммента
-        {
-            mTitle.setText(R.string.edit_comment);
-            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
-
-            purgeContents();
-            for(View v : commentElements)
-                v.setVisibility(View.VISIBLE);
-
-            mPost = (Comment) contents;
-            prepareUi(mPost);
-        }
-        else if(mTypeId.equals("PostEditId")) // Редактирование поста (самое зло)
-        {
-            mTitle.setText(R.string.edit_post);
-            mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
-
-            purgeContents();
-            for(View v : postElements)
-                v.setVisibility(View.VISIBLE);
-
-            mPost = (Post) contents;
-            prepareUi((Post) mPost);
         }
     }
 
@@ -845,16 +838,25 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, false);
 
                 // Если пост
-                if(mTypeId.equals("DiaryId"))
+                if(mPost.getClass() == Post.class)
                 {
                     postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
 
-                    postParams.add(new BasicNameValuePair("act", "new_post_post"));
-                    postParams.add(new BasicNameValuePair("post_id", ""));
-                    postParams.add(new BasicNameValuePair("journal_id", mId));
+                    if(mPost.postID.equals("")) // новый пост
+                    {
+                        postParams.add(new BasicNameValuePair("act", "new_post_post"));
+                        postParams.add(new BasicNameValuePair("post_id", ""));
+                    }
+                    else // редактируем пост
+                    {
+                        postParams.add(new BasicNameValuePair("act", "edit_post_post"));
+                        postParams.add(new BasicNameValuePair("post_id", mPost.postID));
+
+                    }
+                    postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
                     postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
                     postParams.add(new BasicNameValuePair("post_type", ""));
 
@@ -862,6 +864,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     if(mShowOptionals.isChecked())
                     {
                         postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + mService.mPreferences.getString("post.tags", "")));
+                        for(int i = 0; i < mPredefinedThemes.getChildCount(); ++i)
+                        {
+                            CheckBox check = (CheckBox) mPredefinedThemes.getChildAt(i);
+                            if(check.isChecked())
+                                postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
+                        }
                         postParams.add(new BasicNameValuePair("current_music", musicText.getText().toString()));
                         postParams.add(new BasicNameValuePair("current_mood", moodText.getText().toString()));
                     }
@@ -947,126 +955,25 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     mHandler.sendEmptyMessage(HANDLE_DO_POST);
                 }
-                else if(mTypeId.equals("PostEditId")) // Если редактируем пост
-                {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
-                    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
-                    postParams.add(new BasicNameValuePair("module", "journal"));
-                    postParams.add(new BasicNameValuePair("resulttype", "2"));
-
-                    postParams.add(new BasicNameValuePair("act", "edit_post_post"));
-                    postParams.add(new BasicNameValuePair("post_id", mPost.postID));
-                    postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
-                    postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
-                    postParams.add(new BasicNameValuePair("post_type", ""));
-
-                    postParams.add(new BasicNameValuePair("title", ((Post) mPost).title));
-                    if(mShowOptionals.isChecked())
-                    {
-                        for(int i = 0; i < mPredefinedThemes.getChildCount(); ++i)
-                        {
-                            CheckBox check = (CheckBox) mPredefinedThemes.getChildAt(i);
-                            if(check.isChecked())
-                                postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
-                        }
-
-                        postParams.add(new BasicNameValuePair("themes", ((Post) mPost).themes));
-                        postParams.add(new BasicNameValuePair("current_music", ((Post) mPost).music));
-                        postParams.add(new BasicNameValuePair("current_mood", ((Post) mPost).mood));
-                    }
-                    else
-                    {
-                        postParams.add(new BasicNameValuePair("themes", ""));
-                        postParams.add(new BasicNameValuePair("current_music", ""));
-                        postParams.add(new BasicNameValuePair("current_mood", ""));
-                    }
-
-                    postParams.add(new BasicNameValuePair("attachment", ""));
-
-                    if(mShowPoll.isChecked())
-                    {
-                        postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_1", mPollChoice1.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_2", mPollChoice2.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_3", mPollChoice3.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_4", mPollChoice4.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_5", mPollChoice5.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_6", mPollChoice6.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_7", mPollChoice7.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_8", mPollChoice8.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_9", mPollChoice9.getText().toString()));
-                        postParams.add(new BasicNameValuePair("poll_answer_10", mPollChoice10.getText().toString()));
-                    }
-                    else
-                    {
-                        postParams.add(new BasicNameValuePair("poll_title", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_1", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_2", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_3", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_4", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_5", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_6", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_7", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_8", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_9", ""));
-                        postParams.add(new BasicNameValuePair("poll_answer_10", ""));
-                    }
-
-                    if(mShowCloseOptions.isChecked())
-                    {
-                        postParams.add(new BasicNameValuePair("private_post", "1"));
-                        if(!mCloseText.getText().toString().equals(""))
-                        {
-                            postParams.add(new BasicNameValuePair("check_close_text", "1"));
-                            postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
-                        }
-
-                        switch(mCloseOpts.getCheckedRadioButtonId())
-                        {
-                            case R.id.close_only_reg:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "6"));
-                            break;
-                            case R.id.close_only_fav:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "1"));
-                            break;
-                            case R.id.close_only_sub:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "5"));
-                            break;
-                            case R.id.close_only_white:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "4"));
-                            break;
-                            case R.id.close_for_list:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "2"));
-                                postParams.add(new BasicNameValuePair("access_list", mCloseDenyList.getText().toString()));
-                            break;
-                            case R.id.close_only_list:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "3"));
-                                postParams.add(new BasicNameValuePair("access_list", mCloseAllowList.getText().toString()));
-                            break;
-                            case R.id.close_for_all:
-                                postParams.add(new BasicNameValuePair("close_access_mode", "7"));
-                            break;
-                        }
-                    }
-
-                    if(mNoComments.isChecked())
-                        postParams.add(new BasicNameValuePair("no_comments", "1"));
-
-                    postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
-                    postParams.add(new BasicNameValuePair("save_type", "js2"));
-
-                    mHandler.sendEmptyMessage(HANDLE_DO_POST);
-                }
-                else if(mTypeId.equals("PostId"))  // если коммент
+                else if(mPost.getClass() == Comment.class)  // если коммент
                 {
                     postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
+                    if(mPost.commentID.equals("")) // новый пост
+                    {
+                        postParams.add(new BasicNameValuePair("act", "new_comment_post"));
+                        postParams.add(new BasicNameValuePair("commentid", ""));
+                    }
+                    else // редактируем пост
+                    {
+                        postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
+                        postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
+                    }
 
-                    postParams.add(new BasicNameValuePair("act", "new_comment_post"));
-                    postParams.add(new BasicNameValuePair("post_id", mId));
-                    postParams.add(new BasicNameValuePair("commentid", ""));
+                    postParams.add(new BasicNameValuePair("post_id", mPost.postID));
+
                     postParams.add(new BasicNameValuePair("referer", ""));
                     postParams.add(new BasicNameValuePair("page", "last"));
                     postParams.add(new BasicNameValuePair("open_uri", ""));
@@ -1080,28 +987,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
                 }
-                else if(mTypeId.equals("CommentEditId"))  // если редактируем коммент
-                {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
-                    postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
-                    postParams.add(new BasicNameValuePair("module", "journal"));
-                    postParams.add(new BasicNameValuePair("resulttype", "2"));
-
-                    postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
-                    postParams.add(new BasicNameValuePair("post_id", mPost.postID));
-                    postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
-                    postParams.add(new BasicNameValuePair("referer", ""));
-                    postParams.add(new BasicNameValuePair("page", "last"));
-                    postParams.add(new BasicNameValuePair("open_uri", ""));
-
-                    postParams.add(new BasicNameValuePair("write_from", "0"));
-
-                    postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
-                    postParams.add(new BasicNameValuePair("attachment1", ""));
-
-                    mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
-                }
-                else if(mTypeId.equals("umailTo"))  // если почта
+                else if(mPost.getClass() == Umail.class)  // если почта
                 {
                     postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("module", "umail"));
@@ -1392,8 +1278,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     private void closeMe(boolean reload)
     {
-        if(getActivity() instanceof  DiaryActivity)
-            ((DiaryActivity)getActivity()).onFragmentRemove(reload);
+        ((DiaryActivity)getActivity()).onMessagePaneRemove(reload);
     }
 
     private void purgeContents()
