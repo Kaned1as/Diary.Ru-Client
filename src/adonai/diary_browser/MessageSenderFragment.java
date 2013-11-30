@@ -25,6 +25,7 @@ import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -108,6 +109,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     CheckBox mRequote;
     CheckBox mCopyMessage;
     CheckBox mCustomAvatar;
+    CheckBox mNoComments;
     TextView mTitle;
     TextView mCurrentPage;
 
@@ -213,6 +215,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mCloseDenyList = (EditText) sender.findViewById(R.id.close_denied_list);
         mCloseText = (EditText) sender.findViewById(R.id.close_text);
 
+        mNoComments = (CheckBox) sender.findViewById(R.id.message_no_comments);
+
         mCustomAvatar = (CheckBox) sender.findViewById(R.id.message_custom_avatar);
         mAvatars = (LinearLayout) sender.findViewById(R.id.message_avatars);
         mCustomAvatar.setOnCheckedChangeListener(this);
@@ -240,6 +244,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mShowOptionals);
         postElements.add(mShowCloseOptions);
         postElements.add(mShowPoll);
+        postElements.add(mNoComments);
 
         umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
@@ -640,7 +645,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             for(View v : postElements)
                 v.setVisibility(View.VISIBLE);
 
-            mPost = new Post();
+            if(contents == null)
+                mPost = new Post();
+            else
+                mPost = (Post) contents;
 
             if(checkClear)
             {
@@ -788,13 +796,20 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mCloseAllowList.setText(post.closeAllowList);
         mCloseDenyList.setText(post.closeDenyList);
 
+        mNoComments.setChecked(post.noComments);
+
         mPredefinedThemes.removeAllViews(); // always clear all checks since we recreate them now
         for(Map.Entry<String, Boolean> theme : post.predefinedTags.entrySet())
         {
             CheckBox current = new CheckBox(themeWrapper);
+            current.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9);
             current.setText(theme.getKey());
             current.setChecked(theme.getValue());
-            mPredefinedThemes.addView(current);
+            if(theme.getValue())
+                mPredefinedThemes.addView(current, 0);
+            else
+                mPredefinedThemes.addView(current);
+
         }
     }
 
@@ -924,6 +939,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             break;
                         }
                     }
+                    if(mNoComments.isChecked())
+                        postParams.add(new BasicNameValuePair("no_comments", "1"));
 
                     postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
                     postParams.add(new BasicNameValuePair("save_type", "js2"));
@@ -1031,6 +1048,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             break;
                         }
                     }
+
+                    if(mNoComments.isChecked())
+                        postParams.add(new BasicNameValuePair("no_comments", "1"));
 
                     postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
                     postParams.add(new BasicNameValuePair("save_type", "js2"));

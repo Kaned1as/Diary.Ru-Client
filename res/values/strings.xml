@@ -152,4 +152,6 @@
     <string name="confirmation">Confirm action</string>
     <string name="clear_contents">You attempt to write to the same diary. Should I clear message pane?</string>
     <string name="no">No</string>
+    <string name="preload_themes_sum">Preloads themes before opening new post panel. Longer opening, but you can select themes from predefined diary themes</string>
+    <string name="preload_themes">Preload themes before posting?</string><string name="no_comments">No comments</string>
 </resources>

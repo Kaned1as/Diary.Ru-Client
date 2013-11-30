@@ -7,8 +7,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.Map;
-
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
 
@@ -27,8 +25,8 @@ public class DiaryListFragment extends DiaryFragment
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
     {
-        inflater.inflate(R.menu.diary_list_a, menu);
         super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.diary_list_a, menu);
     }
 
     @Override

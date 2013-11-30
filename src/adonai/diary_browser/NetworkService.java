@@ -80,6 +80,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean is_sticky;
     boolean notify_on_updates;
     boolean keep_device_on;
+    boolean preload_themes;
 
     private List<DiaryActivity> mListeners = new ArrayList<>();
     String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
@@ -121,6 +122,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         is_sticky = mPreferences.getBoolean("service.always.running", false);
         notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
+        preload_themes = mPreferences.getBoolean("preload.themes", false);
 
         HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -310,6 +312,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         }
                         CookieSyncManager.getInstance().sync();
                         mUser.isAuthorised = true;
+
+                        if(message.obj != null) // возвращаемся к загрузке
+                            handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
                     }
                     else
                     {
@@ -347,7 +352,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     String URL = ((Pair<String, Boolean>) message.obj).first;
                     boolean reload = ((Pair<String, Boolean>) message.obj).second;
-                    checkUrlAndHandle(URL, reload);
+
+                    if(!mUser.isAuthorised)
+                        handleRequest(Utils.HANDLE_SET_HTTP_COOKIE, URL);
+                    else
+                        checkUrlAndHandle(URL, reload);
+
                     return true;
                 }
                 case Utils.HANDLE_OPEN_FOLDER:
@@ -402,7 +412,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_POST:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.getPageAndContext(URL);
+                    HttpResponse page = mDHCL.postPage(URL, null);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
@@ -414,6 +424,22 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
+                    return true;
+                }
+                case Utils.HANDLE_PRELOAD_THEMES:
+                {
+                    String URL = ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?newpost";
+                    HttpResponse page = mDHCL.postPage(URL, null);
+                    if(page == null)
+                    {
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        return false;
+                    }
+                    String dataPage = EntityUtils.toString(page.getEntity());
+                    Post sendPost = serializePostEditPage(dataPage);
+                    sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
+
+                    notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
                     return true;
                 }
                 case Utils.HANDLE_EDIT_COMMENT:
@@ -486,6 +512,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             if(result.closeAccessMode.equals("2"))
                 result.closeDenyList = rootNode.select("textarea#access_list").text();
         }
+
+        result.noComments = rootNode.select("input#nocomm").hasAttr("checked");
 
         return result;
     }
@@ -1041,6 +1069,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             case "webview.font.size":
                 for (DiaryActivity current : mListeners)
                     current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
+                break;
+            case "preload.themes":
+                preload_themes = sharedPreferences.getBoolean("preload.themes", false);
                 break;
         }
     }

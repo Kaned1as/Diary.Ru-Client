@@ -451,6 +451,12 @@
         </LinearLayout>
 
         <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/message_no_comments"
+            android:text="@string/no_comments"/>
+
+        <CheckBox
             android:id="@+id/message_custom_avatar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

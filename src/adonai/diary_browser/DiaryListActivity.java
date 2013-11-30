@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -231,7 +230,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch(item.getItemId())
         {
             case R.id.menu_new_post:
-                newPostPost();
+                if(mService.preload_themes)
+                    handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
+                else
+                    newPostPost();
                 return true;
             case R.id.menu_new_comment:
                 newCommentPost();
@@ -303,19 +305,20 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    protected void onNewIntent(Intent intent)
+    protected void onResume()
     {
-        super.onNewIntent(intent);
-
-        if(intent.getStringExtra("url") != null)
+        super.onResume();
+        if(getIntent().hasExtra("url"))
         {
-            pageToLoad = intent.getStringExtra("url");
+            pageToLoad = getIntent().getStringExtra("url");
+            getIntent().removeExtra("url");
         }
-        if(intent.getData() != null)
-            pageToLoad = intent.getDataString();
+        else if (getIntent().getData() != null)
+        {
+            pageToLoad = getIntent().getDataString();
+            getIntent().setData(null);
+        }
     }
-
-
 
     @Override
     public boolean handleMessage(Message message)
@@ -326,16 +329,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mService.addListener(this);
                 getUser().setOnDataChangeListener(this);
 
-                if(pageToLoad != null && getUser().isAuthorised)
+                if(pageToLoad != null)
                 {
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, true));
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
                     pageToLoad = null;
                 }
-                else if (!getUser().isAuthorised)
-                {
-                    pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.please_wait), true, true);
-                    handleBackground(Utils.HANDLE_SET_HTTP_COOKIE, null);
-                }
+                else if (mFavouritesAdapter == null) // запускаем в первый раз
+                    setCurrentTab(TAB_FAVOURITES, false);
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
@@ -375,13 +375,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case Utils.HANDLE_SET_HTTP_COOKIE: // успешно авторизовались
                 pd.setMessage(getString(R.string.getting_user_info));
-                if (pageToLoad != null) // Если страничка пришла до авторизации
-                {
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, true));
-                    pageToLoad = null;
-                }
-                else
-                    setCurrentTab(TAB_FAVOURITES, false);
                 return true;
             case Utils.HANDLE_GET_LIST_PAGE_DATA:
                 setCurrentVisibleComponent(PART_LIST);
@@ -526,6 +519,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_EDIT_COMMENT:
                 Comment sendComment = (Comment)message.obj;
                 editComment(sendComment);
+                break;
+            case Utils.HANDLE_PRELOAD_THEMES:
+                Post newPost = (Post)message.obj;
+                newPostPost(newPost);
                 break;
         }
 
@@ -811,6 +808,17 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             return;
 
         messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "DiaryId", ((DiaryPage) getUser().currentDiaryPage).getDiaryID(), null);
+        slider.openPane();
+    }
+
+    public void newPostPost(Post post)
+    {
+        assert(getUser().currentDiaryPage instanceof DiaryPage);
+
+        if(((DiaryPage)getUser().currentDiaryPage).getDiaryID().equals(""))
+            return;
+
+        messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", "DiaryId", ((DiaryPage) getUser().currentDiaryPage).getDiaryID(), post);
         slider.openPane();
     }
 

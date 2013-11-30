@@ -35,5 +35,7 @@ public class Post extends Comment
     public String closeAllowList = "";
     public String closeDenyList = "";
 
+    public Boolean noComments = false;
+
     public Map<String, Boolean> predefinedTags = new HashMap<>();
 }

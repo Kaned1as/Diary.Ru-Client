@@ -174,4 +174,6 @@
     <string name="confirmation">Подтвердите действие</string>
     <string name="clear_contents">Вы собираетесь отправить сообщение в тот же дневник. Желаете очистить поля ввода?</string>
     <string name="no">Нет</string>
+    <string name="preload_themes_sum">Предзагружает темы перед открытием панели отправки сообщения. Загрузка идёт дольше, но вы можете выбрать темы из существующих в дневнике</string>
+    <string name="preload_themes">Загружать список тем дневников?</string><string name="no_comments">Отключить комментарии</string>
 </resources>

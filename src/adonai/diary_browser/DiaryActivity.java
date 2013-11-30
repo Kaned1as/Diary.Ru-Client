@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -99,16 +100,15 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
         slider = (DiarySlidePane) findViewById(R.id.slider);
         slider.setPanelSlideListener(sliderListener);
         slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
+
+        mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
     }
 
     @Override
-    public void onResume()
+    protected void onNewIntent(Intent intent)
     {
-        mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
-        if(getIntent().getData() != null && pageToLoad == null)
-            pageToLoad = getIntent().getDataString();
-
-        super.onResume();
+        super.onNewIntent(intent);
+        setIntent(intent);
     }
 
     @Override
