@@ -194,6 +194,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             listener.handleUi(opCode, body);
     }
 
+    private void notifyListeners(int opCode)
+    {
+        notifyListeners(opCode, null);
+    }
+
 
 
     @SuppressWarnings("unchecked")
@@ -250,7 +255,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_JUST_DO_GET:
                 {
                     if(mDHCL.getPage(message.obj.toString()) != null)
-                        notifyListeners(Utils.HANDLE_JUST_DO_GET, null);
+                        notifyListeners(Utils.HANDLE_JUST_DO_GET);
                     break;
                 }
                 case Utils.HANDLE_DELETE_UMAILS:
@@ -270,7 +275,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     mDHCL.postPage("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
 
-                    notifyListeners(Utils.HANDLE_DELETE_UMAILS, null);
+                    notifyListeners(Utils.HANDLE_DELETE_UMAILS);
                     break;
                 }
                 case Utils.HANDLE_SET_HTTP_COOKIE:
@@ -283,7 +288,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
 
@@ -318,11 +323,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
                     else
                     {
-                        notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR, null);
+                        notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         return false;
                     }
 
-                    notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE, null);
+                    notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE);
                     return true;
                 }
                 case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
@@ -339,7 +344,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.getPageAndContext(jsURL);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
@@ -365,13 +370,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String uFolder = EntityUtils.toString(page.getEntity());
                     serializeUmailListPage(uFolder);
 
-                    notifyListeners(Utils.HANDLE_OPEN_FOLDER, null);
+                    notifyListeners(Utils.HANDLE_OPEN_FOLDER);
                     return true;
                 }
                 case Utils.HANDLE_OPEN_MAIL:
@@ -379,13 +384,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String uMail = EntityUtils.toString(page.getEntity());
                     serializeUmailPage(uMail);
 
-                    notifyListeners(Utils.HANDLE_OPEN_MAIL, null);
+                    notifyListeners(Utils.HANDLE_OPEN_MAIL);
                     return true;
                 }
                 case Utils.HANDLE_DELETE_POST:
@@ -415,7 +420,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.postPage(URL, null);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
@@ -432,7 +437,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.postPage(URL, null);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
@@ -448,7 +453,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     HttpResponse page = mDHCL.getPageAndContext(URL);
                     if(page == null)
                     {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
@@ -473,7 +478,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private Post serializePostEditPage(String dataPage)
     {
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
         Post result = new Post();
 
@@ -520,7 +525,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private Comment serializeCommentEditPage(String dataPage)
     {
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Element rootNode = Jsoup.parse(dataPage).select("textarea#message").first(); // выбираем окошко с текстом
         Comment result = new Comment();
 
@@ -536,7 +541,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         mUser.currentDiaries = new DiaryListPage(mDHCL.currentURL);
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
@@ -574,7 +579,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
@@ -593,7 +598,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                link.id().equals("authorFav") || link.id().equals("authorQuot"))
                 scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post], div.pageBar");
         if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
@@ -674,7 +679,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         CommentsPage scannedPost = new CommentsPage();
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
@@ -692,7 +697,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                link.id().equals("authorFav") || link.id().equals("authorQuot"))
                 scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment], div.pageBar");
         if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
@@ -722,13 +727,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void serializeProfilePage(String dataPage)
     {
         DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
         Elements effectiveAreas = rootNode.select("div#contant");
         Elements result = effectiveAreas.clone();
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
 
         Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
@@ -747,7 +752,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         TagsPage scannedTags = new TagsPage();
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
@@ -759,7 +764,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedTags.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
         }
 
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements effectiveAreas = rootNode.select("ul.tags_ul_all");
         if(effectiveAreas.isEmpty()) // Нет вообще никаких тэгов, заканчиваем
             return;
@@ -784,11 +789,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.discussions.clear();
         mUser.discussions.setURL(mDHCL.currentURL);
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
         for (Element item : dIndex.getElementsByTag("h3"))
         {
@@ -830,7 +835,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         mUser.currentUmails = new DiaryListPage(mDHCL.currentURL);
 
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
@@ -880,14 +885,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void serializeUmailPage(String dataPage) throws IOException
     {
         UmailPage scannedUmail = new UmailPage();
-        notifyListeners(Utils.HANDLE_PROGRESS, null);
+        notifyListeners(Utils.HANDLE_PROGRESS);
 
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
         scannedUmail.setUmailURL(mDHCL.currentURL);
         scannedUmail.setUmailID(scannedUmail.getUmailURL().substring(scannedUmail.getUmailURL().lastIndexOf('=') + 1));
-        notifyListeners(Utils.HANDLE_PROGRESS_2, null);
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
 
         Elements mailArea = rootNode.select("table.box, table.box + div");
         if(mailArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
@@ -929,7 +934,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 HttpResponse page = mDHCL.getPageAndContext(URL);
                 if(page == null)
                 {
-                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                     return;
                 }
 
@@ -959,19 +964,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(cachedPage instanceof DiaryListPage)
                     {
                         mUser.currentDiaries = (DiaryListPage) cachedPage;
-                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     }
 
                     if(cachedPage instanceof DiscListPage)
                     {
                         mUser.discussions = (DiscListPage) cachedPage;
-                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
 
                     if(cachedPage instanceof WebPage)
                     {
                         mUser.currentDiaryPage = (WebPage) cachedPage;
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }
                 else // если нет такого кэша
@@ -980,37 +985,37 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     {
                         serializeDiaryPage(dataPage);
                         mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if (handled == CommentsPage.class)
                     {
                         serializeCommentsPage(dataPage);
                         mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == TagsPage.class)
                     {
                         serializeTagsPage(dataPage);
                         mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == DiaryProfilePage.class)
                     {
                         serializeProfilePage(dataPage);
                         mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == DiaryListPage.class)
                     {
                         serializeDiaryListPage(dataPage);
                         mCache.putPageToCache(URL, mUser.currentDiaries);
-                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     }
                     else if(handled == DiscListPage.class)
                     {
                         serializeDiscussionsPage(dataPage);
                         mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
-                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA, null);
+                        notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
                 }
             }
@@ -1018,18 +1023,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             {
                 assert(cachedPage == null);
                 if(dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
-                    notifyListeners(Utils.HANDLE_CLOSED_ERROR, null);
+                    notifyListeners(Utils.HANDLE_CLOSED_ERROR);
                 else
                 {
                     Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
                     // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
                     startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                 }
             }
         }
         catch (Exception e)
         {
-            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, null);
+            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
             e.printStackTrace();
         }
 

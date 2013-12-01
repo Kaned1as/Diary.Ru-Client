@@ -1,6 +1,7 @@
 package adonai.diary_browser.entities;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class Post extends Comment
@@ -37,5 +38,5 @@ public class Post extends Comment
 
     public Boolean noComments = false;
 
-    public Map<String, Boolean> predefinedTags = new HashMap<>();
+    public Map<String, Boolean> predefinedTags = new LinkedHashMap<>();
 }

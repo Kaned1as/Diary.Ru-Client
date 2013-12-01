@@ -23,10 +23,12 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -617,12 +619,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     public <T extends Comment> void prepareFragment(String signature, String sendURL, T contents)
     {
-        Comment oldpost = mPost;
-
         mService = NetworkService.getInstance(getActivity());
         assert(mService != null);
         mDHCL = mService.mDHCL;
 
+        final Comment oldpost = mPost;
         mPost = contents;
 
         // обязательно
@@ -668,7 +669,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 for(View v : postElements)
                     v.setVisibility(View.VISIBLE);
 
-                mPost = (Post) contents;
                 prepareUi((Post) mPost);
             }
         }
@@ -730,12 +730,15 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private void prepareUi(Comment comment)
     {
         contentText.setText(comment.content);
+        mSubscribe.setChecked(true);
     }
 
     private void prepareUi(Umail mail)
     {
         toText.setText(mail.receiver);
         titleText.setText(mail.messageTheme);
+        mRequote.setChecked(true);
+        mCopyMessage.setChecked(true);
     }
 
     private void prepareUi(Post post)
@@ -792,17 +795,28 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mNoComments.setChecked(post.noComments);
 
         mPredefinedThemes.removeAllViews(); // always clear all checks since we recreate them now
+        LinearLayout horizontal = null;
+        int i = 0;
         for(Map.Entry<String, Boolean> theme : post.predefinedTags.entrySet())
         {
+            if(i % 4 == 0) // по 4 темы в горизонтальный ряд
+            {
+                horizontal = new LinearLayout(themeWrapper);
+                horizontal.setOrientation(LinearLayout.HORIZONTAL);
+                horizontal.setVerticalGravity(Gravity.CENTER);
+                mPredefinedThemes.addView(horizontal);
+            }
+
             CheckBox current = new CheckBox(themeWrapper);
-            current.setTextSize(TypedValue.COMPLEX_UNIT_SP, 9);
+            current.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            current.setEms(12);
+            current.setMaxLines(2);
+            current.setEllipsize(TextUtils.TruncateAt.END);
+
             current.setText(theme.getKey());
             current.setChecked(theme.getValue());
-            if(theme.getValue())
-                mPredefinedThemes.addView(current, 0);
-            else
-                mPredefinedThemes.addView(current);
-
+            horizontal.addView(current);
+            ++i;
         }
     }
 
@@ -840,18 +854,19 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 // Если пост
                 if(mPost.getClass() == Post.class)
                 {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
 
                     if(mPost.postID.equals("")) // новый пост
                     {
+                        postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_post_post"));
                         postParams.add(new BasicNameValuePair("post_id", ""));
                     }
                     else // редактируем пост
                     {
+                        postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
                         postParams.add(new BasicNameValuePair("act", "edit_post_post"));
                         postParams.add(new BasicNameValuePair("post_id", mPost.postID));
 
@@ -863,12 +878,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     if(mShowOptionals.isChecked())
                     {
-                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + mService.mPreferences.getString("post.tags", "")));
+                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + (mPost.postID.equals("") ? mService.mPreferences.getString("post.tags", "") : "")));
                         for(int i = 0; i < mPredefinedThemes.getChildCount(); ++i)
                         {
-                            CheckBox check = (CheckBox) mPredefinedThemes.getChildAt(i);
-                            if(check.isChecked())
-                                postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
+                            LinearLayout horizontal = (LinearLayout) mPredefinedThemes.getChildAt(i);
+                            for(int j = 0; j < horizontal.getChildCount(); ++j)
+                            {
+                                CheckBox check = (CheckBox) horizontal.getChildAt(j);
+                                if(check.isChecked())
+                                    postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
+                            }
                         }
                         postParams.add(new BasicNameValuePair("current_music", musicText.getText().toString()));
                         postParams.add(new BasicNameValuePair("current_mood", moodText.getText().toString()));
@@ -957,17 +976,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
                 else if(mPost.getClass() == Comment.class)  // если коммент
                 {
-                    postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
                     if(mPost.commentID.equals("")) // новый пост
                     {
+                        postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_comment_post"));
                         postParams.add(new BasicNameValuePair("commentid", ""));
                     }
                     else // редактируем пост
                     {
+                        postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
                         postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
                         postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
                     }
