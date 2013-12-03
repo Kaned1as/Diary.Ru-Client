@@ -440,7 +440,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         return false;
                     }
+
                     String dataPage = EntityUtils.toString(page.getEntity());
+                    if(dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике"))
+                    {
+                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        return false;
+                    }
+
                     Post sendPost = serializePostEditPage(dataPage);
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 

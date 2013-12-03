@@ -34,6 +34,16 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 
+    signingConfigs {
+
+        release {
+            storeFile file("/home/adonai/devel/keystore/Adonai")
+            storePassword "release"
+            keyAlias "adonai"
+            keyPassword "release"
+        }
+    }
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -47,6 +57,14 @@ android {
 
         // Move the tests to tests/java, tests/res, etc...
         instrumentTest.setRoot('tests')
+
+        buildTypes {
+            release {
+                debuggable false
+                jniDebugBuild false
+                signingConfig signingConfigs.release
+            }
+        }
 
         // Move the build types to build-types/<type>
         // For instance, build-types/debug/java, build-types/debug/AndroidManifest.xml, ...

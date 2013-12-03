@@ -238,7 +238,7 @@
                 android:background="@drawable/layout_border">
 
                 <LinearLayout
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/message_predef_themes"
