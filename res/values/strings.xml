@@ -154,4 +154,6 @@
     <string name="no">No</string>
     <string name="preload_themes_sum">Preloads themes before opening new post panel. Longer opening, but you can select themes from predefined diary themes</string>
     <string name="preload_themes">Preload themes before posting?</string><string name="no_comments">No comments</string>
+    <string name="keep_auth">Remember</string>
+    <string name="keep_auth_sum">If checked, auth will be preserved through application exit. If not, you should log in each time you start the app.</string>
 </resources>

@@ -14,6 +14,7 @@ public class Utils
 {
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
+    public static final String KEY_KEEP_AUTH = "diary.keep.auth";
     public static final String KEY_USERPASS_CACHE = "diary.password.cache";
     public static final String mPrefsFile = "diary.shared.prefs";
 
@@ -66,7 +67,7 @@ public class Utils
         if(response.contains("class=\"tags_ul_all\""))
             return TagsPage.class;
 
-        if(response.contains("id=\"addCommentArea\""))
+        if(response.contains("id=\"addCommentArea\"") || response.contains("id=\"commentsArea\""))
             return CommentsPage.class;
 
         if(response.contains("id=\"postsArea\""))

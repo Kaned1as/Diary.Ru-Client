@@ -339,7 +339,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
+                {
                     pd.setMessage(getString(R.string.parsing_data));
+                    pd.setCancelable(false);
+                }
                 return true;
             case Utils.HANDLE_PROGRESS_2:
                 if(pd != null)
@@ -349,16 +352,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 // обрабатываем обновление контента
                 mLogin.setText(getUser().userName);
                 if(getUser().newDiaryCommentsNum != 0)
-                {
                     mCommentsNum.setText(getString(R.string.my_diary) + " - " + getUser().newDiaryCommentsNum.toString());
-                }
                 else
                     mCommentsNum.setText(getString(R.string.my_diary));
 
                 if(getUser().newDiscussNum != 0)
-                {
                     mDiscussNum.setText(getString(R.string.discussions) + " - " + getUser().newDiscussNum);
-                }
                 else
                     mDiscussNum.setText(getString(R.string.discussions));
 

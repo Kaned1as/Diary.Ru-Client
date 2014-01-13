@@ -70,7 +70,7 @@ iframe
     margin: 0 0 10px 0;
 }
 
-@media (max-device-width:400px)
+@media (max-device-width:300px)
 {
     .commentAuthor img
     {

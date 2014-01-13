@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
+import org.apache.http.client.methods.AbortableHttpRequest;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
@@ -19,6 +20,8 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DiaryHttpClient 
 {
@@ -26,8 +29,8 @@ public class DiaryHttpClient
     DefaultHttpClient httpClient = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
     CookieStore cookieStore = new BasicCookieStore();
+    List<AbortableHttpRequest> runningRequests = new ArrayList<>();
 
-    private HttpPost httpPost = null;
     String currentURL = "";
 
     public DiaryHttpClient() 
@@ -38,16 +41,10 @@ public class DiaryHttpClient
 
     public void abort() 
     {
+        for(AbortableHttpRequest request : runningRequests)
+            request.abort();
 
-        try
-        {
-            if(httpClient != null && httpPost != null)
-                httpPost.abort();
-
-        } catch (Exception e)
-        {
-            System.out.println("HTTPHelp : Abort Exception : " + e);
-        }
+        runningRequests.clear();
     }
 
     public HttpResponse postPage(String url, HttpEntity data) 
@@ -56,10 +53,11 @@ public class DiaryHttpClient
         try
         {
             URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-            httpPost = new HttpPost(address.toURL().toString());
+            HttpPost httpPost = new HttpPost(address.toURL().toString());
             if(data != null)
                 httpPost.setEntity(data);
 
+            runningRequests.add(httpPost);
             response = httpClient.execute(httpPost, localContext);
         }
         catch (Exception e) // неполадки в соединении
@@ -71,7 +69,7 @@ public class DiaryHttpClient
         return response;
     }
 
-    public HttpResponse getPage(String url) 
+    public HttpResponse getPage(String url)
     {
         if(url.startsWith("file"))
             return null; // Не загружать локальные
@@ -103,6 +101,7 @@ public class DiaryHttpClient
             HttpGet httpGet = new HttpGet(address.toURL().toString());
             currentURL = address.toURL().toString();
 
+            runningRequests.add(httpGet);
             response = httpClient.execute(httpGet, localContext);
         }
         catch (Exception e) // неполадки в соединении

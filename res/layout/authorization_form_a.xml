@@ -62,6 +62,14 @@
         android:ems="10"
         android:inputType="textPassword" />
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/keep_auth"
+        android:id="@+id/keep_auth_check"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"/>
+
     <Button
         android:id="@+id/login_button"
         android:layout_width="wrap_content"

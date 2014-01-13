@@ -5,12 +5,13 @@
 
     <uses-sdk
         android:minSdkVersion="7"
-        android:targetSdkVersion="18" /><uses-permission android:name="android.permission.INTERNET" />
-    
-        <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-        <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-        <uses-permission android:name="android.permission.WAKE_LOCK" />
-        <uses-permission android:name="com.android.vending.BILLING" />
+        android:targetSdkVersion="19" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
         android:icon="@drawable/ic_launcher"

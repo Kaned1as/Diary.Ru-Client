@@ -417,7 +417,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_POST:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.postPage(URL, null);
+                    HttpResponse page = mDHCL.getPage(URL);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -434,7 +434,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_PRELOAD_THEMES:
                 {
                     String URL = ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?newpost";
-                    HttpResponse page = mDHCL.postPage(URL, null);
+                    HttpResponse page = mDHCL.getPage(URL);
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);

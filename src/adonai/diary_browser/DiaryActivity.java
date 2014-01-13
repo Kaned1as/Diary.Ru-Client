@@ -228,8 +228,6 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
     public void handleBackground(int opCode, Object body)
     {
-        //WebView hack. It is the only way to stop it.
-        //mPageBrowser.getRefreshableView().loadData("<html><body>dummy</body></html>", null, null);
         if(pd == null)
         {
             pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
