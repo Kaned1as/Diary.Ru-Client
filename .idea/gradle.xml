@@ -6,6 +6,13 @@
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="gradleHome" value="/usr/local/contrib/gradle" />
+        <option name="modules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/contrib" />
+            <option value="$PROJECT_DIR$/contrib/Android-ColorPicker" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>

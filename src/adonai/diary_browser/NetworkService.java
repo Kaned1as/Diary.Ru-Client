@@ -29,7 +29,6 @@ import android.widget.RemoteViews;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.ParseException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
@@ -215,7 +214,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     HttpResponse page = mDHCL.getPage(mUser.favoritesURL); // подойдет любая ссылка с дневников
                     if(page == null)
-                        return false;
+                        break;
 
                     String dataPage = EntityUtils.toString(page.getEntity());
                     Document rootNode = Jsoup.parse(dataPage);
@@ -289,7 +288,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
 
                     String loginScreen = EntityUtils.toString(page.getEntity());
@@ -324,11 +323,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     else
                     {
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
-                        return false;
+                        break;
                     }
 
                     notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE);
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
                 {
@@ -345,13 +344,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
                     serializeDiscussions(dataPage, dList.getDiscussions());
 
                     notifyListeners(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, pos);
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_PICK_URL:
                 {
@@ -363,7 +362,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     else
                         checkUrlAndHandle(URL, reload);
 
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_OPEN_FOLDER:
                 {
@@ -371,13 +370,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
                     String uFolder = EntityUtils.toString(page.getEntity());
                     serializeUmailListPage(uFolder);
 
                     notifyListeners(Utils.HANDLE_OPEN_FOLDER);
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_OPEN_MAIL:
                 {
@@ -385,13 +384,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
                     String uMail = EntityUtils.toString(page.getEntity());
                     serializeUmailPage(uMail);
 
                     notifyListeners(Utils.HANDLE_OPEN_MAIL);
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_DELETE_POST:
                 {
@@ -404,7 +403,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_DELETE_COMMENT:
                 {
@@ -412,7 +411,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mDHCL.getPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_EDIT_POST:
                 {
@@ -421,15 +420,23 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
                     String dataPage = EntityUtils.toString(page.getEntity());
-                    Post sendPost = serializePostEditPage(dataPage);
-                    sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
-                    sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
-                    notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
-                    return true;
+                    try
+                    {
+                        Post sendPost = serializePostEditPage(dataPage);
+                        sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
+                        sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
+                        notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
+                        break;
+                    }
+                    catch (NullPointerException ex) // cannot serialize
+                    {
+                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        break;
+                    }
                 }
                 case Utils.HANDLE_PRELOAD_THEMES:
                 {
@@ -438,21 +445,21 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
 
                     String dataPage = EntityUtils.toString(page.getEntity());
                     if(dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике"))
                     {
                         notifyListeners(Utils.HANDLE_CLOSED_ERROR);
-                        return false;
+                        break;
                     }
 
                     Post sendPost = serializePostEditPage(dataPage);
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
-                    return true;
+                    break;
                 }
                 case Utils.HANDLE_EDIT_COMMENT:
                 {
@@ -461,21 +468,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(page == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        return false;
+                        break;
                     }
-                    String dataPage = EntityUtils.toString(page.getEntity());
-                    Comment sendComment = serializeCommentEditPage(dataPage);
-                    sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
-                    sendComment.postID = ((CommentsPage)mUser.currentDiaryPage).getPostID();
 
-                    notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
-                    return true;
+                    String dataPage = EntityUtils.toString(page.getEntity());
+
+                    try
+                    {
+                        Comment sendComment = serializeCommentEditPage(dataPage);
+                        sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
+                        sendComment.postID = ((CommentsPage)mUser.currentDiaryPage).getPostID();
+                        notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
+                        break;
+                    }
+                    catch (NullPointerException ex) // cannot serialize
+                    {
+                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        break;
+                    }
                 }
                 default:
                     return false;
             }
         }
-        catch (ParseException | IOException e)
+        catch (IOException e)
         {
             e.printStackTrace();
         }
@@ -541,16 +557,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
-    /* (non-Javadoc)
-     * @see android.app.Activity#onSearchRequested()
-     */
     private void serializeDiaryListPage(String dataPage)
     {
-        mUser.currentDiaries = new DiaryListPage(mDHCL.currentURL);
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+
+        mUser.currentDiaries = new DiaryListPage(mDHCL.currentURL);
 
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
         if(table == null) // Нет вообще никаких дневников, заканчиваем
@@ -582,13 +595,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     }
 
-    private void serializeDiaryPage(String dataPage) throws IOException
+    private void serializeDiaryPage(String dataPage)
     {
-        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+
+        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
 
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
@@ -606,7 +619,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements postsArea = rootNode.select("[id=postsArea] > [id=epigraph], [id=postsArea] > [id^=post], div.pageBar");
+        Elements postsArea = rootNode.select("#postsArea > #epigraph, #postsArea > [id^=post], div.pageBar");
         if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
 
@@ -623,75 +636,15 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedDiary;
     }
 
-    private void parseContent(Document resultPage)
-    {
-        // страница будет иметь наш стиль
-        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
-
-        Elements jsElems = resultPage.getElementsByAttribute("onclick");
-        for(Element js : jsElems)
-            if(!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature=") && !js.attr("href").contains("down&signature="))
-                js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE, поднятия/опускания постов, результатов голосования и подписки
-
-        if(!load_images)
-        {
-            Elements images = resultPage.select("img[src^=http], a:has(img)");
-            for(Element current : images)
-            {
-                if(current.tagName().equals("img"))
-                {
-                    String src = current.attr("src");
-                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
-                    {
-                        if(load_cached)
-                        {
-                            String hashCode = String.format("%08x", src.hashCode());
-                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                            if(file.exists())
-                                continue;
-                        }
-                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
-
-                        current.after(jsButton);
-                        current.remove();
-                    }
-                }
-
-                if(current.tagName().equals("a"))
-                {
-                    String src = current.getElementsByTag("img").attr("src");
-                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
-                    {
-                        if(load_cached)
-                        {
-                            String hashCode = String.format("%08x", src.hashCode());
-                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                            if(file.exists())
-                                continue;
-                        }
-                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
-
-                        current.after(jsButton);
-                        current.remove();
-                    }
-                }
-            }
-        }
-        resultPage.body().append(Utils.javascriptContent);
-    }
-
     private void serializeCommentsPage(String dataPage) throws IOException
     {
-        CommentsPage scannedPost = new CommentsPage();
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        scannedPost.setDiaryURL(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
-        Element diaryTag = rootNode.select("[id=authorName]").first();
+        CommentsPage scannedPost = new CommentsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
+
+        Element diaryTag = rootNode.select("#authorName").first();
         if(diaryTag != null)
         {
             String Id = diaryTag.getElementsByTag("a").last().attr("href");
@@ -705,7 +658,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements effectiveAreas = rootNode.select("[id=postsArea] > [id^=post], [id=commentsArea] > [id^=comment], div.pageBar");
+        Elements effectiveAreas = rootNode.select("#postsArea > [id^=post], #commentsArea > [id^=comment], div.pageBar");
         if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
 
@@ -733,10 +686,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeProfilePage(String dataPage)
     {
-        DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+
+        DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
 
         Elements effectiveAreas = rootNode.select("div#contant");
         Elements result = effectiveAreas.clone();
@@ -745,9 +699,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document resultPage = Document.createShell(mDHCL.currentURL);
         resultPage.title(rootNode.title());
         for(Element to : result)
-        {
             resultPage.body().appendChild(to);
-        }
 
         parseContent(resultPage);
 
@@ -757,14 +709,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeTagsPage(String dataPage) throws IOException
     {
-        TagsPage scannedTags = new TagsPage();
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        scannedTags.setDiaryURL(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
-        Element diaryTag = rootNode.select("[id=authorName]").first();
+        TagsPage scannedTags = new TagsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
+
+        Element diaryTag = rootNode.select("#authorName").first();
         if(diaryTag != null)
         {
             String Id = diaryTag.getElementsByTag("a").last().attr("href");
@@ -793,12 +744,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeDiscussionsPage(String dataPage)
     {
-        mUser.discussions.clear();
-        mUser.discussions.setURL(mDHCL.currentURL);
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+
+        mUser.discussions.clear();
+        mUser.discussions.setURL(mDHCL.currentURL);
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
@@ -840,11 +791,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private void serializeUmailListPage(String dataPage)
     {
-        mUser.currentUmails = new DiaryListPage(mDHCL.currentURL);
-
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+
+        mUser.currentUmails = new DiaryListPage(mDHCL.currentURL);
 
         Element table = rootNode.getElementsByAttributeValue("class", "table l").first();
         if(table == null) // Нет вообще никаких сообщений, заканчиваем
@@ -921,6 +872,65 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         scannedUmail.setContent(resultPage);
         mUser.currentUmailPage = scannedUmail;
+    }
+
+    private void parseContent(Document resultPage)
+    {
+        // страница будет иметь наш стиль
+        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+
+        Elements jsElems = resultPage.getElementsByAttribute("onclick");
+        for(Element js : jsElems)
+            if(!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature=") && !js.attr("href").contains("down&signature="))
+                js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE, поднятия/опускания постов, результатов голосования и подписки
+
+        if(!load_images)
+        {
+            Elements images = resultPage.select("img[src^=http], a:has(img)");
+            for(Element current : images)
+            {
+                if(current.tagName().equals("img"))
+                {
+                    String src = current.attr("src");
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
+                    {
+                        if(load_cached)
+                        {
+                            String hashCode = String.format("%08x", src.hashCode());
+                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+                            if(file.exists())
+                                continue;
+                        }
+                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
+                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
+
+                        current.after(jsButton);
+                        current.remove();
+                    }
+                }
+
+                if(current.tagName().equals("a"))
+                {
+                    String src = current.getElementsByTag("img").attr("src");
+                    if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
+                    {
+                        if(load_cached)
+                        {
+                            String hashCode = String.format("%08x", src.hashCode());
+                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
+                            if(file.exists())
+                                continue;
+                        }
+                        // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
+                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
+
+                        current.after(jsButton);
+                        current.remove();
+                    }
+                }
+            }
+        }
+        resultPage.body().append(Utils.javascriptContent);
     }
 
     private void checkUrlAndHandle(String URL, boolean reload)
@@ -1040,10 +1050,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
             }
         }
+        catch (NullPointerException e)
+        {
+            notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+        }
         catch (Exception e)
         {
             notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-            e.printStackTrace();
         }
 
     }

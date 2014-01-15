@@ -178,4 +178,5 @@
     <string name="preload_themes">Загружать список тем дневников?</string><string name="no_comments">Отключить комментарии</string>
     <string name="keep_auth">Запомнить</string>
     <string name="keep_auth_sum">Если включено, авторизация будет сохранена даже после выхода из приложения. Если нет, вам придется авторизовываться каждый раз, когда вы запускаете приложение.</string>
+    <string name="page_incorrect">Неверная страница! Скорее всего, сервис @Дневников недоступен, попробуйте позже!</string>
 </resources>

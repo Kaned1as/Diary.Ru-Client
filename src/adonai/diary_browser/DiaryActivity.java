@@ -171,9 +171,14 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
             break;
         case Utils.HANDLE_SERVICE_ERROR:
             Toast.makeText(getApplicationContext(), getString(R.string.service_not_running), Toast.LENGTH_SHORT).show();
+            mPullToRefreshAttacher.setRefreshComplete();
             break;
         case Utils.HANDLE_CONNECTIVITY_ERROR:
             Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
+            mPullToRefreshAttacher.setRefreshComplete();
+            break;
+        case Utils.HANDLE_PAGE_INCORRECT:
+            Toast.makeText(getApplicationContext(), getString(R.string.page_incorrect), Toast.LENGTH_SHORT).show();
             mPullToRefreshAttacher.setRefreshComplete();
             break;
         case Utils.HANDLE_CLOSED_ERROR:

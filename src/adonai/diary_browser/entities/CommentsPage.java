@@ -2,6 +2,11 @@ package adonai.diary_browser.entities;
 
 public class CommentsPage extends DiaryPage
 {
+    public CommentsPage(String diaryURL)
+    {
+        setDiaryURL(diaryURL);
+    }
+
     private String postID = "";
     private String postURL = "";
 
