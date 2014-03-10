@@ -60,6 +60,7 @@ import adonai.diary_browser.entities.WebPage;
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
     private static final int NOTIFICATION_ID = 3; // Просто случайное число
+    private static final int PENDING_INTENT_ID = 1408; // Просто случайное число
 
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;

@@ -317,6 +317,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         {
             pageToLoad = getIntent().getDataString();
             getIntent().setData(null);
+            mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
         }
     }
 
@@ -778,7 +779,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         {
             browserHistory.moveBack();
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(browserHistory.getUrl(), false));
-        }
+        } else
+            finish();
     }
 
     @Override

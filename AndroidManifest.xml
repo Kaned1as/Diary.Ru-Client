@@ -1,11 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
-    android:versionCode="142"
-    android:versionName="1.4.2" android:installLocation="auto">
-
-    <uses-sdk
-        android:minSdkVersion="7"
-        android:targetSdkVersion="19" />
+    android:versionCode="143"
+    android:versionName="1.4.3" android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
