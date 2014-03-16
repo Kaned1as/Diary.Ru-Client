@@ -1,19 +1,26 @@
 package adonai.diary_browser.entities;
 
-import org.jsoup.nodes.Document;
-
 public abstract class WebPage
 {
-    private Document content = null;
+    private String content;
+    private String title;
     
-    public Document getContent()
+    public String getContent()
     {
         return content;
     }
 
-    public void setContent(Document resultPage)
+    public void setContent(String resultPage)
     {
         this.content = resultPage;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public abstract String getPageURL();

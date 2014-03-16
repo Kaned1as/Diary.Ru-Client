@@ -591,7 +591,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             resultPage.body().appendChild(to);
         }
         parseContent(resultPage);
-        scannedDiary.setContent(resultPage);
+        scannedDiary.setContent(resultPage.html());
+        scannedDiary.setTitle(resultPage.title());
 
         mUser.currentDiaryPage = scannedDiary;
     }
@@ -639,7 +640,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         parseContent(resultPage);
 
-        scannedPost.setContent(resultPage);
+        scannedPost.setContent(resultPage.html());
+        scannedPost.setTitle(resultPage.title());
         mUser.currentDiaryPage = scannedPost;
     }
 
@@ -663,7 +665,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         parseContent(resultPage);
 
-        profilePage.setContent(resultPage);
+        profilePage.setContent(resultPage.html());
+        profilePage.setTitle(resultPage.title());
         mUser.currentDiaryPage = profilePage;
     }
 
@@ -698,7 +701,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
 
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
-        scannedTags.setContent(resultPage);
+        scannedTags.setContent(resultPage.html());
+        scannedTags.setTitle(resultPage.title());
         mUser.currentDiaryPage = scannedTags;
     }
 
@@ -830,7 +834,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         for(Element to : result)
             resultPage.body().appendChild(to);
 
-        scannedUmail.setContent(resultPage);
+        scannedUmail.setContent(resultPage.html());
+        scannedUmail.setTitle(resultPage.title());
         mUser.currentUmailPage = scannedUmail;
     }
 
@@ -1066,7 +1071,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Notification createNotification(WebPage page)
     {
         RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
-        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getContent().title() != null ? page.getContent().title() : "");
+        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getTitle() != null ? page.getTitle() : "");
 
 
         Notification notification = new Notification();

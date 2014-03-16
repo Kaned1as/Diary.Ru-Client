@@ -632,7 +632,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if (mPost.postID.equals(""))
             {
                 mTitle.setText(R.string.new_post);
-                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getTitle());
 
                 purgeContents();
                 for(View v : postElements)
@@ -659,7 +659,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             else // если редактирование поста
             {
                 mTitle.setText(R.string.edit_post);
-                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getTitle());
 
                 purgeContents();
                 for(View v : postElements)
@@ -674,7 +674,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if(mPost.commentID.equals(""))
             {
                 mTitle.setText(R.string.new_comment);
-                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getTitle());
 
                 purgeContents();
                 for(View v : commentElements)
@@ -701,7 +701,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             else // редактирование комментария
             {
                 mTitle.setText(R.string.edit_comment);
-                mCurrentPage.setText(mService.mUser.currentDiaryPage.getContent().title());
+                mCurrentPage.setText(mService.mUser.currentDiaryPage.getTitle());
 
                 purgeContents();
                 for(View v : commentElements)

@@ -247,7 +247,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case R.id.menu_share:
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
-                sendIntent.putExtra(Intent.EXTRA_TITLE, getUser().currentDiaryPage.getContent().title());
+                sendIntent.putExtra(Intent.EXTRA_TITLE, getUser().currentDiaryPage.getTitle());
                 sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().currentDiaryPage.getPageURL());
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
@@ -381,6 +381,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiaryBrowser.setAdapter(null);
                 mDiaryBrowser.removeFooterView(mDiaryBrowser.findViewWithTag("footer"));
                 mFavouritesAdapter = new DiaryListArrayAdapter(DiaryListActivity.this, android.R.layout.simple_list_item_1, getUser().currentDiaries);
+                mDiaryBrowser.setAdapter(mFavouritesAdapter);
                 if(getUser().currentDiaries.getPageLinks() != null)
                 {
                     LinearLayout LL = new LinearLayout(mDiaryBrowser.getContext());
@@ -405,8 +406,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 browserHistory.add(getUser().currentDiaries.getURL());
                 handleTabChange(getUser().currentDiaries.getURL());
-
-                mDiaryBrowser.setAdapter(mFavouritesAdapter);
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
@@ -416,12 +415,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 setCurrentVisibleComponent(PART_WEB);
                 if (message.obj == null)
                 {
-                    mPageBrowser.loadDataWithBaseURL(getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getContent().html(), null, "utf-8", getUser().currentDiaryPage.getPageURL());
+                    mPageBrowser.loadDataWithBaseURL(getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getContent(), null, "utf-8", getUser().currentDiaryPage.getPageURL());
 
                     browserHistory.add(getUser().currentDiaryPage.getPageURL());
                     handleTabChange(getUser().currentDiaryPage.getPageURL());
 
-                    setTitle(getUser().currentDiaryPage.getContent().title());
+                    setTitle(getUser().currentDiaryPage.getTitle());
                 }
                 else
                 {

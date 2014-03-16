@@ -231,8 +231,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.loadDataWithBaseURL(getUser().currentUmailPage.getPageURL(), getUser().currentUmailPage.getContent().html(), null, "utf-8", getUser().currentUmailPage.getPageURL());
-                setTitle(getUser().currentUmailPage.getContent().title());
+                mPageBrowser.loadDataWithBaseURL(getUser().currentUmailPage.getPageURL(), getUser().currentUmailPage.getContent(), null, "utf-8", getUser().currentUmailPage.getPageURL());
+                setTitle(getUser().currentUmailPage.getTitle());
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu();
