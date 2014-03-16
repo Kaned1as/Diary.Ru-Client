@@ -22,6 +22,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -46,15 +47,12 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -64,6 +62,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -284,14 +283,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     case HANDLE_DO_POST:
                     case HANDLE_DO_COMMENT:
                     {
-                        mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
                         mUiHandler.sendEmptyMessage(message.what);
                         return true;
                     }
                     case HANDLE_DO_UMAIL:
                     {
-                        HttpResponse page = mDHCL.postPage(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
-                        String result = EntityUtils.toString(page.getEntity());
+                        String result = mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
                         if(result.contains("Письмо отправлено"))
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_ACK);
                         else
@@ -307,8 +305,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             result = new String(mCache.retrieveData(getActivity(), URLValid));
                         else
                         {
-                            HttpResponse page = mDHCL.getPage(URL);
-                            result = EntityUtils.toString(page.getEntity());
+                            result = mDHCL.getPageAsString(URL);
                             mCache.cacheData(getActivity(), result.getBytes(), URLValid);
                         }
                         Document rootNode = Jsoup.parse(result);
@@ -337,15 +334,15 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                         outputBytes = mCache.retrieveData(getActivity(), name);
                                     else
                                     {
-                                        HttpResponse page = mDHCL.getPage(url);
+                                        HttpURLConnection page = mDHCL.getPage(url);
                                         // getting bytes of image
-                                        InputStream is = page.getEntity().getContent();
+                                        InputStream is = page.getInputStream();
                                         byte[] buffer = new byte[8192];
                                         int bytesRead;
                                         ByteArrayOutputStream output = new ByteArrayOutputStream();
                                         while ((bytesRead = is.read(buffer)) != -1)
                                             output.write(buffer, 0, bytesRead);
-
+                                        is.close();
                                         outputBytes = output.toByteArray();
                                         // caching image
                                         mCache.cacheData(getActivity(), outputBytes, name);
@@ -387,12 +384,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     case HANDLE_REQUEST_AVATARS:
                     {
                         String URL = "http://www.diary.ru/options/member/?avatar";
-                        HttpResponse page = mDHCL.getPage(URL);
-                        if(page == null)
+                        String dataPage = mDHCL.getPageAsString(URL);
+                        if(dataPage == null)
                             return false;
 
                         // собираем пары ID аватара - URL аватара
-                        String dataPage = EntityUtils.toString(page.getEntity());
                         Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
                         avatarMap = new SparseArray<>();
                         for(Element avatarbit : avatardivs)
@@ -414,9 +410,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public Drawable call() throws Exception
                                 {
-                                    HttpResponse page = mDHCL.getPage(url);
-                                    InputStream is = page.getEntity().getContent();
-                                    return BitmapDrawable.createFromStream(is, url);
+                                    HttpURLConnection page = mDHCL.getPage(url);
+                                    InputStream is = page.getInputStream();
+                                    final Drawable result = BitmapDrawable.createFromStream(is, url);
+                                    is.close();
+                                    return result;
                                 }
 
                             });
@@ -447,7 +445,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     case HANDLE_SET_AVATAR:
                     {
                         String URL = "http://www.diary.ru/options/member/?avatar";
-                        mDHCL.postPage(URL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        mDHCL.postPageToString(URL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
                         Toast.makeText(getActivity(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
                     }
@@ -472,11 +470,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
                             mpEntity.addPart("attachment1", cbFile);
 
-                            HttpResponse response = mDHCL.postPage(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
-                            HttpEntity resEntity = response.getEntity();
-                            if (resEntity != null)
+                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
+                            if (result != null)
                             {
-                                String result = EntityUtils.toString(resEntity);
                                 result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
                                 if(result.length() > 0)
                                 {
@@ -1232,14 +1228,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     File file = null;
                     if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme()))
                     {
-                        String[] projection = { "_data" };
+                        String[] projection = { MediaStore.Images.Media.DATA };
                         Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
-                        int column_index = cursor.getColumnIndex("_data");
-                        if (cursor.moveToFirst())
+                        int column_index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+                        if (cursor.moveToFirst() && cursor.getString(0) != null) // ensure we have this file on our device...
                             file = new File(cursor.getString(column_index));
+                        else
+                            Toast.makeText(getActivity(), R.string.no_file_on_device, Toast.LENGTH_LONG).show();
 
                     }
-                    else if ("file".equalsIgnoreCase(uri.getScheme()))
+                    else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
                         file = new File(uri.getPath());
 
                     try

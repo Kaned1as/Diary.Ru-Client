@@ -1,24 +1,22 @@
 package adonai.diary_browser;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.CookieStore;
 import org.apache.http.client.methods.AbortableHttpRequest;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.client.protocol.ClientContext;
 import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
+import org.apache.http.protocol.HTTP;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,20 +24,34 @@ import java.util.List;
 public class DiaryHttpClient 
 {
 
-    DefaultHttpClient httpClient = new DefaultHttpClient();
-    HttpContext localContext = new BasicHttpContext();
-    CookieStore cookieStore = new BasicCookieStore();
     List<AbortableHttpRequest> runningRequests = new ArrayList<>();
-
+    private final CookieManager manager;
     String currentURL = "";
 
     public DiaryHttpClient() 
     {
-        httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BEST_MATCH);
-        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+        manager = new CookieManager() {
+            @Override
+            public CookieStore getCookieStore() { // ugly hack for cookies best match
+                final CookieStore in = super.getCookieStore();
+                final List<HttpCookie> cookies = in.getCookies();
+                for(HttpCookie cookie : cookies)
+                    if(!cookie.getDomain().startsWith("."))
+                        cookie.setDomain("." + cookie.getDomain());
+
+                return in;
+            }
+        };
+        manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(manager);
     }
 
-    public void abort() 
+    public CookieStore getCookieStore() {
+
+        return manager.getCookieStore();
+    }
+
+    public void abort()
     {
         for(AbortableHttpRequest request : runningRequests)
             request.abort();
@@ -47,70 +59,114 @@ public class DiaryHttpClient
         runningRequests.clear();
     }
 
-    public HttpResponse postPage(String url, HttpEntity data) 
+    public String postPageToString(String url, HttpEntity data)
     {
-        HttpResponse response = null;
         try
         {
-            URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-            HttpPost httpPost = new HttpPost(address.toURL().toString());
-            if(data != null)
-                httpPost.setEntity(data);
+            final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+            final HttpURLConnection httpPost = (HttpURLConnection) address.toURL().openConnection();
+            httpPost.setDoOutput(true);
+            httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
 
-            runningRequests.add(httpPost);
-            response = httpClient.execute(httpPost, localContext);
+            final OutputStream os = httpPost.getOutputStream();
+            data.writeTo(os);
+            os.flush();
+            os.close();
+
+            return getResponseString(httpPost);
         }
         catch (Exception e) // неполадки в соединении
         {
             System.out.println("HTTPHelp : Null URL: " + e);
-            e.printStackTrace();
         }
 
-        return response;
+        return null;
     }
 
-    public HttpResponse getPage(String url)
+    public String getPageAsString(String url)
     {
         if(url.startsWith("file"))
             return null; // Не загружать локальные
 
-        DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
-        HttpResponse response = null;
-
         try
         {
-            URI address = new URI(currentURL).resolve(url);
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
-            response = AsyncRetriever.execute(httpGet, localContext);
+            final URI address = new URI(currentURL).resolve(url);
+            final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+
+            return getResponseString(httpGet);
+
         }
         catch (Exception e)
         {
             System.out.println("HTTPHelp : Null URL: " + e);
-            e.printStackTrace();
         }
 
-        return response;
+        return null;
     }
 
-    public HttpResponse getPageAndContext(String url)
+    public HttpURLConnection getPage(String url)
     {
-        HttpResponse response = null;
+        if(url.startsWith("file"))
+            return null; // Не загружать локальные
+
         try
         {
-            URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
-            currentURL = address.toURL().toString();
+            final URI address = new URI(currentURL).resolve(url);
+            return (HttpURLConnection) address.toURL().openConnection();
+        }
+        catch (Exception e)
+        {
+            System.out.println("HTTPHelp : Null URL: " + e);
+        }
 
-            runningRequests.add(httpGet);
-            response = httpClient.execute(httpGet, localContext);
+        return null;
+    }
+
+    public String getPageAndContextAsString(String url)
+    {
+        try
+        {
+            final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+            currentURL = address.toURL().toString();
+            final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+
+            return getResponseString(httpGet);
         }
         catch (Exception e) // неполадки в соединении
         {
             System.out.println("HTTPHelp : Null URL: " + e);
-            e.printStackTrace();
         }
 
-        return response;
+        return null;
+    }
+
+    public String getResponseString(HttpURLConnection httpGet) throws IOException {
+        final InputStream is = httpGet.getInputStream();
+        final ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[4096];
+        int bytesRead;
+        while ((bytesRead = is.read(buffer)) >= 0)
+            stream.write(buffer, 0, bytesRead);
+        is.close();
+
+        return new String(stream.toByteArray(), "WINDOWS-1251");
+    }
+
+    public HttpURLConnection getPageAndContext(String url)
+    {
+        try
+        {
+            final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+            currentURL = address.toURL().toString();
+
+            return (HttpURLConnection) address.toURL().openConnection();
+        }
+        catch (Exception e) // неполадки в соединении
+        {
+            System.out.println("HTTPHelp : Null URL: " + e);
+        }
+
+        return null;
     }
 
     public static interface ProgressListener

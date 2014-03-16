@@ -20,19 +20,13 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.text.Html;
 import android.util.Pair;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -40,6 +34,8 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -213,11 +209,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    HttpResponse page = mDHCL.getPage(mUser.favoritesURL); // подойдет любая ссылка с дневников
-                    if(page == null)
+                    String dataPage = mDHCL.getPageAsString(mUser.favoritesURL); // подойдет любая ссылка с дневников
+                    if(dataPage == null)
                         break;
 
-                    String dataPage = EntityUtils.toString(page.getEntity());
                     Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
@@ -254,7 +249,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_JUST_DO_GET:
                 {
-                    if(mDHCL.getPage(message.obj.toString()) != null)
+                    if(mDHCL.getPageAsString(message.obj.toString()) != null)
                         notifyListeners(Utils.HANDLE_JUST_DO_GET);
                     break;
                 }
@@ -273,7 +268,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     for(long id : ids)
                         nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
 
-                    mDHCL.postPage("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                    mDHCL.postPageToString("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
 
                     notifyListeners(Utils.HANDLE_DELETE_UMAILS);
                     break;
@@ -285,47 +280,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                     nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
 
-                    HttpResponse page = mDHCL.postPage("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
-                    if(page == null)
-                    {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
-                        break;
-                    }
-
-                    String loginScreen = EntityUtils.toString(page.getEntity());
-
-                    if (loginScreen.contains("Если браузер не перенаправляет вас автоматически"))
-                    { // login successful
-                        CookieManager cookieManager = CookieManager.getInstance();
-
-                        // Sharing cookies between webView and mDHCL
-                        List<Cookie> cookies = mDHCL.cookieStore.getCookies();
-
-                        // What the hell is with net Android devs?
-                        // Why cookie operations are done through another thread
-                        // without any clue like
-                        // "onCookiePendingOperationsListener"??
-                        // Don't uncomment this line! If you do, cookies'll be added
-                        // and only then another thread'll delete them resulting in
-                        // having no cookies at all.
-                        // cookieManager.removeSessionCookie();
-
-                        for (Cookie cookie : cookies)
-                        {
-                            String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
-                            cookieManager.setCookie("diary.ru", cookieString);
-                        }
-                        CookieSyncManager.getInstance().sync();
-                        mUser.isAuthorised = true;
-
-                        if(message.obj != null) // возвращаемся к загрузке
-                            handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
-                    }
-                    else
+                    String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                    final List<HttpCookie> cookies = mDHCL.getCookieStore().getCookies();
+                    if(loginScreen == null || cookies.size() < 2) // not authorised
                     {
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
                     }
+
+                    mUser.isAuthorised = true;
+
+                    if(message.obj != null) // возвращаемся к загрузке
+                        handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
 
                     notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE);
                     break;
@@ -341,13 +307,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(onlyNew)
                         jsURL = jsURL + "&new";
 
-                    HttpResponse page = mDHCL.getPageAndContext(jsURL);
-                    if(page == null)
+                    String dataPage = mDHCL.getPageAndContextAsString(jsURL);
+                    if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
-                    String dataPage = EntityUtils.toString(page.getEntity());
                     serializeDiscussions(dataPage, dList.getDiscussions());
 
                     notifyListeners(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, pos);
@@ -367,13 +332,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_FOLDER:
                 {
-                    HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
-                    if(page == null)
+                    String uFolder = mDHCL.getPageAndContextAsString((String) message.obj);
+                    if(uFolder == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
-                    String uFolder = EntityUtils.toString(page.getEntity());
                     serializeUmailListPage(uFolder);
 
                     notifyListeners(Utils.HANDLE_OPEN_FOLDER);
@@ -381,13 +345,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_MAIL:
                 {
-                    HttpResponse page = mDHCL.getPageAndContext((String)message.obj);
-                    if(page == null)
+                    String uMail = mDHCL.getPageAndContextAsString((String) message.obj);
+                    if(uMail == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
-                    String uMail = EntityUtils.toString(page.getEntity());
                     serializeUmailPage(uMail);
 
                     notifyListeners(Utils.HANDLE_OPEN_MAIL);
@@ -401,7 +364,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     postParams.add(new BasicNameValuePair("act", "del_post_post"));
                     postParams.add(new BasicNameValuePair("post_id", id));
                     postParams.add(new BasicNameValuePair("yes", "Да"));
-                    mDHCL.postPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                    mDHCL.postPageToString(((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
                     break;
@@ -409,7 +372,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_DELETE_COMMENT:
                 {
                     String id = (String) message.obj;
-                    mDHCL.getPage(((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
+                    mDHCL.getPageAsString(((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
                     break;
@@ -417,13 +380,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_POST:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.getPage(URL);
-                    if(page == null)
+                    String dataPage = mDHCL.getPageAsString(URL);
+                    if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
-                    String dataPage = EntityUtils.toString(page.getEntity());
 
                     try
                     {
@@ -442,14 +404,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_PRELOAD_THEMES:
                 {
                     String URL = ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?newpost";
-                    HttpResponse page = mDHCL.getPage(URL);
-                    if(page == null)
+                    String dataPage = mDHCL.getPageAsString(URL);
+                    if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
 
-                    String dataPage = EntityUtils.toString(page.getEntity());
                     if(dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике"))
                     {
                         notifyListeners(Utils.HANDLE_CLOSED_ERROR);
@@ -465,14 +426,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_EDIT_COMMENT:
                 {
                     String URL = (String) message.obj;
-                    HttpResponse page = mDHCL.getPageAndContext(URL);
-                    if(page == null)
+                    String dataPage = mDHCL.getPageAndContextAsString(URL);
+                    if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
-
-                    String dataPage = EntityUtils.toString(page.getEntity());
 
                     try
                     {
@@ -949,27 +908,27 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
             else
             {
-                HttpResponse page = mDHCL.getPageAndContext(URL);
+                HttpURLConnection page = mDHCL.getPageAndContext(URL);
                 if(page == null)
                 {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                     return;
                 }
 
-                if(page.getEntity().getContentType().getValue().contains("image")) // Just load image, no further processing
+                if(page.getContentType().contains("image")) // Just load image, no further processing
                 {
                     if(reload) // reload - save
                     {
-                        Header srcName = page.getFirstHeader("Content-Disposition");
-                        String realName = URLUtil.guessFileName(URL, srcName != null ? srcName.getValue() : null, MimeTypeMap.getFileExtensionFromUrl(URL));
-                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
+                        String srcName = page.getHeaderField("Content-Disposition");
+                        String realName = URLUtil.guessFileName(URL, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(URL));
+                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getInputStream());
                     }
                     else // no reload - open
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);
                     return;
                 }
 
-                dataPage = EntityUtils.toString(page.getEntity());
+                dataPage = mDHCL.getResponseString(page);
                 handled = Utils.checkDiaryUrl(dataPage);
             }
 
@@ -1124,7 +1083,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void newSession()
     {
         mUser = new UserData();
-        mDHCL.cookieStore.clear();
+        mDHCL.getCookieStore().removeAll();
         mCache.clear();
     }
 }
