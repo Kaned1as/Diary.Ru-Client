@@ -934,6 +934,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 dataPage = mDHCL.getResponseString(page);
+                page.disconnect();
                 handled = Utils.checkDiaryUrl(dataPage);
             }
 

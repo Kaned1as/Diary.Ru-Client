@@ -343,6 +343,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                         while ((bytesRead = is.read(buffer)) != -1)
                                             output.write(buffer, 0, bytesRead);
                                         is.close();
+                                        page.disconnect();
                                         outputBytes = output.toByteArray();
                                         // caching image
                                         mCache.cacheData(getActivity(), outputBytes, name);
@@ -414,6 +415,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                     InputStream is = page.getInputStream();
                                     final Drawable result = BitmapDrawable.createFromStream(is, url);
                                     is.close();
+                                    page.disconnect();
                                     return result;
                                 }
 

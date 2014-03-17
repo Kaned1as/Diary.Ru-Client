@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.AbortableHttpRequest;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.protocol.HTTP;
 
@@ -24,7 +23,7 @@ import java.util.List;
 public class DiaryHttpClient 
 {
 
-    List<AbortableHttpRequest> runningRequests = new ArrayList<>();
+    List<HttpURLConnection> runningRequests = new ArrayList<>();
     private final CookieManager manager;
     String currentURL = "";
 
@@ -53,8 +52,8 @@ public class DiaryHttpClient
 
     public void abort()
     {
-        for(AbortableHttpRequest request : runningRequests)
-            request.abort();
+        for(HttpURLConnection request : runningRequests)
+            request.disconnect();
 
         runningRequests.clear();
     }
@@ -148,6 +147,7 @@ public class DiaryHttpClient
         while ((bytesRead = is.read(buffer)) >= 0)
             stream.write(buffer, 0, bytesRead);
         is.close();
+        httpGet.disconnect();
 
         return new String(stream.toByteArray(), "WINDOWS-1251");
     }
