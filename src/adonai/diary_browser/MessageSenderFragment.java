@@ -334,17 +334,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                         outputBytes = mCache.retrieveData(getActivity(), name);
                                     else
                                     {
-                                        HttpURLConnection page = mDHCL.getPage(url);
-                                        // getting bytes of image
-                                        InputStream is = page.getInputStream();
-                                        byte[] buffer = new byte[8192];
-                                        int bytesRead;
-                                        ByteArrayOutputStream output = new ByteArrayOutputStream();
-                                        while ((bytesRead = is.read(buffer)) != -1)
-                                            output.write(buffer, 0, bytesRead);
-                                        is.close();
-                                        page.disconnect();
-                                        outputBytes = output.toByteArray();
+                                        outputBytes = mDHCL.getPageAsByteArray(url);
                                         // caching image
                                         mCache.cacheData(getActivity(), outputBytes, name);
                                     }
@@ -411,12 +401,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public Drawable call() throws Exception
                                 {
-                                    HttpURLConnection page = mDHCL.getPage(url);
-                                    InputStream is = page.getInputStream();
-                                    final Drawable result = BitmapDrawable.createFromStream(is, url);
-                                    is.close();
-                                    page.disconnect();
-                                    return result;
+                                    final byte[] imageBytes = mDHCL.getPageAsByteArray(url);
+                                    Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+                                    return new BitmapDrawable(getResources(), image);
                                 }
 
                             });

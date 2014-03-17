@@ -926,7 +926,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     {
                         String srcName = page.getHeaderField("Content-Disposition");
                         String realName = URLUtil.guessFileName(URL, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(URL));
-                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getInputStream());
+                        CacheManager.saveDataToSD(getApplicationContext(), realName, mDHCL.getResponseBytes(page));
                     }
                     else // no reload - open
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);

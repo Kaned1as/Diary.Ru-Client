@@ -5,6 +5,7 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.protocol.HTTP;
 
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -23,13 +24,14 @@ import java.util.List;
 public class DiaryHttpClient 
 {
 
-    List<HttpURLConnection> runningRequests = new ArrayList<>();
+    List<Closeable> runningRequests = new ArrayList<>();
     private final CookieManager manager;
     String currentURL = "";
 
     public DiaryHttpClient() 
     {
-        manager = new CookieManager() {
+        manager = new CookieManager()
+        {
             @Override
             public CookieStore getCookieStore() { // ugly hack for cookies best match
                 final CookieStore in = super.getCookieStore();
@@ -45,38 +47,55 @@ public class DiaryHttpClient
         CookieHandler.setDefault(manager);
     }
 
-    public CookieStore getCookieStore() {
-
+    public CookieStore getCookieStore()
+    {
         return manager.getCookieStore();
     }
 
     public void abort()
     {
-        for(HttpURLConnection request : runningRequests)
-            request.disconnect();
+        new Thread(new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                for(final Closeable stream : runningRequests)
+                    try
+                    {
+                        stream.close();
+                    } catch (IOException ignored) {}
 
-        runningRequests.clear();
+                runningRequests.clear();
+            }
+        }).start();
     }
 
     public String postPageToString(String url, HttpEntity data)
     {
+        HttpURLConnection httpPost = null;
         try
         {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-            final HttpURLConnection httpPost = (HttpURLConnection) address.toURL().openConnection();
+            httpPost = (HttpURLConnection) address.toURL().openConnection();
             httpPost.setDoOutput(true);
             httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
+            httpPost.setConnectTimeout(10000);
+            httpPost.setReadTimeout(10000);
 
             final OutputStream os = httpPost.getOutputStream();
+            runningRequests.add(os);
             data.writeTo(os);
             os.flush();
             os.close();
+            runningRequests.remove(os);
 
             return getResponseString(httpPost);
         }
-        catch (Exception e) // неполадки в соединении
+        catch (Exception ignored) {}
+        finally
         {
-            System.out.println("HTTPHelp : Null URL: " + e);
+            if(httpPost != null)
+                httpPost.disconnect();
         }
 
         return null;
@@ -87,35 +106,57 @@ public class DiaryHttpClient
         if(url.startsWith("file"))
             return null; // Не загружать локальные
 
+        HttpURLConnection httpGet = null;
         try
         {
             final URI address = new URI(currentURL).resolve(url);
-            final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet.setConnectTimeout(10000);
+            httpGet.setReadTimeout(10000);
 
             return getResponseString(httpGet);
-
         }
-        catch (Exception e)
+        catch (Exception ignored) {} // stream close / timeout
+        finally
         {
-            System.out.println("HTTPHelp : Null URL: " + e);
+            if(httpGet != null)
+                httpGet.disconnect();
         }
 
         return null;
     }
 
-    public HttpURLConnection getPage(String url)
+    public byte[] getPageAsByteArray(String url)
     {
         if(url.startsWith("file"))
             return null; // Не загружать локальные
 
+        HttpURLConnection httpGet = null;
         try
         {
             final URI address = new URI(currentURL).resolve(url);
-            return (HttpURLConnection) address.toURL().openConnection();
+            httpGet  = (HttpURLConnection) address.toURL().openConnection();
+            httpGet.setConnectTimeout(10000);
+            httpGet.setReadTimeout(10000);
+            // getting bytes of image
+            final InputStream is = httpGet.getInputStream();
+            runningRequests.add(is);
+            final byte[] buffer = new byte[8192];
+            int bytesRead;
+            final ByteArrayOutputStream output = new ByteArrayOutputStream();
+            while ((bytesRead = is.read(buffer)) != -1)
+                output.write(buffer, 0, bytesRead);
+            is.close();
+            runningRequests.remove(is);
+            httpGet.disconnect();
+
+            return output.toByteArray();
         }
-        catch (Exception e)
+        catch (Exception ignored) {} // stream close / timeout
+        finally
         {
-            System.out.println("HTTPHelp : Null URL: " + e);
+            if(httpGet != null)
+                httpGet.disconnect();
         }
 
         return null;
@@ -123,48 +164,66 @@ public class DiaryHttpClient
 
     public String getPageAndContextAsString(String url)
     {
+        HttpURLConnection httpGet = null;
         try
         {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
-            final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet.setConnectTimeout(10000);
+            httpGet.setReadTimeout(10000);
 
             return getResponseString(httpGet);
         }
-        catch (Exception e) // неполадки в соединении
+        catch (Exception ignored) {} // stream close / timeout
+        finally
         {
-            System.out.println("HTTPHelp : Null URL: " + e);
+            if(httpGet != null)
+                httpGet.disconnect();
         }
 
         return null;
     }
 
     public String getResponseString(HttpURLConnection httpGet) throws IOException {
+        return new String(getResponseBytes(httpGet), "WINDOWS-1251");
+    }
+
+    public byte[] getResponseBytes(HttpURLConnection httpGet) throws IOException {
         final InputStream is = httpGet.getInputStream();
+        runningRequests.add(is);
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = is.read(buffer)) >= 0)
             stream.write(buffer, 0, bytesRead);
         is.close();
+        runningRequests.remove(is);
         httpGet.disconnect();
 
-        return new String(stream.toByteArray(), "WINDOWS-1251");
+        return stream.toByteArray();
     }
 
+    /**
+     * Manual page processing
+     * Remember to disconnect connection!
+     *
+     * @param url url to fetch
+     * @return connection for manual usage
+     */
     public HttpURLConnection getPageAndContext(String url)
     {
         try
         {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
+            final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet.setConnectTimeout(10000);
+            httpGet.setReadTimeout(10000);
 
-            return (HttpURLConnection) address.toURL().openConnection();
+            return httpGet;
         }
-        catch (Exception e) // неполадки в соединении
-        {
-            System.out.println("HTTPHelp : Null URL: " + e);
-        }
+        catch (Exception ignored) {}
 
         return null;
     }

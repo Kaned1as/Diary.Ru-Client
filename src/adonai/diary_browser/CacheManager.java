@@ -14,12 +14,11 @@ public class CacheManager
 
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
     // загруженные странички
-    private Map<String, Object> browseCache = new HashMap<String, Object>();
+    private Map<String, Object> browseCache = new HashMap<>();
 
     public Object loadPageFromCache(String URL)
     {
-    	Object toPage = browseCache.get(URL);
-	    return toPage;
+        return browseCache.get(URL);
     }
 
     public boolean hasPage(String URL)
@@ -98,43 +97,8 @@ public class CacheManager
         File file = new File(cacheDir, name);
 
         // Data doesn't exist
-        if (file.exists()) 
-            return true;
-        
-        return false;
-    }
-    
-    public static void saveDataToSD(Context context, String name, File internalFile)
-    {
-    	if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
-			return;
-    	
-		File SD = Environment.getExternalStorageDirectory();
-		File externalDir = new File(SD, "Diary.Ru"); 
-		if(!externalDir.exists())
-			externalDir.mkdir();
-    	
-		File toFile = new File(externalDir, name);
-		
-		try 
-		{
-			InputStream in = new FileInputStream(internalFile);
-			OutputStream out = new FileOutputStream(toFile);
+        return file.exists();
 
-			byte[] buf = new byte[1024];
-			int len;
-			while ((len = in.read(buf)) > 0)
-			{
-				out.write(buf, 0, len);
-			}
-			in.close();
-			out.close();
-			Toast.makeText(context, context.getResources().getString(R.string.saved_to) + toFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
-		}  
-		catch (IOException e) 
-		{
-			Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
-		}
     }
     
     public static File saveDataToSD(Context context, String name, InputStream inStream)
@@ -151,14 +115,12 @@ public class CacheManager
         
         try 
         {
-            OutputStream out = new FileOutputStream(toFile);
+            final OutputStream out = new FileOutputStream(toFile);
 
-            byte[] buf = new byte[1024];
+            final byte[] buf = new byte[1024];
             int len;
             while ((len = inStream.read(buf)) > 0)
-            {
                 out.write(buf, 0, len);
-            }
             inStream.close();
             out.close();
             Toast.makeText(context, context.getResources().getString(R.string.saved_to) + toFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
@@ -171,7 +133,40 @@ public class CacheManager
         return null;
     }
 
-    private void cleanDir(File dir, long bytes) 
+    public static File saveDataToSD(Context context, String name, byte[] bytes)
+    {
+        if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+            return null;
+
+        File SD = Environment.getExternalStorageDirectory();
+        File externalDir = new File(SD, "Diary.Ru");
+        if(!externalDir.exists())
+            externalDir.mkdir();
+
+        File toFile = new File(externalDir, name);
+
+        try
+        {
+            final OutputStream out = new FileOutputStream(toFile);
+            final InputStream inStream = new ByteArrayInputStream(bytes);
+
+            final byte[] buf = new byte[1024];
+            int len;
+            while ((len = inStream.read(buf)) > 0)
+                out.write(buf, 0, len);
+            inStream.close();
+            out.close();
+            Toast.makeText(context, context.getResources().getString(R.string.saved_to) + toFile.getAbsolutePath(), Toast.LENGTH_SHORT).show();
+            return toFile;
+        }
+        catch (IOException e)
+        {
+            Toast.makeText(context, R.string.file_not_found, Toast.LENGTH_SHORT).show();
+        }
+        return null;
+    }
+
+    private void cleanDir(File dir, long bytes)
     {
 
         long bytesDeleted = 0;
@@ -194,10 +189,8 @@ public class CacheManager
         File[] files = dir.listFiles();
 
         for (File file : files) 
-        {
             if (file.isFile())
                 size += file.length();
-        }
 
         return size;
     }
