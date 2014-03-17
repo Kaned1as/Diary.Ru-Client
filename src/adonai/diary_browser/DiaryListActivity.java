@@ -340,10 +340,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
-                {
                     pd.setMessage(getString(R.string.parsing_data));
-                    pd.setCancelable(false);
-                }
                 return true;
             case Utils.HANDLE_PROGRESS_2:
                 if(pd != null)

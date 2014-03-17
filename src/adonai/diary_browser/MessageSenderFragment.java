@@ -482,9 +482,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         break;
                 }
             }
-            catch (Exception e)
+            catch (Exception ignored)
             {
-                e.printStackTrace();
+                // all URLs are valid
             }
 
             return false;

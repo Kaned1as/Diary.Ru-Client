@@ -5,7 +5,6 @@ import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.protocol.HTTP;
 
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
@@ -15,34 +14,18 @@ import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
-import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 public class DiaryHttpClient 
 {
 
-    List<Closeable> runningRequests = new ArrayList<>();
     private final CookieManager manager;
     String currentURL = "";
 
     public DiaryHttpClient() 
     {
-        manager = new CookieManager()
-        {
-            @Override
-            public CookieStore getCookieStore() { // ugly hack for cookies best match
-                final CookieStore in = super.getCookieStore();
-                final List<HttpCookie> cookies = in.getCookies();
-                for(HttpCookie cookie : cookies)
-                    if(!cookie.getDomain().startsWith("."))
-                        cookie.setDomain("." + cookie.getDomain());
-
-                return in;
-            }
-        };
+        manager = new CookieManager();
         manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(manager);
     }
@@ -50,24 +33,6 @@ public class DiaryHttpClient
     public CookieStore getCookieStore()
     {
         return manager.getCookieStore();
-    }
-
-    public void abort()
-    {
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                for(final Closeable stream : runningRequests)
-                    try
-                    {
-                        stream.close();
-                    } catch (IOException ignored) {}
-
-                runningRequests.clear();
-            }
-        }).start();
     }
 
     public String postPageToString(String url, HttpEntity data)
@@ -79,15 +44,13 @@ public class DiaryHttpClient
             httpPost = (HttpURLConnection) address.toURL().openConnection();
             httpPost.setDoOutput(true);
             httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
-            httpPost.setConnectTimeout(10000);
-            httpPost.setReadTimeout(10000);
+            httpPost.setConnectTimeout(5000);
+            httpPost.setReadTimeout(5000);
 
             final OutputStream os = httpPost.getOutputStream();
-            runningRequests.add(os);
             data.writeTo(os);
             os.flush();
             os.close();
-            runningRequests.remove(os);
 
             return getResponseString(httpPost);
         }
@@ -111,8 +74,8 @@ public class DiaryHttpClient
         {
             final URI address = new URI(currentURL).resolve(url);
             httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(10000);
-            httpGet.setReadTimeout(10000);
+            httpGet.setConnectTimeout(5000);
+            httpGet.setReadTimeout(5000);
 
             return getResponseString(httpGet);
         }
@@ -136,18 +99,16 @@ public class DiaryHttpClient
         {
             final URI address = new URI(currentURL).resolve(url);
             httpGet  = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(10000);
-            httpGet.setReadTimeout(10000);
+            httpGet.setConnectTimeout(5000);
+            httpGet.setReadTimeout(5000);
             // getting bytes of image
             final InputStream is = httpGet.getInputStream();
-            runningRequests.add(is);
             final byte[] buffer = new byte[8192];
             int bytesRead;
             final ByteArrayOutputStream output = new ByteArrayOutputStream();
             while ((bytesRead = is.read(buffer)) != -1)
                 output.write(buffer, 0, bytesRead);
             is.close();
-            runningRequests.remove(is);
             httpGet.disconnect();
 
             return output.toByteArray();
@@ -170,8 +131,8 @@ public class DiaryHttpClient
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(10000);
-            httpGet.setReadTimeout(10000);
+            httpGet.setConnectTimeout(5000);
+            httpGet.setReadTimeout(5000);
 
             return getResponseString(httpGet);
         }
@@ -191,14 +152,12 @@ public class DiaryHttpClient
 
     public byte[] getResponseBytes(HttpURLConnection httpGet) throws IOException {
         final InputStream is = httpGet.getInputStream();
-        runningRequests.add(is);
         final ByteArrayOutputStream stream = new ByteArrayOutputStream();
         final byte[] buffer = new byte[4096];
         int bytesRead;
         while ((bytesRead = is.read(buffer)) >= 0)
             stream.write(buffer, 0, bytesRead);
         is.close();
-        runningRequests.remove(is);
         httpGet.disconnect();
 
         return stream.toByteArray();
@@ -218,8 +177,8 @@ public class DiaryHttpClient
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(10000);
-            httpGet.setReadTimeout(10000);
+            httpGet.setConnectTimeout(5000);
+            httpGet.setReadTimeout(5000);
 
             return httpGet;
         }

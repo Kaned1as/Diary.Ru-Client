@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -234,16 +233,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     public void handleBackground(int opCode, Object body)
     {
         if(pd == null)
-        {
-            pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
-            pd.setOnCancelListener(new OnCancelListener()
-            {
-                public void onCancel(DialogInterface dialog)
-                {
-                    mDHCL.abort();
-                }
-            });
-        }
+            pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, false);
         mService.handleRequest(opCode, body);
     }
 

@@ -20,6 +20,8 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.text.Html;
 import android.util.Pair;
+import android.webkit.CookieManager;
+import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
@@ -120,7 +122,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
         preload_themes = mPreferences.getBoolean("preload.themes", false);
 
-        HandlerThread thr = new HandlerThread("ServiceThread");
+        final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
         mLooper = thr.getLooper();
         mHandler = new Handler(mLooper, this);
@@ -209,11 +211,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    String dataPage = mDHCL.getPageAsString(mUser.favoritesURL); // подойдет любая ссылка с дневников
+                    final String dataPage = mDHCL.getPageAsString(mUser.favoritesURL); // подойдет любая ссылка с дневников
                     if(dataPage == null)
                         break;
 
-                    Document rootNode = Jsoup.parse(dataPage);
+                    final Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
                     if(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum > 0 && (!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))) // старые данные или нет?
@@ -222,15 +224,15 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         lastLinks[1] = mUser.newDiscussLink;
                         lastLinks[2] = mUser.newUmailLink;
 
-                        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
+                        final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
 
                         views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
                         views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.newDiaryCommentsNum + " | " +
                                                                       getString(R.string.discussions) + ": " + mUser.newDiscussNum + " | " +
                                                                       getString(R.string.umail_activity_title) + ": " + mUser.newUmailNum);
 
-                        Notification notification = new Notification();
+                        final Notification notification = new Notification();
                         notification.contentView = views;
                         notification.icon = R.drawable.ic_launcher_inverted; // иконка
                         notification.ledOnMS = 1000;
@@ -240,7 +242,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
                         notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 
-                        Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
+                        final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
                         mNotificationManager.notify(NOTIFICATION_ID + 1, notification); // запускаем уведомление
@@ -255,10 +257,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_DELETE_UMAILS:
                 {
-                    Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
-                    long[] ids = ((Pair<long[], Integer>) message.obj).first;
+                    final Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
+                    final long[] ids = ((Pair<long[], Integer>) message.obj).first;
 
-                    List<NameValuePair> nameValuePairs = new ArrayList<>();
+                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
                     nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
                     nameValuePairs.add(new BasicNameValuePair("module", "umail"));
                     nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
@@ -275,12 +277,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_SET_HTTP_COOKIE:
                 {
-                    List<NameValuePair> nameValuePairs = new ArrayList<>();
+                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
                     nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
                     nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                     nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
 
-                    String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                    final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                     final List<HttpCookie> cookies = mDHCL.getCookieStore().getCookies();
                     if(loginScreen == null || cookies.size() < 2) // not authorised
                     {
@@ -288,6 +290,15 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         break;
                     }
 
+                    final CookieManager cookieManager = CookieManager.getInstance();
+                    // cookieManager.removeSessionCookie();
+
+                    for (HttpCookie cookie : cookies)
+                    {
+                        String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
+                        cookieManager.setCookie("diary.ru", cookieString);
+                    }
+                    CookieSyncManager.getInstance().sync();
                     mUser.isAuthorised = true;
 
                     if(message.obj != null) // возвращаемся к загрузке
@@ -299,15 +310,15 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_GET_DISCUSSION_LIST_DATA:
                 {
 
-                    int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
-                    DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
-                    boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
+                    final int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
+                    final DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
+                    final boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
 
                     String jsURL = dList.getURL();
                     if(onlyNew)
                         jsURL = jsURL + "&new";
 
-                    String dataPage = mDHCL.getPageAndContextAsString(jsURL);
+                    final String dataPage = mDHCL.getPageAndContextAsString(jsURL);
                     if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -320,7 +331,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_PICK_URL:
                 {
-                    String URL = ((Pair<String, Boolean>) message.obj).first;
+                    final String URL = ((Pair<String, Boolean>) message.obj).first;
                     boolean reload = ((Pair<String, Boolean>) message.obj).second;
 
                     if(!mUser.isAuthorised)
@@ -332,7 +343,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_FOLDER:
                 {
-                    String uFolder = mDHCL.getPageAndContextAsString((String) message.obj);
+                    final String uFolder = mDHCL.getPageAndContextAsString((String) message.obj);
                     if(uFolder == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -345,7 +356,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_OPEN_MAIL:
                 {
-                    String uMail = mDHCL.getPageAndContextAsString((String) message.obj);
+                    final String uMail = mDHCL.getPageAndContextAsString((String) message.obj);
                     if(uMail == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -358,8 +369,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_DELETE_POST:
                 {
-                    String id = (String) message.obj;
-                    List<NameValuePair> postParams = new ArrayList<>();
+                    final String id = (String) message.obj;
+                    final List<NameValuePair> postParams = new ArrayList<>();
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("act", "del_post_post"));
                     postParams.add(new BasicNameValuePair("post_id", id));
@@ -371,7 +382,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_DELETE_COMMENT:
                 {
-                    String id = (String) message.obj;
+                    final String id = (String) message.obj;
                     mDHCL.getPageAsString(((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
@@ -379,8 +390,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_EDIT_POST:
                 {
-                    String URL = (String) message.obj;
-                    String dataPage = mDHCL.getPageAsString(URL);
+                    final String URL = (String) message.obj;
+                    final String dataPage = mDHCL.getPageAsString(URL);
                     if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -389,7 +400,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     try
                     {
-                        Post sendPost = serializePostEditPage(dataPage);
+                        final Post sendPost = serializePostEditPage(dataPage);
                         sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
                         sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
                         notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
@@ -403,8 +414,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_PRELOAD_THEMES:
                 {
-                    String URL = ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?newpost";
-                    String dataPage = mDHCL.getPageAsString(URL);
+                    final String URL = ((DiaryPage)mUser.currentDiaryPage).getDiaryURL() + "?newpost";
+                    final String dataPage = mDHCL.getPageAsString(URL);
                     if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -417,7 +428,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         break;
                     }
 
-                    Post sendPost = serializePostEditPage(dataPage);
+                    final Post sendPost = serializePostEditPage(dataPage);
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
@@ -425,8 +436,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_EDIT_COMMENT:
                 {
-                    String URL = (String) message.obj;
-                    String dataPage = mDHCL.getPageAndContextAsString(URL);
+                    final String URL = (String) message.obj;
+                    final String dataPage = mDHCL.getPageAndContextAsString(URL);
                     if(dataPage == null)
                     {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -451,9 +462,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return false;
             }
         }
-        catch (IOException e)
+        catch (IOException ignored)
         {
-            e.printStackTrace();
+            // all URLs are valid
         }
 
         return true;
@@ -462,13 +473,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Post serializePostEditPage(String dataPage)
     {
         notifyListeners(Utils.HANDLE_PROGRESS);
-        Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
-        Post result = new Post();
+        final Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
+        final Post result = new Post();
 
         result.title = rootNode.select("input#postTitle.text").val();
         result.content = rootNode.select("textarea#message").text();
 
-        Elements communityThemes = rootNode.select("input[id^=favtg]");
+        final Elements communityThemes = rootNode.select("input[id^=favtg]");
         for(Element theme : communityThemes)
             result.predefinedTags.put(theme.val(), theme.hasAttr("checked"));
 
@@ -913,19 +924,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
             else
             {
-                HttpURLConnection page = mDHCL.getPageAndContext(URL);
+                final HttpURLConnection page = mDHCL.getPageAndContext(URL);
                 if(page == null)
                 {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                     return;
                 }
 
-                if(page.getContentType().contains("image")) // Just load image, no further processing
+                if(page.getContentType() != null && page.getContentType().contains("image")) // Just load image, no further processing
                 {
                     if(reload) // reload - save
                     {
-                        String srcName = page.getHeaderField("Content-Disposition");
-                        String realName = URLUtil.guessFileName(URL, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(URL));
+                        final String srcName = page.getHeaderField("Content-Disposition");
+                        final String realName = URLUtil.guessFileName(URL, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(URL));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, mDHCL.getResponseBytes(page));
                     }
                     else // no reload - open
@@ -934,7 +945,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 dataPage = mDHCL.getResponseString(page);
-                page.disconnect();
                 handled = Utils.checkDiaryUrl(dataPage);
             }
 
@@ -1009,7 +1019,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_CLOSED_ERROR);
                 else
                 {
-                    Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                    final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
                     // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
                     startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -1071,16 +1081,16 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foreground-режиме
     private Notification createNotification(WebPage page)
     {
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
+        final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
         views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getTitle() != null ? page.getTitle() : "");
 
 
-        Notification notification = new Notification();
+        final Notification notification = new Notification();
         notification.contentView = views;
         notification.icon = R.drawable.ic_launcher_inverted;
         notification.flags |= Notification.FLAG_ONGOING_EVENT;
 
-        Intent intent = new Intent(this, DiaryListActivity.class);
+        final Intent intent = new Intent(this, DiaryListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
         return notification;
