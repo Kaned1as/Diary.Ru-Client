@@ -10,7 +10,7 @@
     <string name="title_activity_diary_list">Список дневников</string>
     <string name="loading">Загрузка…</string>
     <string name="please_wait">Авторизация…</string>
-    <string name="title_activity_launch">Дневники</string>
+    <string name="title_activity_launch">Дневники Next</string>
     <string name="loading_data">Загрузка данных…</string>
     <string name="favourites">Список</string>
     <string name="communities">Сообщества</string>
