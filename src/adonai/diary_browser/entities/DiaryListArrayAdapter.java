@@ -10,7 +10,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import adonai.diary_browser.R;
+import adonai.diary_browser.pro.R;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
 {

@@ -54,6 +54,7 @@ import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pro.R;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {

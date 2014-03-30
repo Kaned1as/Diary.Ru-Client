@@ -4,9 +4,17 @@ import android.content.Context;
 import android.os.Environment;
 import android.widget.Toast;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import adonai.diary_browser.pro.R;
 
 public class CacheManager 
 {

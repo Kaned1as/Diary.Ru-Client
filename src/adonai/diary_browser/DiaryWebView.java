@@ -19,6 +19,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
 import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.pro.R;
 
 // не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
 // Это была шутка.

@@ -48,6 +48,7 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.pro.R;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -237,9 +238,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case R.id.menu_new_comment:
                 newCommentPost();
-                return true;
-            case R.id.menu_purchase:
-                purchaseGift();
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.pro.R;
 
 public class DiaryListFragment extends DiaryFragment
 {

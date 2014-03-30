@@ -58,11 +58,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +72,7 @@ import java.util.concurrent.FutureTask;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.pro.R;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener

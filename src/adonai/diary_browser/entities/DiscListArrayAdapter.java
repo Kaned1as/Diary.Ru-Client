@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
-import adonai.diary_browser.R;
+import adonai.diary_browser.pro.R;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter
 {

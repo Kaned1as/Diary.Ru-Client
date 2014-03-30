@@ -7,6 +7,8 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import adonai.diary_browser.pro.R;
+
 public class UmailListFragment extends DiaryFragment
 {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)

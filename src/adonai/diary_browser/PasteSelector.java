@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
+import adonai.diary_browser.pro.R;
+
 public class PasteSelector extends DialogFragment
 {
     CheckBox mShouldPaste;
