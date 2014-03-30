@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Дневники</string>
+    <string name="app_name">Дневники Next</string>
     <string name="menu_settings">Настройки</string>
     <string name="title_activity_authorization_form">Форма авторизации</string>
     <string name="login">Логин</string>
@@ -84,7 +84,7 @@
     <string name="message_close_allowed_list">Список разрешенных</string>
     <string name="message_close_text">Текст уведомления о закрытии</string>
     <string name="gradient_button">Преобразовать в градиент</string>
-    <string name="application_description">&lt;b>@Дневники&lt;/b>&lt;br/>Андроид-клиент &lt;br/> для сайта Diary.ru&lt;br/>Версия:
+    <string name="application_description">&lt;b>@Дневники Next&lt;/b>&lt;br/>Андроид-клиент &lt;br/> для сайта Diary.ru&lt;br/>Версия:
         &lt;b>1.2.2&lt;/b>&lt;br/>Сообщество: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a>
     </string>
     <string name="author_description">Автор: &lt;b>Адонай&lt;/b>&lt;br/>Дневник: &lt;a href="http://dron01.diary.ru">Not
