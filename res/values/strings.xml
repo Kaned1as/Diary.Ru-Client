@@ -202,4 +202,6 @@
     <string name="author_profile">Профиль автора</string>
     <string name="too_big_picture">Картинка слишком большая</string>
     <string name="offtopic">Оффтопик</string>
+    <string name="anonymously">Анонимно</string>
+    <string name="as_user">От другого пользователя</string>
 </resources>

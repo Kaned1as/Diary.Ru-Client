@@ -274,6 +274,45 @@
                 android:maxLines="1" />
         </LinearLayout>
 
+        <RadioGroup
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:id="@+id/message_security">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/anonymously"
+                android:id="@+id/message_anonymous" />
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/as_user"
+                android:id="@+id/message_as_user" />
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/as_user_layout">
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/as_user_login"
+                    android:hint="@string/login"
+                    android:inputType="textPersonName" />
+
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:id="@+id/as_user_password"
+                    android:hint="@string/password"/>
+            </LinearLayout>
+        </RadioGroup>
+
         <CheckBox
             android:id="@+id/message_close"
             android:layout_width="wrap_content"
