@@ -109,8 +109,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     CheckBox mCopyMessage;
     CheckBox mCustomAvatar;
     CheckBox mNoComments;
+    RadioGroup mSecureOptions;
     TextView mTitle;
     TextView mCurrentPage;
+
+    EditText mUserLogin;
+    EditText mUserPassword;
 
     EditText mPollTitle;
     EditText mPollChoice1;
@@ -134,7 +138,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     Looper mLooper;
     ProgressDialog pd;
 
-    LinearLayout mAvatars, mOptionals, mPoll, mSmilies, mSmilieButtons, mPredefinedThemes, mMainLayout;
+    LinearLayout mAvatars, mOptionals, mPoll, mSmilies, mSmilieButtons, mPredefinedThemes, mMainLayout, mAsUserLayout;
     List<View> postElements = new ArrayList<>();
     List<View> commentElements = new ArrayList<>();
     List<View> umailElements = new ArrayList<>();
@@ -228,6 +232,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mShowCloseOptions = (CheckBox) sender.findViewById(R.id.message_close);
         mShowCloseOptions.setOnCheckedChangeListener(this);
 
+        mSecureOptions = (RadioGroup) sender.findViewById(R.id.message_security);
+        mSecureOptions.setOnCheckedChangeListener(this);
+        mUserLogin = (EditText) sender.findViewById(R.id.as_user_login);
+        mUserPassword = (EditText) sender.findViewById(R.id.as_user_password);
+        mAsUserLayout = (LinearLayout) sender.findViewById(R.id.as_user_layout);
+
         mShowSmilies = (Button) sender.findViewById(R.id.message_show_smilies);
         mShowSmilies.setOnClickListener(this);
         mSmilies = (LinearLayout) sender.findViewById(R.id.message_smilies);
@@ -235,6 +245,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mPredefinedThemes = (LinearLayout) sender.findViewById(R.id.message_predef_themes);
 
         commentElements.add(mSubscribe);
+        commentElements.add(mSecureOptions);
 
         postElements.add(sender.findViewById(R.id.message_title_hint));
         postElements.add(titleText);
@@ -714,6 +725,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     {
         contentText.setText(comment.content);
         mSubscribe.setChecked(true);
+        if(comment.commentID.equals("")) // новый коммент
+            mSecureOptions.setVisibility(View.VISIBLE);
+        else
+            mSecureOptions.setVisibility(View.GONE);
     }
 
     private void prepareUi(Umail mail)
@@ -964,6 +979,20 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
                     if(mPost.commentID.equals("")) // новый пост
                     {
+                        switch (mSecureOptions.getCheckedRadioButtonId())
+                        {
+                            case R.id.message_anonymous:
+                                postParams.add(new BasicNameValuePair("write_from", "1"));
+                                break;
+                            case R.id.message_as_user:
+                                postParams.add(new BasicNameValuePair("write_from", "2"));
+                                postParams.add(new BasicNameValuePair("write_from_name", mUserLogin.getText().toString()));
+                                postParams.add(new BasicNameValuePair("write_from_pass", mUserPassword.getText().toString()));
+                                break;
+                            default:
+                                postParams.add(new BasicNameValuePair("write_from", "0"));
+                                break;
+                        }
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_comment_post"));
                         postParams.add(new BasicNameValuePair("commentid", ""));
@@ -981,7 +1010,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("page", "last"));
                     postParams.add(new BasicNameValuePair("open_uri", ""));
 
-                    postParams.add(new BasicNameValuePair("write_from", "0"));
                     //postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
                     //postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
 
@@ -1112,21 +1140,31 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     public void onCheckedChanged(RadioGroup group, int checkedId)
     {
-        switch(checkedId)
-        {
-            case R.id.close_for_list:
-                mCloseDenyList.setVisibility(View.VISIBLE);
-                mCloseAllowList.setVisibility(View.GONE);
-            break;
-            case R.id.close_only_list:
-                mCloseAllowList.setVisibility(View.VISIBLE);
-                mCloseDenyList.setVisibility(View.GONE);
-            break;
-            default:
-                mCloseDenyList.setVisibility(View.GONE);
-                mCloseAllowList.setVisibility(View.GONE);
-            break;
-        }
+        if(group == mCloseOpts)
+            switch(checkedId)
+            {
+                case R.id.close_for_list:
+                    mCloseDenyList.setVisibility(View.VISIBLE);
+                    mCloseAllowList.setVisibility(View.GONE);
+                break;
+                case R.id.close_only_list:
+                    mCloseAllowList.setVisibility(View.VISIBLE);
+                    mCloseDenyList.setVisibility(View.GONE);
+                break;
+                default:
+                    mCloseDenyList.setVisibility(View.GONE);
+                    mCloseAllowList.setVisibility(View.GONE);
+                break;
+            }
+        else if(group == mSecureOptions)
+            switch (checkedId)
+            {
+                case R.id.message_as_user:
+                    mAsUserLayout.setVisibility(View.VISIBLE);
+                    break;
+                default:
+                    mAsUserLayout.setVisibility(View.GONE);
+            }
     }
 
     @SuppressWarnings("deprecation")
@@ -1295,6 +1333,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 mMainLayout.getChildAt(i).setVisibility(View.GONE);
             if(curr instanceof CheckBox)
                 ((CheckBox) curr).setChecked(false);
+            if(curr instanceof RadioGroup)
+                ((RadioGroup) curr).clearCheck();
         }
     }
 }
