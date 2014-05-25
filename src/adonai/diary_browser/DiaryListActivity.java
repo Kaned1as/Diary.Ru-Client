@@ -317,7 +317,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         {
             pageToLoad = getIntent().getDataString();
             getIntent().setData(null);
-            mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
+            if(mService != null) // if ativity is already running, just redirect to needed page
+                mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
         }
     }
 
