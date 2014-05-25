@@ -429,6 +429,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
 
                     final Post sendPost = serializePostEditPage(dataPage);
+                    if(sendPost == null) // additional check due to nullptrs
+                    {
+                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        break;
+                    }
+
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
@@ -474,6 +480,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
+        if(rootNode == null)
+            return null;
+
         final Post result = new Post();
 
         result.title = rootNode.select("input#postTitle.text").val();
@@ -853,6 +862,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void parseContent(Document resultPage)
     {
         // страница будет иметь наш стиль
+        resultPage.outputSettings().prettyPrint(false);
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
 
         Elements jsElems = resultPage.getElementsByAttribute("onclick");

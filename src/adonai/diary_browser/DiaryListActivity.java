@@ -800,7 +800,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void newPostPost()
     {
-        assert(getUser().currentDiaryPage instanceof DiaryPage);
+        if(!(getUser().currentDiaryPage instanceof DiaryPage))
+            return;
 
         if(((DiaryPage)getUser().currentDiaryPage).getDiaryID().equals(""))
             return;
@@ -814,7 +815,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void newPostPost(Post post)
     {
-        assert(getUser().currentDiaryPage instanceof DiaryPage);
+        if(!(getUser().currentDiaryPage instanceof DiaryPage))
+            return;
 
         if(((DiaryPage)getUser().currentDiaryPage).getDiaryID().equals(""))
             return;
@@ -825,7 +827,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void newCommentPost()
     {
-        assert(getUser().currentDiaryPage instanceof CommentsPage);
+        if(!(getUser().currentDiaryPage instanceof CommentsPage))
+            return;
 
         if(((CommentsPage)getUser().currentDiaryPage).getPostID().equals(""))
             return;

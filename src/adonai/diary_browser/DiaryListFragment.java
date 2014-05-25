@@ -35,8 +35,12 @@ public class DiaryListFragment extends DiaryFragment
         super.onPrepareOptionsMenu(menu);
         UserData mUser = ((DiaryActivity)getActivity()).getUser();
 
-        if(mUser == null)
+        if(mUser == null) // not initialized, hide all
+        {
+            for(int i = 0; i < menu.size(); ++i)
+                menu.getItem(i).setVisible(false);
             return;
+        }
 
         // Только если это дневник
         if(mCurrentComponent == DiaryListActivity.PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class))
