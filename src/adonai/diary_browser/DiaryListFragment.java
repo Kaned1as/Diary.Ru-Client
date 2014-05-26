@@ -1,11 +1,14 @@
 package adonai.diary_browser;
 
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
@@ -72,11 +75,19 @@ public class DiaryListFragment extends DiaryFragment
         {
             menu.findItem(R.id.menu_share).setVisible(false);
             menu.findItem(R.id.menu_subscr_list).setVisible(true);
+            menu.findItem(R.id.menu_manual_input).setVisible(true);
+
+            final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.menu_manual_input));
+            final ImageView v = (ImageView) searchView.findViewById(R.id.search_button);
+            v.setImageResource(android.R.drawable.ic_menu_edit);
+
+            final SearchView.SearchAutoComplete text = (SearchView.SearchAutoComplete) searchView.findViewById(R.id.search_src_text);
         }
         else
         {
             menu.findItem(R.id.menu_share).setVisible(true);
             menu.findItem(R.id.menu_subscr_list).setVisible(false);
+            menu.findItem(R.id.menu_manual_input).setVisible(false);
         }
 
         menu.removeGroup(GROUP_PAGE_LINKS);
