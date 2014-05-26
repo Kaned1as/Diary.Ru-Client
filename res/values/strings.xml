@@ -1,4 +1,16 @@
 <resources>
+    <string-array name="orientation_items">
+        <item>Автоматически</item>
+        <item>Ландшафтная</item>
+        <item>Портретная</item>
+    </string-array>
+
+    <string-array name="orientation_values">
+        <item>-1</item>
+        <item>0</item>
+        <item>1</item>
+    </string-array>
+
     <string name="app_name">Дневники</string>
     <string name="menu_settings">Настройки</string>
     <string name="title_activity_authorization_form">Форма авторизации</string>
@@ -85,7 +97,7 @@
     <string name="message_close_text">Текст уведомления о закрытии</string>
     <string name="gradient_button">Преобразовать в градиент</string>
     <string name="application_description">&lt;b>@Дневники&lt;/b>&lt;br/>Андроид-клиент &lt;br/> для сайта Diary.ru&lt;br/>Версия:
-        &lt;b>1.2.2&lt;/b>&lt;br/>Сообщество: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a>
+        &lt;b>1.4.6&lt;/b>&lt;br/>Сообщество: &lt;a href="http://antic1tizen.diary.ru">Android &amp; Diary.Ru&lt;/a>
     </string>
     <string name="author_description">Автор: &lt;b>Адонай&lt;/b>&lt;br/>Дневник: &lt;a href="http://dron01.diary.ru">Not
         an Option&lt;/a>&lt;br/> Если желаете поучаствовать&lt;br/> или помочь, пожалуйста, пишите на &lt;br/>&lt;a
@@ -180,4 +192,6 @@
     <string name="keep_auth_sum">Если включено, авторизация будет сохранена даже после выхода из приложения. Если нет, вам придется авторизовываться каждый раз, когда вы запускаете приложение.</string>
     <string name="page_incorrect">Неверная страница! Скорее всего, сервис @Дневников недоступен, попробуйте позже!</string>
     <string name="no_file_on_device">Данное изображение отсутствует в телефоне и доступно только из сети. Пожалуйста, выберите изображение с помощью другого просмотрщика!</string>
+    <string name="screen_orientation">Ориентация экрана</string>
+    <string name="screen_orientation_sum">Фиксация ориентации экрана</string>
 </resources>

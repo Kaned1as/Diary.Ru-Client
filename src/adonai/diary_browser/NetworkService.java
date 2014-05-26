@@ -80,6 +80,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean notify_on_updates;
     boolean keep_device_on;
     boolean preload_themes;
+    int orientation;
 
     private List<DiaryActivity> mListeners = new ArrayList<>();
     String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
@@ -122,6 +123,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
         preload_themes = mPreferences.getBoolean("preload.themes", false);
+        orientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -1085,6 +1087,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             case "preload.themes":
                 preload_themes = sharedPreferences.getBoolean("preload.themes", false);
+                break;
+            case "screen.orientation":
+                orientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
                 break;
         }
     }
