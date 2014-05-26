@@ -58,8 +58,9 @@ import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
-    private static final int NOTIFICATION_ID = 3; // Просто случайное число
-    private static final int PENDING_INTENT_ID = 1408; // Просто случайное число
+    private static final int NOTIFICATION_ID = 3; // I SWEAR IT'S RANDOM!!11
+    private static final int NEWS_NOTIFICATION_ID = 4;
+    private static final int PENDING_INTENT_ID = 1408;  // I SWEAR IT'S RANDOM!!11
 
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
@@ -221,13 +222,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
+                    final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     if(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum > 0 && (!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))) // старые данные или нет?
                     {
                         lastLinks[0] = mUser.newDiaryLink; // устанавливаем линки на новые значения
                         lastLinks[1] = mUser.newDiscussLink;
                         lastLinks[2] = mUser.newUmailLink;
 
-                        final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
 
                         views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
@@ -248,8 +249,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-                        mNotificationManager.notify(NOTIFICATION_ID + 1, notification); // запускаем уведомление
+                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
                     }
+                    else
+                        mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
                     break;
                 }
                 case Utils.HANDLE_JUST_DO_GET:
