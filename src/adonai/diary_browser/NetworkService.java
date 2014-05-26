@@ -32,6 +32,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -862,7 +863,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void parseContent(Document resultPage)
     {
         // страница будет иметь наш стиль
-        resultPage.outputSettings().prettyPrint(false);
+        resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
 
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
