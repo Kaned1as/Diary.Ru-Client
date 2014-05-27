@@ -191,5 +191,15 @@
     <string name="keep_auth">Запомнить</string>
     <string name="keep_auth_sum">Если включено, авторизация будет сохранена даже после выхода из приложения. Если нет, вам придется авторизовываться каждый раз, когда вы запускаете приложение.</string>
     <string name="page_incorrect">Неверная страница! Скорее всего, сервис @Дневников недоступен, попробуйте позже!</string>
+    <string name="anonymously">Анонимно</string>
+    <string name="as_user">От другого пользователя</string>
     <string name="no_file_on_device">Данное изображение отсутствует в телефоне и доступно только из сети. Пожалуйста, выберите изображение с помощью другого просмотрщика!</string>
+    <string name="screen_orientation">Ориентация экрана</string>
+    <string name="screen_orientation_sum">Фиксация ориентации экрана</string>
+    <string name="manual_input">Перейти</string>
+    <string name="url_hint">Введите адрес</string>
+    <string name="notfound_error">Не найдено</string>
+    <string name="diary_links">Ссылки дневника</string>
+    <string name="author_diary">Дневник автора</string>
+    <string name="author_profile">Профиль автора</string>
 </resources>
