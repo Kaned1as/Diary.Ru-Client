@@ -263,6 +263,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     @Override
     protected void onDestroy()
     {
+        mDatabase.close();
         if(mCanBuy)
             mHelper.dispose();
         super.onDestroy();

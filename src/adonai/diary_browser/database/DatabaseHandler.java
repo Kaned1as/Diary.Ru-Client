@@ -49,7 +49,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 AutocompleteFields.TEXT + " TEXT NOT NULL, " +
                 AutocompleteFields.TITLE + " TEXT DEFAULT NULL" +
                 ")");
-        db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPETIONS_TABLE_NAME + " (" + AutocompleteFields.TYPE + ")");
+        db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPETIONS_TABLE_NAME + " (" + AutocompleteFields.TEXT + ")");
     }
 
     @Override
@@ -66,7 +66,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     public Cursor getAutocompleteCursor(AutocompleteType type, String filter) {
-        return getWritableDatabase().query(AUTOCOMPETIONS_TABLE_NAME, new String[]{AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
+        return getWritableDatabase().query(AUTOCOMPETIONS_TABLE_NAME, new String[]{AutocompleteFields._id.toString(), AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
     }
 
     public void addAutocompleteText(AutocompleteType type, String query) {

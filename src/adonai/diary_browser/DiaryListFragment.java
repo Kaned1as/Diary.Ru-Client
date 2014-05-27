@@ -16,6 +16,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
 import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
@@ -23,7 +26,7 @@ import adonai.diary_browser.entities.DiaryPage;
 public class DiaryListFragment extends DiaryFragment
 {
     public final static int GROUP_PAGE_LINKS = 100;
-    private final URLAutocompleteAdapter mUrlAdapter = new URLAutocompleteAdapter(getActivity(), getDiaryActivity().mDatabase.getAutocompleteCursor(DatabaseHandler.AutocompleteType.URL, ""));
+    private URLAutocompleteAdapter mUrlAdapter; // created on attach to activity
     private final URLAutocompleteQueryListener mUrlListener = new URLAutocompleteQueryListener();
     private final URLAutocompleteSuggestionListener mUrlSuggestionListener = new URLAutocompleteSuggestionListener();
 
@@ -31,6 +34,9 @@ public class DiaryListFragment extends DiaryFragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
         super.onCreateView(inflater, container, savedInstanceState);
+        mUrlAdapter = new URLAutocompleteAdapter(getActivity(), getDiaryActivity().mDatabase.getAutocompleteCursor(DatabaseHandler.AutocompleteType.URL, ""));
+
+
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_diary_list, container, false);
     }
@@ -88,13 +94,18 @@ public class DiaryListFragment extends DiaryFragment
             menu.findItem(R.id.menu_manual_input).setVisible(true);
 
             final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.menu_manual_input));
-            searchView.setBackgroundColor(Color.parseColor("#33ffff"));
+            searchView.setQueryHint(getString(R.string.url_hint));
             searchView.setSuggestionsAdapter(mUrlAdapter);
             searchView.setOnQueryTextListener(mUrlListener);
             searchView.setOnSuggestionListener(mUrlSuggestionListener);
 
             final ImageView v = (ImageView) searchView.findViewById(R.id.search_button);
             v.setImageResource(android.R.drawable.ic_menu_edit);
+
+            final SearchView.SearchAutoComplete text = (SearchView.SearchAutoComplete) searchView.findViewById(R.id.search_src_text);
+            text.setCursorVisible(false);
+            text.setHintTextColor(Color.LTGRAY);
+            text.setTextColor(Color.WHITE);
         }
         else
         {
@@ -126,9 +137,9 @@ public class DiaryListFragment extends DiaryFragment
             final TextView urlText = (TextView) view.findViewById(android.R.id.text1);
             final TextView caption = (TextView) view.findViewById(android.R.id.text2);
 
-            urlText.setText(cursor.getString(0));
-            if(!cursor.isNull(1))
-                caption.setText(cursor.getString(1));
+            urlText.setText(cursor.getString(1));
+            if(!cursor.isNull(2))
+                caption.setText(cursor.getString(2));
         }
     }
 
@@ -136,7 +147,7 @@ public class DiaryListFragment extends DiaryFragment
 
         @Override
         public boolean onQueryTextSubmit(String query) {
-            getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(query, false));
+            getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(convertToSearchQuery(query), false));
             return true;
         }
 
@@ -157,9 +168,23 @@ public class DiaryListFragment extends DiaryFragment
         @Override
         public boolean onSuggestionClick(int position) {
             final Cursor cur = (Cursor) mUrlAdapter.getItem(position);
-            final String url = cur.getString(0);
+            final String url = cur.getString(1);
             getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, false));
             return true;
         }
+    }
+
+    private String convertToSearchQuery(String somethingLikeURL) {
+        try
+        {
+            if(!somethingLikeURL.startsWith("http"))
+            {
+                if(somethingLikeURL.contains("diary.ru"))
+                    somethingLikeURL = "http://" + somethingLikeURL;
+                else
+                    somethingLikeURL = "http://diary.ru/search/?q=" + URLEncoder.encode(somethingLikeURL, "windows-1251");
+            }
+        } catch (UnsupportedEncodingException ignored) {}
+        return somethingLikeURL;
     }
 }

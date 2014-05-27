@@ -3,6 +3,8 @@
         <item name="actionBarStyle">@style/DiaryTheme.ActionBar</item>
         <item name="actionOverflowButtonStyle">@style/OverFlow</item>
         <item name="actionMenuTextColor">@android:color/white</item>
+        <item name="searchViewSearchIcon"> @android:drawable/ic_menu_search </item>
+        <item name="searchViewCloseIcon">@android:drawable/ic_menu_close_clear_cancel</item>
     </style>
 
     <style name="Classic" parent="android:Theme.Light">

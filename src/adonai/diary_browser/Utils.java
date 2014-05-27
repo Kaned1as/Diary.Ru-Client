@@ -83,6 +83,9 @@ public class Utils
         if(response.contains("id=\"all_bits\""))
             return DiscListPage.class;
 
+        if(response.contains("Поиск по дневникам") && response.contains("Что искать:"))
+            return DiaryPage.class;
+
         return null; // not found
     }
 

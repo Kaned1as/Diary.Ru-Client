@@ -605,7 +605,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements postsArea = rootNode.select("#postsArea > #epigraph, #postsArea > [id^=post], div.pageBar");
+        Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
         if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
 
@@ -645,7 +645,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements effectiveAreas = rootNode.select("#postsArea > [id^=post], #commentsArea > [id^=comment], div.pageBar");
+        Elements effectiveAreas = rootNode.select("[id~=post\\d+], [id~=comment\\d+], div.pageBar");
         if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
             return;
 
