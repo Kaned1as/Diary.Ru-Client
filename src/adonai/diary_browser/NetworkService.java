@@ -894,7 +894,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                                 continue;
                         }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
+                        String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleIMGDown(this, \"" + src + "\")' />";
 
                         current.after(jsButton);
                         current.remove();
@@ -914,7 +914,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                                 continue;
                         }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
+                        String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleADown(this, \"" + current.attr("href") + "\", \"" + src + "\")' />";
 
                         current.after(jsButton);
                         current.remove();
