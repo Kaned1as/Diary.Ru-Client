@@ -32,6 +32,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 
 import java.io.File;
@@ -50,6 +51,7 @@ import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.SearchPage;
 import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
@@ -58,8 +60,9 @@ import adonai.diary_browser.pro.R;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener
 {
-    private static final int NOTIFICATION_ID = 3; // Просто случайное число
-    private static final int PENDING_INTENT_ID = 1408; // Просто случайное число
+    private static final int NOTIFICATION_ID = 3; // I SWEAR IT'S RANDOM!!11
+    private static final int NEWS_NOTIFICATION_ID = 4;
+    private static final int PENDING_INTENT_ID = 1408;  // I SWEAR IT'S RANDOM!!11
 
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
@@ -80,6 +83,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean notify_on_updates;
     boolean keep_device_on;
     boolean preload_themes;
+    int orientation;
 
     private List<DiaryActivity> mListeners = new ArrayList<>();
     String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
@@ -122,6 +126,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
         preload_themes = mPreferences.getBoolean("preload.themes", false);
+        orientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -219,13 +224,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
 
+                    final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     if(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum > 0 && (!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))) // старые данные или нет?
                     {
                         lastLinks[0] = mUser.newDiaryLink; // устанавливаем линки на новые значения
                         lastLinks[1] = mUser.newDiscussLink;
                         lastLinks[2] = mUser.newUmailLink;
 
-                        final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                         final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
 
                         views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
@@ -246,8 +251,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-                        mNotificationManager.notify(NOTIFICATION_ID + 1, notification); // запускаем уведомление
+                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
                     }
+                    else if (mUser.newDiscussNum + mUser.newDiaryCommentsNum + mUser.newUmailNum == 0)
+                        mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
                     break;
                 }
                 case Utils.HANDLE_JUST_DO_GET:
@@ -430,6 +437,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
 
                     final Post sendPost = serializePostEditPage(dataPage);
+                    if(sendPost == null) // additional check due to nullptrs
+                    {
+                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        break;
+                    }
+
                     sendPost.diaryID = ((DiaryPage)mUser.currentDiaryPage).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
@@ -475,6 +488,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
+        if(rootNode == null)
+            return null;
+
         final Post result = new Post();
 
         result.title = rootNode.select("input#postTitle.text").val();
@@ -578,8 +594,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
-            String Id = diaryTag.getElementsByTag("a").last().attr("href");
-            scannedDiary.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
+            String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
+            scannedDiary.setDiaryID(authorProfile.substring(authorProfile.lastIndexOf("?") + 1));
         }
 
         // заполняем ссылки (пока что только какие можем обработать)
@@ -591,9 +607,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements postsArea = rootNode.select("#postsArea > #epigraph, #postsArea > [id^=post], div.pageBar");
-        if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
+        Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
+        if(postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
             return;
+        }
 
         Elements result = postsArea.clone();
         Document resultPage = Document.createShell(mDHCL.currentURL);
@@ -609,6 +627,35 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedDiary;
     }
 
+    private void serializeSearchPage(String dataPage) {
+        notifyListeners(Utils.HANDLE_PROGRESS);
+        final Document rootNode = Jsoup.parse(dataPage);
+        mUser.parseData(rootNode);
+
+        final SearchPage scannedSearch = new SearchPage(mDHCL.currentURL);
+
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
+        final String searchText = rootNode.select("input[name=q]").val();
+        final Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
+        if(postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
+            return;
+        }
+
+
+        final Elements result = postsArea.clone();
+        final Document resultPage = Document.createShell(mDHCL.currentURL);
+        resultPage.title(rootNode.title());
+        for(final Element to : result)
+            resultPage.body().appendChild(to);
+
+        parseContent(resultPage);
+        scannedSearch.setContent(resultPage.html());
+        scannedSearch.setTitle(resultPage.title() + searchText);
+
+        mUser.currentDiaryPage = scannedSearch;
+    }
+
     private void serializeCommentsPage(String dataPage) throws IOException
     {
         notifyListeners(Utils.HANDLE_PROGRESS);
@@ -620,8 +667,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element diaryTag = rootNode.select("#authorName").first();
         if(diaryTag != null)
         {
-            String Id = diaryTag.getElementsByTag("a").last().attr("href");
-            scannedPost.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
+            String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
+            scannedPost.setDiaryID(authorProfile.substring(authorProfile.lastIndexOf("?") + 1));
+            scannedPost.userLinks.put(getString(R.string.author_diary), scannedPost.getDiaryURL());
+            scannedPost.userLinks.put(getString(R.string.author_profile), authorProfile);
         }
 
         Elements userLinks = rootNode.select("div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
@@ -630,10 +679,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                link.id().equals("authorFav") || link.id().equals("authorQuot"))
                 scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
+
+
         notifyListeners(Utils.HANDLE_PROGRESS_2);
-        Elements effectiveAreas = rootNode.select("#postsArea > [id^=post], #commentsArea > [id^=comment], div.pageBar");
-        if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
+        Elements effectiveAreas = rootNode.select("[id~=post\\d+], [id~=comment\\d+], div.pageBar");
+        if(effectiveAreas.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
             return;
+        }
 
         Elements result = effectiveAreas.clone();
         Element urlNode = result.first().getElementsByClass("postLinksBackg").first();
@@ -854,6 +907,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void parseContent(Document resultPage)
     {
         // страница будет иметь наш стиль
+        resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
 
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
@@ -879,7 +933,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                                 continue;
                         }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleIMGDown(this, '" + src + "')\"/>";
+                        String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleIMGDown(this, \"" + src + "\")' />";
 
                         current.after(jsButton);
                         current.remove();
@@ -899,7 +953,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                                 continue;
                         }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type=\"image\" src=\"file:///android_res/drawable/load_image.png\" onclick=\"return handleADown(this, '" + current.attr("href") + "', '" + src + "')\"/>";
+                        String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleADown(this, \"" + current.attr("href") + "\", \"" + src + "\")' />";
 
                         current.after(jsButton);
                         current.remove();
@@ -1011,6 +1065,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
+                    else if(handled == SearchPage.class)
+                    {
+                        serializeSearchPage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
+                    }
                 }
             }
             else // неопознанная страничка
@@ -1038,7 +1098,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
     {
         switch (key)
         {
@@ -1075,6 +1135,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             case "preload.themes":
                 preload_themes = sharedPreferences.getBoolean("preload.themes", false);
+                break;
+            case "screen.orientation":
+                orientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
                 break;
         }
     }

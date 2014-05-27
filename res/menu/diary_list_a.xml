@@ -19,6 +19,7 @@
         <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"/>
         <item android:id="@+id/menu_close_app" android:title="@string/menu_close" android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
     </group>
+    <item android:id="@+id/menu_manual_input" android:title="@string/manual_input" android:icon="@android:drawable/ic_menu_edit" compat:showAsAction="always|withText" compat:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@drawable/ic_menu_allfriends" compat:showAsAction="always|withText" />
     <group android:id="@+id/group_web">
         <item android:id="@+id/menu_refresh" android:title="@string/refresh" android:icon="@drawable/ic_menu_refresh" compat:showAsAction="always|withText"/>

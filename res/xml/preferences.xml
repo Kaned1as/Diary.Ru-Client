@@ -10,5 +10,6 @@
     <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary"/>
     <EditTextPreference android:key="post.tags" android:title="@string/post_tags" android:summary="@string/post_tags_summary" android:defaultValue="@string/posted_via_client"/>
     <EditTextPreference android:key="webview.font.size" android:title="@string/webview_font_size" android:summary="@string/webview_font_size_sum" android:digits="1234567890" android:defaultValue="8"/>
+    <ListPreference android:key="screen.orientation" android:title="@string/screen_orientation" android:summary="@string/screen_orientation_sum" android:entryValues="@array/orientation_values" android:entries="@array/orientation_items" />
     <!--CheckBoxPreference android:key="keep.auth" android:title="@string/keep_auth" android:summary="@string/keep_auth_sum" android:defaultValue="true" /-->
 </PreferenceScreen>

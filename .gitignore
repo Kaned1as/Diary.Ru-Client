@@ -4,5 +4,8 @@ build/
 out/
 .gradle/
 .idea/workspace.xml
+.idea/gradle.xml
+.idea/misc.xml
 .idea/inspectionProfiles/*
 .idea/dictionaries/*
+.idea/libraries/*

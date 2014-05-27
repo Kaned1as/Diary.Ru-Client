@@ -10,7 +10,7 @@ public class DiaryPage extends WebPage
     // идентификатор этого же дневника
     private String diaryID = "";
 
-    public Map<String, String> userLinks = new HashMap<String, String>();
+    public Map<String, String> userLinks = new HashMap<>();
 
     public DiaryPage()
     {
