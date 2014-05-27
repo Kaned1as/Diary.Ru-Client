@@ -273,9 +273,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().subscribersURL, false));
                 return true;
-            case R.id.menu_manual_input:
-                //getSupportActionBar().setNavigationMode();
-                return true;
             case R.id.menu_refresh:
                 reloadContent();
                 return true;

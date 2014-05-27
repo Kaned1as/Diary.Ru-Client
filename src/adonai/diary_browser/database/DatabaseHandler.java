@@ -1,11 +1,16 @@
 package adonai.diary_browser.database;
 
+import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * Created by adonai on 26.05.14.
+ * Класс базы данных, нужен преимущественно для предоставления
+ * сведений автодополнения и оффлайн-работы
+ *
+ * @author Adonai
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
 
@@ -26,7 +31,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     {
         _id,
         TYPE,
-        TEXT
+        TEXT,
+        TITLE
     }
 
     public DatabaseHandler(Context context)
@@ -40,7 +46,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + AUTOCOMPETIONS_TABLE_NAME + " (" +
                 AutocompleteFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 AutocompleteFields.TYPE + " INTEGER NOT NULL, " +
-                AutocompleteFields.TEXT + " TEXT NOT NULL" +
+                AutocompleteFields.TEXT + " TEXT NOT NULL, " +
+                AutocompleteFields.TITLE + " TEXT DEFAULT NULL" +
                 ")");
         db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPETIONS_TABLE_NAME + " (" + AutocompleteFields.TYPE + ")");
     }
@@ -56,5 +63,22 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 
+    }
+
+    public Cursor getAutocompleteCursor(AutocompleteType type, String filter) {
+        return getWritableDatabase().query(AUTOCOMPETIONS_TABLE_NAME, new String[]{AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
+    }
+
+    public void addAutocompleteText(AutocompleteType type, String query) {
+        addAutocompleteText(type, query, null);
+    }
+
+    public void addAutocompleteText(AutocompleteType type, String query, String caption) {
+        final ContentValues cv = new ContentValues(3);
+        cv.put(AutocompleteFields.TYPE.toString(), type.ordinal());
+        cv.put(AutocompleteFields.TEXT.toString(), query);
+        if(caption != null)
+            cv.put(AutocompleteFields.TITLE.toString(), caption);
+        getWritableDatabase().insertWithOnConflict(AUTOCOMPETIONS_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 }

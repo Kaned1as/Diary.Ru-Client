@@ -24,6 +24,7 @@ import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
+import adonai.diary_browser.database.DatabaseHandler;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 
 public abstract class DiaryActivity extends ActionBarActivity implements Callback
@@ -44,6 +45,8 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
     DiaryHttpClient mDHCL;
     String pageToLoad;
+
+    DatabaseHandler mDatabase;
 
     DiaryWebView mPageBrowser;
     protected PullToRefreshLayout mPullToRefreshAttacher;
@@ -76,6 +79,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+        mDatabase = new DatabaseHandler(this);
         mUiHandler = new Handler(this);
 
         String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjuleYDZj7oG7JeX8+bwJWQrf+DYgqGOSiIA6frTZJ+/C7Jt/+PMbWjd/rOelshuYy5HWqywFjvOPoK18zIRMavS1QtlxIMbA/eaVlk+QKEaqOY0EIuBUEIog9e2H7HMq9BVE7o1j8NFuG0skj2jDYfO2R0OfZS2xetqQcXtEtQLp0osS9GQK20oVfNM+LQyyG5ROcab3TmXXjiR0J43XdD8txhSLRB7gzFflMy9C1zYE7736i/R7NAHdmX6KRWmK+YsbI78Wnoy6xa63npdUTIcTUlUwV9zg6VWxQjSLsWnhkgqqJltmKGXk/d3DGYVlwZBu7XnwU0ufGvC1wBC09wIDAQAB";
