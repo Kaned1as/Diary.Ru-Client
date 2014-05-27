@@ -251,7 +251,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
                         mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
                     }
-                    else
+                    else if (mUser.newDiscussNum + mUser.newDiaryCommentsNum + mUser.newUmailNum == 0)
                         mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
                     break;
                 }
