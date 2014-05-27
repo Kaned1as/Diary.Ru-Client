@@ -51,6 +51,7 @@ import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.SearchPage;
 import adonai.diary_browser.entities.TagsPage;
 import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
@@ -625,6 +626,35 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.currentDiaryPage = scannedDiary;
     }
 
+    private void serializeSearchPage(String dataPage) {
+        notifyListeners(Utils.HANDLE_PROGRESS);
+        final Document rootNode = Jsoup.parse(dataPage);
+        mUser.parseData(rootNode);
+
+        final SearchPage scannedSearch = new SearchPage(mDHCL.currentURL);
+
+        notifyListeners(Utils.HANDLE_PROGRESS_2);
+        final String searchText = rootNode.select("input[name=q]").val();
+        final Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
+        if(postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
+            return;
+        }
+
+
+        final Elements result = postsArea.clone();
+        final Document resultPage = Document.createShell(mDHCL.currentURL);
+        resultPage.title(rootNode.title());
+        for(final Element to : result)
+            resultPage.body().appendChild(to);
+
+        parseContent(resultPage);
+        scannedSearch.setContent(resultPage.html());
+        scannedSearch.setTitle(resultPage.title() + searchText);
+
+        mUser.currentDiaryPage = scannedSearch;
+    }
+
     private void serializeCommentsPage(String dataPage) throws IOException
     {
         notifyListeners(Utils.HANDLE_PROGRESS);
@@ -1034,6 +1064,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
+                    else if(handled == SearchPage.class)
+                    {
+                        serializeSearchPage(dataPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
+                    }
                 }
             }
             else // неопознанная страничка
@@ -1061,7 +1097,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     }
 
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) 
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key)
     {
         switch (key)
         {

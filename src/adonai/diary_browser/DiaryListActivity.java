@@ -420,7 +420,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleTabChange(getUser().currentDiaryPage.getPageURL());
 
                     setTitle(getUser().currentDiaryPage.getTitle());
-                    mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getTitle());
+                    if(getUser().currentDiaryPage.getClass() == DiaryPage.class)
+                        mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getTitle());
                 }
                 else // it's image
                 {

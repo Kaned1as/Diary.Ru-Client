@@ -8,6 +8,7 @@ import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryProfilePage;
 import adonai.diary_browser.entities.DiscListPage;
+import adonai.diary_browser.entities.SearchPage;
 import adonai.diary_browser.entities.TagsPage;
 
 public class Utils 
@@ -85,7 +86,7 @@ public class Utils
             return DiscListPage.class;
 
         if(response.contains("Поиск по дневникам") && response.contains("Что искать:"))
-            return DiaryPage.class;
+            return SearchPage.class;
 
         return null; // not found
     }
