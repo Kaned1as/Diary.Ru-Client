@@ -137,7 +137,6 @@ public class DiaryListFragment extends DiaryFragment
         @Override
         public boolean onQueryTextSubmit(String query) {
             getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(query, false));
-            getDiaryActivity().mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, query);
             return true;
         }
 

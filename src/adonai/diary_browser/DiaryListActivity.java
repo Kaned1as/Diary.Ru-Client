@@ -39,6 +39,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
@@ -267,8 +268,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case R.id.menu_tags:
                 // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
-                assert(getUser().currentDiaryPage instanceof DiaryPage); // следим чтобы текущая страничка обязательно была в пределах иерархии
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage)getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
+                if(getUser().currentDiaryPage instanceof DiaryPage) // следим чтобы текущая страничка обязательно была в пределах иерархии
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage)getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().subscribersURL, false));
@@ -411,7 +412,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
-                if (message.obj == null)
+                if (message.obj == null) // it's page
                 {
                     mPageBrowser.loadDataWithBaseURL(getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getContent(), null, "utf-8", getUser().currentDiaryPage.getPageURL());
 
@@ -419,8 +420,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleTabChange(getUser().currentDiaryPage.getPageURL());
 
                     setTitle(getUser().currentDiaryPage.getTitle());
+                    mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getTitle());
                 }
-                else
+                else // it's image
                 {
                     String src = (String) message.obj;
                     mPageBrowser.loadUrl(src);
