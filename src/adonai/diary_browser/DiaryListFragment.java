@@ -11,6 +11,7 @@ import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -26,6 +27,7 @@ import adonai.diary_browser.entities.DiaryPage;
 public class DiaryListFragment extends DiaryFragment
 {
     public final static int GROUP_PAGE_LINKS = 100;
+    public final static int ITEM_PAGE_LINKS = 101;
     private URLAutocompleteAdapter mUrlAdapter; // created on attach to activity
     private final URLAutocompleteQueryListener mUrlListener = new URLAutocompleteQueryListener();
     private final URLAutocompleteSuggestionListener mUrlSuggestionListener = new URLAutocompleteSuggestionListener();
@@ -117,8 +119,11 @@ public class DiaryListFragment extends DiaryFragment
         menu.removeGroup(GROUP_PAGE_LINKS);
         // добавляем ссылки дневника, если они есть
         if(mUser.currentDiaryPage instanceof DiaryPage)
-            for(String linkName : ((DiaryPage) mUser.currentDiaryPage).userLinks.keySet())
-                menu.add(GROUP_PAGE_LINKS, 0, 0, linkName);
+        {
+            final SubMenu linksMenu = menu.addSubMenu(GROUP_PAGE_LINKS, 0, 0, R.string.diary_links);
+            for (String linkName : ((DiaryPage) mUser.currentDiaryPage).userLinks.keySet())
+                linksMenu.add(ITEM_PAGE_LINKS, 0, 0, linkName);
+        }
     }
 
     private class URLAutocompleteAdapter extends CursorAdapter {

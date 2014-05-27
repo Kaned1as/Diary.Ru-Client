@@ -189,6 +189,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
             Toast.makeText(getApplicationContext(), getString(R.string.closed_error), Toast.LENGTH_SHORT).show();
             mPullToRefreshAttacher.setRefreshComplete();
             break;
+        case Utils.HANDLE_NOTFOUND_ERROR:
+            Toast.makeText(getApplicationContext(), getString(R.string.notfound_error), Toast.LENGTH_SHORT).show();
+            break;
         case Utils.HANDLE_JUST_DO_GET:
             Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
             break;

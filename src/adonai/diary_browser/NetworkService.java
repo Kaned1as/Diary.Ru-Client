@@ -592,8 +592,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if(diaryTag != null)
         {
-            String Id = diaryTag.getElementsByTag("a").last().attr("href");
-            scannedDiary.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
+            String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
+            scannedDiary.setDiaryID(authorProfile.substring(authorProfile.lastIndexOf("?") + 1));
         }
 
         // заполняем ссылки (пока что только какие можем обработать)
@@ -606,8 +606,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
-        if(postsArea.isEmpty()) // Нет вообще никаких постов, заканчиваем
+        if(postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
             return;
+        }
 
         Elements result = postsArea.clone();
         Document resultPage = Document.createShell(mDHCL.currentURL);
@@ -634,8 +636,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element diaryTag = rootNode.select("#authorName").first();
         if(diaryTag != null)
         {
-            String Id = diaryTag.getElementsByTag("a").last().attr("href");
-            scannedPost.setDiaryID(Id.substring(Id.lastIndexOf("?") + 1));
+            String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
+            scannedPost.setDiaryID(authorProfile.substring(authorProfile.lastIndexOf("?") + 1));
+            scannedPost.userLinks.put(getString(R.string.author_diary), scannedPost.getDiaryURL());
+            scannedPost.userLinks.put(getString(R.string.author_profile), authorProfile);
         }
 
         Elements userLinks = rootNode.select("div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
@@ -644,10 +648,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                link.id().equals("authorFav") || link.id().equals("authorQuot"))
                 scannedPost.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
 
+
+
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements effectiveAreas = rootNode.select("[id~=post\\d+], [id~=comment\\d+], div.pageBar");
-        if(effectiveAreas.isEmpty()) // Нет вообще никаких постов, заканчиваем
+        if(effectiveAreas.isEmpty()) { // Нет вообще никаких постов, заканчиваем
+            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
             return;
+        }
 
         Elements result = effectiveAreas.clone();
         Element urlNode = result.first().getElementsByClass("postLinksBackg").first();

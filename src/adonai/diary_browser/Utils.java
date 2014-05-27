@@ -57,6 +57,7 @@ public class Utils
     static final int HANDLE_CONNECTIVITY_ERROR                      =  -20 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_SERVICE_ERROR                           =  -30 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CLOSED_ERROR                            =  -40 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_NOTFOUND_ERROR                          =  -41 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
 
     static String javascriptContent =    "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
                                          "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +

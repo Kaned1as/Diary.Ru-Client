@@ -196,4 +196,8 @@
     <string name="screen_orientation_sum">Фиксация ориентации экрана</string>
     <string name="manual_input">Перейти</string>
     <string name="url_hint">Введите адрес</string>
+    <string name="notfound_error">Не найдено</string>
+    <string name="diary_links">Ссылки дневника</string>
+    <string name="author_diary">Дневник автора</string>
+    <string name="author_profile">Профиль автора</string>
 </resources>
