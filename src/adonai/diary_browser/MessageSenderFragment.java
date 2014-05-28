@@ -1186,6 +1186,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 contentText.setSelection(contentText.getText().toString().indexOf("[/MORE]", cursorPos));
                 break;
             }
+            case R.id.button_offtopic:
+            {
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<span class='offtop'>" + paste.toString() + "</span>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("</span>", cursorPos));
+                break;
+            }
             case R.id.button_image:
             {
 
