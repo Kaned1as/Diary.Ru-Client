@@ -44,9 +44,7 @@ public class DiaryHttpClient
             httpPost = (HttpURLConnection) address.toURL().openConnection();
             httpPost.setDoOutput(true);
             httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
-            httpPost.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
-            httpPost.setConnectTimeout(5000);
-            httpPost.setReadTimeout(5000);
+            setDefaultParameters(httpPost);
 
             final OutputStream os = httpPost.getOutputStream();
             data.writeTo(os);
@@ -75,8 +73,7 @@ public class DiaryHttpClient
         {
             final URI address = new URI(currentURL).resolve(url);
             httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(5000);
-            httpGet.setReadTimeout(5000);
+            setDefaultParameters(httpGet);
 
             return getResponseString(httpGet);
         }
@@ -100,8 +97,7 @@ public class DiaryHttpClient
         {
             final URI address = new URI(currentURL).resolve(url);
             httpGet  = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(5000);
-            httpGet.setReadTimeout(5000);
+            setDefaultParameters(httpGet);
             // getting bytes of image
             final InputStream is = httpGet.getInputStream();
             final byte[] buffer = new byte[8192];
@@ -132,8 +128,7 @@ public class DiaryHttpClient
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setConnectTimeout(5000);
-            httpGet.setReadTimeout(5000);
+            setDefaultParameters(httpGet);
 
             return getResponseString(httpGet);
         }
@@ -191,9 +186,7 @@ public class DiaryHttpClient
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
-            httpGet.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
-            httpGet.setConnectTimeout(5000);
-            httpGet.setReadTimeout(5000);
+            setDefaultParameters(httpGet);
 
             return httpGet;
         }
@@ -255,5 +248,11 @@ public class DiaryHttpClient
         {
             super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
         }
+    }
+
+    private void setDefaultParameters(HttpURLConnection conn) {
+        conn.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
     }
 }
