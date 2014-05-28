@@ -51,6 +51,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
@@ -445,7 +446,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             File file = new File((String) message.obj);
                             final long length = file.length();
                             MultipartEntity mpEntity = new MultipartEntity();
-                            ContentBody cbFile = new DiaryHttpClient.CountingFileBody(file, "image/*", new DiaryHttpClient.ProgressListener()
+                            ContentBody cbFile = new FileBody(file, "image/*");
+                            mpEntity.addPart("module", new StringBody("photolib"));
+                            mpEntity.addPart("signature", new StringBody(mSignature));
+                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
+                            mpEntity.addPart("attachment1", cbFile);
+
+                            final DiaryHttpClient.ProgressListener listener = new DiaryHttpClient.ProgressListener()
                             {
                                 @Override
                                 public void transferred(long transferredBytes)
@@ -453,23 +460,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                     long percent = (transferredBytes * 100) / length;
                                     mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_PROGRESS, (int)percent));
                                 }
-                            });
-                            mpEntity.addPart("module", new StringBody("photolib"));
-                            mpEntity.addPart("signature", new StringBody(mSignature));
-                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
-                            mpEntity.addPart("attachment1", cbFile);
+                            };
 
-                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
+                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity, listener);
                             if (result != null)
                             {
-                                result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
-                                if(result.length() > 0)
-                                {
-                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, result));
-                                    pd.dismiss();
+                                if(result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
+                                    Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();
+                                else {
+                                    result = result.substring(result.indexOf("'") + 1, result.indexOf("';"));
+                                    if (result.length() > 0)
+                                        mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, result));
+                                    else
+                                        Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                                 }
-                                else
-                                    Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                                pd.dismiss();
                                 //resEntity.consumeContent();
                             }
                         } catch (Exception e)

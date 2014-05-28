@@ -1,11 +1,9 @@
 package adonai.diary_browser;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.protocol.HTTP;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +33,11 @@ public class DiaryHttpClient
         return manager.getCookieStore();
     }
 
-    public String postPageToString(String url, HttpEntity data)
+    public String postPageToString(String url, HttpEntity data) {
+        return postPageToString(url, data, null);
+    }
+
+    public String postPageToString(String url, HttpEntity data, ProgressListener listener)
     {
         HttpURLConnection httpPost = null;
         try
@@ -46,7 +48,13 @@ public class DiaryHttpClient
             httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
             setDefaultParameters(httpPost);
 
-            final OutputStream os = httpPost.getOutputStream();
+            final OutputStream os;
+            if(listener != null) {
+                httpPost.setChunkedStreamingMode(8192);
+                os = new CountingOutputStream(httpPost.getOutputStream(), listener);
+            } else
+                os = httpPost.getOutputStream();
+
             data.writeTo(os);
             os.flush();
             os.close();
@@ -187,7 +195,6 @@ public class DiaryHttpClient
             currentURL = address.toURL().toString();
             final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
             setDefaultParameters(httpGet);
-
             return httpGet;
         }
         catch (Exception ignored) {}
@@ -232,22 +239,6 @@ public class DiaryHttpClient
             this.listener.transferred(this.transferred);
         }
 
-    }
-
-    static public class CountingFileBody extends FileBody
-    {
-        ProgressListener listener;
-        CountingFileBody(File f, String str, ProgressListener progressListener)
-        {
-            super(f, str);
-            listener = progressListener;
-        }
-
-        @Override
-        public void writeTo(OutputStream out) throws IOException
-        {
-            super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
-        }
     }
 
     private void setDefaultParameters(HttpURLConnection conn) {
