@@ -1,5 +1,6 @@
 package adonai.diary_browser;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Build;
@@ -88,52 +89,9 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mFolderBrowser = (ListView) main.findViewById(R.id.ufolder_browser);
 
         // Механизм удаления U-Mail
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            mFolderBrowser.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener()
-            {
-                @Override
-                public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
-                {
-                    mode.setSubtitle(getString(R.string.selected) + mFolderBrowser.getCheckedItemCount());
-                    if (checked)
-                        mFolderAdapter.addSelection(id);
-                    else
-                        mFolderAdapter.removeSelection(id);
-                    mFolderBrowser.invalidateViews();
-                }
-
-                @Override
-                public boolean onCreateActionMode(ActionMode mode, Menu menu)
-                {
-                    mode.setTitle(R.string.select_items);
-                    menu.add(0, 1, 100, R.string.delete_umails).setIcon(android.R.drawable.ic_menu_delete);
-                    mFolderBrowser.setLongClickable(false);
-                    return true;
-                }
-
-                @Override
-                public boolean onPrepareActionMode(ActionMode mode, Menu menu)
-                {
-                    return true;
-                }
-
-                @Override
-                public boolean onActionItemClicked(ActionMode mode, MenuItem item)
-                {
-                    handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<>(mFolderBrowser.getCheckedItemIds(), getUser().currentUmails.getURL().equals(inFolderAddress) ? 1 : 2));
-                    mode.finish();
-                    return true;
-                }
-
-                @Override
-                public void onDestroyActionMode(ActionMode mode)
-                {
-                    mFolderBrowser.clearChoices();
-                    mFolderAdapter.clearSelections();
-                    mFolderBrowser.invalidateViews();
-                    mFolderBrowser.setLongClickable(true);
-                }
-            });
+            setContextDeleter();
 
         mFolderBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
@@ -151,6 +109,55 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mOutcoming = (TextView) main.findViewById(R.id.outcoming);
         mIncoming.setOnClickListener(this);
         mOutcoming.setOnClickListener(this);
+    }
+
+    @TargetApi(11)
+    private void setContextDeleter() {
+        mFolderBrowser.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener()
+        {
+            @Override
+            public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked)
+            {
+                mode.setSubtitle(getString(R.string.selected) + mFolderBrowser.getCheckedItemCount());
+                if (checked)
+                    mFolderAdapter.addSelection(id);
+                else
+                    mFolderAdapter.removeSelection(id);
+                mFolderBrowser.invalidateViews();
+            }
+
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu)
+            {
+                mode.setTitle(R.string.select_items);
+                menu.add(0, 1, 100, R.string.delete_umails).setIcon(android.R.drawable.ic_menu_delete);
+                mFolderBrowser.setLongClickable(false);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu)
+            {
+                return true;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item)
+            {
+                handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<>(mFolderBrowser.getCheckedItemIds(), getUser().currentUmails.getURL().equals(inFolderAddress) ? 1 : 2));
+                mode.finish();
+                return true;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode)
+            {
+                mFolderBrowser.clearChoices();
+                mFolderAdapter.clearSelections();
+                mFolderBrowser.invalidateViews();
+                mFolderBrowser.setLongClickable(true);
+            }
+        });
     }
 
     @Override
