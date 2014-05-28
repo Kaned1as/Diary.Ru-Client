@@ -19,7 +19,7 @@ import java.net.URI;
 
 public class DiaryHttpClient 
 {
-
+    private final String USER_AGENT_STRING = "Mozilla/5.0 (X11; Linux x86_64; rv:29.0) Gecko/20100101 Firefox/29.0";
     private final CookieManager manager;
     String currentURL = "";
 
@@ -44,6 +44,7 @@ public class DiaryHttpClient
             httpPost = (HttpURLConnection) address.toURL().openConnection();
             httpPost.setDoOutput(true);
             httpPost.setRequestProperty(HTTP.CONTENT_TYPE, data.getContentType().getValue());
+            httpPost.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
             httpPost.setConnectTimeout(5000);
             httpPost.setReadTimeout(5000);
 
@@ -147,7 +148,20 @@ public class DiaryHttpClient
     }
 
     public String getResponseString(HttpURLConnection httpGet) throws IOException {
-        return new String(getResponseBytes(httpGet), "WINDOWS-1251");
+        final String contentType = httpGet.getContentType();
+        final String[] values = contentType.split(";");
+        String charset = "UTF-8";
+
+        for (String value : values) {
+            value = value.trim();
+
+            if (value.toLowerCase().startsWith("charset=")) {
+                charset = value.substring("charset=".length());
+                break;
+            }
+        }
+
+        return new String(getResponseBytes(httpGet), charset);
     }
 
     public byte[] getResponseBytes(HttpURLConnection httpGet) throws IOException {
@@ -177,6 +191,7 @@ public class DiaryHttpClient
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
+            httpGet.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
             httpGet.setConnectTimeout(5000);
             httpGet.setReadTimeout(5000);
 
