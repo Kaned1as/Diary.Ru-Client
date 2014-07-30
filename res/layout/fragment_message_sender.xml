@@ -82,45 +82,71 @@
             android:orientation="vertical"
             android:tag="persistent">
 
-            <LinearLayout
-                android:id="@+id/message_specials"
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:id="@+id/message_specials_scroll"
+                android:fillViewport="true">
 
-                <ImageButton
-                    android:id="@+id/left_gradient"
-                    android:layout_width="50dip"
-                    android:layout_height="50dip"
-                    android:contentDescription="@string/gradient_button"
-                    android:cropToPadding="true"
-                    android:src="@android:color/white"
-                    android:layout_weight="0"
-                    style="?android:attr/buttonStyleSmall"
-                    android:adjustViewBounds="false" />
+                <LinearLayout
+                    android:id="@+id/message_specials"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
 
-                <Button
-                    android:id="@+id/set_gradient"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="0dp"
-                    android:layout_height="50dip"
-                    android:contentDescription="@string/gradient_button"
-                    android:text="@string/gradient_button"
-                    android:layout_weight="1" />
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="«"
+                        android:textSize="24sp" />
 
-                <ImageButton
-                    android:id="@+id/right_gradient"
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="50dip"
-                    android:layout_height="50dip"
-                    android:contentDescription="@string/gradient_button"
-                    android:cropToPadding="true"
-                    android:scaleType="center"
-                    android:src="@android:color/black"
-                    android:layout_weight="0" />
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="»"
+                        android:textSize="24sp" />
 
-            </LinearLayout>
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="©"
+                        android:textSize="24sp" />
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="™"
+                        android:textSize="24sp" />
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="®"
+                        android:textSize="24sp" />
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="½"
+                        android:textSize="24sp" />
+
+                    <Button
+                        style="?android:attr/buttonStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="§"
+                        android:textSize="24sp" />
+
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"

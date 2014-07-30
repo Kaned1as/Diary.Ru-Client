@@ -12,9 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -59,11 +57,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -76,7 +71,6 @@ import java.util.concurrent.FutureTask;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
-import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
@@ -91,9 +85,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_PROGRESS        = 8;
     private static final int HANDLE_GET_SMILIES     = 9;
 
-    ImageButton mLeftGradient;
-    ImageButton mRightGradient;
-    Button mSetGradient;
     Button mPublish;
     Button mShowSmilies;
 
@@ -194,12 +185,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mTitle = (TextView) sender.findViewById(R.id.fragment_title);
         mCurrentPage = (TextView) sender.findViewById(R.id.fragment_page);
 
-        mLeftGradient = (ImageButton) sender.findViewById(R.id.left_gradient);
-        mLeftGradient.setOnClickListener(this);
-        mRightGradient = (ImageButton) sender.findViewById(R.id.right_gradient);
-        mRightGradient.setOnClickListener(this);
-        mSetGradient = (Button) sender.findViewById(R.id.set_gradient);
-        mSetGradient.setOnClickListener(this);
+        final LinearLayout specials = (LinearLayout) sender.findViewById(R.id.message_specials);
+        for(int i = 0; i < specials.getChildCount(); ++i)
+            specials.getChildAt(i).setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    contentText.setText(contentText.getText().toString() + ((Button)view).getText());
+                }
+            });
 
         mPollTitle = (EditText) sender.findViewById(R.id.message_poll_title);
         mPollChoice1 = (EditText) sender.findViewById(R.id.message_poll_1);
@@ -1041,55 +1034,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
             break;
             }
-            case R.id.left_gradient:
-            case R.id.right_gradient:
-            {
-                final ImageButton imgbutton = (ImageButton) view;
-                int oldColor = getColorFromPicture(imgbutton);
-                AmbilWarnaDialog dialog = new AmbilWarnaDialog(getActivity(), oldColor, new AmbilWarnaDialog.OnAmbilWarnaListener()
-                {
-                    public void onOk(AmbilWarnaDialog dialog, int color)
-                    {
-                        ColorDrawable newColor = new ColorDrawable(color);
-                        imgbutton.setImageDrawable(newColor);
-                    }
-
-                    public void onCancel(AmbilWarnaDialog dialog)
-                    {
-                    }
-                });
-                dialog.show();
-            }
-            break;
-            case R.id.set_gradient:
-            {
-                int startColor = getColorFromPicture(mLeftGradient);
-                int endColor = getColorFromPicture(mRightGradient);
-
-                CharSequence text = contentText.getText();
-                String newText = "";
-                int length = text.length();
-                for(int i = 0; i < text.length(); i++)
-                {
-                    char current = text.charAt(i);
-                    if (current == ' ' || current == '\n')
-                    {
-                        newText += current;
-                        continue;
-                    }
-                    int newRed = ((Color.red(startColor) - Color.red(startColor) * i / length) + (Color.red(endColor) - Color.red(endColor) * (length - i) / text.length()));
-                    int newGreen = ((Color.green(startColor) - Color.green(startColor) * i / length) + (Color.green(endColor) - Color.green(endColor) * (length - i) / text.length()));
-                    int newBlue = ((Color.blue(startColor) - Color.blue(startColor) * i / length) + (Color.blue(endColor) - Color.blue(endColor) * (length - i) / text.length()));
-                    String red = String.format("%02X", newRed > 0xFF ? 0xFF : newRed);
-                    String green = String.format("%02X", newGreen > 0xFF ? 0xFF : newGreen);
-                    String blue = String.format("%02X", newBlue > 0xFF ? 0xFF : newBlue);
-
-                    String addiction = "<span style=\"color: #" + red + green + blue + "\">" + current + "</span>";
-                    newText += addiction;
-                }
-                contentText.setText(newText);
-            }
-            break;
             case R.id.message_show_smilies:
                 pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, null));
@@ -1208,8 +1152,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
             case R.id.button_nick:
             {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<L>" + paste.toString() + "</L>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("</L>", cursorPos));
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "[L]" + paste.toString() + "[/L]" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("[/L]", cursorPos));
                 break;
             }
             case R.id.button_link:
