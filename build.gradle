@@ -20,12 +20,12 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 'android-L'
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 9
-        targetSdkVersion 'android-L'
+        targetSdkVersion 21
     }
 
     compileOptions {

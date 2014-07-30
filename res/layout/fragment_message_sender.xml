@@ -100,49 +100,63 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="«"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="»"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="©"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="™"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="®"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="½"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="§"
-                        android:textSize="24sp" />
+                        android:textSize="20sp"
+                        android:height="40dp"
+                        android:width="40dp" />
 
 
                 </LinearLayout>

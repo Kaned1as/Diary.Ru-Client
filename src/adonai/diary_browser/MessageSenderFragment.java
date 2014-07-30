@@ -191,6 +191,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 @Override
                 public void onClick(View view) {
                     contentText.setText(contentText.getText().toString() + ((Button)view).getText());
+                    contentText.setSelection(contentText.getText().length());
                 }
             });
 
