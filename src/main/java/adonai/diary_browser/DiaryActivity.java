@@ -129,6 +129,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 mDHCL = mService.mDHCL;
                 mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 
+                if(getPackageName().contains("pro"))
+                    break;
+
                 // Показываем страничку изменений
                 try
                 {
@@ -165,8 +168,6 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                         updater.putString("stored.version", current);
                         updater.commit();
                     }
-
-
                 } catch (PackageManager.NameNotFoundException ignored)
                 {
                     // не сработало - и ладно

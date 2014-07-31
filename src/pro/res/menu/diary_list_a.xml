@@ -1,0 +1,27 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_new_post"
+        android:title="@string/new_post"
+        android:orderInCategory="100"
+        compat:showAsAction="always|withText"
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
+    
+    <item android:id="@+id/menu_new_comment" 
+        android:orderInCategory="101" 
+        android:title="@string/new_comment" 
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark"
+        compat:showAsAction="always|withText" />
+
+    <item android:id="@+id/menu_tags" android:title="@string/diary_tags" android:icon="@android:drawable/ic_menu_agenda"/>
+    <group android:id="@+id/group_all" android:menuCategory="container">
+        <item android:id="@+id/menu_share" android:title="@string/menu_share" android:icon="@android:drawable/ic_menu_share"/>
+        <item android:id="@+id/menu_about" android:title="@string/about" android:icon="@android:drawable/ic_menu_help"/>
+        <item android:id="@+id/menu_settings" android:title="@string/menu_settings" android:icon="@android:drawable/ic_menu_preferences"/>
+        <item android:id="@+id/menu_close_app" android:title="@string/menu_close" android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
+    </group>
+    <item android:id="@+id/menu_manual_input" android:title="@string/manual_input" android:icon="@android:drawable/ic_menu_edit" compat:showAsAction="always|withText" compat:actionViewClass="android.support.v7.widget.SearchView" />
+    <item android:id="@+id/menu_subscr_list" android:title="@string/subscribers_list" android:icon="@drawable/ic_menu_allfriends" compat:showAsAction="always|withText" />
+    <group android:id="@+id/group_web">
+        <item android:id="@+id/menu_refresh" android:title="@string/refresh" android:icon="@drawable/ic_menu_refresh" compat:showAsAction="always|withText"/>
+    </group>
+</menu>
