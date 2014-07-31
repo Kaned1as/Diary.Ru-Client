@@ -5,12 +5,19 @@
         android:orderInCategory="100"
         compat:showAsAction="always|withText"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
-    
-    <item android:id="@+id/menu_new_comment" 
-        android:orderInCategory="101" 
-        android:title="@string/new_comment" 
+
+    <item android:id="@+id/menu_new_comment"
+        android:orderInCategory="101"
+        android:title="@string/new_comment"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark"
         compat:showAsAction="always|withText" />
+
+    <item android:id="@+id/menu_purchase"
+          android:orderInCategory="102"
+          android:title="@string/help"
+          android:visible="false"
+          android:icon="@android:drawable/ic_menu_agenda"
+          compat:showAsAction="never" />
 
     <item android:id="@+id/menu_tags" android:title="@string/diary_tags" android:icon="@android:drawable/ic_menu_agenda"/>
     <group android:id="@+id/group_all" android:menuCategory="container">
