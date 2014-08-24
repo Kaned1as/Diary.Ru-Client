@@ -1159,8 +1159,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
             case R.id.button_link:
             {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<a href=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
+                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<a href=\"" + paste.toString() + "\">" + paste.toString() + "</a>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                contentText.setSelection(contentText.getText().toString().indexOf("/a>", cursorPos));
                 break;
             }
             case R.id.button_more:

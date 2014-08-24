@@ -963,7 +963,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         resultPage.body().append(Utils.javascriptContent);
     }
 
-    private void checkUrlAndHandle(String URL, boolean reload)
+    private void checkUrlAndHandle(String requestedUrl, boolean reload)
     {   
         Class<?> handled;
         Object cachedPage = null;
@@ -971,14 +971,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         try
         {
-            if(mCache.hasPage(URL) && !reload)
+            if(mCache.hasPage(requestedUrl) && !reload)
             {
-                cachedPage = mCache.loadPageFromCache(URL);
+                cachedPage = mCache.loadPageFromCache(requestedUrl);
                 handled = cachedPage.getClass();
             }
             else
             {
-                final HttpURLConnection page = mDHCL.getPageAndContext(URL);
+                final HttpURLConnection page = mDHCL.getPageAndContext(requestedUrl);
                 if(page == null)
                 {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -990,11 +990,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(reload) // reload - save
                     {
                         final String srcName = page.getHeaderField("Content-Disposition");
-                        final String realName = URLUtil.guessFileName(URL, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(URL));
+                        final String realName = URLUtil.guessFileName(requestedUrl, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, mDHCL.getResponseBytes(page));
                     }
                     else // no reload - open
-                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, URL);
+                        notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, requestedUrl);
                     return;
                 }
 
@@ -1006,7 +1006,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             {
                 if(cachedPage != null) // если страничка была в кэше
                 {
-                    mDHCL.currentURL = URL;
+                    mDHCL.currentURL = requestedUrl;
 
                     if(cachedPage instanceof DiaryListPage)
                     {
@@ -1055,7 +1055,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     else if(handled == DiaryListPage.class)
                     {
                         serializeDiaryListPage(dataPage);
-                        mCache.putPageToCache(URL, mUser.currentDiaries);
+                        mCache.putPageToCache(requestedUrl, mUser.currentDiaries);
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     }
                     else if(handled == DiscListPage.class)
@@ -1075,11 +1075,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             else // неопознанная страничка
             {
                 assert(cachedPage == null);
-                if(dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
+                if(requestedUrl.contains("diary.ru") && dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
                     notifyListeners(Utils.HANDLE_CLOSED_ERROR);
                 else
                 {
-                    final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                    final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestedUrl));
                     // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
                     startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
