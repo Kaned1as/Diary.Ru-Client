@@ -38,6 +38,7 @@ public class Utils
     static final int HANDLE_EDIT_COMMENT                            =  12 | DIARY_HANDLERS_MASK;
     static final int HANDLE_UPLOAD_FILE                             =  13 | DIARY_HANDLERS_MASK;
     static final int HANDLE_PRELOAD_THEMES                          =  14 | DIARY_HANDLERS_MASK;
+    static final int HANDLE_REPOST                                  =  15 | DIARY_HANDLERS_MASK;
 
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                             =  20 | DIARY_HANDLERS_MASK;

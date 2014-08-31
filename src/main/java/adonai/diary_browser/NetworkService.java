@@ -291,7 +291,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                     final List<HttpCookie> cookies = mDHCL.getCookieStore().getCookies();
-                    if(loginScreen == null || cookies.size() < 2) // not authorised
+
+                    if(loginScreen == null) { // no connection
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        break;
+                    }
+
+                    if(cookies.size() < 2) // not authorised
                     {
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
@@ -386,6 +392,29 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
                     break;
+                }
+                case Utils.HANDLE_REPOST:
+                {
+                    final String URL = (String) message.obj;
+                    final String dataPage = mDHCL.getPageAsString(URL);
+                    if(dataPage == null)
+                    {
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        break;
+                    }
+
+                    try
+                    {
+                        final Post sendPost = serializePostEditPage(dataPage);
+                        sendPost.diaryID = mUser.ownProfileID;
+                        notifyListeners(Utils.HANDLE_REPOST, sendPost);
+                        break;
+                    }
+                    catch (NullPointerException ex) // cannot serialize
+                    {
+                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        break;
+                    }
                 }
                 case Utils.HANDLE_DELETE_COMMENT:
                 {
@@ -595,7 +624,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
             String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
             scannedDiary.setDiaryID(authorProfile.substring(authorProfile.lastIndexOf("?") + 1));
+            scannedDiary.userLinks.put(getString(R.string.author_diary), scannedDiary.getDiaryURL());
+            scannedDiary.userLinks.put(getString(R.string.author_profile), authorProfile);
         }
+
 
         // заполняем ссылки (пока что только какие можем обработать)
         // TODO: сделать generic-обработчик всех таких ссылок и вынести в новую процедуру (убрать tags)
@@ -908,6 +940,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         // страница будет иметь наш стиль
         resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+
+        // кнопка репоста указывает на нужную ссылку
+        Elements shareLinks = resultPage.select(".postLinks li[class^=quote]");
+        for(Element shareLi : shareLinks) {
+            if(shareLi.childNodeSize() == 0)
+                continue;
+
+            Element repostLink = shareLi.child(0);
+            Element diaryRepost = shareLi.select("div a[href*=newpost]").first();
+            if(diaryRepost != null)
+                repostLink.attr("href", diaryRepost.attr("href"));
+        }
 
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
         for(Element js : jsElems)

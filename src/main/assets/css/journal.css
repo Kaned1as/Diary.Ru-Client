@@ -169,12 +169,6 @@ postLinks li.addToQuote
     white-space: nowrap;
 }
 
-/* пока не работают */
-.postLinks li.quote_comment, .postLinks li.quote_post
-{
-    display: none;
-}
-
 a:hover
 {
     text-decoration: underline;

@@ -1,8 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="adonai.diary_browser"
-    android:versionCode="160"
-    android:versionName="1.6.0" android:installLocation="auto">
+    android:versionCode="162"
+    android:versionName="1.6.2" android:installLocation="auto">
 
     <uses-sdk tools:node="replace" />
 

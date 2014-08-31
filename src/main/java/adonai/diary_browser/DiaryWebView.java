@@ -157,6 +157,11 @@ public class DiaryWebView extends WebView
                     return true;
                 }
 
+                if(url.contains("newpost&quote_")) { // кнопка репоста
+                    mActivity.handleBackground(Utils.HANDLE_REPOST, url);
+                    return true;
+                }
+
                 if(url.contains("?delcomment&commentid=")) // удаление коммента
                 {
                     final String id = url.substring(url.lastIndexOf("=") + 1);

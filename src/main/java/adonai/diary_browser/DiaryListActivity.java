@@ -520,6 +520,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 Comment sendComment = (Comment)message.obj;
                 editComment(sendComment);
                 break;
+            case Utils.HANDLE_REPOST:
+                Post repost = (Post)message.obj;
+                newPostPost(repost);
+                break;
             case Utils.HANDLE_PRELOAD_THEMES:
                 Post newPost = (Post)message.obj;
                 newPostPost(newPost);
