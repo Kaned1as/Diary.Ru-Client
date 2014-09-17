@@ -190,8 +190,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             specials.getChildAt(i).setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    contentText.setText(contentText.getText().toString() + ((Button)view).getText());
-                    contentText.setSelection(contentText.getText().length());
+                    int cursorPos = contentText.getSelectionStart();
+                    if(cursorPos == -1)
+                        cursorPos = contentText.getText().length();
+
+                    String toPaste = ((Button)view).getText().toString();
+                    contentText.setText(contentText.getText().toString().substring(0, cursorPos) + toPaste + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
+                    contentText.setSelection(contentText.getText().toString().indexOf(toPaste, cursorPos) + 1);
                 }
             });
 

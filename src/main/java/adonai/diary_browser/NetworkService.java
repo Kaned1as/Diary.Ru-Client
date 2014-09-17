@@ -667,7 +667,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         final String searchText = rootNode.select("input[name=q]").val();
-        final Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
+        final Elements postsArea = rootNode.select("[id~=post\\d+], div#pageBar");
         if(postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
             notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
             return;

@@ -536,7 +536,7 @@ table
     font-style: italic;
 }
 
-.pageBar
+.pageBar, #pageBar
 {
     text-align: center;
     font-size: 130%;
@@ -544,26 +544,26 @@ table
     padding: 5px;
 }
 
-.pageBar table
+.pageBar table, #pageBar table
 {
     margin-left: auto;
     margin-right: auto;
 }
 
-.pageBar td
+.pageBar td, #pageBar td
 {
     white-space: nowrap;
     padding: 0;
 }
 
-.pageBar a,
-.pageBar strong
+.pageBar a, #pageBar a,
+.pageBar strong, #pageBar strong
 {
     margin: 0 1px 0 1px;
     padding: 0 5px 0 5px;
 }
 
-.pageBar strong
+.pageBar strong, #pageBar strong
 {
     font-size: 105%;
 }
