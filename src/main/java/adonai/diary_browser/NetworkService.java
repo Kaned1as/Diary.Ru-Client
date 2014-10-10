@@ -25,6 +25,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -37,10 +38,15 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
@@ -65,6 +71,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
+
+    private static String mCssContent;
 
     public UserData mUser = new UserData();
     public DiaryHttpClient mDHCL = new DiaryHttpClient();
@@ -939,7 +947,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         // страница будет иметь наш стиль
         resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
-        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+        //getAssets().open("css/journal.css");
+        //resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+        if(!getCssContent(this).isEmpty()) {
+            resultPage.head().append("<style type=\"text/css\" media=screen>" + mCssContent +"</style>");
+        }
 
         // кнопка репоста указывает на нужную ссылку
         Elements shareLinks = resultPage.select(".postLinks li[class^=quote]");
@@ -1208,5 +1220,62 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser = new UserData();
         mDHCL.getCookieStore().removeAll();
         mCache.clear();
+    }
+
+    private static String getCssContent(Context ctx) {
+        if(mCssContent == null) {
+            mCssContent = retrieveCss(ctx);
+        }
+        return mCssContent;
+    }
+
+    private static void setCssContent(Context ctx, String content) {
+        mCssContent = content;
+    }
+
+    private static String retrieveCss(Context ctx) {
+        try {
+            if(CacheManager.getInstance().hasData(ctx, "custom.css")) {
+                return new String(CacheManager.getInstance().retrieveData(ctx, "custom.css"));
+            } else {
+                InputStream is = ctx.getAssets().open("css/journal.css");
+                String contents = Utils.getStringFromInputStream(is);
+                CacheManager.getInstance().cacheData(ctx, contents.getBytes(), "custom.css");
+                return contents;
+            }
+        } catch (IOException e) {
+            return "";
+        }
+    }
+
+    public static Map<String, String> getCssColors(Context ctx) {
+        String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";
+        Pattern parser = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = parser.matcher(getCssContent(ctx));
+        Map<String, String> result = new HashMap<>();
+        while (matcher.find()) {
+            result.put(matcher.group(2), matcher.group(1));
+        }
+        return result;
+    }
+
+    public static void replaceCssColors(Context ctx, Map<String, String> replacements) {
+        String css = getCssContent(ctx);
+        String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";
+        Pattern parser = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = parser.matcher(css);
+        while (matcher.find()) {
+            if (replacements.containsKey(matcher.group(2))) {
+                css = css.replace(matcher.group(), ": " + replacements.get(matcher.group(2)) + ";   /* " + matcher.group(2) + " */");
+                replacements.remove(matcher.group(2));
+                matcher = parser.matcher(css);
+            }
+        }
+        try {
+            setCssContent(ctx, css);
+            CacheManager.getInstance().cacheData(ctx, css.getBytes(), "custom.css");
+        } catch (IOException e) {
+            Toast.makeText(ctx, R.string.io_error, Toast.LENGTH_SHORT).show();
+        }
     }
 }

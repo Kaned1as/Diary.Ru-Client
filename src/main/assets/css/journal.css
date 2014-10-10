@@ -1,7 +1,7 @@
 body
 {
-    background-color: #f7f2ee;
-    color: #333333;
+    background-color: #f7f2ee;   /* Фон */
+    color: #ff0000;   /* Цвет текста */
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 80%;
     padding: 5px;
@@ -303,7 +303,7 @@ a:hover
 .singlePost, .singleComment
 {
     margin-top: 20px;
-    background-color: #edd8bd;
+    background-color: #edd8bd; /* Фон поста/комментария */
     border-radius: 12px;
 }
 
@@ -528,7 +528,7 @@ table
 
 .offtop
 {
-    color: #999;
+    color: #909090; /* Цвет оффтопа */
 }
 
 .quote_text
@@ -580,7 +580,6 @@ table
     clear: both;
 }
 
-/* ��� ������ ������ � �� */
 blockquote, .paragraph li, .paragraph ul
 {
     margin-top: 0;
@@ -595,7 +594,7 @@ blockquote, .paragraph li, .paragraph ul
 a
 {
     text-decoration: none;
-    color: rgb(128, 0, 0);
+    color: #800000; /* Цвет ссылки */
 }
 
 .linkssection .paragraph

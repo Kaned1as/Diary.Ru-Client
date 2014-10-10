@@ -197,6 +197,7 @@
     <string name="manual_input">Перейти</string>
     <string name="url_hint">Введите адрес</string>
     <string name="notfound_error">Не найдено</string>
+    <string name="io_error">Ошибка записи на диск</string>
     <string name="diary_links">Ссылки дневника</string>
     <string name="author_diary">Дневник автора</string>
     <string name="author_profile">Профиль автора</string>
@@ -204,4 +205,9 @@
     <string name="offtopic">Оффтопик</string>
     <string name="anonymously">Анонимно</string>
     <string name="as_user">От другого пользователя</string>
+    <string name="theme_customization">Оформление и темы</string>
+    <string name="color_selection">Выбор цветовой схемы</string>
+    <string name="placeholder">Пример текста</string>
+    <string name="decorations">Оформление</string>
+    <string name="decorations_sum">Выбор цветов, смена стилей оформления</string>
 </resources>
