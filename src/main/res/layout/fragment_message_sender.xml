@@ -3,7 +3,6 @@
     android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/diary_main"
     android:fillViewport="false">
 
     <LinearLayout
@@ -274,15 +273,14 @@
             <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/predef_themes_scroll"
-                android:background="@drawable/layout_border">
+                android:id="@+id/predef_themes_scroll">
 
                 <LinearLayout
                     android:orientation="vertical"
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/message_predef_themes"
-                    ></LinearLayout>
+                    />
             </HorizontalScrollView>
 
             <TextView
@@ -547,8 +545,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/avatars_scroll"
-            android:tag="persistent"
-            android:background="@drawable/layout_border">
+            android:tag="persistent">
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -566,7 +563,6 @@
             android:layout_gravity="center_horizontal"
             android:text="@string/message_publish"
             android:layout_weight="1"
-            android:shadowColor="@color/diary_divider"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
             android:tag="persistent" />

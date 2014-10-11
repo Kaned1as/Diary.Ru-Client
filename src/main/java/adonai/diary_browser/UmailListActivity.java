@@ -32,8 +32,8 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener
@@ -62,8 +62,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mUiHandler = new Handler(this);
         setContentView(R.layout.activity_umail);
 
-        mainPane = (UmailListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
-        messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
+        mainPane = (UmailListFragment) getFragmentManager().findFragmentById(R.id.main_pane);
+        messagePane = (MessageSenderFragment) getFragmentManager().findFragmentById(R.id.message_pane);
 
         initializeUI(mainPane.getView());
     }
@@ -234,7 +234,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 mFolderBrowser.setAdapter(mFolderAdapter);
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                supportInvalidateOptionsMenu();
+                invalidateOptionsMenu();
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
@@ -242,7 +242,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                 setTitle(getUser().currentUmailPage.getTitle());
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                supportInvalidateOptionsMenu();
+                invalidateOptionsMenu();
                 break;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)

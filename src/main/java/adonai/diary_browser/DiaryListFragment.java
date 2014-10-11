@@ -2,11 +2,7 @@ package adonai.diary_browser;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.widget.CursorAdapter;
-import android.support.v7.widget.SearchView;
 import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -14,7 +10,8 @@ import android.view.MenuInflater;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.CursorAdapter;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import java.io.UnsupportedEncodingException;
@@ -94,20 +91,19 @@ public class DiaryListFragment extends DiaryFragment
             menu.findItem(R.id.menu_share).setVisible(false);
             menu.findItem(R.id.menu_subscr_list).setVisible(true);
             menu.findItem(R.id.menu_manual_input).setVisible(true);
-
-            final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.menu_manual_input));
+            final SearchView searchView = (SearchView) menu.findItem(R.id.menu_manual_input).getActionView();
             searchView.setQueryHint(getString(R.string.url_hint));
             searchView.setSuggestionsAdapter(mUrlAdapter);
             searchView.setOnQueryTextListener(mUrlListener);
             searchView.setOnSuggestionListener(mUrlSuggestionListener);
 
-            final ImageView v = (ImageView) searchView.findViewById(R.id.search_button);
-            v.setImageResource(android.R.drawable.ic_menu_edit);
+            //final ImageView v = (ImageView) searchView.findViewById(android.R.id.search_button);
+            //v.setImageResource(android.R.drawable.ic_menu_edit);
 
-            final SearchView.SearchAutoComplete text = (SearchView.SearchAutoComplete) searchView.findViewById(R.id.search_src_text);
-            text.setCursorVisible(false);
-            text.setHintTextColor(Color.LTGRAY);
-            text.setTextColor(Color.WHITE);
+            //final EditText text = (EditText) searchView.findViewById(android.R.id.search_src_text);
+            //text.setCursorVisible(false);
+            //text.setHintTextColor(Color.LTGRAY);
+            //text.setTextColor(Color.WHITE);
         }
         else
         {

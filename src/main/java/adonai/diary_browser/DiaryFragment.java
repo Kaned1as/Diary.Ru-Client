@@ -1,6 +1,6 @@
 package adonai.diary_browser;
 
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 
 public class DiaryFragment extends Fragment
 {

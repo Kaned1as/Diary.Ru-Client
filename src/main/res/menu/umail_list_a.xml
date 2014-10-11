@@ -4,7 +4,7 @@
         android:id="@+id/menu_reply_umail"
         android:title="@string/reply_umail"
         android:orderInCategory="100"
-        compat:showAsAction="never"
+        android:showAsAction="never"
         android:icon="@android:drawable/ic_menu_add"/>
 
 
@@ -12,7 +12,7 @@
         android:id="@+id/menu_new_umail"
         android:title="@string/new_umail"
         android:orderInCategory="100"
-        compat:showAsAction="always|withText"
+        android:showAsAction="ifRoom|withText"
         android:icon="@android:drawable/ic_menu_add"/>
     <group
         android:id="@+id/group_all"

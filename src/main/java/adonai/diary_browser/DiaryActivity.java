@@ -1,17 +1,18 @@
 package adonai.diary_browser;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.widget.SlidingPaneLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
@@ -25,9 +26,9 @@ import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
 import adonai.diary_browser.database.DatabaseHandler;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
-public abstract class DiaryActivity extends ActionBarActivity implements Callback
+public abstract class DiaryActivity extends Activity implements Callback
 {
     private static final int HANDLE_APP_START = 0;
     private static final String SKU_DONATE = "small";
@@ -102,7 +103,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
         super.onStart();
         slider = (DiarySlidePane) findViewById(R.id.slider);
         slider.setPanelSlideListener(sliderListener);
-        slider.setSliderFadeColor(getResources().getColor(R.color.diary_transparent));
+        slider.setSliderFadeColor(Color.WHITE);
 
         mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
     }

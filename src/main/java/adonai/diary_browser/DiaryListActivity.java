@@ -1,6 +1,7 @@
 package adonai.diary_browser;
 
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,7 +9,6 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.DialogFragment;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -49,8 +49,8 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
@@ -122,8 +122,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
-        mainPane = (DiaryListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
-        messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
+        mainPane = (DiaryListFragment) getFragmentManager().findFragmentById(R.id.main_pane);
+        messagePane = (MessageSenderFragment) getFragmentManager().findFragmentById(R.id.message_pane);
 
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
@@ -144,7 +144,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void initializeUI(View main)
     {
-        getSupportActionBar().setHomeButtonEnabled(true);
+        getActionBar().setHomeButtonEnabled(true);
 
         mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
@@ -286,7 +286,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return onSearchRequested();
             case R.id.menu_special_paste:
                 DialogFragment newFragment = PasteSelector.newInstance();
-                newFragment.show(getSupportFragmentManager(), "selector");
+                newFragment.show(getFragmentManager(), "selector");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -408,7 +408,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
-                supportInvalidateOptionsMenu(); // PART_LIST
+                invalidateOptionsMenu(); // PART_LIST
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
@@ -431,7 +431,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                supportInvalidateOptionsMenu(); // PART_WEB
+                invalidateOptionsMenu(); // PART_WEB
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 setCurrentVisibleComponent(PART_DISC_LIST);
@@ -441,7 +441,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 browserHistory.add(getUser().discussions.getURL());
                 handleTabChange(getUser().discussions.getURL());
 
-                supportInvalidateOptionsMenu(); // PART_DISC_LIST
+                invalidateOptionsMenu(); // PART_DISC_LIST
                 break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 mPullToRefreshAttacher.setRefreshComplete();

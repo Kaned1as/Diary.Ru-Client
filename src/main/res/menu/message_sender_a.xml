@@ -4,6 +4,6 @@
     <item android:id="@+id/menu_special_paste"
           android:title="@string/menu_special_paste"
           android:orderInCategory="100"
-          compat:showAsAction="always|withText"
+          android:showAsAction="ifRoom|withText"
           android:icon="@drawable/ic_menu_paste" />
 </menu>

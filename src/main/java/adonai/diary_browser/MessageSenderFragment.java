@@ -2,6 +2,7 @@ package adonai.diary_browser;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -21,12 +22,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
-import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -145,7 +144,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     SparseArray<Object> avatarMap;
     Map<String, Object> smileMap;
 
-    Context themeWrapper;
     DiaryHttpClient mDHCL;
     String mSendURL = "";
     Comment mPost;
@@ -155,10 +153,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        themeWrapper = new ContextThemeWrapper(getActivity(), R.style.Classic);
-        LayoutInflater localInflater = inflater.cloneInContext(themeWrapper);
-
-        View sender = localInflater.inflate(R.layout.fragment_message_sender, container, false);
+        View sender = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
         postParams = new ArrayList<>();
 
@@ -559,7 +554,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 {
                     for(int i = 0; i < avatarMap.size(); i++)
                     {
-                        ImageButton current = new ImageButton(themeWrapper);
+                        ImageButton current = new ImageButton(getActivity());
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -584,7 +579,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     mSmilies.removeAllViews();
                     for(Map.Entry<String, Object> smile : smileMap.entrySet())
                     {
-                        ImageButton current = new ImageButton(themeWrapper);
+                        ImageButton current = new ImageButton(getActivity());
                         current.setTag(smile.getKey());
 
                         current.setScaleType(ImageView.ScaleType.FIT_CENTER);
@@ -600,7 +595,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         if(link.text().equals(""))
                             continue;
 
-                        Button current = new Button(themeWrapper);
+                        Button current = new Button(getActivity());
                         current.setTag(link.attr("href"));
                         current.setText(link.text());
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -805,13 +800,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         {
             if(i % 4 == 0) // по 4 темы в горизонтальный ряд
             {
-                horizontal = new LinearLayout(themeWrapper);
+                horizontal = new LinearLayout(getActivity());
                 horizontal.setOrientation(LinearLayout.HORIZONTAL);
                 horizontal.setVerticalGravity(Gravity.CENTER);
                 mPredefinedThemes.addView(horizontal);
             }
 
-            CheckBox current = new CheckBox(themeWrapper);
+            CheckBox current = new CheckBox(getActivity());
             current.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
             current.setEms(12);
             current.setMaxLines(2);

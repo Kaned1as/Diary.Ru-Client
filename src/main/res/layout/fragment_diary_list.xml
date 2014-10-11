@@ -2,15 +2,13 @@
     android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/diary_background"
     android:orientation="vertical">
 
     <RelativeLayout
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
         android:layout_height="30dip"
-        android:gravity="right"
-        android:background="@color/diary_main">
+        android:gravity="right">
 
         <ImageButton
             android:id="@+id/quotes_button"
@@ -45,8 +43,7 @@
             android:layout_marginRight="10dip"
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textStyle="bold" android:gravity="center_vertical"
-            android:textColor="@color/diary_divider"/>
+            android:textStyle="bold" android:gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/umail_button"
@@ -89,7 +86,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent"
                 android:id="@+id/tabs"
-                android:background="@color/diary_main"
                 android:clickable="false"
                 android:divider="@drawable/diary_divider_vertical"
                 android:showDividers="middle"
@@ -100,7 +96,6 @@
                     android:layout_height="match_parent"
                     android:text="@string/favourites"
                     android:id="@+id/favlist_button"
-                    android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
@@ -112,7 +107,6 @@
                     android:layout_height="match_parent"
                     android:text="@string/posts"
                     android:id="@+id/fav_button"
-                    android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp" android:layout_weight="1"
@@ -123,7 +117,6 @@
                     android:layout_height="match_parent"
                     android:text="@string/my_diary"
                     android:id="@+id/diary_button"
-                    android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp" android:layout_weight="1"
@@ -134,7 +127,6 @@
                     android:layout_height="match_parent"
                     android:text="@string/discussions"
                     android:id="@+id/discussions_button"
-                    android:background="@drawable/menu_button"
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp" android:layout_weight="1"
@@ -151,7 +143,7 @@
             android:layout_height="match_parent"
             android:visibility="visible">
 
-            <uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout
+            <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
                 android:id="@+id/refresher_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
@@ -161,8 +153,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cacheColorHint="@android:color/transparent"
-                    android:divider="@null"
-                    android:listSelector="@drawable/list_item_selector">
+                    android:divider="@null">
                 </ListView>
 
                 <adonai.diary_browser.DiaryWebView
@@ -178,7 +169,7 @@
                     android:divider="@null">
                 </ExpandableListView>
 
-            </uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout>
+            </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
 
             <ImageButton
                 android:layout_width="wrap_content"

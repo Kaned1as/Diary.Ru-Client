@@ -70,7 +70,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         last_post.setText(diary.getLastPost());
 
         if(checkedIds.contains(getItemId(pos)))
-            view.setBackgroundColor(getContext().getResources().getColor(R.color.selected));
+            view.setBackgroundColor(getContext().getResources().getColor(Color.LTGRAY));
         else
             view.setBackgroundResource(R.drawable.item_background);
 
