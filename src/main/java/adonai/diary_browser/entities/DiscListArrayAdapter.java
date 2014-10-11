@@ -8,6 +8,7 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter
 {
@@ -60,7 +61,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         View view;
         DiscPage discussion = (DiscPage) getGroup(groupPosition);
         if (convertView == null)
-            view = View.inflate(context, R.layout.discussion_list_item, null);
+            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_list_item, null);
         else
             view = convertView;
 
@@ -81,7 +82,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         View view;
         DiscPage.Discussion discussion = (DiscPage.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
-            view = View.inflate(context, R.layout.discussion_item, null);
+            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_item, null);
         else
             view = convertView;
 

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
 {
@@ -58,7 +59,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         View view;
         ListPage diary = getItem(pos);
         if (convertView == null)
-            view = View.inflate(getContext(), R.layout.diary_list_item, null);
+            view = HotLayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
         else
             view = convertView;
         

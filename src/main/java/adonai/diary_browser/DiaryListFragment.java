@@ -131,7 +131,7 @@ public class DiaryListFragment extends DiaryFragment
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return View.inflate(context, android.R.layout.simple_list_item_2, null);
+            return HotLayoutInflater.from(context).inflate(android.R.layout.simple_list_item_2, null);
         }
 
         @Override

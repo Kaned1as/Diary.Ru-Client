@@ -26,8 +26,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         MOOD
     }
 
-    private static final String AUTOCOMPLETIONS_TABLE_NAME = "autocomplete";
-    private static enum AutocompleteFields
+    public static final String AUTOCOMPLETIONS_TABLE_NAME = "autocomplete";
+    public enum AutocompleteFields
     {
         _id,
         TYPE,
@@ -35,8 +35,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         TITLE
     }
 
-    private static final String THEME_TABLE_NAME = "theme";
-    private static enum ThemeFields
+    public static final String THEME_TABLE_NAME = "theme";
+    public enum ThemeFields
     {
         KEY,
         BACKGROUND_COLOR,
@@ -63,7 +63,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPLETIONS_TABLE_NAME + " (" + AutocompleteFields.TEXT + ")");
 
         db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
-                ThemeFields.KEY + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                ThemeFields.KEY + " TEXT PRIMARY KEY, " +
                 ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
                 ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
                 ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
@@ -84,7 +84,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(oldVersion == 1 && newVersion == 2) {
             db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
-                    ThemeFields.KEY + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    ThemeFields.KEY + " TEXT PRIMARY KEY, " +
                     ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
                     ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
                     ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +

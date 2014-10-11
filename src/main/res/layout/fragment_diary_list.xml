@@ -143,7 +143,6 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#800000"
             android:tag="@string/tag_horizontal_divider_style"/>
 
         <FrameLayout
@@ -162,7 +161,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cacheColorHint="@android:color/transparent"
-                    android:divider="@null"/>
+                    android:divider="@null"
+                    android:tag="@string/tag_listview_style"/>
 
                 <adonai.diary_browser.DiaryWebView
                     android:id="@+id/page_browser"
@@ -173,7 +173,8 @@
                     android:id="@+id/discussion_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:divider="@null"/>
+                    android:divider="@null"
+                    android:tag="@string/tag_listview_style"/>
 
             </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
 

@@ -49,6 +49,7 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.theming.HotLayoutInflater;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -256,7 +257,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
                 AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
                 builder.setTitle(R.string.about);
-                View aboutContent = View.inflate(ctw, R.layout.about_d, null);
+                View aboutContent = HotLayoutInflater.from(ctw).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
                 author.setText(Html.fromHtml(getString(R.string.author_description)));
                 author.setMovementMethod(LinkMovementMethod.getInstance());
@@ -391,8 +392,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     {
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
-                        click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
-                        click.setTag(Utils.BUTTON_URL, url.getURL());
+                        click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
+                        click.setTag(R.integer.button_url, url.getURL());
                         click.setOnClickListener(DiaryListActivity.this);
                         LL.addView(click);
 
@@ -647,9 +648,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         {
             setCurrentTab(mTabs.indexOfChild(view), false);
         }
-        else if (view.getTag(Utils.BUTTON_URL) != null)  // нижние кнопки списков
+        else if (view.getTag(R.integer.button_url) != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(Utils.BUTTON_URL), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(R.integer.button_url), false));
         }
     }
 
