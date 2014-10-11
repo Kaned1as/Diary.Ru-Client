@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="layout_style">!layout|LAYOUT</string>
+    <string name="statusbar_style">!status_layout|LAYOUT</string>
+    <string name="button_style">!button|BUTTON</string>
+    <string name="listview_style">!listview|LISTVIEW</string>
+    <string name="listitem_style">!listitem|LAYOUT</string>
+    <string name="horizontal_divider_style">!horizontal_divider|LAYOUT</string>
+    <string name="vertical_divider_style">!vertical_divider|LAYOUT</string>
+    <string name="edit_style">!edit|EDIT</string>
+    <string name="label_style">!label|TEXT</string>
+    <string name="actionbar_style">!actionbar|ACTIONBAR</string>
+</resources>

@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -89,9 +88,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mFolderBrowser = (ListView) main.findViewById(R.id.ufolder_browser);
 
         // Механизм удаления U-Mail
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB)
-            setContextDeleter();
+        setContextDeleter();
 
         mFolderBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {

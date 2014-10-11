@@ -272,6 +272,10 @@ public abstract class DiaryActivity extends Activity implements Callback
         }
     }
 
+    public DatabaseHandler getDatabase() {
+        return mDatabase;
+    }
+
     @Override
     protected void onDestroy()
     {

@@ -84,11 +84,10 @@
 
             <LinearLayout
                 android:orientation="horizontal"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="fill_parent"
                 android:id="@+id/tabs"
                 android:clickable="false"
-                android:divider="@drawable/diary_divider_vertical"
                 android:showDividers="middle">
 
                 <Button
@@ -99,8 +98,7 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:layout_weight="1" />
 
                 <Button
                     android:layout_width="wrap_content"
@@ -110,8 +108,7 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:layout_weight="1" />
 
                 <Button
                     android:layout_width="wrap_content"
@@ -121,8 +118,7 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:layout_weight="1" />
 
                 <Button
                     android:layout_width="wrap_content"
@@ -132,8 +128,7 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1"
-                    android:textColor="@android:color/secondary_text_light" />
+                    android:layout_weight="1" />
             </LinearLayout>
         </HorizontalScrollView>
 
@@ -158,18 +153,18 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cacheColorHint="@android:color/transparent"
-                    android:divider="@null"></ListView>
+                    android:divider="@null"/>
 
                 <adonai.diary_browser.DiaryWebView
                     android:id="@+id/page_browser"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"></adonai.diary_browser.DiaryWebView>
+                    android:layout_height="match_parent"/>
 
                 <ExpandableListView
                     android:id="@+id/discussion_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:divider="@null"></ExpandableListView>
+                    android:divider="@null"/>
 
             </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
 

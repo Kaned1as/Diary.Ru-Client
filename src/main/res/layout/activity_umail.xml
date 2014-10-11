@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <adonai.diary_browser.DiarySlidePane xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/slider">
@@ -9,12 +10,14 @@
         android:name="adonai.diary_browser.MessageSenderFragment"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:id="@+id/message_pane" />
+        android:id="@+id/message_pane"
+        tools:layout="@layout/fragment_message_sender" />
 
     <fragment
         android:name="adonai.diary_browser.UmailListFragment"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:id="@+id/main_pane" />
+        android:id="@+id/main_pane"
+        tools:layout="@layout/fragment_umail" />
 
 </adonai.diary_browser.DiarySlidePane>
