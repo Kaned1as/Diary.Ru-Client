@@ -19,8 +19,9 @@
         android:background="@android:drawable/list_selector_background"
         android:ellipsize="marquee"
         android:text="@string/title"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:tag="@string/tag_listitem_title_style"/>
 
     <TextView
         android:id="@+id/discussion_last_post"
@@ -30,6 +31,7 @@
         android:layout_centerHorizontal="true"
         android:gravity="right"
         android:text="@string/last_post"
-        android:textSize="14sp" />
+        android:textSize="14sp"
+        android:tag="@string/tag_listitem_signature_style"/>
 
 </RelativeLayout>

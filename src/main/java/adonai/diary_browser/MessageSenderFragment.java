@@ -557,7 +557,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     {
                         ImageButton current = new ImageButton(getActivity());
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
-                        current.setTag(avatarMap.keyAt(i));
+                        current.setTag(Utils.AVATAR_ID, avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSenderFragment.this);
                         mAvatars.addView(current);
                     }
@@ -572,7 +572,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     break;
                 }
                 case HANDLE_PROGRESS:
-                    pd.setProgress((int)message.obj);
+                    pd.setProgress((int) message.obj);
                     break;
                 case HANDLE_GET_SMILIES:
                     Elements smileLinks = (Elements) message.obj;
@@ -581,7 +581,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     for(Map.Entry<String, Object> smile : smileMap.entrySet())
                     {
                         ImageButton current = new ImageButton(getActivity());
-                        current.setTag(smile.getKey());
+                        current.setTag(Utils.SMILE_PAGE, smile.getKey());
 
                         current.setScaleType(ImageView.ScaleType.FIT_CENTER);
                         current.setAdjustViewBounds(true);
@@ -597,7 +597,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             continue;
 
                         Button current = new Button(getActivity());
-                        current.setTag(link.attr("href"));
+                        current.setTag(Utils.SMILE_KEY, link.attr("href"));
                         current.setText(link.text());
                         current.setOnClickListener(MessageSenderFragment.this);
                         mSmilieButtons.addView(current);
@@ -822,7 +822,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     public void onClick(View view) 
     {
-        if(view instanceof ImageButton && view.getTag() != null && view.getParent() == mAvatars)
+        if(view instanceof ImageButton && view.getTag(Utils.AVATAR_ID) != null && view.getParent() == mAvatars)
         {
             postParams.clear();
             postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag().toString()));
@@ -831,13 +831,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
         }
 
-        if(view instanceof ImageButton && view.getTag() != null && view.getParent() == mSmilies)
-            contentText.append((CharSequence) view.getTag());
+        if(view instanceof ImageButton && view.getTag(Utils.SMILE_KEY) != null && view.getParent() == mSmilies)
+            contentText.append((CharSequence) view.getTag(Utils.SMILE_KEY));
 
-        if(view instanceof Button && view.getTag() != null && view.getParent() == mSmilieButtons)
+        if(view instanceof Button && view.getTag(Utils.SMILE_PAGE) != null && view.getParent() == mSmilieButtons)
         {
             pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
-            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, view.getTag()));
+            mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, view.getTag(Utils.SMILE_PAGE)));
         }
         switch(view.getId())
         {

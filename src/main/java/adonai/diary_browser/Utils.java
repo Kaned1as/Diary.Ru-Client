@@ -18,6 +18,11 @@ import adonai.diary_browser.entities.TagsPage;
 
 public class Utils 
 {
+    static final int BUTTON_URL =       100;
+    static final int AVATAR_ID  =       101;
+    static final int SMILE_PAGE =       102;
+    static final int SMILE_KEY  =       103;
+
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
     public static final String KEY_KEEP_AUTH = "diary.keep.auth";

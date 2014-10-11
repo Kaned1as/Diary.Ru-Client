@@ -8,7 +8,8 @@
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
         android:layout_height="30dip"
-        android:gravity="right">
+        android:gravity="right"
+        android:tag="@string/tag_statusbar_style">
 
         <ImageButton
             android:id="@+id/quotes_button"
@@ -44,7 +45,8 @@
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:gravity="center_vertical" />
+            android:gravity="center_vertical"
+            android:tag="@string/tag_loginlabel_style" />
 
         <ImageButton
             android:id="@+id/umail_button"
@@ -73,7 +75,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:clickable="true">
+        android:clickable="true"
+        android:tag="@string/tag_statusbar_style">
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView1"
@@ -88,7 +91,8 @@
                 android:layout_height="fill_parent"
                 android:id="@+id/tabs"
                 android:clickable="false"
-                android:showDividers="middle">
+                android:showDividers="middle"
+                android:tag="@string/tag_statusbar_style">
 
                 <Button
                     android:layout_width="wrap_content"
@@ -98,7 +102,8 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:tag="@string/tag_button_style"/>
 
                 <Button
                     android:layout_width="wrap_content"
@@ -108,7 +113,8 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:tag="@string/tag_button_style"/>
 
                 <Button
                     android:layout_width="wrap_content"
@@ -118,7 +124,8 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:tag="@string/tag_button_style"/>
 
                 <Button
                     android:layout_width="wrap_content"
@@ -128,14 +135,16 @@
                     android:textStyle="bold"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
-                    android:layout_weight="1" />
+                    android:layout_weight="1"
+                    android:tag="@string/tag_button_style"/>
             </LinearLayout>
         </HorizontalScrollView>
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#800000" />
+            android:background="#800000"
+            android:tag="@string/tag_horizontal_divider_style"/>
 
         <FrameLayout
             android:id="@android:id/tabcontent"

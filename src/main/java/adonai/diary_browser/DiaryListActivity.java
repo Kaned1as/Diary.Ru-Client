@@ -392,7 +392,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)));
-                        click.setTag(url.getURL());
+                        click.setTag(Utils.BUTTON_URL, url.getURL());
                         click.setOnClickListener(DiaryListActivity.this);
                         LL.addView(click);
 
@@ -647,9 +647,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         {
             setCurrentTab(mTabs.indexOfChild(view), false);
         }
-        else if (view.getTag() != null)  // нижние кнопки списков
+        else if (view.getTag(Utils.BUTTON_URL) != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(Utils.BUTTON_URL), false));
         }
     }
 
