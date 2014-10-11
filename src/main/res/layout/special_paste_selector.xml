@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:focusableInTouchMode="false"
-              android:id="@+id/selector_layout"
-              android:paddingLeft="5dp"
-              android:paddingRight="5dp"
-              android:focusable="false"
-              android:baselineAligned="false"
-              android:background="@drawable/diary_background">
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:focusableInTouchMode="false"
+    android:id="@+id/selector_layout"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp"
+    android:focusable="false"
+    android:baselineAligned="false"
+    android:background="@drawable/diary_background">
 
     <CheckBox
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id="@+id/checkbox_paste_clip"
         android:text="@string/paste_clipboard"
-        android:checked="false"/>
+        android:checked="false" />
 
     <Button
         android:layout_width="fill_parent"
@@ -26,56 +26,55 @@
         android:id="@+id/button_italic"
         android:drawableLeft="@drawable/italic"
         android:textAllCaps="false"
-        android:longClickable="false"/>
+        android:longClickable="false" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/bold"
         android:id="@+id/button_bold"
-        android:drawableLeft="@drawable/bold"
-        />
+        android:drawableLeft="@drawable/bold" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/underlined"
         android:id="@+id/button_underlined"
-        android:drawableLeft="@drawable/underlined"/>
+        android:drawableLeft="@drawable/underlined" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/nick"
         android:id="@+id/button_nick"
-        android:drawableLeft="@drawable/nick"/>
+        android:drawableLeft="@drawable/nick" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/link"
         android:id="@+id/button_link"
-        android:drawableLeft="@drawable/link"/>
+        android:drawableLeft="@drawable/link" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/image"
         android:id="@+id/button_image"
-        android:drawableLeft="@drawable/image"/>
+        android:drawableLeft="@drawable/image" />
 
     <Button
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/more"
-            android:id="@+id/button_more"
-            android:drawableLeft="@drawable/more"/>
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/more"
+        android:id="@+id/button_more"
+        android:drawableLeft="@drawable/more" />
 
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/offtopic"
         android:id="@+id/button_offtopic"
-        android:drawableLeft="@drawable/offtopic"/>
+        android:drawableLeft="@drawable/offtopic" />
 
 </LinearLayout>

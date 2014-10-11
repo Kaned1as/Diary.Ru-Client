@@ -26,6 +26,7 @@ import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
 import adonai.diary_browser.database.DatabaseHandler;
+import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public abstract class DiaryActivity extends Activity implements Callback
@@ -113,6 +114,12 @@ public abstract class DiaryActivity extends Activity implements Callback
     {
         super.onNewIntent(intent);
         setIntent(intent);
+    }
+
+    @Override
+    public void setContentView(int id) {
+        super.setContentView(id);
+        HotTheme.manage(getWindow().getDecorView());
     }
 
     @Override

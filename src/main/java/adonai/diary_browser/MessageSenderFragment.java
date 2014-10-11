@@ -70,6 +70,7 @@ import java.util.concurrent.FutureTask;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
@@ -153,7 +154,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
     {
-        View sender = LayoutInflater.from(getActivity()).inflate(R.layout.fragment_message_sender, container, false);
+        View sender = HotLayoutInflater.wrap(inflater).inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
         postParams = new ArrayList<>();
 

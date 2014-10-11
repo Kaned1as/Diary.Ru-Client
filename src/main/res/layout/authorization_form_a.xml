@@ -68,7 +68,7 @@
         android:text="@string/keep_auth"
         android:id="@+id/keep_auth_check"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/login_button"

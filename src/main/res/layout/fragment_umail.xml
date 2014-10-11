@@ -2,8 +2,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
     <TabWidget
         android:id="@+id/folder_selector"
@@ -23,7 +22,7 @@
             android:gravity="center"
             android:tag="0"
             android:text="@string/incoming_mail"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/outcoming"
@@ -34,17 +33,19 @@
             android:gravity="center"
             android:tag="0"
             android:text="@string/outcoming_mail"
-            android:textStyle="bold"/>
+            android:textStyle="bold" />
 
     </TabWidget>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="#800000"/>
+        android:background="#800000" />
+
     <FrameLayout
         android:id="@android:id/tabcontent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent">
 
         <uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout
             android:id="@+id/refresher_layout"
@@ -58,18 +59,15 @@
                 android:cacheColorHint="@android:color/transparent"
                 android:divider="@null"
                 android:background="#edd8bd"
-                android:choiceMode="multipleChoiceModal">
-            </ListView>
+                android:choiceMode="multipleChoiceModal"></ListView>
 
             <adonai.diary_browser.DiaryWebView
                 android:id="@+id/page_browser"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >
-            </adonai.diary_browser.DiaryWebView>
+                android:layout_height="match_parent"></adonai.diary_browser.DiaryWebView>
 
         </uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout>
     </FrameLayout>
 
-  
 
 </LinearLayout>

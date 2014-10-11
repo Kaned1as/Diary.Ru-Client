@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <adonai.diary_browser.DiarySlidePane xmlns:android="http://schemas.android.com/apk/res/android"
-                   android:layout_width="match_parent"
-                   android:layout_height="match_parent"
-                   android:id="@+id/slider">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/slider">
 
-    <fragment android:name="adonai.diary_browser.MessageSenderFragment"
-              android:layout_height="match_parent"
-              android:layout_width="350dp"
-              android:id="@+id/message_pane" />
+    <fragment
+        android:name="adonai.diary_browser.MessageSenderFragment"
+        android:layout_height="match_parent"
+        android:layout_width="350dp"
+        android:id="@+id/message_pane"
+        tools:layout="@layout/fragment_message_sender" />
 
-    <fragment android:name="adonai.diary_browser.DiaryListFragment"
-              android:layout_height="match_parent"
-              android:layout_width="match_parent"
-              android:layout_weight="1"
-              android:id="@+id/main_pane" />
+    <fragment
+        android:name="adonai.diary_browser.DiaryListFragment"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:id="@+id/main_pane"
+        tools:layout="@layout/fragment_diary_list" />
 
 </adonai.diary_browser.DiarySlidePane>

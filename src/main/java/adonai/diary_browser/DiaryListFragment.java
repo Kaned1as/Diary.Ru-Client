@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class DiaryListFragment extends DiaryFragment
 {
@@ -37,7 +38,7 @@ public class DiaryListFragment extends DiaryFragment
 
 
         setHasOptionsMenu(true);
-        return inflater.inflate(R.layout.fragment_diary_list, container, false);
+        return HotLayoutInflater.wrap(inflater).inflate(R.layout.fragment_diary_list, container, false);
     }
 
     @Override

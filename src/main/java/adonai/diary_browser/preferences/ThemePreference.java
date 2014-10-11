@@ -8,13 +8,11 @@ import android.graphics.Color;
 import android.os.Build;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
-import com.larswerkman.holocolorpicker.SVBar;
 import com.larswerkman.holocolorpicker.SaturationBar;
 import com.larswerkman.holocolorpicker.ValueBar;
 
@@ -22,6 +20,7 @@ import java.util.Map;
 
 import adonai.diary_browser.NetworkService;
 import adonai.diary_browser.R;
+import adonai.diary_browser.theming.HotLayoutInflater;
 
 /**
  * Created by adonai on 09.10.14.
@@ -57,7 +56,7 @@ public class ThemePreference extends DialogPreference {
 
         final Map<String, String> mappings = NetworkService.getCssColors(getContext());
         for(final Map.Entry<String, String> pair : mappings.entrySet()) {
-            LinearLayout item = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.color_list_item, verticalContainer, false);
+            LinearLayout item = (LinearLayout) HotLayoutInflater.from(getContext()).inflate(R.layout.color_list_item, verticalContainer, false);
             TextView label = (TextView) item.findViewById(R.id.text_label);
             label.setText(pair.getKey());
             final View colorView = item.findViewById(R.id.color_view);
@@ -67,7 +66,7 @@ public class ThemePreference extends DialogPreference {
                 @Override
                 public void onClick(View view) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    LinearLayout colorPickerView = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.color_picker, null, false);
+                    LinearLayout colorPickerView = (LinearLayout) HotLayoutInflater.from(getContext()).inflate(R.layout.color_picker, null, false);
                     final ColorPicker cp = (ColorPicker) colorPickerView.findViewById(R.id.picker);
                     final SaturationBar sBar = (SaturationBar) colorPickerView.findViewById(R.id.saturation_bar);
                     final ValueBar vBar = (ValueBar) colorPickerView.findViewById(R.id.value_bar);
