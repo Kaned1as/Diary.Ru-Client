@@ -58,7 +58,8 @@
                 android:divider="@null"
                 android:background="#edd8bd"
                 android:choiceMode="multipleChoiceModal"
-                android:tag="@string/tag_listview_style"/>
+                android:tag="@string/tag_listview_style"
+                android:dividerHeight="5dp" />
 
             <adonai.diary_browser.DiaryWebView
                 android:id="@+id/page_browser"

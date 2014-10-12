@@ -20,6 +20,7 @@ import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.webkit.CookieManager;
@@ -395,6 +396,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
                         click.setTag(getString(R.string.tag_button_style));
+                        click.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         click.setTag(R.integer.button_url, url.getURL());
                         click.setOnClickListener(DiaryListActivity.this);
                         LL.addView(click);

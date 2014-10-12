@@ -25,6 +25,8 @@ import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
+import java.lang.reflect.Field;
+
 import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
@@ -122,7 +124,9 @@ public abstract class DiaryActivity extends Activity implements Callback
         HotTheme.manage(getWindow().getDecorView());
 
         try {
-            View v = (View) getActionBar().getClass().getDeclaredField("mActionView").get(getActionBar());
+            Field f = getActionBar().getClass().getDeclaredField("mActionView");
+            f.setAccessible(true);
+            View v = (View) f.get(getActionBar());
             v.setTag(getString(R.string.tag_actionbar_style));
             HotTheme.manage(v);
         } catch (IllegalAccessException e) {

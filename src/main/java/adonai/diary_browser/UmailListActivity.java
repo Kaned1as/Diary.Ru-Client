@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -110,7 +110,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         mOutcoming.setOnClickListener(this);
     }
 
-    @TargetApi(11)
     private void setContextDeleter() {
         mFolderBrowser.setMultiChoiceModeListener(new AbsListView.MultiChoiceModeListener()
         {
@@ -220,6 +219,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
+                        click.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         click.setTag(R.integer.button_url, url.getURL());
                         click.setTag(getString(R.string.tag_button_style));
                         click.setOnClickListener(UmailListActivity.this);
@@ -262,11 +262,11 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         case R.id.incoming:
             mTabs.setCurrentTab(TAB_INCOMING);
             handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
-            break;
+            return;
         case R.id.outcoming:
             mTabs.setCurrentTab(TAB_OUTCOMING);
             handleBackground(Utils.HANDLE_OPEN_FOLDER, outFolderAddress);
-            break;
+            return;
         }
 
         if(view instanceof Button) // нижние панельки

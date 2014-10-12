@@ -6,7 +6,6 @@
     android:minHeight="40dip"
     android:orientation="horizontal"
     android:paddingLeft="50dip"
-    android:paddingRight="10dip"
     android:tag="@string/tag_listview_style">
 
     <TextView

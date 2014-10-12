@@ -12,7 +12,12 @@
         android:id="@+id/picker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        app:color_center_halo_radius="45dp"
+        app:color_pointer_halo_radius="15dp"
+        app:color_wheel_radius="100dp"
+        app:color_center_radius="40dp"
+        app:color_pointer_radius="10dp"/>
 
     <TextView
         android:layout_width="wrap_content"
@@ -20,12 +25,11 @@
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/brightness"
         android:id="@+id/brightness_label"
-        android:layout_gravity="center_horizontal"
-        android:textColor="@android:color/white" />
+        android:layout_gravity="center_horizontal"/>
 
     <com.larswerkman.holocolorpicker.ValueBar
         android:id="@+id/value_bar"
-        android:layout_width="322dp"
+        android:layout_width="250dp"
         android:layout_height="112dp"
         android:layout_gravity="center" />
 
@@ -39,7 +43,7 @@
 
     <com.larswerkman.holocolorpicker.SaturationBar
         android:id="@+id/saturation_bar"
-        android:layout_width="322dp"
+        android:layout_width="250dp"
         android:layout_height="112dp"
         android:layout_gravity="center"/>
 
@@ -53,7 +57,7 @@
 
     <com.larswerkman.holocolorpicker.OpacityBar
         android:id="@+id/opacitybar"
-        android:layout_width="322dp"
+        android:layout_width="250dp"
         android:layout_height="112dp"
         android:layout_gravity="center"/>
 

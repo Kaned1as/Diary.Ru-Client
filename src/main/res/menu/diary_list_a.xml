@@ -5,13 +5,13 @@
         android:title="@string/new_post"
         android:orderInCategory="100"
         android:showAsAction="ifRoom|withText"
-        android:icon="@drawable/ic_menu_msg_compose_holo_light" />
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
 
     <item
         android:id="@+id/menu_new_comment"
         android:orderInCategory="101"
         android:title="@string/new_comment"
-        android:icon="@drawable/ic_menu_msg_compose_holo_light"
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark"
         android:showAsAction="ifRoom|withText" />
 
     <item
@@ -63,6 +63,6 @@
             android:id="@+id/menu_refresh"
             android:title="@string/refresh"
             android:icon="@drawable/ic_menu_refresh"
-            android:showAsAction="ifRoom|withText" />
+            android:showAsAction="never" />
     </group>
 </menu>

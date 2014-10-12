@@ -66,6 +66,7 @@ public class ThemePreference extends DialogPreference {
         final ScrollView sv = new ScrollView(getContext());
         final LinearLayout verticalContainer = new LinearLayout(getContext()); // global container
         verticalContainer.setOrientation(LinearLayout.VERTICAL);
+        verticalContainer.setBackgroundColor(Color.parseColor("#10000000"));
         sv.addView(verticalContainer);
 
         TextView cssColors = new TextView(getContext());
@@ -159,6 +160,42 @@ public class ThemePreference extends DialogPreference {
             final SaturationBar sBar = (SaturationBar) colorPickerView.findViewById(R.id.saturation_bar);
             final ValueBar vBar = (ValueBar) colorPickerView.findViewById(R.id.value_bar);
             final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
+            final EditText colorChooserEdit = (EditText) colorPickerView.findViewById(R.id.certain_color_selector);
+            cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
+                @Override
+                public void onColorChanged(int i) {
+                    colorChooserEdit.setText(String.format("%06x",  cp.getColor()));
+                }
+            });
+            colorChooserEdit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String text = s.toString();
+                    if(s.length() == 6) {
+                        try {
+                            int color = Color.parseColor("#" + text);
+                            if(cp.getColor() != color) {
+                                cp.setColor(color);
+                                sBar.setColor(color);
+                                vBar.setColor(color);
+                                opBar.setColor(color);
+                            }
+                        } catch (IllegalArgumentException ignored) {
+
+                        }
+                    }
+                }
+            });
             opBar.setVisibility(View.GONE);
             cp.setColor(originalColor);
             //opBar.setColor(originalColor);

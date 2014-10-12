@@ -77,6 +77,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 ThemeField.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
                 ThemeField.HINT_COLOR + " INTEGER DEFAULT NULL" +
                 ")");
+
+        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -26112, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listview', 'Фон списков', -1, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem', 'Фон элементов списка', 788505856, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem_title', 'Текст заголовка элемента', -4130, NULL, NULL, -9437184, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem_signature', 'Текст подписи элемента',-4403, NULL, NULL, -10020352, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('horizontal_divider', 'Горизонтальный разделитель', -16777216, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода', NULL, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
     }
 
     @Override
@@ -99,6 +113,20 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     ThemeField.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
                     ThemeField.HINT_COLOR + " INTEGER DEFAULT NULL" +
                     ")");
+
+            db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -26112, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('listview', 'Фон списков', -1, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('listitem', 'Фон элементов списка', 788505856, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('listitem_title', 'Текст заголовка элемента', -4130, NULL, NULL, -9437184, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('listitem_signature', 'Текст подписи элемента',-4403, NULL, NULL, -10020352, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('horizontal_divider', 'Горизонтальный разделитель', -16777216, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода', NULL, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
         }
     }
 

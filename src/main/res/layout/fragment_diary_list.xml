@@ -66,7 +66,8 @@
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/umail_button"
             android:textStyle="bold"
-            android:gravity="center_vertical" />
+            android:gravity="center_vertical"
+            android:tag="@string/tag_label_style"/>
 
     </RelativeLayout>
 
@@ -160,8 +161,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:cacheColorHint="@android:color/transparent"
-                    android:divider="@null"
-                    android:tag="@string/tag_listview_style"/>
+                    android:tag="@string/tag_listview_style"
+                    android:dividerHeight="5dp"
+                    android:divider="@null" />
 
                 <adonai.diary_browser.DiaryWebView
                     android:id="@+id/page_browser"

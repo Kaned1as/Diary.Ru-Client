@@ -76,8 +76,10 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         else
             HotTheme.manage(view);
 
-        if(diary instanceof UmailListPage)
-            title.setTextColor(((UmailListPage)diary).isRead() ? Color.BLACK : Color.RED);
+        if(diary instanceof UmailListPage && !((UmailListPage)diary).isRead())
+            title.setTextColor(Color.RED);
+        else
+            HotTheme.manage(view);
         
         return view;
     }

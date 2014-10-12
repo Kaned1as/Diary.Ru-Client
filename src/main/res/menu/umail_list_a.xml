@@ -5,7 +5,7 @@
         android:title="@string/reply_umail"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:icon="@android:drawable/ic_menu_add" />
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
 
 
     <item
@@ -13,7 +13,7 @@
         android:title="@string/new_umail"
         android:orderInCategory="100"
         android:showAsAction="ifRoom|withText"
-        android:icon="@android:drawable/ic_menu_add" />
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
     <group
         android:id="@+id/group_all"
         android:menuCategory="container">
