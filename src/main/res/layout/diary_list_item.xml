@@ -41,7 +41,8 @@
             android:layout_height="wrap_content"
             android:gravity="right"
             android:text="@string/last_post"
-            android:tag="@string/tag_listitem_date_style"/>
+            android:textSize="16sp"
+            android:tag="@string/tag_listitem_signature_style"/>
 
     </LinearLayout>
 

@@ -212,4 +212,9 @@
     <string name="decorations_sum">Выбор цветов, смена стилей оформления</string>
     <string name="interface_themes">Цвета интерфейса</string>
     <string name="web_themes">Цвета страниц</string>
+    <string name="sharp_mark">#</string>
+    <string name="color_hint">ffffff</string>
+    <string name="saturation">Насыщенность</string>
+    <string name="brightness">Яркость</string>
+    <string name="opacity">Прозрачность</string>
 </resources>

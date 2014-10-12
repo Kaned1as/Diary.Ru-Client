@@ -5,10 +5,9 @@
     <string name="tag_loginlabel_style">!loginlabel|TEXT</string>
     <string name="tag_button_style">!button|BUTTON</string>
     <string name="tag_listview_style">!listview|LISTVIEW</string>
-    <string name="tag_listitem_style">!listitem|LAYOUT</string>
-    <string name="tag_listitem_title_style">!listitem_title|LAYOUT</string>
-    <string name="tag_listitem_signature_style">!listitem_signature|LAYOUT</string>
-    <string name="tag_listitem_date_style">!listitem_date|LAYOUT</string>
+    <string name="tag_listitem_style">!listitem|LISTITEM</string>
+    <string name="tag_listitem_title_style">!listitem_title|TEXT</string>
+    <string name="tag_listitem_signature_style">!listitem_signature|TEXT</string>
     <string name="tag_horizontal_divider_style">!horizontal_divider|LAYOUT</string>
     <string name="tag_vertical_divider_style">!vertical_divider|LAYOUT</string>
     <string name="tag_edit_style">!edit|EDIT</string>

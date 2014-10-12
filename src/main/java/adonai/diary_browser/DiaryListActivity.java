@@ -50,6 +50,7 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.theming.HotLayoutInflater;
+import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -393,6 +394,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
+                        click.setTag(getString(R.string.tag_button_style));
                         click.setTag(R.integer.button_url, url.getURL());
                         click.setOnClickListener(DiaryListActivity.this);
                         LL.addView(click);
@@ -403,6 +405,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         LP.weight = 1.0f;
                     }
                     mDiaryBrowser.addFooterView(LL);
+                    HotTheme.manage(LL);
                 }
                 browserHistory.add(getUser().currentDiaries.getURL());
                 handleTabChange(getUser().currentDiaries.getURL());
@@ -722,7 +725,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             builder.setMessage(diary.getPageHint()).create().show();
         }
 
-        return false;
+        return true;
     }
 
     /*            is.close();

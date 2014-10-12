@@ -3,31 +3,31 @@
     android:id="@+id/RelativeLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:minHeight="40dip"
+    android:gravity="center_vertical"
+    android:minHeight="25dip"
     android:orientation="horizontal"
-    android:paddingLeft="50dip"
-    android:paddingRight="10dip"
-    android:tag="@string/tag_listview_style">
+    android:paddingLeft="30dip"
+    android:tag="@string/tag_listitem_style">
 
     <TextView
-        android:id="@+id/discussion_title"
+        android:id="@+id/discussion_post_title"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"
+        android:background="@android:drawable/list_selector_background"
         android:ellipsize="marquee"
         android:text="@string/title"
-        android:textSize="16sp"
-        android:textStyle="bold"
+        android:textSize="14sp"
         android:tag="@string/tag_listitem_title_style"
         android:gravity="center_vertical" />
 
     <TextView
-        android:id="@+id/discussion_last_post"
+        android:id="@+id/discussion_post_date"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="@string/last_post"
-        android:textSize="14sp"
+        android:textSize="12sp"
         android:tag="@string/tag_listitem_signature_style"/>
 
 </LinearLayout>

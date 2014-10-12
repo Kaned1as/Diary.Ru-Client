@@ -61,7 +61,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         View view;
         DiscPage discussion = (DiscPage) getGroup(groupPosition);
         if (convertView == null)
-            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_list_item, null);
+            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_item, null);
         else
             view = convertView;
 
@@ -82,7 +82,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         View view;
         DiscPage.Discussion discussion = (DiscPage.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
-            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_item, null);
+            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_expanded_group_item, null);
         else
             view = convertView;
 

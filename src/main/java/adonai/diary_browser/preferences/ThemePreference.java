@@ -9,14 +9,20 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.preference.DialogPreference;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.larswerkman.holocolorpicker.ColorPicker;
+import com.larswerkman.holocolorpicker.OpacityBar;
 import com.larswerkman.holocolorpicker.SaturationBar;
 import com.larswerkman.holocolorpicker.ValueBar;
 
@@ -57,8 +63,10 @@ public class ThemePreference extends DialogPreference {
 
     @Override
     protected View onCreateDialogView() {
+        final ScrollView sv = new ScrollView(getContext());
         final LinearLayout verticalContainer = new LinearLayout(getContext()); // global container
         verticalContainer.setOrientation(LinearLayout.VERTICAL);
+        sv.addView(verticalContainer);
 
         TextView cssColors = new TextView(getContext());
         cssColors.setTextSize(16);
@@ -90,9 +98,11 @@ public class ThemePreference extends DialogPreference {
         Cursor themeBindings = database.getThemesCursor();
         while (themeBindings.moveToNext()) {
             LinearLayout item = new LinearLayout(getContext());
+            item.setPadding((int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()));
             item.setOrientation(LinearLayout.HORIZONTAL);
 
             TextView label = new TextView(getContext());
+            label.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
             label.setText(themeBindings.getString(ThemeField.TITLE.ordinal()));
             item.addView(label);
 
@@ -104,18 +114,22 @@ public class ThemePreference extends DialogPreference {
                             final View colorView = new View(getContext());
                             final ThemeField field = ThemeField.valueOf(themeBindings.getColumnName(columnIndex));
                             final int originalColor = themeBindings.getInt(columnIndex);
-                            colorView.setLayoutParams(new LinearLayout.LayoutParams((int) Utils.convertDpToPixel(25f, getContext()), (int) Utils.convertDpToPixel(25f, getContext())));
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams((int) Utils.convertDpToPixel(25f, getContext()), (int) Utils.convertDpToPixel(25f, getContext()));
+                            lp.setMargins((int) Utils.convertDpToPixel(5f, getContext()), 0, 0, 0);
+                            colorView.setLayoutParams(lp);
+
                             colorView.setBackgroundColor(originalColor);
-                            item.setOnClickListener(new StyleOnClickListener(originalColor, colorView, database, type, field));
+                            colorView.setOnClickListener(new StyleOnClickListener(originalColor, colorView, database, type, field));
                             item.addView(colorView);
                             break;
                     }
                 }
             }
+            verticalContainer.addView(item);
         }
         themeBindings.close();
 
-        return verticalContainer;
+        return sv;
     }
 
     @Override
@@ -144,7 +158,8 @@ public class ThemePreference extends DialogPreference {
             final ColorPicker cp = (ColorPicker) colorPickerView.findViewById(R.id.picker);
             final SaturationBar sBar = (SaturationBar) colorPickerView.findViewById(R.id.saturation_bar);
             final ValueBar vBar = (ValueBar) colorPickerView.findViewById(R.id.value_bar);
-            //final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
+            final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
+            opBar.setVisibility(View.GONE);
             cp.setColor(originalColor);
             //opBar.setColor(originalColor);
             sBar.setColor(originalColor);
@@ -184,12 +199,48 @@ public class ThemePreference extends DialogPreference {
             final ColorPicker cp = (ColorPicker) colorPickerView.findViewById(R.id.picker);
             final SaturationBar sBar = (SaturationBar) colorPickerView.findViewById(R.id.saturation_bar);
             final ValueBar vBar = (ValueBar) colorPickerView.findViewById(R.id.value_bar);
-            //final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
+            final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
+            final EditText colorChooserEdit = (EditText) colorPickerView.findViewById(R.id.certain_color_selector);
+            cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
+                @Override
+                public void onColorChanged(int i) {
+                    colorChooserEdit.setText(String.format("%08x",  cp.getColor()));
+                }
+            });
+            colorChooserEdit.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable s) {
+                    String text = s.toString();
+                    if(s.length() == 8) {
+                        try {
+                            int color = Color.parseColor("#" + text);
+                            if(cp.getColor() != color) {
+                                cp.setColor(color);
+                                sBar.setColor(color);
+                                vBar.setColor(color);
+                                opBar.setColor(color);
+                            }
+                        } catch (IllegalArgumentException ignored) {
+
+                        }
+                    }
+                }
+            });
             cp.setColor(originalColor);
-            //opBar.setColor(originalColor);
+            opBar.setColor(originalColor);
             sBar.setColor(originalColor);
             vBar.setColor(originalColor);
-            //cp.addOpacityBar(opBar);
+            cp.addOpacityBar(opBar);
             cp.addSaturationBar(sBar);
             cp.addValueBar(vBar);
             builder.setView(colorPickerView).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

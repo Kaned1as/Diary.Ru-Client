@@ -12,6 +12,7 @@ import java.util.List;
 
 import adonai.diary_browser.R;
 import adonai.diary_browser.theming.HotLayoutInflater;
+import adonai.diary_browser.theming.HotTheme;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
 {
@@ -71,9 +72,9 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         last_post.setText(diary.getLastPost());
 
         if(checkedIds.contains(getItemId(pos)))
-            view.setBackgroundColor(getContext().getResources().getColor(Color.LTGRAY));
+            view.setBackgroundColor(Color.LTGRAY);
         else
-            view.setBackgroundResource(R.drawable.item_background);
+            HotTheme.manage(view);
 
         if(diary instanceof UmailListPage)
             title.setTextColor(((UmailListPage)diary).isRead() ? Color.BLACK : Color.RED);

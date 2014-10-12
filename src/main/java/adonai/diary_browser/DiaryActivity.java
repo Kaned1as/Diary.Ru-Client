@@ -120,6 +120,16 @@ public abstract class DiaryActivity extends Activity implements Callback
     public void setContentView(int id) {
         super.setContentView(id);
         HotTheme.manage(getWindow().getDecorView());
+
+        try {
+            View v = (View) getActionBar().getClass().getDeclaredField("mActionView").get(getActionBar());
+            v.setTag(getString(R.string.tag_actionbar_style));
+            HotTheme.manage(v);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

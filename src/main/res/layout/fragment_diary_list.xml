@@ -8,7 +8,6 @@
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
         android:layout_height="30dip"
-        android:gravity="right"
         android:tag="@string/tag_statusbar_style">
 
         <ImageButton

@@ -9,8 +9,7 @@
     android:paddingLeft="5dp"
     android:paddingRight="5dp"
     android:focusable="false"
-    android:baselineAligned="false"
-    android:background="@drawable/diary_background">
+    android:baselineAligned="false">
 
     <CheckBox
         android:layout_width="fill_parent"

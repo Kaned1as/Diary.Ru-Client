@@ -32,6 +32,7 @@ import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 import adonai.diary_browser.theming.HotLayoutInflater;
+import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -219,7 +220,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
-                        click.setTag(url.getURL());
+                        click.setTag(R.integer.button_url, url.getURL());
+                        click.setTag(getString(R.string.tag_button_style));
                         click.setOnClickListener(UmailListActivity.this);
                         LL.addView(click);
 
@@ -228,6 +230,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
                         LP.weight = 1.0f;
                     }
                     mFolderBrowser.addFooterView(LL);
+                    HotTheme.manage(LL);
                 }
                 mFolderBrowser.setAdapter(mFolderAdapter);
                 mPullToRefreshAttacher.setRefreshComplete();
@@ -268,7 +271,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
         if(view instanceof Button) // нижние панельки
         {
-            handleBackground(Utils.HANDLE_OPEN_FOLDER, view.getTag());
+            handleBackground(Utils.HANDLE_OPEN_FOLDER, view.getTag(R.integer.button_url));
         }
     }
 
