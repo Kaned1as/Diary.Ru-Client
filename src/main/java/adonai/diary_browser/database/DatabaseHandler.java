@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Класс базы данных, нужен преимущественно для предоставления
@@ -42,7 +41,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
      * Null-value fields mean that no particular color can be chosen for particular widget
      */
     public static final String THEME_TABLE_NAME = "theme";
-    public enum ThemeFields
+    public enum ThemeField
     {
         KEY,
         TITLE,
@@ -70,13 +69,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPLETIONS_TABLE_NAME + " (" + AutocompleteFields.TEXT + ")");
 
         db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
-                ThemeFields.KEY + " TEXT PRIMARY KEY, " +
-                ThemeFields.TITLE + " TEXT NOT NULL, " +
-                ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeFields.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeFields.HINT_COLOR + " INTEGER DEFAULT NULL" +
+                ThemeField.KEY + " TEXT PRIMARY KEY, " +
+                ThemeField.TITLE + " TEXT NOT NULL, " +
+                ThemeField.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
+                ThemeField.UP_COLOR + " INTEGER DEFAULT NULL, " +
+                ThemeField.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
+                ThemeField.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
+                ThemeField.HINT_COLOR + " INTEGER DEFAULT NULL" +
                 ")");
     }
 
@@ -92,13 +91,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if(oldVersion == 1 && newVersion == 2) {
             db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
-                    ThemeFields.KEY + " TEXT PRIMARY KEY, " +
-                    ThemeFields.TITLE + " TEXT NOT NULL, " +
-                    ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
-                    ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
-                    ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
-                    ThemeFields.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
-                    ThemeFields.HINT_COLOR + " INTEGER DEFAULT NULL" +
+                    ThemeField.KEY + " TEXT PRIMARY KEY, " +
+                    ThemeField.TITLE + " TEXT NOT NULL, " +
+                    ThemeField.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
+                    ThemeField.UP_COLOR + " INTEGER DEFAULT NULL, " +
+                    ThemeField.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
+                    ThemeField.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
+                    ThemeField.HINT_COLOR + " INTEGER DEFAULT NULL" +
                     ")");
         }
     }
@@ -107,18 +106,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return getWritableDatabase().query(AUTOCOMPLETIONS_TABLE_NAME, new String[]{AutocompleteFields._id.toString(), AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
     }
 
-    public HashMap<ThemeFields, Object> getThemeRow(String type) {
-        HashMap<ThemeFields, Object> themeRow = new HashMap<>(5);
+    public HashMap<ThemeField, Object> getThemeRow(String type) {
+        HashMap<ThemeField, Object> themeRow = new HashMap<>(5);
         Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, "KEY = ?", new String[]{type}, null, null, null, null);
         if(cursor.moveToFirst()) {
             for(int i = 2; i < cursor.getColumnCount(); ++i) {
                 if(!cursor.isNull(i)) {
                     switch (cursor.getType(i)) {
                         case Cursor.FIELD_TYPE_INTEGER:
-                            themeRow.put(ThemeFields.valueOf(cursor.getColumnName(i)), cursor.getInt(i));
+                            themeRow.put(ThemeField.valueOf(cursor.getColumnName(i)), cursor.getInt(i));
                             break;
                         case Cursor.FIELD_TYPE_STRING:
-                            themeRow.put(ThemeFields.valueOf(cursor.getColumnName(i)), cursor.getString(i));
+                            themeRow.put(ThemeField.valueOf(cursor.getColumnName(i)), cursor.getString(i));
                     }
                 }
             }
@@ -127,25 +126,18 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return themeRow;
     }
 
-    public Cursor getAll(String type) {
-        Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, null, null, null, null, null, null);
-        if(cursor.moveToFirst()) {
-            return cursor;
-        }
-        return null;
+    public Cursor getThemesCursor() {
+        return getWritableDatabase().query(THEME_TABLE_NAME, null, null, null, null, null, null, null);
     }
 
-    public void addThemeRow(String type, HashMap<ThemeFields, Object> values) {
+    public void modifyThemeRow(String type, ThemeField field, Object value) {
         ContentValues cv = new ContentValues(3);
-        cv.put(ThemeFields.KEY.toString(), type);
-        for(Map.Entry<ThemeFields, Object> entry : values.entrySet()) {
-            if(entry.getValue() instanceof Integer) {
-                cv.put(entry.getKey().toString(), (Integer) entry.getValue());
-            } else if (entry.getValue() instanceof String) {
-                cv.put(entry.getKey().toString(), (String) entry.getValue());
-            }
+        if(value instanceof Integer) {
+            cv.put(field.toString(), (Integer) value);
+        } else if (value instanceof String) {
+            cv.put(field.toString(), (String) value);
         }
-        getWritableDatabase().insertWithOnConflict(THEME_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+        getWritableDatabase().update(THEME_TABLE_NAME, cv, "KEY = ?", new String[]{type});
     }
 
     public void addAutocompleteText(AutocompleteType type, String query) {

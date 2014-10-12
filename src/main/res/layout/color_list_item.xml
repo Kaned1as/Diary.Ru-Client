@@ -10,7 +10,7 @@
     <TextView
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textAppearance="?android:attr/textAppearanceSmall"
         android:id="@+id/text_label"
         android:layout_gravity="center_vertical"
         android:text="@string/placeholder"

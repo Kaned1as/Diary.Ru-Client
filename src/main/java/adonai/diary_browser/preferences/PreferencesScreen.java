@@ -1,21 +1,23 @@
 package adonai.diary_browser.preferences;
 
-import adonai.diary_browser.R;
-import adonai.diary_browser.Utils;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+
+import adonai.diary_browser.R;
+import adonai.diary_browser.Utils;
+import adonai.diary_browser.database.DatabaseHandler;
 
 
 public class PreferencesScreen extends PreferenceActivity 
 {
-	EditTextPreference signaturePref;
+    DatabaseHandler mDatabase;
 	
 	@Override
 	@SuppressWarnings("deprecation")
 	protected void onCreate(Bundle savedInstanceState) 
 	{
+        mDatabase = new DatabaseHandler(this);
 	    super.onCreate(savedInstanceState);
 	    
 	    PreferenceManager prefMgr = getPreferenceManager();
@@ -24,4 +26,8 @@ public class PreferencesScreen extends PreferenceActivity
 	    
 	    addPreferencesFromResource(R.xml.preferences);
 	}
+
+    public DatabaseHandler getDatabase() {
+        return mDatabase;
+    }
 }

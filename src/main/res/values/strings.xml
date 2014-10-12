@@ -210,4 +210,6 @@
     <string name="placeholder">Пример текста</string>
     <string name="decorations">Оформление</string>
     <string name="decorations_sum">Выбор цветов, смена стилей оформления</string>
+    <string name="interface_themes">Цвета интерфейса</string>
+    <string name="web_themes">Цвета страниц</string>
 </resources>

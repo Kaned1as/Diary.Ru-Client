@@ -16,8 +16,6 @@ import java.util.List;
 import adonai.diary_browser.DiaryActivity;
 import adonai.diary_browser.database.DatabaseHandler;
 
-import static adonai.diary_browser.database.DatabaseHandler.ThemeFields;
-
 /**
  * Created by adonai on 11.10.14.
  */
@@ -80,9 +78,9 @@ public class HotTheme {
                     @Override
                     public void onChange(View v) {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
-                        final HashMap<ThemeFields, Object> themeRow = mDatabase.getThemeRow(base);
-                        if(themeRow.containsKey(ThemeFields.BACKGROUND_COLOR)) {
-                            v.setBackgroundColor((Integer) themeRow.get(ThemeFields.BACKGROUND_COLOR));
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
+                            v.setBackgroundColor((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR));
                         }
                     }
                 };
@@ -91,12 +89,12 @@ public class HotTheme {
                     @Override
                     public void onChange(View v) {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
-                        final HashMap<ThemeFields, Object> themeRow = mDatabase.getThemeRow(base);
-                        if(themeRow.containsKey(ThemeFields.DOWN_COLOR) && themeRow.containsKey(ThemeFields.UP_COLOR) && themeRow.containsKey(ThemeFields.TEXT_COLOR)) {
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.DOWN_COLOR) && themeRow.containsKey(DatabaseHandler.ThemeField.UP_COLOR) && themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
                             StateListDrawable sld = new StateListDrawable();
-                            sld.addState(new int[] {android.R.attr.state_pressed, android.R.attr.state_selected}, new ColorDrawable((Integer) themeRow.get(ThemeFields.DOWN_COLOR)));
-                            sld.addState(new int[] {}, new ColorDrawable((Integer) themeRow.get(ThemeFields.UP_COLOR)));
-                            ((Button) v).setTextColor((Integer) themeRow.get(ThemeFields.TEXT_COLOR));
+                            sld.addState(new int[] {android.R.attr.state_pressed, android.R.attr.state_selected}, new ColorDrawable((Integer) themeRow.get(DatabaseHandler.ThemeField.DOWN_COLOR)));
+                            sld.addState(new int[] {}, new ColorDrawable((Integer) themeRow.get(DatabaseHandler.ThemeField.UP_COLOR)));
+                            ((Button) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
                             v.setBackgroundDrawable(sld);
                         }
                     }
@@ -106,15 +104,15 @@ public class HotTheme {
                     @Override
                     public void onChange(View v) {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
-                        final HashMap<ThemeFields, Object> themeRow = mDatabase.getThemeRow(base);
-                        if(themeRow.containsKey(ThemeFields.BACKGROUND_COLOR)) {
-                            v.setBackgroundColor((Integer) themeRow.get(ThemeFields.BACKGROUND_COLOR));
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
+                            v.setBackgroundColor((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR));
                         }
-                        if(themeRow.containsKey(ThemeFields.TEXT_COLOR)) {
-                            ((EditText) v).setTextColor((Integer) themeRow.get(ThemeFields.TEXT_COLOR));
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
+                            ((EditText) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
                         }
-                        if(themeRow.containsKey(ThemeFields.HINT_COLOR)) {
-                            ((EditText) v).setHintTextColor((Integer) themeRow.get(ThemeFields.HINT_COLOR));
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.HINT_COLOR)) {
+                            ((EditText) v).setHintTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.HINT_COLOR));
                         }
                     }
                 };
@@ -123,12 +121,12 @@ public class HotTheme {
                     @Override
                     public void onChange(View v) {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
-                        final HashMap<ThemeFields, Object> themeRow = mDatabase.getThemeRow(base);
-                        if(themeRow.containsKey(ThemeFields.BACKGROUND_COLOR)) {
-                            v.setBackgroundColor((Integer) themeRow.get(ThemeFields.BACKGROUND_COLOR));
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
+                            v.setBackgroundColor((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR));
                         }
-                        if(themeRow.containsKey(ThemeFields.TEXT_COLOR)) {
-                            ((EditText) v).setTextColor((Integer) themeRow.get(ThemeFields.TEXT_COLOR));
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
+                            ((EditText) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
                         }
                     }
                 };
@@ -137,9 +135,9 @@ public class HotTheme {
                     @Override
                     public void onChange(View v) {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
-                        final HashMap<ThemeFields, Object> themeRow = mDatabase.getThemeRow(base);
-                        if(themeRow.containsKey(ThemeFields.BACKGROUND_COLOR)) {
-                            v.setBackgroundColor((Integer) themeRow.get(ThemeFields.BACKGROUND_COLOR));
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+                        if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
+                            v.setBackgroundColor((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR));
                         }
                     }
                 };
