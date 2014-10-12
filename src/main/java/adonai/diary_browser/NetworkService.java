@@ -1233,6 +1233,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mCssContent = content;
     }
 
+    /**
+     * Retrieves current css content from cached file or android assets (on first launch)
+     * @param ctx context to live in
+     * @return String representing file contents
+     */
     private static String retrieveCss(Context ctx) {
         try {
             if(CacheManager.getInstance().hasData(ctx, "custom.css")) {
@@ -1248,6 +1253,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 
+    /**
+     * Css file parsed to retrieve colors
+     * @param ctx context to live in
+     * @return mapping of colors like (Name:color)
+     */
     public static Map<String, String> getCssColors(Context ctx) {
         String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";
         Pattern parser = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
@@ -1259,6 +1269,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
+    /**
+     * Css string is replaced with colors put in
+     * @param ctx context to live in
+     * @param replacements  mapping of colors like (Name:color)
+     */
     public static void replaceCssColors(Context ctx, Map<String, String> replacements) {
         String css = getCssContent(ctx);
         String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";

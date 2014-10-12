@@ -8,7 +8,7 @@
     android:padding="10dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:id="@+id/text_label"
@@ -17,8 +17,8 @@
         android:layout_weight="1" />
 
     <View
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
         android:id="@+id/color_view"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"

@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Класс базы данных, нужен преимущественно для предоставления
  * сведений автодополнения и оффлайн-работы
@@ -35,10 +38,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         TITLE
     }
 
+    /**
+     * Null-value fields mean that no particular color can be chosen for particular widget
+     */
     public static final String THEME_TABLE_NAME = "theme";
     public enum ThemeFields
     {
         KEY,
+        TITLE,
         BACKGROUND_COLOR,
         UP_COLOR,
         DOWN_COLOR,
@@ -64,6 +71,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
                 ThemeFields.KEY + " TEXT PRIMARY KEY, " +
+                ThemeFields.TITLE + " TEXT NOT NULL, " +
                 ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
                 ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
                 ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
@@ -85,6 +93,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         if(oldVersion == 1 && newVersion == 2) {
             db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
                     ThemeFields.KEY + " TEXT PRIMARY KEY, " +
+                    ThemeFields.TITLE + " TEXT NOT NULL, " +
                     ThemeFields.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
                     ThemeFields.UP_COLOR + " INTEGER DEFAULT NULL, " +
                     ThemeFields.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
@@ -98,12 +107,45 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         return getWritableDatabase().query(AUTOCOMPLETIONS_TABLE_NAME, new String[]{AutocompleteFields._id.toString(), AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
     }
 
-    public Cursor getThemeRow(String type) {
+    public HashMap<ThemeFields, Object> getThemeRow(String type) {
+        HashMap<ThemeFields, Object> themeRow = new HashMap<>(5);
         Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, "KEY = ?", new String[]{type}, null, null, null, null);
+        if(cursor.moveToFirst()) {
+            for(int i = 2; i < cursor.getColumnCount(); ++i) {
+                if(!cursor.isNull(i)) {
+                    switch (cursor.getType(i)) {
+                        case Cursor.FIELD_TYPE_INTEGER:
+                            themeRow.put(ThemeFields.valueOf(cursor.getColumnName(i)), cursor.getInt(i));
+                            break;
+                        case Cursor.FIELD_TYPE_STRING:
+                            themeRow.put(ThemeFields.valueOf(cursor.getColumnName(i)), cursor.getString(i));
+                    }
+                }
+            }
+        }
+        cursor.close();
+        return themeRow;
+    }
+
+    public Cursor getAll(String type) {
+        Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, null, null, null, null, null, null);
         if(cursor.moveToFirst()) {
             return cursor;
         }
         return null;
+    }
+
+    public void addThemeRow(String type, HashMap<ThemeFields, Object> values) {
+        ContentValues cv = new ContentValues(3);
+        cv.put(ThemeFields.KEY.toString(), type);
+        for(Map.Entry<ThemeFields, Object> entry : values.entrySet()) {
+            if(entry.getValue() instanceof Integer) {
+                cv.put(entry.getKey().toString(), (Integer) entry.getValue());
+            } else if (entry.getValue() instanceof String) {
+                cv.put(entry.getKey().toString(), (String) entry.getValue());
+            }
+        }
+        getWritableDatabase().insertWithOnConflict(THEME_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
     }
 
     public void addAutocompleteText(AutocompleteType type, String query) {
