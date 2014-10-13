@@ -71,6 +71,7 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.theming.HotLayoutInflater;
+import adonai.diary_browser.theming.HotTheme;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener
 {
@@ -556,6 +557,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     for(int i = 0; i < avatarMap.size(); i++)
                     {
                         ImageButton current = new ImageButton(getActivity());
+                        current.setTag(getString(R.string.tag_button_style));
+                        HotTheme.manage(current);
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(R.integer.avatar_id, avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -581,12 +584,15 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     for(Map.Entry<String, Object> smile : smileMap.entrySet())
                     {
                         ImageButton current = new ImageButton(getActivity());
-                        current.setTag(R.integer.smile_page, smile.getKey());
+                        current.setTag(getString(R.string.tag_button_style));
+                        HotTheme.manage(current);
+                        current.setTag(R.integer.smile_key, smile.getKey());
 
                         current.setScaleType(ImageView.ScaleType.FIT_CENTER);
                         current.setAdjustViewBounds(true);
                         current.setImageDrawable((Drawable) smile.getValue());
                         current.setOnClickListener(MessageSenderFragment.this);
+                        current.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         mSmilies.addView(current);
                     }
 
@@ -597,7 +603,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             continue;
 
                         Button current = new Button(getActivity());
-                        current.setTag(R.integer.smile_key, link.attr("href"));
+                        current.setTag(getString(R.string.tag_button_style));
+                        HotTheme.manage(current);
+                        current.setTag(R.integer.smile_page, link.attr("href"));
                         current.setText(link.text());
                         current.setOnClickListener(MessageSenderFragment.this);
                         mSmilieButtons.addView(current);
@@ -1288,7 +1296,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         for(int i = 0; i < mMainLayout.getChildCount(); ++i)
         {
             View curr = mMainLayout.getChildAt(i);
-            if(curr.getTag() == null || !curr.getTag().toString().equals("persistent"))
+            if(curr.getContentDescription() == null || !curr.getContentDescription().toString().equals("persistent"))
                 mMainLayout.getChildAt(i).setVisibility(View.GONE);
             if(curr instanceof CheckBox)
                 ((CheckBox) curr).setChecked(false);

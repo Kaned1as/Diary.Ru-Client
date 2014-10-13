@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -122,7 +123,10 @@ public abstract class DiaryActivity extends Activity implements Callback
     public void setContentView(int id) {
         super.setContentView(id);
         HotTheme.manage(getWindow().getDecorView());
+        manageActionBar();
+    }
 
+    private void manageActionBar() {
         try {
             Field f = getActionBar().getClass().getDeclaredField("mActionView");
             f.setAccessible(true);
@@ -252,6 +256,17 @@ public abstract class DiaryActivity extends Activity implements Callback
                 }
             }, "NothingAndNowhere" + getUser().userName);
         }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mUiHandler.postDelayed(new Runnable() { // ugly hack for AB-color
+            @Override
+            public void run() {
+                manageActionBar();
+            }
+        }, 3000);
     }
 
     @Override

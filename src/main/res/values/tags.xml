@@ -13,6 +13,7 @@
     <string name="tag_edit_style">!edit|EDIT</string>
     <string name="tag_label_style">!label|TEXT</string>
     <string name="tag_actionbar_style">!actionbar|ACTIONBAR</string>
+    <string name="tag_checkbox_style">!checkbox|CHECKBOX</string>
 
     <integer name="button_url">100</integer>
     <integer name="avatar_id">101</integer>

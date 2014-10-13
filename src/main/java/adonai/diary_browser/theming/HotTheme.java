@@ -1,6 +1,8 @@
 package adonai.diary_browser.theming;
 
+import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -12,6 +14,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,6 +33,7 @@ public class HotTheme {
         BUTTON,
         LISTVIEW,
         LISTITEM,
+        CHECKBOX,
         EDIT,
         TEXT,
         ACTIONBAR
@@ -124,7 +128,9 @@ public class HotTheme {
                             sld.addState(new int[] {android.R.attr.state_pressed}, new ColorDrawable((Integer) themeRow.get(DatabaseHandler.ThemeField.DOWN_COLOR)));
                             sld.addState(new int[] {android.R.attr.state_selected}, new ColorDrawable((Integer) themeRow.get(DatabaseHandler.ThemeField.DOWN_COLOR)));
                             sld.addState(new int[] {}, new ColorDrawable((Integer) themeRow.get(DatabaseHandler.ThemeField.UP_COLOR)));
-                            ((Button) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
+                            if(v instanceof Button) {
+                                ((Button) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
+                            }
                             v.setBackgroundDrawable(sld);
                         }
                     }
@@ -136,7 +142,7 @@ public class HotTheme {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
                         final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
                         if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
-                            v.setBackgroundColor((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR));
+                            v.getBackground().setColorFilter((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), PorterDuff.Mode.MULTIPLY);
                         }
                         if(themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
                             ((EditText) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
@@ -185,6 +191,25 @@ public class HotTheme {
                             if(v instanceof TextView) {
                                 ((TextView)v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
                             }
+                        }
+                    }
+                };
+            case CHECKBOX:
+                return new ThemedView(v) {
+                    @Override
+                    public void onChange(View v) {
+                        DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
+                        final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
+
+                        try {
+                            Field f = v.getClass().getSuperclass().getDeclaredField("mButtonDrawable");
+                            f.setAccessible(true);
+                            Drawable drawable = (Drawable) f.get(v);
+                            if(drawable != null && themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
+                                drawable.setColorFilter((Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), PorterDuff.Mode.MULTIPLY);
+                            }
+                        } catch (NoSuchFieldException | IllegalAccessException e) {
+                            e.printStackTrace();
                         }
                     }
                 };
