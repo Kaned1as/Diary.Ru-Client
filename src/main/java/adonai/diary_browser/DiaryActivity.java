@@ -129,9 +129,7 @@ public abstract class DiaryActivity extends Activity implements Callback
             View v = (View) f.get(getActionBar());
             v.setTag(getString(R.string.tag_actionbar_style));
             HotTheme.manage(v);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }
@@ -184,11 +182,11 @@ public abstract class DiaryActivity extends Activity implements Callback
                                 builder.setNegativeButton(R.string.later, null);
                                 builder.create().show();
                             }
-                        }, 15000);
+                        }, 5000);
 
                         SharedPreferences.Editor updater = mService.mPreferences.edit();
                         updater.putString("stored.version", current);
-                        updater.commit();
+                        updater.apply();
                     }
                 } catch (PackageManager.NameNotFoundException ignored)
                 {
@@ -231,34 +229,40 @@ public abstract class DiaryActivity extends Activity implements Callback
 
     protected void purchaseGift()
     {
-        if(mCanBuy)
-            mHelper.launchPurchaseFlow(DiaryActivity.this, SKU_DONATE, 6666, new IabHelper.OnIabPurchaseFinishedListener()
-            {
+        if(mCanBuy) {
+            mHelper.launchPurchaseFlow(DiaryActivity.this, SKU_DONATE, 6666, new IabHelper.OnIabPurchaseFinishedListener() {
                 @Override
-                public void onIabPurchaseFinished(IabResult result, Purchase info)
-                {
-                    if(result.isSuccess())
-                    {
+                public void onIabPurchaseFinished(IabResult result, Purchase info) {
+                    if (result.isSuccess()) {
                         AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
                         builder.setTitle(R.string.completed).setMessage(R.string.thanks);
                         builder.setPositiveButton(android.R.string.ok, null);
                         builder.create().show();
                     }
 
-                    mHelper.queryInventoryAsync(false, new IabHelper.QueryInventoryFinishedListener()
-                    {
+                    mHelper.queryInventoryAsync(false, new IabHelper.QueryInventoryFinishedListener() {
                         @Override
-                        public void onQueryInventoryFinished(IabResult result, Inventory inv)
-                        {
-                            if(result.isSuccess())
-                            {
-                                if(inv.getPurchase(SKU_DONATE) != null)
-                                mHelper.consumeAsync(inv.getPurchase(SKU_DONATE), null);
+                        public void onQueryInventoryFinished(IabResult result, Inventory inv) {
+                            if (result.isSuccess()) {
+                                if (inv.getPurchase(SKU_DONATE) != null)
+                                    mHelper.consumeAsync(inv.getPurchase(SKU_DONATE), null);
                             }
                         }
                     });
                 }
             }, "NothingAndNowhere" + getUser().userName);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // Pass on the activity result to the helper for handling
+        if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+            // not handled, so handle it ourselves (here's where you'd
+            // perform any handling of activity results not related to in-app
+            // billing...
+            super.onActivityResult(requestCode, resultCode, data);
+        }
     }
 
     public void handleBackground(int opCode, Object body)
