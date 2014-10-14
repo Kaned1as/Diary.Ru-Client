@@ -79,7 +79,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 ")");
 
         db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -26112, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -7757, NULL, NULL, NULL, NULL)");
         db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
         db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
         db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
@@ -116,7 +116,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                     ")");
 
             db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
-            db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -26112, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -7757, NULL, NULL, NULL, NULL)");
             db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
             db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
             db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
