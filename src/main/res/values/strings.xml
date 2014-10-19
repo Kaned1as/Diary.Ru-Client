@@ -209,7 +209,7 @@
     <string name="color_selection">Выбор цветовой схемы</string>
     <string name="placeholder">Пример текста</string>
     <string name="decorations">Оформление</string>
-    <string name="decorations_sum">Выбор цветов, смена стилей оформления</string>
+    <string name="decorations_sum">Выбор цветов, смена стилей оформления (!!ЭКСПЕРИМЕНТАЛЬНО!!)</string>
     <string name="interface_themes">Цвета интерфейса</string>
     <string name="web_themes">Цвета страниц</string>
     <string name="sharp_mark">#</string>

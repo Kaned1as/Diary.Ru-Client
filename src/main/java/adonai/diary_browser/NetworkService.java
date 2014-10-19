@@ -36,7 +36,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpCookie;
@@ -85,7 +84,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Looper mLooper; // петля времени
 
     boolean load_images;
-    boolean load_cached;
     boolean is_sticky;
     boolean notify_on_updates;
     boolean keep_device_on;
@@ -128,7 +126,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         waker = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "diary.client");
 
         load_images = mPreferences.getBoolean("images.autoload", false);
-        load_cached = mPreferences.getBoolean("images.autoload.cache", false);
         is_sticky = mPreferences.getBoolean("service.always.running", false);
         notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
@@ -980,13 +977,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     String src = current.attr("src");
                     if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
                     {
-                        if(load_cached)
-                        {
-                            String hashCode = String.format("%08x", src.hashCode());
-                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                            if(file.exists())
-                                continue;
-                        }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
                         String jsButton = "<input type='image' src='file:///android_asset/images/load_image.png' onclick='return handleIMGDown(this, \"" + src + "\")' />";
 
@@ -1000,13 +990,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     String src = current.getElementsByTag("img").attr("src");
                     if(!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/"))
                     {
-                        if(load_cached)
-                        {
-                            String hashCode = String.format("%08x", src.hashCode());
-                            File file = new File(new File(getCacheDir(), "webviewCache"), hashCode);
-                            if(file.exists())
-                                continue;
-                        }
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
                         String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleADown(this, \"" + current.attr("href") + "\", \"" + src + "\")' />";
 
@@ -1159,9 +1142,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         {
             case "images.autoload":
                 load_images = sharedPreferences.getBoolean(key, false);
-                break;
-            case "images.autoload.cache":
-                load_cached = sharedPreferences.getBoolean(key, false);
                 break;
             case "service.notify.updates":
                 mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);

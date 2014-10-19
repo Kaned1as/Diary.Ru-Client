@@ -173,7 +173,7 @@ public class HotTheme {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
                         final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
                         if(themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
-                            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{(int) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), 0xFF808080 & (Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR)});
+                            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{(int) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), 0xFFA0A0A0 & (Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR)});
                             v.setBackgroundDrawable(gd);
                             traverse(themeRow, v);
                         }

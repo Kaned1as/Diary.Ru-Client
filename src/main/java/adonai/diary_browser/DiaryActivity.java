@@ -105,6 +105,7 @@ public abstract class DiaryActivity extends Activity implements Callback
     protected void onStart()
     {
         super.onStart();
+        manageActionBar(); // to restore color
         slider = (DiarySlidePane) findViewById(R.id.slider);
         slider.setPanelSlideListener(sliderListener);
         slider.setSliderFadeColor(Color.WHITE);
@@ -266,7 +267,7 @@ public abstract class DiaryActivity extends Activity implements Callback
             public void run() {
                 manageActionBar();
             }
-        }, 3000);
+        }, 500);
     }
 
     @Override

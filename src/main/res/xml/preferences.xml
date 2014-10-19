@@ -2,9 +2,8 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
     <adonai.diary_browser.preferences.ThemePreference android:title="@string/decorations" android:summary="@string/decorations_sum" />
     <CheckBoxPreference android:summary="@string/images_autoload_summary" android:key="images.autoload" android:title="@string/images_autoload" android:defaultValue="false"/>
-    <CheckBoxPreference android:title="@string/autoload_cached_images" android:key="images.autoload.cache" android:summary="@string/autoload_cached_images_summary" android:defaultValue="false"/>
-    <CheckBoxPreference android:key="service.always.running" android:summary="@string/sticky_service_sum" android:title="@string/sticky_service" android:defaultValue="false"/>
     <CheckBoxPreference android:key="service.notify.updates" android:summary="@string/notify_updates_sum" android:title="@string/notify_updates" android:defaultValue="true"/>
+    <CheckBoxPreference android:key="service.always.running" android:summary="@string/sticky_service_sum" android:title="@string/sticky_service" android:defaultValue="false"/>
     <CheckBoxPreference android:key="service.keep.device.on" android:summary="@string/keep_device_on_sum" android:title="@string/keep_device_on" android:defaultValue="false" android:dependency="service.notify.updates" />
     <CheckBoxPreference android:key="show.version" android:summary="@string/show_version_sum" android:title="@string/show_version" android:defaultValue="true" />
     <CheckBoxPreference android:key="preload.themes" android:summary="@string/preload_themes_sum" android:title="@string/preload_themes" android:defaultValue="false" />

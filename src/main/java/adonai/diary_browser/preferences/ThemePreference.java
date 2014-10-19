@@ -164,7 +164,7 @@ public class ThemePreference extends DialogPreference {
             cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
                 @Override
                 public void onColorChanged(int i) {
-                    colorChooserEdit.setText(String.format("%06x",  cp.getColor()));
+                    colorChooserEdit.setText(String.format("%06x",  0xFFFFFF & cp.getColor()));
                 }
             });
             colorChooserEdit.addTextChangedListener(new TextWatcher() {
@@ -186,9 +186,6 @@ public class ThemePreference extends DialogPreference {
                             int color = Color.parseColor("#" + text);
                             if(cp.getColor() != color) {
                                 cp.setColor(color);
-                                sBar.setColor(color);
-                                vBar.setColor(color);
-                                opBar.setColor(color);
                             }
                         } catch (IllegalArgumentException ignored) {
 
@@ -197,13 +194,10 @@ public class ThemePreference extends DialogPreference {
                 }
             });
             opBar.setVisibility(View.GONE);
-            cp.setColor(originalColor);
-            //opBar.setColor(originalColor);
-            sBar.setColor(originalColor);
-            vBar.setColor(originalColor);
-            //cp.addOpacityBar(opBar);
             cp.addSaturationBar(sBar);
             cp.addValueBar(vBar);
+            cp.setColor(originalColor);
+
             builder.setView(colorPickerView).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
@@ -263,9 +257,6 @@ public class ThemePreference extends DialogPreference {
                             int color = Color.parseColor("#" + text);
                             if(cp.getColor() != color) {
                                 cp.setColor(color);
-                                sBar.setColor(color);
-                                vBar.setColor(color);
-                                opBar.setColor(color);
                             }
                         } catch (IllegalArgumentException ignored) {
 
@@ -273,13 +264,10 @@ public class ThemePreference extends DialogPreference {
                     }
                 }
             });
-            cp.setColor(originalColor);
-            opBar.setColor(originalColor);
-            sBar.setColor(originalColor);
-            vBar.setColor(originalColor);
             cp.addOpacityBar(opBar);
             cp.addSaturationBar(sBar);
             cp.addValueBar(vBar);
+            cp.setColor(originalColor);
             builder.setView(colorPickerView).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
