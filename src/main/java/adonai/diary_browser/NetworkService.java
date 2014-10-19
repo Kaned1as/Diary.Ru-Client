@@ -298,12 +298,27 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
                     final List<HttpCookie> cookies = mDHCL.getCookieStore().getCookies();
 
-                    if(loginScreen == null) { // no connection
+                    if(loginScreen == null)
+                    { // no connection
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
 
-                    if(cookies.size() < 2) // not authorised
+                    boolean user = false, password = false;
+                    for(HttpCookie cookie : cookies)
+                    {
+                        switch (cookie.getName())
+                        {
+                            case "user_login":
+                                user = true;
+                                break;
+                            case "user_pass":
+                                password = true;
+                                break;
+                        }
+                    }
+
+                    if(!(user && password)) // not authorised
                     {
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
