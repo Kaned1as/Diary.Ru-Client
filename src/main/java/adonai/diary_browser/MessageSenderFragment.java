@@ -481,9 +481,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                     else
                                         Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                                 }
-                                pd.dismiss();
                                 //resEntity.consumeContent();
+                            } else {
+                                Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                             }
+                            pd.dismiss();
                         } catch (Exception e)
                         {
                             Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();

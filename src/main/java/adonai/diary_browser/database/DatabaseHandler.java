@@ -19,6 +19,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public static final String DATABASE_NAME = "diaryDB";
     public static final int DB_VERSION = 2;
 
+    public void resetColors() {
+        SQLiteDatabase db = getWritableDatabase();
+        db.execSQL("DELETE FROM " + THEME_TABLE_NAME);
+        db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -7757, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listview', 'Фон списков', -1, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem', 'Фон элементов списка', 788505856, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem_title', 'Текст заголовка элемента', -4130, NULL, NULL, -9437184, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('listitem_signature', 'Текст подписи элемента',-4403, NULL, NULL, -10020352, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('horizontal_divider', 'Горизонтальный разделитель', -16777216, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода (маска)', NULL, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
+    }
+
     public static enum AutocompleteType
     {
         URL,
@@ -91,7 +110,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
         db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода (маска)', NULL, NULL, NULL, NULL, NULL)");
         db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', -1, NULL, NULL, NULL, NULL)");
+        db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
     }
 
     @Override
@@ -128,7 +147,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
             db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода (маска)', NULL, NULL, NULL, NULL, NULL)");
             db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
-            db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', -1, NULL, NULL, NULL, NULL)");
+            db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
         }
     }
 

@@ -67,6 +67,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private static final int NOTIFICATION_ID = 3; // I SWEAR IT'S RANDOM!!11
     private static final int NEWS_NOTIFICATION_ID = 4;
     private static final int PENDING_INTENT_ID = 1408;  // I SWEAR IT'S RANDOM!!11
+    public static final String CUSTOM_CSS_CACHED_FILE = "custom.css";
 
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
@@ -1220,12 +1221,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
      */
     private static String retrieveCss(Context ctx) {
         try {
-            if(CacheManager.getInstance().hasData(ctx, "custom.css")) {
-                return new String(CacheManager.getInstance().retrieveData(ctx, "custom.css"));
+            if(CacheManager.getInstance().hasData(ctx, CUSTOM_CSS_CACHED_FILE)) {
+                return new String(CacheManager.getInstance().retrieveData(ctx, CUSTOM_CSS_CACHED_FILE));
             } else {
                 InputStream is = ctx.getAssets().open("css/journal.css");
                 String contents = Utils.getStringFromInputStream(is);
-                CacheManager.getInstance().cacheData(ctx, contents.getBytes(), "custom.css");
+                CacheManager.getInstance().cacheData(ctx, contents.getBytes(), CUSTOM_CSS_CACHED_FILE);
                 return contents;
             }
         } catch (IOException e) {
@@ -1268,7 +1269,16 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
         try {
             setCssContent(ctx, css);
-            CacheManager.getInstance().cacheData(ctx, css.getBytes(), "custom.css");
+            CacheManager.getInstance().cacheData(ctx, css.getBytes(), CUSTOM_CSS_CACHED_FILE);
+        } catch (IOException e) {
+            Toast.makeText(ctx, R.string.io_error, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static void resetCssColors(Context ctx) {
+        try {
+            CacheManager.getInstance().dropData(ctx, CUSTOM_CSS_CACHED_FILE);
+            mCssContent = null;
         } catch (IOException e) {
             Toast.makeText(ctx, R.string.io_error, Toast.LENGTH_SHORT).show();
         }

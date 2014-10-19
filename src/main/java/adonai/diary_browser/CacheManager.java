@@ -89,6 +89,15 @@ public class CacheManager
 
         return data;
     }
+
+    public boolean dropData(Context context, String name) throws IOException
+    {
+
+        File cacheDir = context.getCacheDir();
+        File file = new File(cacheDir, name);
+
+        return file.exists() && file.delete();
+    }
     
     public boolean hasData(Context context, String name) 
     {
@@ -98,7 +107,6 @@ public class CacheManager
 
         // Data doesn't exist
         return file.exists();
-
     }
     
     public static File saveDataToSD(Context context, String name, InputStream inStream)

@@ -43,7 +43,7 @@ import static adonai.diary_browser.database.DatabaseHandler.ThemeField;
 public class ThemePreference extends DialogPreference {
     private Map<String, String> mCssMappings;
 
-    @TargetApi(Build.VERSION_CODES.L)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ThemePreference(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
     }
@@ -56,7 +56,7 @@ public class ThemePreference extends DialogPreference {
         super(context, attrs);
     }
 
-    @TargetApi(Build.VERSION_CODES.L)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public ThemePreference(Context context) {
         super(context);
     }
@@ -129,16 +129,29 @@ public class ThemePreference extends DialogPreference {
             verticalContainer.addView(item);
         }
         themeBindings.close();
-
         return sv;
     }
 
     @Override
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder)
+    {
+        super.onPrepareDialogBuilder(builder);
+        builder.setNeutralButton(R.string.reset, this);
+    }
+
+    @Override
     public void onClick(DialogInterface dialog, int which) {
-        if(which == DialogInterface.BUTTON_POSITIVE) {
-            NetworkService.replaceCssColors(getContext(), mCssMappings);
-        } else
-            super.onClick(dialog, which);
+        switch (which) {
+            case DialogInterface.BUTTON_POSITIVE:
+                NetworkService.replaceCssColors(getContext(), mCssMappings);
+                break;
+            case DialogInterface.BUTTON_NEGATIVE:
+                super.onClick(dialog, which);
+                break;
+            case DialogInterface.BUTTON_NEUTRAL:
+                resetColors();
+                break;
+        }
     }
 
     private class CssOnClickListener implements View.OnClickListener {
@@ -273,9 +286,18 @@ public class ThemePreference extends DialogPreference {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     colorView.setBackgroundColor(cp.getColor());
                     database.modifyThemeRow(type, field, cp.getColor());
-                    HotTheme.setTheme();
+                    HotTheme.updateTheme();
                 }
             }).create().show();
         }
     }
+
+    private void resetColors() {
+        final DatabaseHandler database = ((PreferencesScreen)getContext()).getDatabase();
+        database.resetColors();
+        HotTheme.updateTheme();
+        NetworkService.resetCssColors(getContext());
+    }
+
 }
+

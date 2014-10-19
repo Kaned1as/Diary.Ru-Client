@@ -69,7 +69,7 @@ public class HotTheme {
         }
     }
 
-    public static void setTheme() {
+    public static void updateTheme() {
         for (Iterator<ThemedView> it = sViews.iterator(); it.hasNext(); ) {
             if (!it.next().notifyChange()) {
                 it.remove();
