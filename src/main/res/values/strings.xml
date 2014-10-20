@@ -218,4 +218,8 @@
     <string name="brightness">Яркость</string>
     <string name="opacity">Прозрачность</string>
     <string name="reset">Сброс</string>
+    <string name="preload_umail">Расширенная работа с U-Mail</string>
+    <string name="preload_umail_sum">Включает цитирование сообщений в U-Mail. Примечание: Загрузка идёт дольше, но становится возможным цитирование получателя и пересылка U-Mail.</string>
+    <string name="requote_text">Цитируемый текст</string>
+    <string name="forward_umail">Переслать</string>
 </resources>

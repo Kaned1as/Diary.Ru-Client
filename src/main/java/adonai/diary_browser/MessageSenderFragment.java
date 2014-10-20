@@ -92,6 +92,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     EditText toText;
     EditText titleText;
     EditText contentText;
+    EditText requoteText;
     EditText themesText;
     EditText musicText;
     EditText moodText;
@@ -170,10 +171,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         toText = (EditText) sender.findViewById(R.id.message_to);
         mGetReceipt = (CheckBox) sender.findViewById(R.id.message_getreceipt);
         mRequote = (CheckBox) sender.findViewById(R.id.message_requote);
+        mRequote.setOnCheckedChangeListener(this);
         mCopyMessage = (CheckBox) sender.findViewById(R.id.message_copy);
 
         titleText = (EditText) sender.findViewById(R.id.message_title);
         contentText = (EditText) sender.findViewById(R.id.message_content);
+        requoteText = (EditText) sender.findViewById(R.id.message_requote_content);
         themesText = (EditText) sender.findViewById(R.id.message_themes);
         musicText = (EditText) sender.findViewById(R.id.message_music);
         moodText = (EditText) sender.findViewById(R.id.message_mood);
@@ -260,6 +263,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
         umailElements.add(mCopyMessage);
+        umailElements.add(requoteText);
 
         return sender;
     }
@@ -746,8 +750,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private void prepareUi(Umail mail)
     {
         toText.setText(mail.receiver);
-        titleText.setText(mail.messageTheme);
+        if(!mail.messageTheme.startsWith("Re: "))
+            titleText.setText("Re: " + mail.messageTheme);
+        else
+            titleText.setText(mail.messageTheme);
+
         mRequote.setChecked(true);
+        requoteText.setText(mail.reMessage);
         mCopyMessage.setChecked(true);
     }
 
@@ -1040,7 +1049,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
                     postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
-                    postParams.add(new BasicNameValuePair("requote", mRequote.isChecked() ? "yes" : ""));
+                    if(mRequote.isChecked())
+                    {
+                        postParams.add(new BasicNameValuePair("requote", "yes"));
+                        postParams.add(new BasicNameValuePair("remessage", "\n\n" + requoteText.getText().toString()));
+                    }
 
                     mHandler.sendEmptyMessage(HANDLE_DO_UMAIL);
                 }
@@ -1053,19 +1066,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     }
 
-    public int getColorFromPicture(ImageButton view)
-    {
-        Drawable old = view.getDrawable();
-        Bitmap example = Bitmap.createBitmap(1, 1, Config.ARGB_8888);
-        Canvas tCanvas = new Canvas(example);
-        old.draw(tCanvas);
-        return example.getPixel(0, 0);
-    }
-
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
     {
         switch(buttonView.getId())
         {
+            case R.id.message_requote:
+                if(isChecked)
+                    requoteText.setVisibility(View.VISIBLE);
+                else
+                    requoteText.setVisibility(View.GONE);
+                break;
             case R.id.message_optional:
                 if(isChecked)
                     mOptionals.setVisibility(View.VISIBLE);

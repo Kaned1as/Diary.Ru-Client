@@ -7,13 +7,20 @@
         android:showAsAction="never"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
 
+    <item
+        android:id="@+id/menu_forward_umail"
+        android:title="@string/forward_umail"
+        android:orderInCategory="101"
+        android:showAsAction="never"
+        android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
 
     <item
         android:id="@+id/menu_new_umail"
         android:title="@string/new_umail"
-        android:orderInCategory="100"
+        android:orderInCategory="102"
         android:showAsAction="ifRoom|withText"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
+
     <group
         android:id="@+id/group_all"
         android:menuCategory="container">

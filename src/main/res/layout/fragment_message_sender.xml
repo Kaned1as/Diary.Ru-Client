@@ -226,6 +226,18 @@
             android:contentDescription="@string/persistent"
             android:tag="@string/tag_edit_style"/>
 
+        <EditText
+            android:id="@+id/message_requote_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/requote_text"
+            android:ems="10"
+            android:imeOptions="actionSend"
+            android:inputType="text|textMultiLine|textCapSentences"
+            android:minLines="2"
+            android:tag="@string/tag_edit_style"
+            android:enabled="false" />
+
         <CheckBox
             android:id="@+id/message_subscribe"
             android:layout_width="wrap_content"

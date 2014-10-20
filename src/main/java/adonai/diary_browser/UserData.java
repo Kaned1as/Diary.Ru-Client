@@ -6,6 +6,7 @@ import org.jsoup.select.Elements;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscListPage;
+import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class UserData
@@ -31,7 +32,7 @@ public class UserData
     DiaryListPage currentUmails;
     DiscListPage discussions;
     WebPage currentDiaryPage;
-    WebPage currentUmailPage;
+    UmailPage currentUmailPage;
 
     // Личные данные
     String ownDiaryURL = "";
@@ -55,7 +56,7 @@ public class UserData
         currentDiaries = new DiaryListPage();
         currentUmails = new DiaryListPage();
         currentDiaryPage = new DiaryPage();
-        currentUmailPage = new DiaryPage();
+        currentUmailPage = new UmailPage();
         discussions = new DiscListPage();
     }
 

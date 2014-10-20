@@ -58,6 +58,7 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.SearchPage;
 import adonai.diary_browser.entities.TagsPage;
+import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
@@ -89,10 +90,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean notify_on_updates;
     boolean keep_device_on;
     boolean preload_themes;
+    boolean preload_umail;
     int orientation;
 
     private List<DiaryActivity> mListeners = new ArrayList<>();
     String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
+
 
     /*
     К сожалению, НЕТ другой возможности запустить сервис.
@@ -130,7 +133,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         is_sticky = mPreferences.getBoolean("service.always.running", false);
         notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
         keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
-        preload_themes = mPreferences.getBoolean("preload.themes", false);
+        preload_themes = mPreferences.getBoolean("preload.themes", true);
+        preload_umail = mPreferences.getBoolean("preload.umail.quoting", true);
         orientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
@@ -497,6 +501,28 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
                     break;
                 }
+                case Utils.HANDLE_PRELOAD_UMAIL:
+                {
+                    final int type = (int) message.obj;
+                    final String umailId = mUser.currentUmailPage.getUmailID();
+                    final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
+                    final String dataPage = mDHCL.getPageAsString(URL);
+                    if(dataPage == null)
+                    {
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        break;
+                    }
+
+                    final Umail sendMail = serializeUmailEditPage(dataPage, type);
+                    if(sendMail == null) // additional check due to nullptrs
+                    {
+                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        break;
+                    }
+
+                    notifyListeners(Utils.HANDLE_PRELOAD_UMAIL, sendMail);
+                    break;
+                }
                 case Utils.HANDLE_EDIT_COMMENT:
                 {
                     final String URL = (String) message.obj;
@@ -579,6 +605,23 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
 
         result.noComments = rootNode.select("input#nocomm").hasAttr("checked");
+
+        return result;
+    }
+
+    private Umail serializeUmailEditPage(String dataPage, int type)
+    {
+        notifyListeners(Utils.HANDLE_PROGRESS);
+        final Element rootNode = Jsoup.parse(dataPage);
+        if(rootNode == null)
+            return null;
+
+        final Umail result = new Umail();
+        result.messageTheme = mUser.currentUmailPage.getMessageTheme();
+        result.reMessage = rootNode.select("textarea#remessage").first().ownText();
+        if(type == Utils.UMAIL_REPLY) {
+            result.receiver = mUser.currentUmailPage.getSenderName();
+        }
 
         return result;
     }
@@ -1185,7 +1228,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
                 break;
             case "preload.themes":
-                preload_themes = sharedPreferences.getBoolean("preload.themes", false);
+                preload_themes = sharedPreferences.getBoolean("preload.themes", true);
+                break;
+            case "preload.umail.quoting":
+                preload_umail = sharedPreferences.getBoolean("preload.umail.quoting", true);
                 break;
             case "screen.orientation":
                 orientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));

@@ -6,6 +6,7 @@ public class UmailPage extends WebPage
     private String umailURL = "";
     private String senderName = "";
     private String messageTheme = "";
+    private String messageText = "";
 
     public String getMessageTheme()
     {
@@ -14,7 +15,7 @@ public class UmailPage extends WebPage
 
     public void setMessageTheme(String messageTheme)
     {
-        this.messageTheme = "Re: " + messageTheme;
+        this.messageTheme = messageTheme;
     }
 
     @Override
@@ -51,5 +52,13 @@ public class UmailPage extends WebPage
     public void setSenderName(String senderName)
     {
         this.senderName = senderName;
+    }
+
+    public String getMessageText() {
+        return messageText;
+    }
+
+    public void setMessageText(String messageText) {
+        this.messageText = messageText;
     }
 }

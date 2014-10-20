@@ -245,6 +245,9 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
 
                 invalidateOptionsMenu();
                 break;
+            case Utils.HANDLE_PRELOAD_UMAIL:
+                newUmail((Umail) message.obj);
+                break;
             case Utils.HANDLE_PROGRESS:
                 if(pd != null)
                     pd.setMessage(getString(R.string.parsing_data));
@@ -281,10 +284,19 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
         switch(item.getItemId())
         {
             case R.id.menu_new_umail:
-                newUmail(null);
+                newUmail((UmailPage) null);
                 return true;
             case R.id.menu_reply_umail:
-                newUmail((UmailPage)getUser().currentUmailPage);
+                if(mService.preload_umail)
+                    handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_REPLY);
+                else
+                    newUmail(getUser().currentUmailPage);
+                return true;
+            case R.id.menu_forward_umail:
+                if(mService.preload_umail)
+                    handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_FORWARD);
+                else
+                    newUmail(getUser().currentUmailPage);
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
@@ -317,6 +329,12 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener
             mail.messageTheme = receiver.getMessageTheme();
         }
         messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", mail);
+        slider.openPane();
+    }
+
+    private void newUmail(Umail composed)
+    {
+        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", composed);
         slider.openPane();
     }
 

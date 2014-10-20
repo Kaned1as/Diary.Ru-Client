@@ -4,4 +4,5 @@ public class Umail extends Comment
 {
     public String receiver = "";
     public String messageTheme = "";
+    public String reMessage = "";
 }
