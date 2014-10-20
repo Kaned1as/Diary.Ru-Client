@@ -750,10 +750,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private void prepareUi(Umail mail)
     {
         toText.setText(mail.receiver);
-        if(!mail.messageTheme.startsWith("Re: "))
+        if(mail.receiver.isEmpty()) {
+            titleText.setText("Fwd: " + mail.messageTheme);
+        } else if(!mail.messageTheme.startsWith("Re: ")) {
             titleText.setText("Re: " + mail.messageTheme);
-        else
+        } else {
             titleText.setText(mail.messageTheme);
+        }
 
         mRequote.setChecked(true);
         requoteText.setText(mail.reMessage);
