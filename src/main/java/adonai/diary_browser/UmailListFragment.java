@@ -34,10 +34,12 @@ public class UmailListFragment extends DiaryFragment
         if(mCurrentComponent == UmailListActivity.PART_WEB && mUser.currentUmails.getURL().equals(UmailListActivity.inFolderAddress)) // Если мы в папке "входящие"
         {
             menu.findItem(R.id.menu_reply_umail).setVisible(true);
+            menu.findItem(R.id.menu_forward_umail).setVisible(true);
         }
         else
         {
             menu.findItem(R.id.menu_reply_umail).setVisible(false);
+            menu.findItem(R.id.menu_forward_umail).setVisible(false);
         }
 
         super.onPrepareOptionsMenu(menu);
