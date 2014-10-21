@@ -227,7 +227,7 @@ public abstract class DiaryActivity extends Activity implements Callback {
                         }
                     });
                 }
-            }, "NothingAndNowhere" + getUser().userName);
+            }, "NothingAndNowhere" + getUser().getUserName());
         }
     }
 

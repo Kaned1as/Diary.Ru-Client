@@ -172,7 +172,7 @@ public class DiaryWebView extends WebView {
                     try {
                         Umail withAddress = new Umail();
                         withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
-                        mActivity.messagePane.prepareFragment(mActivity.getUser().signature, "http://www.diary.ru/diary.php", withAddress);
+                        mActivity.messagePane.prepareFragment(mActivity.getUser().getSignature(), "http://www.diary.ru/diary.php", withAddress);
                         mActivity.slider.openPane();
                     } catch (UnsupportedEncodingException e) {
                         Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();
@@ -190,7 +190,7 @@ public class DiaryWebView extends WebView {
             if (mActivity instanceof DiaryListActivity)
                 ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
 
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.getUser().currentDiaryPage.getPageURL())));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
             return true;
         }
     }

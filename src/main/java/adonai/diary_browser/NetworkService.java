@@ -222,7 +222,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             waker.acquire();
 
         if (is_sticky)
-            startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+            startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
 
         mInstance = this;
         mIsStarting = false;
@@ -285,7 +285,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 {
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    final String dataPage = mDHCL.getPageAsString(mUser.favoritesURL); // подойдет любая ссылка с дневников
+                    final String dataPage = mDHCL.getPageAsString(mUser.getFavoritesUrl()); // подойдет любая ссылка с дневников
                     if (dataPage == null)
                         break;
 
@@ -293,18 +293,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mUser.parseData(rootNode);
 
                     final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum > 0 && (!lastLinks[0].equals(mUser.newDiaryLink) || !lastLinks[1].equals(mUser.newDiscussLink) || !lastLinks[2].equals(mUser.newUmailLink))) // старые данные или нет?
+                    if (mUser.getNewDiaryCommentsNum() + mUser.getNewDiscussNum() + mUser.getNewUmailNum() > 0 && (!lastLinks[0].equals(mUser.getNewDiaryLink()) || !lastLinks[1].equals(mUser.getNewDiscussLink()) || !lastLinks[2].equals(mUser.getNewUmailLink()))) // старые данные или нет?
                     {
-                        lastLinks[0] = mUser.newDiaryLink; // устанавливаем линки на новые значения
-                        lastLinks[1] = mUser.newDiscussLink;
-                        lastLinks[2] = mUser.newUmailLink;
+                        lastLinks[0] = mUser.getNewDiaryLink(); // устанавливаем линки на новые значения
+                        lastLinks[1] = mUser.getNewDiscussLink();
+                        lastLinks[2] = mUser.getNewUmailLink();
 
                         final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
 
                         views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
-                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.newDiaryCommentsNum + " | " +
-                                getString(R.string.discussions) + ": " + mUser.newDiscussNum + " | " +
-                                getString(R.string.umail_activity_title) + ": " + mUser.newUmailNum);
+                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
+                                getString(R.string.discussions) + ": " + mUser.getNewDiscussNum() + " | " +
+                                getString(R.string.umail_activity_title) + ": " + mUser.getNewUmailNum());
 
                         final Notification notification = new Notification();
                         notification.contentView = views;
@@ -313,14 +313,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notification.ledOffMS = 10000;
                         notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                         notification.ledARGB = Color.parseColor("#FFD8BD");
-                        notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.newDiaryCommentsNum + mUser.newDiscussNum + mUser.newUmailNum);
+                        notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.getNewDiaryCommentsNum() + mUser.getNewDiscussNum() + mUser.getNewUmailNum());
                         notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
 
                         final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
                         mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
-                    } else if (mUser.newDiscussNum + mUser.newDiaryCommentsNum + mUser.newUmailNum == 0)
+                    } else if (mUser.getNewDiscussNum() + mUser.getNewDiaryCommentsNum() + mUser.getNewUmailNum() == 0)
                         mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
                     break;
                 }
@@ -338,7 +338,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     nameValuePairs.add(new BasicNameValuePair("module", "umail"));
                     nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
                     nameValuePairs.add(new BasicNameValuePair("move_to_folder", "0"));
-                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.signature));
+                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
                     nameValuePairs.add(new BasicNameValuePair("delm", "Удалить отмеченные"));
                     for (long id : ids)
                         nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
@@ -388,7 +388,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         cookieManager.setCookie("diary.ru", cookieString);
                     }
                     CookieSyncManager.getInstance().sync();
-                    mUser.isAuthorised = true;
+                    mUser.setAuthorised(true);
 
                     if (message.obj != null) // возвращаемся к загрузке
                         handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
@@ -420,7 +420,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = ((Pair<String, Boolean>) message.obj).first;
                     boolean reload = ((Pair<String, Boolean>) message.obj).second;
 
-                    if (!mUser.isAuthorised)
+                    if (!mUser.isAuthorised())
                         handleRequest(Utils.HANDLE_SET_HTTP_COOKIE, URL);
                     else
                         checkUrlAndHandle(URL, reload);
@@ -456,9 +456,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     postParams.add(new BasicNameValuePair("act", "del_post_post"));
                     postParams.add(new BasicNameValuePair("post_id", id));
                     postParams.add(new BasicNameValuePair("yes", "Да"));
-                    mDHCL.postPageToString(((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                    mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
                     break;
                 }
                 case Utils.HANDLE_REPOST: {
@@ -471,7 +471,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     try {
                         final Post sendPost = serializePostEditPage(dataPage);
-                        sendPost.diaryID = mUser.ownProfileID;
+                        sendPost.diaryID = mUser.getOwnProfileId();
                         notifyListeners(Utils.HANDLE_REPOST, sendPost);
                         break;
                     } catch (NullPointerException ex) // cannot serialize
@@ -482,9 +482,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_DELETE_COMMENT: {
                     final String id = (String) message.obj;
-                    mDHCL.getPageAsString(((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.signature);
+                    mDHCL.getPageAsString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.getSignature());
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.currentDiaryPage.getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
                     break;
                 }
                 case Utils.HANDLE_EDIT_POST: {
@@ -498,7 +498,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     try {
                         final Post sendPost = serializePostEditPage(dataPage);
                         sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
-                        sendPost.diaryID = ((DiaryPage) mUser.currentDiaryPage).getDiaryID();
+                        sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryID();
                         notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                         break;
                     } catch (NullPointerException ex) // cannot serialize
@@ -508,7 +508,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
                 }
                 case Utils.HANDLE_PRELOAD_THEMES: {
-                    final String URL = ((DiaryPage) mUser.currentDiaryPage).getDiaryURL() + "?newpost";
+                    final String URL = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "?newpost";
                     final String dataPage = mDHCL.getPageAsString(URL);
                     if (dataPage == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -527,14 +527,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         break;
                     }
 
-                    sendPost.diaryID = ((DiaryPage) mUser.currentDiaryPage).getDiaryID();
+                    sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryID();
 
                     notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
                     break;
                 }
                 case Utils.HANDLE_PRELOAD_UMAIL: {
                     final int type = (int) message.obj;
-                    final String umailId = mUser.currentUmailPage.getUmailID();
+                    final String umailId = mUser.getCurrentUmailPage().getUmailID();
                     final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
                     final String dataPage = mDHCL.getPageAsString(URL);
                     if (dataPage == null) {
@@ -563,7 +563,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     try {
                         Comment sendComment = serializeCommentEditPage(dataPage);
                         sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
-                        sendComment.postID = ((CommentsPage) mUser.currentDiaryPage).getPostID();
+                        sendComment.postID = ((CommentsPage) mUser.getCurrentDiaryPage()).getPostID();
                         notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
                         break;
                     } catch (NullPointerException ex) // cannot serialize
@@ -637,10 +637,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             return null;
 
         final Umail result = new Umail();
-        result.messageTheme = mUser.currentUmailPage.getMessageTheme();
+        result.messageTheme = mUser.getCurrentUmailPage().getMessageTheme();
         result.reMessage = rootNode.select("textarea#remessage").first().ownText();
         if (type == Utils.UMAIL_REPLY) {
-            result.receiver = mUser.currentUmailPage.getSenderName();
+            result.receiver = mUser.getCurrentUmailPage().getSenderName();
         }
 
         return result;
@@ -661,7 +661,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        mUser.currentDiaries = new DiaryListPage(mDHCL.currentURL);
+        mUser.setCurrentDiaries(new DiaryListPage(mDHCL.currentURL));
 
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
         if (table == null) // Нет вообще никаких дневников, заканчиваем
@@ -669,7 +669,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Element pages = rootNode.select("table.pages").first();
         if (pages != null)
-            mUser.currentDiaries.setPageLinks(Html.fromHtml(pages.outerHtml()));
+            mUser.getCurrentDiaries().setPageLinks(Html.fromHtml(pages.outerHtml()));
 
         Elements rows = table.select("tr:gt(0)");
         for (Element row : rows) {
@@ -687,7 +687,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             diary.setLastUpdate(columns.get(5).text());
             diary.setLastUpdateURL(columns.get(5).children().attr("href"));
 
-            mUser.currentDiaries.add(diary);
+            mUser.getCurrentDiaries().add(diary);
         }
 
     }
@@ -733,7 +733,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         scannedDiary.setContent(resultPage.html());
         scannedDiary.setTitle(resultPage.title());
 
-        mUser.currentDiaryPage = scannedDiary;
+        mUser.setCurrentDiaryPage(scannedDiary);
     }
 
     private void serializeSearchPage(String dataPage) {
@@ -762,7 +762,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         scannedSearch.setContent(resultPage.html());
         scannedSearch.setTitle(resultPage.title() + searchText);
 
-        mUser.currentDiaryPage = scannedSearch;
+        mUser.setCurrentDiaryPage(scannedSearch);
     }
 
     private void serializeCommentsPage(String dataPage) throws IOException {
@@ -811,7 +811,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         scannedPost.setContent(resultPage.html());
         scannedPost.setTitle(resultPage.title());
-        mUser.currentDiaryPage = scannedPost;
+        mUser.setCurrentDiaryPage(scannedPost);
     }
 
     private void serializeProfilePage(String dataPage) {
@@ -834,7 +834,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         profilePage.setContent(resultPage.html());
         profilePage.setTitle(resultPage.title());
-        mUser.currentDiaryPage = profilePage;
+        mUser.setCurrentDiaryPage(profilePage);
     }
 
     private void serializeTagsPage(String dataPage) throws IOException {
@@ -867,7 +867,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
         scannedTags.setContent(resultPage.html());
         scannedTags.setTitle(resultPage.title());
-        mUser.currentDiaryPage = scannedTags;
+        mUser.setCurrentDiaryPage(scannedTags);
     }
 
     private void serializeDiscussionsPage(String dataPage) {
@@ -875,8 +875,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        mUser.discussions.clear();
-        mUser.discussions.setURL(mDHCL.currentURL);
+        mUser.getDiscussions().clear();
+        mUser.getDiscussions().setURL(mDHCL.currentURL);
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
@@ -891,7 +891,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             String title = item.text();
             currentList.setTitle(title);
 
-            mUser.discussions.add(currentList);
+            mUser.getDiscussions().add(currentList);
         }
     }
 
@@ -918,7 +918,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
 
-        mUser.currentUmails = new DiaryListPage(mDHCL.currentURL);
+        mUser.setCurrentUmails(new DiaryListPage(mDHCL.currentURL));
 
         Element table = rootNode.getElementsByAttributeValue("class", "table l").first();
         if (table == null) // Нет вообще никаких сообщений, заканчиваем
@@ -926,7 +926,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Element pages = rootNode.select("table.pages").first();
         if (pages != null)
-            mUser.currentUmails.setPageLinks(Html.fromHtml(pages.outerHtml()));
+            mUser.getCurrentUmails().setPageLinks(Html.fromHtml(pages.outerHtml()));
 
         Elements rows = table.select("tr[id]");
         Element title = null, author = null, last_post = null;
@@ -955,7 +955,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                 mail.setRead(!row.hasClass("not_readed_umail"));
 
-                mUser.currentUmails.add(mail);
+                mUser.getCurrentUmails().add(mail);
                 title = author = last_post = null;
             }
         }
@@ -992,7 +992,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         scannedUmail.setContent(resultPage.html());
         scannedUmail.setTitle(resultPage.title());
-        mUser.currentUmailPage = scannedUmail;
+        mUser.setCurrentUmailPage(scannedUmail);
     }
 
     private void parseContent(Document resultPage) {
@@ -1089,48 +1089,48 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mDHCL.currentURL = requestedUrl;
 
                     if (cachedPage instanceof DiaryListPage) {
-                        mUser.currentDiaries = (DiaryListPage) cachedPage;
+                        mUser.setCurrentDiaries((DiaryListPage) cachedPage);
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     }
 
                     if (cachedPage instanceof DiscListPage) {
-                        mUser.discussions = (DiscListPage) cachedPage;
+                        mUser.setDiscussions((DiscListPage) cachedPage);
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
 
                     if (cachedPage instanceof WebPage) {
-                        mUser.currentDiaryPage = (WebPage) cachedPage;
+                        mUser.setCurrentDiaryPage((WebPage) cachedPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 } else // если нет такого кэша
                 {
                     if (handled == DiaryPage.class) {
                         serializeDiaryPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == CommentsPage.class) {
                         serializeCommentsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == TagsPage.class) {
                         serializeTagsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryProfilePage.class) {
                         serializeProfilePage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryListPage.class) {
                         serializeDiaryListPage(dataPage);
-                        mCache.putPageToCache(requestedUrl, mUser.currentDiaries);
+                        mCache.putPageToCache(requestedUrl, mUser.getCurrentDiaries());
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     } else if (handled == DiscListPage.class) {
                         serializeDiscussionsPage(dataPage);
-                        mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
+                        mCache.putPageToCache(mUser.getDiscussionsUrl(), mUser.getDiscussions());
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     } else if (handled == SearchPage.class) {
                         serializeSearchPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }
@@ -1176,7 +1176,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             case "service.always.running":
                 is_sticky = sharedPreferences.getBoolean(key, false);
                 if (is_sticky)
-                    startForeground(NOTIFICATION_ID, createNotification(mUser.currentDiaryPage));
+                    startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
                 else
                     stopForeground(true);
                 break;

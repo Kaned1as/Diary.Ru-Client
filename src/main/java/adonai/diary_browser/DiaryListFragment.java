@@ -58,7 +58,7 @@ public class DiaryListFragment extends DiaryFragment {
         }
 
         // Только если это дневник
-        if (mCurrentComponent == DiaryListActivity.PART_WEB && mUser.currentDiaryPage.getClass().equals(DiaryPage.class)) {
+        if (mCurrentComponent == DiaryListActivity.PART_WEB && mUser.getCurrentDiaryPage().getClass().equals(DiaryPage.class)) {
             menu.findItem(R.id.menu_tags).setVisible(true);
             menu.findItem(R.id.menu_new_post).setVisible(true);
         } else {
@@ -67,7 +67,7 @@ public class DiaryListFragment extends DiaryFragment {
         }
 
         // Только если это пост
-        if (mCurrentComponent == DiaryListActivity.PART_WEB && mUser.currentDiaryPage.getClass().equals(CommentsPage.class))
+        if (mCurrentComponent == DiaryListActivity.PART_WEB && mUser.getCurrentDiaryPage().getClass().equals(CommentsPage.class))
             menu.findItem(R.id.menu_new_comment).setVisible(true);
         else
             menu.findItem(R.id.menu_new_comment).setVisible(false);
@@ -105,9 +105,9 @@ public class DiaryListFragment extends DiaryFragment {
 
         menu.removeGroup(GROUP_PAGE_LINKS);
         // добавляем ссылки дневника, если они есть
-        if (mUser.currentDiaryPage instanceof DiaryPage) {
+        if (mUser.getCurrentDiaryPage() instanceof DiaryPage) {
             final SubMenu linksMenu = menu.addSubMenu(GROUP_PAGE_LINKS, 0, 0, R.string.diary_links);
-            for (String linkName : ((DiaryPage) mUser.currentDiaryPage).userLinks.keySet())
+            for (String linkName : ((DiaryPage) mUser.getCurrentDiaryPage()).userLinks.keySet())
                 linksMenu.add(ITEM_PAGE_LINKS, 0, 0, linkName);
         }
     }

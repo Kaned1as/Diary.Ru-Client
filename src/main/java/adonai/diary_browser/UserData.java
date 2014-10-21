@@ -10,41 +10,41 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class UserData {
-    final String discussionsURL = "http://www.diary.ru/discussion/";
-    final String favoritesURL = "http://www.diary.ru/list/?act=show&fgroup_id=0";
-    final String subscribersURL = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
-    OnDataChangeListener mListener = null;
-    boolean isAuthorised;
+    private final String discussionsUrl = "http://www.diary.ru/discussion/";
+    private final String favoritesUrl = "http://www.diary.ru/list/?act=show&fgroup_id=0";
+    private final String subscribersUrl = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
+    private OnDataChangeListener mListener = null;
+    private boolean isAuthorised;
     // Динамические списки постов
-    DiaryListPage currentDiaries;
-    DiaryListPage currentUmails;
-    DiscListPage discussions;
-    WebPage currentDiaryPage;
-    UmailPage currentUmailPage;
+    private DiaryListPage currentDiaries;
+    private DiaryListPage currentUmails;
+    private DiscListPage discussions;
+    private WebPage currentDiaryPage;
+    private UmailPage currentUmailPage;
     // Личные данные
-    String ownDiaryURL = "";
-    String ownProfileID = "";
-    String userName = "";
-    String signature = "";
+    private String ownDiaryUrl = "";
+    private String ownProfileId = "";
+    private String userName = "";
+    private String signature = "";
     // число новых постов в дискуссиях
-    Integer newDiscussNum = 0;
-    String newDiscussLink = "";
-    Integer newUmailNum = 0;
-    String newUmailLink = "";
+    private Integer newDiscussNum = 0;
+    private String newDiscussLink = "";
+    private Integer newUmailNum = 0;
+    private String newUmailLink = "";
     // число новых постов в дневнике
-    Integer newDiaryCommentsNum = 0;
-    String newDiaryLink = "";
+    private Integer newDiaryCommentsNum = 0;
+    private String newDiaryLink = "";
 
     UserData() {
-        currentDiaries = new DiaryListPage();
-        currentUmails = new DiaryListPage();
-        currentDiaryPage = new DiaryPage();
-        currentUmailPage = new UmailPage();
-        discussions = new DiscListPage();
+        setCurrentDiaries(new DiaryListPage());
+        setCurrentUmails(new DiaryListPage());
+        setCurrentDiaryPage(new DiaryPage());
+        setCurrentUmailPage(new UmailPage());
+        setDiscussions(new DiscListPage());
     }
 
     public void setOnDataChangeListener(OnDataChangeListener listener) {
-        mListener = listener;
+        setListener(listener);
     }
 
     // обновляем контент
@@ -52,7 +52,7 @@ public class UserData {
         // цифровая подпись
         Element sigNode = tag.getElementsByAttributeValue("name", "signature").first();
         if (sigNode != null)
-            signature = sigNode.attr("value");
+            setSignature(sigNode.attr("value"));
 
         // данные о ссылках на свои страницы
         Elements nodes = tag.select("div#inf_contant, div#myDiaryLinks").select("a[href]");
@@ -60,49 +60,193 @@ public class UserData {
         for (Element node : nodes) {
             // ссылка на свой дневник
             if (node.text().equals("Мой дневник"))
-                ownDiaryURL = node.attr("href");
+                setOwnDiaryUrl(node.attr("href"));
 
             // идентификатор своего профиля
             if (node.attr("href").startsWith("/member/")) {
                 if (!node.text().equals("Мой профиль"))
-                    userName = node.text();
+                    setUserName(node.text());
 
                 String Id = node.attr("href");
-                ownProfileID = Id.substring(Id.lastIndexOf("?") + 1);
+                setOwnProfileId(Id.substring(Id.lastIndexOf("?") + 1));
             }
 
             // дискасс
             if (node.id().equals("menuNewDescussions")) {
                 hasNewDiscussions = true;
-                newDiscussNum = Integer.valueOf(node.text());
-                newDiscussLink = node.attr("href");
+                setNewDiscussNum(Integer.valueOf(node.text()));
+                setNewDiscussLink(node.attr("href"));
             }
 
             // дневник
             // как минимум 3 родителя точно будет - div, body и html, значит, можно не проверять.
             if (node.parent().parent().id().equals("new_comments_count") || node.parent().parent().parent().id().equals("myDiaryLink")) {
                 hasNewDiaryComments = true;
-                newDiaryCommentsNum = Integer.valueOf(node.text());
-                newDiaryLink = node.attr("href");
+                setNewDiaryCommentsNum(Integer.valueOf(node.text()));
+                setNewDiaryLink(node.attr("href"));
             }
 
             // U-мылки
             if (node.attr("href").contains("/u-mail/folder/")) {
                 hasNewUmails = true;
-                newUmailNum = Integer.valueOf(node.text());
-                newUmailLink = node.attr("href");
+                setNewUmailNum(Integer.valueOf(node.text()));
+                setNewUmailLink(node.attr("href"));
             }
         }
 
         if (!hasNewDiscussions)
-            newDiscussNum = 0;
+            setNewDiscussNum(0);
         if (!hasNewDiaryComments)
-            newDiaryCommentsNum = 0;
+            setNewDiaryCommentsNum(0);
         if (!hasNewUmails)
-            newUmailNum = 0;
+            setNewUmailNum(0);
 
         if (mListener != null)
             mListener.handleDataChange();
+    }
+
+    String getDiscussionsUrl() {
+        return discussionsUrl;
+    }
+
+    String getFavoritesUrl() {
+        return favoritesUrl;
+    }
+
+    String getSubscribersUrl() {
+        return subscribersUrl;
+    }
+
+    void setListener(OnDataChangeListener mListener) {
+        this.mListener = mListener;
+    }
+
+    boolean isAuthorised() {
+        return isAuthorised;
+    }
+
+    void setAuthorised(boolean isAuthorised) {
+        this.isAuthorised = isAuthorised;
+    }
+
+    DiaryListPage getCurrentDiaries() {
+        return currentDiaries;
+    }
+
+    void setCurrentDiaries(DiaryListPage currentDiaries) {
+        this.currentDiaries = currentDiaries;
+    }
+
+    DiaryListPage getCurrentUmails() {
+        return currentUmails;
+    }
+
+    void setCurrentUmails(DiaryListPage currentUmails) {
+        this.currentUmails = currentUmails;
+    }
+
+    DiscListPage getDiscussions() {
+        return discussions;
+    }
+
+    void setDiscussions(DiscListPage discussions) {
+        this.discussions = discussions;
+    }
+
+    WebPage getCurrentDiaryPage() {
+        return currentDiaryPage;
+    }
+
+    void setCurrentDiaryPage(WebPage currentDiaryPage) {
+        this.currentDiaryPage = currentDiaryPage;
+    }
+
+    UmailPage getCurrentUmailPage() {
+        return currentUmailPage;
+    }
+
+    void setCurrentUmailPage(UmailPage currentUmailPage) {
+        this.currentUmailPage = currentUmailPage;
+    }
+
+    String getOwnDiaryUrl() {
+        return ownDiaryUrl;
+    }
+
+    void setOwnDiaryUrl(String ownDiaryUrl) {
+        this.ownDiaryUrl = ownDiaryUrl;
+    }
+
+    String getOwnProfileId() {
+        return ownProfileId;
+    }
+
+    void setOwnProfileId(String ownProfileId) {
+        this.ownProfileId = ownProfileId;
+    }
+
+    String getUserName() {
+        return userName;
+    }
+
+    void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    String getSignature() {
+        return signature;
+    }
+
+    void setSignature(String signature) {
+        this.signature = signature;
+    }
+
+    Integer getNewDiscussNum() {
+        return newDiscussNum;
+    }
+
+    void setNewDiscussNum(Integer newDiscussNum) {
+        this.newDiscussNum = newDiscussNum;
+    }
+
+    String getNewDiscussLink() {
+        return newDiscussLink;
+    }
+
+    void setNewDiscussLink(String newDiscussLink) {
+        this.newDiscussLink = newDiscussLink;
+    }
+
+    Integer getNewUmailNum() {
+        return newUmailNum;
+    }
+
+    void setNewUmailNum(Integer newUmailNum) {
+        this.newUmailNum = newUmailNum;
+    }
+
+    String getNewUmailLink() {
+        return newUmailLink;
+    }
+
+    void setNewUmailLink(String newUmailLink) {
+        this.newUmailLink = newUmailLink;
+    }
+
+    Integer getNewDiaryCommentsNum() {
+        return newDiaryCommentsNum;
+    }
+
+    void setNewDiaryCommentsNum(Integer newDiaryCommentsNum) {
+        this.newDiaryCommentsNum = newDiaryCommentsNum;
+    }
+
+    String getNewDiaryLink() {
+        return newDiaryLink;
+    }
+
+    void setNewDiaryLink(String newDiaryLink) {
+        this.newDiaryLink = newDiaryLink;
     }
 
     public interface OnDataChangeListener {

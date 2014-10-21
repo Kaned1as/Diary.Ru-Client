@@ -76,9 +76,9 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             @Override
             public void onRefreshStarted(View view) {
                 if (view == mFolderBrowser)
-                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().currentUmails.getURL());
+                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
                 if (view == mPageBrowser)
-                    handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().currentUmailPage.getPageURL());
+                    handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
             }
         }).setup(mPullToRefreshAttacher);
 
@@ -130,7 +130,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
 
             @Override
             public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-                handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<>(mFolderBrowser.getCheckedItemIds(), getUser().currentUmails.getURL().equals(inFolderAddress) ? 1 : 2));
+                handleBackground(Utils.HANDLE_DELETE_UMAILS, new Pair<>(mFolderBrowser.getCheckedItemIds(), getUser().getCurrentUmails().getURL().equals(inFolderAddress) ? 1 : 2));
                 mode.finish();
                 return true;
             }
@@ -183,16 +183,16 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
                 return true;
             case Utils.HANDLE_DELETE_UMAILS:
-                handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().currentUmails.getURL());
+                handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
                 return true;
             case Utils.HANDLE_OPEN_FOLDER:
                 setCurrentVisibleComponent(PART_LIST);
-                mFolderAdapter = new DiaryListArrayAdapter(UmailListActivity.this, android.R.layout.simple_list_item_1, getUser().currentUmails);
+                mFolderAdapter = new DiaryListArrayAdapter(UmailListActivity.this, android.R.layout.simple_list_item_1, getUser().getCurrentUmails());
                 mFolderBrowser.removeFooterView(mFolderBrowser.findViewWithTag("footer"));
-                if (getUser().currentUmails.getPageLinks() != null) {
+                if (getUser().getCurrentUmails().getPageLinks() != null) {
                     LinearLayout LL = new LinearLayout(mFolderBrowser.getContext());
                     LL.setTag("footer");
-                    Spanned pageLinks = getUser().currentUmails.getPageLinks();
+                    Spanned pageLinks = getUser().getCurrentUmails().getPageLinks();
                     URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
                     for (URLSpan url : URLs) {
                         Button click = new Button(LL.getContext());
@@ -218,8 +218,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.loadDataWithBaseURL(getUser().currentUmailPage.getPageURL(), getUser().currentUmailPage.getContent(), null, "utf-8", getUser().currentUmailPage.getPageURL());
-                setTitle(getUser().currentUmailPage.getTitle());
+                mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageURL(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageURL());
+                setTitle(getUser().getCurrentUmailPage().getTitle());
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 invalidateOptionsMenu();
@@ -265,13 +265,13 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 if (mService.preload_umail)
                     handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_REPLY);
                 else
-                    newUmail(getUser().currentUmailPage);
+                    newUmail(getUser().getCurrentUmailPage());
                 return true;
             case R.id.menu_forward_umail:
                 if (mService.preload_umail)
                     handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_FORWARD);
                 else
-                    newUmail(getUser().currentUmailPage);
+                    newUmail(getUser().getCurrentUmailPage());
                 return true;
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
@@ -301,12 +301,12 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             mail.receiver = receiver.getSenderName();
             mail.messageTheme = receiver.getMessageTheme();
         }
-        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", mail);
+        messagePane.prepareFragment(getUser().getSignature(), "http://www.diary.ru/diary.php", mail);
         slider.openPane();
     }
 
     private void newUmail(Umail composed) {
-        messagePane.prepareFragment(getUser().signature, "http://www.diary.ru/diary.php", composed);
+        messagePane.prepareFragment(getUser().getSignature(), "http://www.diary.ru/diary.php", composed);
         slider.openPane();
     }
 

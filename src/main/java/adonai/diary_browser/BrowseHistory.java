@@ -26,6 +26,10 @@ public class BrowseHistory {
         return urls.size() > 1;
     }
 
+    public boolean isEmpty() {
+        return urls.isEmpty();
+    }
+
     public String getUrl() {
         return urls.get(urls.size() - 1).first;
     }
