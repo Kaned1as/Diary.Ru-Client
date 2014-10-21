@@ -19,6 +19,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.util.Pair;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -321,9 +322,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         String newUrl = mUser.getMostRecentNotification();
                         if(newUrl != null) { // we don't support U-Mails for now
-                            intent.putExtra("url", mUser.getMostRecentNotification());
+                            intent.putExtra("url", newUrl);
                         }
-                        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
+                        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                         mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
                     } else if (mUser.getNewDiscussNum() + mUser.getNewDiaryCommentsNum() + mUser.getNewUmailNum() == 0)
                         mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
@@ -332,6 +333,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_JUST_DO_GET: {
                     if (mDHCL.getPageAsString(message.obj.toString()) != null)
                         notifyListeners(Utils.HANDLE_JUST_DO_GET);
+                    break;
+                }
+                case Utils.HANDLE_QUERY_ONLINE: {
+                    final String dataPage = mDHCL.getPageAsString("http://www.diary.ru");
+                    if (dataPage == null) { // no connection
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        break;
+                    }
+                    HashMap<Integer, Spanned> onlineUsers = new HashMap<>(2);
+                    try {
+                        Document rootNode = Jsoup.parse(dataPage);
+                        mUser.parseData(rootNode);
+                        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
+                        Element content = rootNode.getElementById("container");
+
+                        Element favoritesOnline = content.select("div.sp:nth-child(12)").first();
+                        onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "http://www.diary.ru/member/")));
+
+                        Element subscribersOnline = content.select("div.sp:nth-child(14)").first();
+                        onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "http://www.diary.ru/member/")));
+                    } catch (Exception ignored) {
+
+                    }
+                    notifyListeners(Utils.HANDLE_QUERY_ONLINE, onlineUsers);
                     break;
                 }
                 case Utils.HANDLE_DELETE_UMAILS: {

@@ -1,7 +1,9 @@
 package adonai.diary_browser;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CursorAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -90,13 +94,13 @@ public class DiaryListFragment extends DiaryFragment {
             searchView.setOnQueryTextListener(mUrlListener);
             searchView.setOnSuggestionListener(mUrlSuggestionListener);
 
-            //final ImageView v = (ImageView) searchView.findViewById(android.R.id.search_button);
-            //v.setImageResource(android.R.drawable.ic_menu_edit);
+            final ImageView v = (ImageView) searchView.findViewById(Resources.getSystem().getIdentifier("search_button", "id", "android"));
+            v.setImageResource(android.R.drawable.ic_menu_edit);
 
-            //final EditText text = (EditText) searchView.findViewById(android.R.id.search_src_text);
-            //text.setCursorVisible(false);
-            //text.setHintTextColor(Color.LTGRAY);
-            //text.setTextColor(Color.WHITE);
+            final EditText text = (EditText) searchView.findViewById(Resources.getSystem().getIdentifier("search_src_text", "id", "android"));
+            text.setCursorVisible(false);
+            text.setHintTextColor(Color.LTGRAY);
+            text.setTextColor(Color.WHITE);
         } else {
             menu.findItem(R.id.menu_share).setVisible(true);
             menu.findItem(R.id.menu_subscr_list).setVisible(false);

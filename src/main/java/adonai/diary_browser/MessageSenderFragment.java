@@ -82,6 +82,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_SET_AVATAR = 6;
     private static final int HANDLE_PROGRESS = 8;
     private static final int HANDLE_GET_SMILIES = 9;
+    private static final int HANDLE_SEND_ERROR = -1;
     Handler.Callback UiCallback = new Handler.Callback() {
         public boolean handleMessage(Message message) {
             switch (message.what) {
@@ -175,6 +176,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         mSmilieButtons.addView(current);
                     }
 
+                    pd.dismiss();
+                    break;
+                case HANDLE_SEND_ERROR:
+                    Toast.makeText(getActivity(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                     break;
                 default:
@@ -425,7 +430,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         break;
                 }
             } catch (Exception ignored) {
-                // all URLs are valid
+               mUiHandler.sendEmptyMessage(HANDLE_SEND_ERROR);
             }
 
             return false;

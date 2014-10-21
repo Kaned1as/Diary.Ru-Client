@@ -39,6 +39,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.Comment;
@@ -207,6 +208,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
                 else
                     newPostPost();
+                return true;
+            case R.id.menu_show_online_list:
+                handleBackground(Utils.HANDLE_QUERY_ONLINE, null);
                 return true;
             case R.id.menu_new_comment:
                 newCommentPost();
@@ -478,6 +482,28 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_PRELOAD_THEMES:
                 Post newPost = (Post) message.obj;
                 newPostPost(newPost);
+                break;
+            case Utils.HANDLE_QUERY_ONLINE:
+                HashMap<Integer, Spanned> onliners = (HashMap<Integer, Spanned>) message.obj;
+                if(onliners.isEmpty()) {
+                    Toast.makeText(DiaryListActivity.this, getString(R.string.nobody_here), Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.whos_online);
+                View aboutContent = HotLayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
+                TextView favs = (TextView) aboutContent.findViewById(R.id.favs_online);
+                favs.setMovementMethod(LinkMovementMethod.getInstance());
+                if(onliners.containsKey(R.string.favourites_online)) {
+                    favs.setText(onliners.get(R.string.favourites_online));
+                }
+                TextView subs = (TextView) aboutContent.findViewById(R.id.subs_online);
+                favs.setMovementMethod(LinkMovementMethod.getInstance());
+                if(onliners.containsKey(R.string.subscribers_online)) {
+                    subs.setText(onliners.get(R.string.subscribers_online));
+                }
+                builder.setView(aboutContent);
+                builder.create().show();
                 break;
         }
 

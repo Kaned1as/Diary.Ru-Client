@@ -58,6 +58,12 @@
         android:icon="@drawable/ic_menu_allfriends"
         android:showAsAction="ifRoom|withText" />
 
+    <item
+        android:id="@+id/menu_show_online_list"
+        android:title="@string/whos_online"
+        android:icon="@android:drawable/ic_menu_help"
+        android:showAsAction="ifRoom|withText" />
+
     <group android:id="@+id/group_web">
         <item
             android:id="@+id/menu_refresh"

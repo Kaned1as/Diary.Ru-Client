@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="10dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/favourites_online"
+        android:id="@+id/favs_online_label"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:tag="@string/tag_label_style" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/favs_online"
+        android:linksClickable="true"
+        android:padding="3dp"
+        android:textColorLink="#ff5f1600" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="@string/subscribers_online"
+        android:id="@+id/subs_online_label"
+        android:layout_gravity="center_horizontal"
+        android:textStyle="bold"
+        android:tag="@string/tag_label_style" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/subs_online"
+        android:linksClickable="true"
+        android:padding="3dp"
+        android:textColorLink="#ff5f1600" />
+</LinearLayout>
