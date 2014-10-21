@@ -79,7 +79,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public DiaryHttpClient mDHCL = new DiaryHttpClient();
     public SharedPreferences mPreferences;
 
-    private CacheManager mCache = CacheManager.getInstance();
     private PowerManager.WakeLock waker;
 
     private Handler mHandler;
@@ -1069,9 +1068,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         try
         {
-            if(mCache.hasPage(requestedUrl) && !reload)
+            if(CacheManager.getInstance().hasPage(requestedUrl) && !reload)
             {
-                cachedPage = mCache.loadPageFromCache(requestedUrl);
+                cachedPage = CacheManager.getInstance().loadPageFromCache(requestedUrl);
                 handled = cachedPage.getClass();
             }
             else
@@ -1129,43 +1128,43 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     if(handled == DiaryPage.class)
                     {
                         serializeDiaryPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        CacheManager.getInstance().putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if (handled == CommentsPage.class)
                     {
                         serializeCommentsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        CacheManager.getInstance().putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == TagsPage.class)
                     {
                         serializeTagsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        CacheManager.getInstance().putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == DiaryProfilePage.class)
                     {
                         serializeProfilePage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        CacheManager.getInstance().putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                     else if(handled == DiaryListPage.class)
                     {
                         serializeDiaryListPage(dataPage);
-                        mCache.putPageToCache(requestedUrl, mUser.currentDiaries);
+                        CacheManager.getInstance().putPageToCache(requestedUrl, mUser.currentDiaries);
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     }
                     else if(handled == DiscListPage.class)
                     {
                         serializeDiscussionsPage(dataPage);
-                        mCache.putPageToCache(mUser.discussionsURL, mUser.discussions);
+                        CacheManager.getInstance().putPageToCache(mUser.discussionsURL, mUser.discussions);
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     }
                     else if(handled == SearchPage.class)
                     {
                         serializeSearchPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
+                        CacheManager.getInstance().putPageToCache(mDHCL.currentURL, mUser.currentDiaryPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }
@@ -1261,7 +1260,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     {
         mUser = new UserData();
         mDHCL.getCookieStore().removeAll();
-        mCache.clear();
+        CacheManager.getInstance().clear();
     }
 
     private static String getCssContent(Context ctx) {
