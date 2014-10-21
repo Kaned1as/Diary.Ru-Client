@@ -56,7 +56,7 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
+public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -124,12 +124,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         initializeUI(mainPane.getView());
     }
 
-
-    @Override
-    public void handleDataChange() {
-        mUiHandler.sendEmptyMessage(Utils.HANDLE_UPDATE_HEADERS);
-    }
-
     public void initializeUI(View main) {
         getActionBar().setHomeButtonEnabled(true);
 
@@ -195,7 +189,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     protected void onDestroy() {
         mService.removeListener(this);
-        getUser().setOnDataChangeListener(null);
 
         super.onDestroy();
 
@@ -301,8 +294,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch (message.what) {
             case Utils.HANDLE_START:
                 mService.addListener(this);
-                getUser().setOnDataChangeListener(this);
-
                 if (pageToLoad != null) {
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
                     pageToLoad = null;

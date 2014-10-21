@@ -291,6 +291,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     final Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
+                    notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
                     final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     if (mUser.getNewDiaryCommentsNum() + mUser.getNewDiscussNum() + mUser.getNewUmailNum() > 0 && (!lastLinks[0].equals(mUser.getNewDiaryLink()) || !lastLinks[1].equals(mUser.getNewDiscussLink()) || !lastLinks[2].equals(mUser.getNewUmailLink()))) // старые данные или нет?
@@ -318,6 +319,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                         final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        String newUrl = mUser.getMostRecentNotification();
+                        if(newUrl != null) { // we don't support U-Mails for now
+                            intent.putExtra("url", mUser.getMostRecentNotification());
+                        }
                         notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
                         mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
                     } else if (mUser.getNewDiscussNum() + mUser.getNewDiaryCommentsNum() + mUser.getNewUmailNum() == 0)
@@ -660,6 +665,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         mUser.setCurrentDiaries(new DiaryListPage(mDHCL.currentURL));
 
@@ -696,6 +702,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
 
@@ -740,6 +747,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         final SearchPage scannedSearch = new SearchPage(mDHCL.currentURL);
 
@@ -769,6 +777,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         CommentsPage scannedPost = new CommentsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
 
@@ -818,6 +827,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
 
@@ -841,6 +851,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         TagsPage scannedTags = new TagsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
 
@@ -874,6 +885,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         mUser.getDiscussions().clear();
         mUser.getDiscussions().setURL(mDHCL.currentURL);
@@ -917,6 +929,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         mUser.setCurrentUmails(new DiaryListPage(mDHCL.currentURL));
 
@@ -967,6 +980,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         Document rootNode = Jsoup.parse(dataPage);
         mUser.parseData(rootNode);
+        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         scannedUmail.setUmailURL(mDHCL.currentURL);
         scannedUmail.setUmailID(scannedUmail.getUmailURL().substring(scannedUmail.getUmailURL().lastIndexOf('=') + 1));

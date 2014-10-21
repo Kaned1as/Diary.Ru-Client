@@ -13,7 +13,7 @@ public class UserData {
     private final String discussionsUrl = "http://www.diary.ru/discussion/";
     private final String favoritesUrl = "http://www.diary.ru/list/?act=show&fgroup_id=0";
     private final String subscribersUrl = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
-    private OnDataChangeListener mListener = null;
+
     private boolean isAuthorised;
     // Динамические списки постов
     private DiaryListPage currentDiaries;
@@ -41,10 +41,6 @@ public class UserData {
         setCurrentDiaryPage(new DiaryPage());
         setCurrentUmailPage(new UmailPage());
         setDiscussions(new DiscListPage());
-    }
-
-    public void setOnDataChangeListener(OnDataChangeListener listener) {
-        setListener(listener);
     }
 
     // обновляем контент
@@ -100,9 +96,6 @@ public class UserData {
             setNewDiaryCommentsNum(0);
         if (!hasNewUmails)
             setNewUmailNum(0);
-
-        if (mListener != null)
-            mListener.handleDataChange();
     }
 
     String getDiscussionsUrl() {
@@ -115,10 +108,6 @@ public class UserData {
 
     String getSubscribersUrl() {
         return subscribersUrl;
-    }
-
-    void setListener(OnDataChangeListener mListener) {
-        this.mListener = mListener;
     }
 
     boolean isAuthorised() {
@@ -249,7 +238,14 @@ public class UserData {
         this.newDiaryLink = newDiaryLink;
     }
 
-    public interface OnDataChangeListener {
-        public void handleDataChange();
+    public String getMostRecentNotification() {
+        if (newDiscussNum > 0) {
+            return newDiscussLink;
+        } else if (newDiaryCommentsNum > 0) {
+            return newDiaryLink;
+        } /* else if (newUmailNum > 0)
+            return newUmailLink; */
+
+        return null;
     }
 }
