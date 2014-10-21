@@ -77,7 +77,7 @@ public class ThemePreference extends DialogPreference {
         verticalContainer.addView(cssColors);
 
         mCssMappings = NetworkService.getCssColors(getContext());
-        for(final Map.Entry<String, String> pair : mCssMappings.entrySet()) {
+        for (final Map.Entry<String, String> pair : mCssMappings.entrySet()) {
             LinearLayout item = (LinearLayout) HotLayoutInflater.from(getContext()).inflate(R.layout.color_list_item, verticalContainer, false);
             TextView label = (TextView) item.findViewById(R.id.text_label);
             label.setText(pair.getKey());
@@ -95,7 +95,7 @@ public class ThemePreference extends DialogPreference {
         interfaceColors.setText(R.string.interface_themes);
         verticalContainer.addView(interfaceColors);
 
-        final DatabaseHandler database = ((PreferencesScreen)getContext()).getDatabase();
+        final DatabaseHandler database = ((PreferencesScreen) getContext()).getDatabase();
         Cursor themeBindings = database.getThemesCursor();
         while (themeBindings.moveToNext()) {
             LinearLayout item = new LinearLayout(getContext());
@@ -107,8 +107,8 @@ public class ThemePreference extends DialogPreference {
             label.setText(themeBindings.getString(ThemeField.TITLE.ordinal()));
             item.addView(label);
 
-            for(int columnIndex = 2; columnIndex < themeBindings.getColumnCount(); ++columnIndex) {
-                if(!themeBindings.isNull(columnIndex)) {
+            for (int columnIndex = 2; columnIndex < themeBindings.getColumnCount(); ++columnIndex) {
+                if (!themeBindings.isNull(columnIndex)) {
                     final String type = themeBindings.getString(0);
                     switch (themeBindings.getType(columnIndex)) {
                         case Cursor.FIELD_TYPE_INTEGER:
@@ -133,8 +133,7 @@ public class ThemePreference extends DialogPreference {
     }
 
     @Override
-    protected void onPrepareDialogBuilder(AlertDialog.Builder builder)
-    {
+    protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
         builder.setNeutralButton(R.string.reset, this);
     }
@@ -152,6 +151,13 @@ public class ThemePreference extends DialogPreference {
                 resetColors();
                 break;
         }
+    }
+
+    private void resetColors() {
+        final DatabaseHandler database = ((PreferencesScreen) getContext()).getDatabase();
+        database.resetColors();
+        HotTheme.updateTheme();
+        NetworkService.resetCssColors(getContext());
     }
 
     private class CssOnClickListener implements View.OnClickListener {
@@ -177,7 +183,7 @@ public class ThemePreference extends DialogPreference {
             cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
                 @Override
                 public void onColorChanged(int i) {
-                    colorChooserEdit.setText(String.format("%06x",  0xFFFFFF & cp.getColor()));
+                    colorChooserEdit.setText(String.format("%06x", 0xFFFFFF & cp.getColor()));
                 }
             });
             colorChooserEdit.addTextChangedListener(new TextWatcher() {
@@ -194,10 +200,10 @@ public class ThemePreference extends DialogPreference {
                 @Override
                 public void afterTextChanged(Editable s) {
                     String text = s.toString();
-                    if(s.length() == 6) {
+                    if (s.length() == 6) {
                         try {
                             int color = Color.parseColor("#" + text);
-                            if(cp.getColor() != color) {
+                            if (cp.getColor() != color) {
                                 cp.setColor(color);
                             }
                         } catch (IllegalArgumentException ignored) {
@@ -248,7 +254,7 @@ public class ThemePreference extends DialogPreference {
             cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
                 @Override
                 public void onColorChanged(int i) {
-                    colorChooserEdit.setText(String.format("%08x",  cp.getColor()));
+                    colorChooserEdit.setText(String.format("%08x", cp.getColor()));
                 }
             });
             colorChooserEdit.addTextChangedListener(new TextWatcher() {
@@ -265,10 +271,10 @@ public class ThemePreference extends DialogPreference {
                 @Override
                 public void afterTextChanged(Editable s) {
                     String text = s.toString();
-                    if(s.length() == 8) {
+                    if (s.length() == 8) {
                         try {
                             int color = Color.parseColor("#" + text);
-                            if(cp.getColor() != color) {
+                            if (cp.getColor() != color) {
                                 cp.setColor(color);
                             }
                         } catch (IllegalArgumentException ignored) {
@@ -290,13 +296,6 @@ public class ThemePreference extends DialogPreference {
                 }
             }).create().show();
         }
-    }
-
-    private void resetColors() {
-        final DatabaseHandler database = ((PreferencesScreen)getContext()).getDatabase();
-        database.resetColors();
-        HotTheme.updateTheme();
-        NetworkService.resetCssColors(getContext());
     }
 
 }

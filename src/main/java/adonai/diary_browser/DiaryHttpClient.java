@@ -15,21 +15,18 @@ import java.net.CookieStore;
 import java.net.HttpURLConnection;
 import java.net.URI;
 
-public class DiaryHttpClient 
-{
+public class DiaryHttpClient {
     private final String USER_AGENT_STRING = "Mozilla/5.0 (X11; Linux x86_64; rv:29.0) Gecko/20100101 Firefox/29.0";
     private final CookieManager manager;
     String currentURL = "";
 
-    public DiaryHttpClient() 
-    {
+    public DiaryHttpClient() {
         manager = new CookieManager();
         manager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
         CookieHandler.setDefault(manager);
     }
 
-    public CookieStore getCookieStore()
-    {
+    public CookieStore getCookieStore() {
         return manager.getCookieStore();
     }
 
@@ -37,11 +34,9 @@ public class DiaryHttpClient
         return postPageToString(url, data, null);
     }
 
-    public String postPageToString(String url, HttpEntity data, ProgressListener listener)
-    {
+    public String postPageToString(String url, HttpEntity data, ProgressListener listener) {
         HttpURLConnection httpPost = null;
-        try
-        {
+        try {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             httpPost = (HttpURLConnection) address.toURL().openConnection();
             httpPost.setDoOutput(true);
@@ -49,7 +44,7 @@ public class DiaryHttpClient
             setDefaultParameters(httpPost);
 
             final OutputStream os;
-            if(listener != null) {
+            if (listener != null) {
                 httpPost.setChunkedStreamingMode(8192);
                 os = new CountingOutputStream(httpPost.getOutputStream(), listener);
             } else
@@ -60,51 +55,44 @@ public class DiaryHttpClient
             os.close();
 
             return getResponseString(httpPost);
-        }
-        catch (Exception ignored) {}
-        finally
-        {
-            if(httpPost != null)
+        } catch (Exception ignored) {
+        } finally {
+            if (httpPost != null)
                 httpPost.disconnect();
         }
 
         return null;
     }
 
-    public String getPageAsString(String url)
-    {
-        if(url.startsWith("file"))
+    public String getPageAsString(String url) {
+        if (url.startsWith("file"))
             return null; // Не загружать локальные
 
         HttpURLConnection httpGet = null;
-        try
-        {
+        try {
             final URI address = new URI(currentURL).resolve(url);
             httpGet = (HttpURLConnection) address.toURL().openConnection();
             setDefaultParameters(httpGet);
 
             return getResponseString(httpGet);
-        }
-        catch (Exception ignored) {} // stream close / timeout
-        finally
-        {
-            if(httpGet != null)
+        } catch (Exception ignored) {
+        } // stream close / timeout
+        finally {
+            if (httpGet != null)
                 httpGet.disconnect();
         }
 
         return null;
     }
 
-    public byte[] getPageAsByteArray(String url)
-    {
-        if(url.startsWith("file"))
+    public byte[] getPageAsByteArray(String url) {
+        if (url.startsWith("file"))
             return null; // Не загружать локальные
 
         HttpURLConnection httpGet = null;
-        try
-        {
+        try {
             final URI address = new URI(currentURL).resolve(url);
-            httpGet  = (HttpURLConnection) address.toURL().openConnection();
+            httpGet = (HttpURLConnection) address.toURL().openConnection();
             setDefaultParameters(httpGet);
             // getting bytes of image
             final InputStream is = httpGet.getInputStream();
@@ -117,33 +105,29 @@ public class DiaryHttpClient
             httpGet.disconnect();
 
             return output.toByteArray();
-        }
-        catch (Exception ignored) {} // stream close / timeout
-        finally
-        {
-            if(httpGet != null)
+        } catch (Exception ignored) {
+        } // stream close / timeout
+        finally {
+            if (httpGet != null)
                 httpGet.disconnect();
         }
 
         return null;
     }
 
-    public String getPageAndContextAsString(String url)
-    {
+    public String getPageAndContextAsString(String url) {
         HttpURLConnection httpGet = null;
-        try
-        {
+        try {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             httpGet = (HttpURLConnection) address.toURL().openConnection();
             setDefaultParameters(httpGet);
 
             return getResponseString(httpGet);
-        }
-        catch (Exception ignored) {} // stream close / timeout
-        finally
-        {
-            if(httpGet != null)
+        } catch (Exception ignored) {
+        } // stream close / timeout
+        finally {
+            if (httpGet != null)
                 httpGet.disconnect();
         }
 
@@ -187,43 +171,43 @@ public class DiaryHttpClient
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public HttpURLConnection getPageAndContext(String url)
-    {
-        try
-        {
+    public HttpURLConnection getPageAndContext(String url) {
+        try {
             final URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
             currentURL = address.toURL().toString();
             final HttpURLConnection httpGet = (HttpURLConnection) address.toURL().openConnection();
             setDefaultParameters(httpGet);
             return httpGet;
+        } catch (Exception ignored) {
         }
-        catch (Exception ignored) {}
 
         return null;
     }
 
-    public static interface ProgressListener
-    {
-        void transferred(long transferredBytes);
+    private void setDefaultParameters(HttpURLConnection conn) {
+        conn.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
+        conn.setConnectTimeout(5000);
+        conn.setReadTimeout(5000);
     }
 
 
-    static class CountingOutputStream extends FilterOutputStream
-    {
+    public static interface ProgressListener {
+        void transferred(long transferredBytes);
+    }
+
+    static class CountingOutputStream extends FilterOutputStream {
 
         private final ProgressListener listener;
         private long transferred;
 
-        CountingOutputStream(final OutputStream out, final ProgressListener listener)
-        {
+        CountingOutputStream(final OutputStream out, final ProgressListener listener) {
             super(out);
             this.listener = listener;
             this.transferred = 0;
         }
 
         @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException
-        {
+        public void write(final byte[] b, final int off, final int len) throws IOException {
             //// NO, double-counting, as super.write(byte[], int, int) delegates to write(int).
             //super.write(b, off, len);
             out.write(b, off, len);
@@ -232,18 +216,11 @@ public class DiaryHttpClient
         }
 
         @Override
-        public void write(final int b) throws IOException
-        {
+        public void write(final int b) throws IOException {
             out.write(b);
             this.transferred++;
             this.listener.transferred(this.transferred);
         }
 
-    }
-
-    private void setDefaultParameters(HttpURLConnection conn) {
-        conn.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
     }
 }

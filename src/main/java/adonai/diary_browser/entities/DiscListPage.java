@@ -2,21 +2,18 @@ package adonai.diary_browser.entities;
 
 import java.util.ArrayList;
 
-public class DiscListPage extends ArrayList<DiscPage>
-{
+public class DiscListPage extends ArrayList<DiscPage> {
     private String pageURL = null;
 
-    public DiscListPage()
-    {
+    public DiscListPage() {
 
     }
 
-    public String getURL()
-    {
+    public String getURL() {
         return pageURL;
     }
-    public void setURL(String _URL)
-    {
+
+    public void setURL(String _URL) {
         this.pageURL = _URL;
     }
 }

@@ -16,6 +16,14 @@ public class HotLayoutInflater {
         this.inflater = inflater;
     }
 
+    public static HotLayoutInflater wrap(LayoutInflater layoutInflater) {
+        return new HotLayoutInflater(layoutInflater);
+    }
+
+    public static HotLayoutInflater from(Context context) {
+        return new HotLayoutInflater(LayoutInflater.from(context));
+    }
+
     public View inflate(int resource, ViewGroup root, boolean attachToRoot) {
         View v = inflater.inflate(resource, root, attachToRoot);
         HotTheme.manage(v);
@@ -26,14 +34,6 @@ public class HotLayoutInflater {
         View v = inflater.inflate(resource, root);
         HotTheme.manage(v);
         return v;
-    }
-
-    public static HotLayoutInflater wrap(LayoutInflater layoutInflater) {
-        return new HotLayoutInflater(layoutInflater);
-    }
-
-    public static HotLayoutInflater from(Context context) {
-        return new HotLayoutInflater(LayoutInflater.from(context));
     }
 
 }

@@ -1,17 +1,14 @@
 package adonai.diary_browser.entities;
 
-public abstract class WebPage
-{
+public abstract class WebPage {
     private String content;
     private String title;
-    
-    public String getContent()
-    {
+
+    public String getContent() {
         return content;
     }
 
-    public void setContent(String resultPage)
-    {
+    public void setContent(String resultPage) {
         this.content = resultPage;
     }
 

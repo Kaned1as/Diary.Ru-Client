@@ -14,56 +14,48 @@ import adonai.diary_browser.R;
 import adonai.diary_browser.theming.HotLayoutInflater;
 import adonai.diary_browser.theming.HotTheme;
 
-public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
-{
+public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
     ArrayList<Long> checkedIds = new ArrayList<Long>();
 
-    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<ListPage> objects)
-    {
+    public DiaryListArrayAdapter(Context context, int textViewResourceId, List<ListPage> objects) {
         super(context, textViewResourceId, objects);
     }
 
-    public void addSelection(Long id)
-    {
+    public void addSelection(Long id) {
         checkedIds.add(id);
     }
 
-    public void removeSelection(Long id)
-    {
+    public void removeSelection(Long id) {
         checkedIds.remove(id);
     }
 
-    public void clearSelections()
-    {
+    public void clearSelections() {
         checkedIds.clear();
     }
 
     @Override
-    public long getItemId(int position)
-    {
+    public long getItemId(int position) {
         ListPage page = getItem(position);
-        if(page instanceof UmailListPage)
+        if (page instanceof UmailListPage)
             return ((UmailListPage) page).getId();
         else
             return position;
     }
 
     @Override
-    public boolean hasStableIds()
-    {
+    public boolean hasStableIds() {
         return true;
     }
 
     @Override
-    public View getView(int pos, View convertView, ViewGroup parent)
-    {
+    public View getView(int pos, View convertView, ViewGroup parent) {
         View view;
         ListPage diary = getItem(pos);
         if (convertView == null)
             view = HotLayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
         else
             view = convertView;
-        
+
         TextView title = (TextView) view.findViewById(R.id.title);
         title.setText(diary.getTitle());
         TextView author = (TextView) view.findViewById(R.id.author);
@@ -71,16 +63,16 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage>
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
 
-        if(checkedIds.contains(getItemId(pos)))
+        if (checkedIds.contains(getItemId(pos)))
             view.setBackgroundColor(Color.LTGRAY);
         else
             HotTheme.manage(view);
 
-        if(diary instanceof UmailListPage && !((UmailListPage)diary).isRead())
+        if (diary instanceof UmailListPage && !((UmailListPage) diary).isRead())
             title.setTextColor(Color.RED);
         else
             HotTheme.manage(view);
-        
+
         return view;
     }
 }

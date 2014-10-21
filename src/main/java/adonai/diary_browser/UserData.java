@@ -9,50 +9,33 @@ import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
-public class UserData
-{
+public class UserData {
     final String discussionsURL = "http://www.diary.ru/discussion/";
     final String favoritesURL = "http://www.diary.ru/list/?act=show&fgroup_id=0";
     final String subscribersURL = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
-
-    public interface OnDataChangeListener
-    {
-        public void handleDataChange();
-    }
-
     OnDataChangeListener mListener = null;
-    public void setOnDataChangeListener(OnDataChangeListener listener)
-    {
-        mListener = listener;
-    }
     boolean isAuthorised;
-
     // Динамические списки постов
     DiaryListPage currentDiaries;
     DiaryListPage currentUmails;
     DiscListPage discussions;
     WebPage currentDiaryPage;
     UmailPage currentUmailPage;
-
     // Личные данные
     String ownDiaryURL = "";
     String ownProfileID = "";
     String userName = "";
     String signature = "";
-
     // число новых постов в дискуссиях
     Integer newDiscussNum = 0;
     String newDiscussLink = "";
-
     Integer newUmailNum = 0;
     String newUmailLink = "";
-
     // число новых постов в дневнике
     Integer newDiaryCommentsNum = 0;
     String newDiaryLink = "";
 
-    UserData()
-    {
+    UserData() {
         currentDiaries = new DiaryListPage();
         currentUmails = new DiaryListPage();
         currentDiaryPage = new DiaryPage();
@@ -60,9 +43,12 @@ public class UserData
         discussions = new DiscListPage();
     }
 
+    public void setOnDataChangeListener(OnDataChangeListener listener) {
+        mListener = listener;
+    }
+
     // обновляем контент
-    public void parseData(Element tag)
-    {
+    public void parseData(Element tag) {
         // цифровая подпись
         Element sigNode = tag.getElementsByAttributeValue("name", "signature").first();
         if (sigNode != null)
@@ -71,16 +57,14 @@ public class UserData
         // данные о ссылках на свои страницы
         Elements nodes = tag.select("div#inf_contant, div#myDiaryLinks").select("a[href]");
         boolean hasNewDiscussions = false, hasNewDiaryComments = false, hasNewUmails = false;
-        for(Element node : nodes)
-        {
+        for (Element node : nodes) {
             // ссылка на свой дневник
-            if(node.text().equals("Мой дневник"))
+            if (node.text().equals("Мой дневник"))
                 ownDiaryURL = node.attr("href");
 
             // идентификатор своего профиля
-            if(node.attr("href").startsWith("/member/"))
-            {
-                if(!node.text().equals("Мой профиль"))
+            if (node.attr("href").startsWith("/member/")) {
+                if (!node.text().equals("Мой профиль"))
                     userName = node.text();
 
                 String Id = node.attr("href");
@@ -88,8 +72,7 @@ public class UserData
             }
 
             // дискасс
-            if(node.id().equals("menuNewDescussions"))
-            {
+            if (node.id().equals("menuNewDescussions")) {
                 hasNewDiscussions = true;
                 newDiscussNum = Integer.valueOf(node.text());
                 newDiscussLink = node.attr("href");
@@ -97,30 +80,32 @@ public class UserData
 
             // дневник
             // как минимум 3 родителя точно будет - div, body и html, значит, можно не проверять.
-            if(node.parent().parent().id().equals("new_comments_count") || node.parent().parent().parent().id().equals("myDiaryLink"))
-            {
+            if (node.parent().parent().id().equals("new_comments_count") || node.parent().parent().parent().id().equals("myDiaryLink")) {
                 hasNewDiaryComments = true;
                 newDiaryCommentsNum = Integer.valueOf(node.text());
                 newDiaryLink = node.attr("href");
             }
 
             // U-мылки
-            if(node.attr("href").contains("/u-mail/folder/"))
-            {
+            if (node.attr("href").contains("/u-mail/folder/")) {
                 hasNewUmails = true;
                 newUmailNum = Integer.valueOf(node.text());
                 newUmailLink = node.attr("href");
             }
         }
 
-        if(!hasNewDiscussions)
+        if (!hasNewDiscussions)
             newDiscussNum = 0;
-        if(!hasNewDiaryComments)
+        if (!hasNewDiaryComments)
             newDiaryCommentsNum = 0;
-        if(!hasNewUmails)
+        if (!hasNewUmails)
             newUmailNum = 0;
 
-        if(mListener != null)
+        if (mListener != null)
             mListener.handleDataChange();
+    }
+
+    public interface OnDataChangeListener {
+        public void handleDataChange();
     }
 }

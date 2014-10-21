@@ -1,17 +1,14 @@
 package adonai.diary_browser.entities;
 
-public class DiaryProfilePage extends WebPage
-{
+public class DiaryProfilePage extends WebPage {
     private String profileURL;
 
-    public DiaryProfilePage(String profileURL)
-    {
+    public DiaryProfilePage(String profileURL) {
         this.profileURL = profileURL;
     }
 
     @Override
-    public String getPageURL()
-    {
+    public String getPageURL() {
         return profileURL;
     }
 }

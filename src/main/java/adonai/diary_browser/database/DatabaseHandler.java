@@ -18,6 +18,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "diaryDB";
     public static final int DB_VERSION = 2;
+    public static final String AUTOCOMPLETIONS_TABLE_NAME = "autocomplete";
+    /**
+     * Null-value fields mean that no particular color can be chosen for particular widget
+     */
+    public static final String THEME_TABLE_NAME = "theme";
+
+    public DatabaseHandler(Context context) {
+        super(context, DATABASE_NAME, null, DB_VERSION);
+    }
 
     public void resetColors() {
         SQLiteDatabase db = getWritableDatabase();
@@ -38,47 +47,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
     }
 
-    public static enum AutocompleteType
-    {
-        URL,
-        TITLE,
-        THEME,
-        MUSIC,
-        MOOD
-    }
-
-    public static final String AUTOCOMPLETIONS_TABLE_NAME = "autocomplete";
-    public enum AutocompleteFields
-    {
-        _id,
-        TYPE,
-        TEXT,
-        TITLE
-    }
-
-    /**
-     * Null-value fields mean that no particular color can be chosen for particular widget
-     */
-    public static final String THEME_TABLE_NAME = "theme";
-    public enum ThemeField
-    {
-        KEY,
-        TITLE,
-        BACKGROUND_COLOR,
-        UP_COLOR,
-        DOWN_COLOR,
-        TEXT_COLOR,
-        HINT_COLOR,
-    }
-
-    public DatabaseHandler(Context context)
-    {
-        super(context, DATABASE_NAME, null, DB_VERSION);
-    }
-
     @Override
-    public void onCreate(SQLiteDatabase db)
-    {
+    public void onCreate(SQLiteDatabase db) {
         db.execSQL("CREATE TABLE " + AUTOCOMPLETIONS_TABLE_NAME + " (" +
                 AutocompleteFields._id + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 AutocompleteFields.TYPE + " INTEGER NOT NULL, " +
@@ -123,7 +93,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if(oldVersion == 1 && newVersion == 2) {
+        if (oldVersion == 1 && newVersion == 2) {
             db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
                     ThemeField.KEY + " TEXT PRIMARY KEY, " +
                     ThemeField.TITLE + " TEXT NOT NULL, " +
@@ -158,9 +128,9 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public HashMap<ThemeField, Object> getThemeRow(String type) {
         HashMap<ThemeField, Object> themeRow = new HashMap<>(5);
         Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, "KEY = ?", new String[]{type}, null, null, null, null);
-        if(cursor.moveToFirst()) {
-            for(int i = 2; i < cursor.getColumnCount(); ++i) {
-                if(!cursor.isNull(i)) {
+        if (cursor.moveToFirst()) {
+            for (int i = 2; i < cursor.getColumnCount(); ++i) {
+                if (!cursor.isNull(i)) {
                     switch (cursor.getType(i)) {
                         case Cursor.FIELD_TYPE_INTEGER:
                             themeRow.put(ThemeField.valueOf(cursor.getColumnName(i)), cursor.getInt(i));
@@ -181,7 +151,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     public void modifyThemeRow(String type, ThemeField field, Object value) {
         ContentValues cv = new ContentValues(3);
-        if(value instanceof Integer) {
+        if (value instanceof Integer) {
             cv.put(field.toString(), (Integer) value);
         } else if (value instanceof String) {
             cv.put(field.toString(), (String) value);
@@ -197,8 +167,33 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         final ContentValues cv = new ContentValues(3);
         cv.put(AutocompleteFields.TYPE.toString(), type.ordinal());
         cv.put(AutocompleteFields.TEXT.toString(), query);
-        if(caption != null)
+        if (caption != null)
             cv.put(AutocompleteFields.TITLE.toString(), caption);
         getWritableDatabase().insertWithOnConflict(AUTOCOMPLETIONS_TABLE_NAME, null, cv, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public static enum AutocompleteType {
+        URL,
+        TITLE,
+        THEME,
+        MUSIC,
+        MOOD
+    }
+
+    public enum AutocompleteFields {
+        _id,
+        TYPE,
+        TEXT,
+        TITLE
+    }
+
+    public enum ThemeField {
+        KEY,
+        TITLE,
+        BACKGROUND_COLOR,
+        UP_COLOR,
+        DOWN_COLOR,
+        TEXT_COLOR,
+        HINT_COLOR,
     }
 }

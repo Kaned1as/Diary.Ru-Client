@@ -10,54 +10,44 @@ import android.widget.TextView;
 import adonai.diary_browser.R;
 import adonai.diary_browser.theming.HotLayoutInflater;
 
-public class DiscListArrayAdapter extends BaseExpandableListAdapter
-{
+public class DiscListArrayAdapter extends BaseExpandableListAdapter {
     DiscListPage discussions;
     Context context;
 
-    public DiscListArrayAdapter(Context ctx, DiscListPage discussions)
-    {
+    public DiscListArrayAdapter(Context ctx, DiscListPage discussions) {
         this.discussions = discussions;
         this.context = ctx;
     }
 
-    public int getGroupCount()
-    {
+    public int getGroupCount() {
         return discussions.size();
     }
 
-    public int getChildrenCount(int groupPosition)
-    {
+    public int getChildrenCount(int groupPosition) {
         return discussions.get(groupPosition).getDiscussions().size();
     }
 
-    public Object getGroup(int groupPosition)
-    {
+    public Object getGroup(int groupPosition) {
         return discussions.get(groupPosition);
     }
 
-    public Object getChild(int groupPosition, int childPosition)
-    {
+    public Object getChild(int groupPosition, int childPosition) {
         return discussions.get(groupPosition).getDiscussions().get(childPosition);
     }
 
-    public long getGroupId(int groupPosition)
-    {
+    public long getGroupId(int groupPosition) {
         return groupPosition;
     }
 
-    public long getChildId(int groupPosition, int childPosition)
-    {
+    public long getChildId(int groupPosition, int childPosition) {
         return groupPosition * 1000 + childPosition;
     }
 
-    public boolean hasStableIds()
-    {
+    public boolean hasStableIds() {
         return false;
     }
 
-    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent)
-    {
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         View view;
         DiscPage discussion = (DiscPage) getGroup(groupPosition);
         if (convertView == null)
@@ -69,7 +59,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         title.setText(discussion.getTitle());
         TextView newPosts = (TextView) view.findViewById(R.id.discussion_last_post);
         newPosts.setText(discussion.getLastPost());
-        if(!discussion.getLastPost().contains("/0"))
+        if (!discussion.getLastPost().contains("/0"))
             newPosts.setTextColor(Color.RED);
         else
             newPosts.setTextColor(Color.BLACK);
@@ -77,8 +67,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         return view;
     }
 
-    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent)
-    {
+    public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
         View view;
         DiscPage.Discussion discussion = (DiscPage.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
@@ -94,8 +83,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter
         return view;
     }
 
-    public boolean isChildSelectable(int groupPosition, int childPosition)
-    {
+    public boolean isChildSelectable(int groupPosition, int childPosition) {
         return true;
     }
 

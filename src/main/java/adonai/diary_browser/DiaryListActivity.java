@@ -56,63 +56,50 @@ import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
-public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor
-{
+public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, UserData.OnDataChangeListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
     public static final int TAB_DISCUSSIONS = 3;
-
-    int mCurrentTab = 0;
-
     static final int PART_LIST = 0;
     static final int PART_WEB = 1;
     static final int PART_DISC_LIST = 2;
-
+    public BrowseHistory browserHistory;
+    int mCurrentTab = 0;
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     DiscListArrayAdapter mDiscussionsAdapter;
-
     TextView mLogin;
     Button mDiscussNum;
     Button mCommentsNum;
     TextView mUmailNum;
     ListView mDiaryBrowser;
-
     ExpandableListView mDiscussionBrowser;
-
     ImageButton mExitButton;
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
     ImageButton mScrollButton;
     LinearLayout mTabs;
-
-    public BrowseHistory browserHistory;
     Handler mUiHandler;
 
     // Часть кода относится к кнопке быстрой промотки
-    private Runnable fadeAnimation = new Runnable()
-    {
+    private Runnable fadeAnimation = new Runnable() {
         @Override
         public void run() {
             Animation animation = AnimationUtils.loadAnimation(mScrollButton.getContext(), android.R.anim.fade_out);
-            animation.setAnimationListener(new Animation.AnimationListener()
-            {
+            animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
-                public void onAnimationStart(Animation animation)
-                {
+                public void onAnimationStart(Animation animation) {
                 }
 
                 @Override
-                public void onAnimationEnd(Animation animation)
-                {
+                public void onAnimationEnd(Animation animation) {
                     mScrollButton.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
-                public void onAnimationRepeat(Animation animation)
-                {
+                public void onAnimationRepeat(Animation animation) {
                 }
             });
             mScrollButton.startAnimation(animation);
@@ -120,8 +107,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     };
 
     @Override
-    public void onCreate(Bundle savedInstanceState)
-    {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
 
@@ -140,13 +126,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
 
     @Override
-    public void handleDataChange()
-    {
+    public void handleDataChange() {
         mUiHandler.sendEmptyMessage(Utils.HANDLE_UPDATE_HEADERS);
     }
 
-    public void initializeUI(View main)
-    {
+    public void initializeUI(View main) {
         getActionBar().setHomeButtonEnabled(true);
 
         mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
@@ -154,16 +138,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mPageBrowser.setDefaultSettings();
         mPageBrowser.setOnClickListener(this);
         registerForContextMenu(mPageBrowser);
-        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener()
-        {
+        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener() {
             @Override
-            public void onRefreshStarted(View view)
-            {
-                if(view == mPageBrowser)
+            public void onRefreshStarted(View view) {
+                if (view == mPageBrowser)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaryPage.getPageURL(), true));
-                if(view == mDiaryBrowser)
+                if (view == mDiaryBrowser)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaries.getURL(), true));
-                if(view == mDiscussionBrowser)
+                if (view == mDiscussionBrowser)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().discussionsURL, true));
             }
         }).setup(mPullToRefreshAttacher);
@@ -181,11 +163,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         mDiaryBrowser = (ListView) main.findViewById(R.id.diary_browser);
         mDiaryBrowser.setOnItemLongClickListener(this);
-        mDiaryBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
+        mDiaryBrowser.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(diary.getURL(), false));
             }
@@ -193,8 +173,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mDiscussionBrowser = (ExpandableListView) main.findViewById(R.id.discussion_browser);
 
         mTabs = (LinearLayout) main.findViewById(R.id.tabs);
-        for(int i = 0; i < mTabs.getChildCount(); i++)
-        {
+        for (int i = 0; i < mTabs.getChildCount(); i++) {
             Button current = (Button) mTabs.getChildAt(i);
             current.setOnClickListener(this);
             current.setOnLongClickListener(this);
@@ -214,8 +193,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         mService.removeListener(this);
         getUser().setOnDataChangeListener(null);
 
@@ -225,16 +203,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     // старые телефоны тоже должны работать
     @Override
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
-        if(item.getGroupId() == DiaryListFragment.ITEM_PAGE_LINKS)
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getGroupId() == DiaryListFragment.ITEM_PAGE_LINKS)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage) getUser().currentDiaryPage).userLinks.get(item.getTitle()), false));
 
 
-        switch(item.getItemId())
-        {
+        switch (item.getItemId()) {
             case R.id.menu_new_post:
-                if(mService.preload_themes)
+                if (mService.preload_themes)
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
                 else
                     newPostPost();
@@ -271,8 +247,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case R.id.menu_tags:
                 // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
-                if(getUser().currentDiaryPage instanceof DiaryPage) // следим чтобы текущая страничка обязательно была в пределах иерархии
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage)getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage)getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
+                if (getUser().currentDiaryPage instanceof DiaryPage) // следим чтобы текущая страничка обязательно была в пределах иерархии
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage) getUser().currentDiaryPage).getDiaryURL().substring(0, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().subscribersURL, false));
@@ -297,80 +273,67 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo)
-    {
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
 
-        if(v.getId() == R.id.page_browser)
-        {
+        if (v.getId() == R.id.page_browser) {
             Message msg = Message.obtain(mUiHandler, Utils.HANDLE_IMAGE_CLICK);
             mPageBrowser.requestImageRef(msg);
         }
     }
 
     @Override
-    protected void onResume()
-    {
+    protected void onResume() {
         super.onResume();
-        if(getIntent().hasExtra("url"))
-        {
+        if (getIntent().hasExtra("url")) {
             pageToLoad = getIntent().getStringExtra("url");
             getIntent().removeExtra("url");
-        }
-        else if (getIntent().getData() != null)
-        {
+        } else if (getIntent().getData() != null) {
             pageToLoad = getIntent().getDataString();
             getIntent().setData(null);
-            if(mService != null) // if ativity is already running, just redirect to needed page
+            if (mService != null) // if ativity is already running, just redirect to needed page
                 mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
         }
     }
 
     @Override
-    public boolean handleMessage(Message message)
-    {
-        switch (message.what)
-        {
+    public boolean handleMessage(Message message) {
+        switch (message.what) {
             case Utils.HANDLE_START:
                 mService.addListener(this);
                 getUser().setOnDataChangeListener(this);
 
-                if(pageToLoad != null)
-                {
+                if (pageToLoad != null) {
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
                     pageToLoad = null;
-                }
-                else if (mFavouritesAdapter == null) // запускаем в первый раз
+                } else if (mFavouritesAdapter == null) // запускаем в первый раз
                     setCurrentTab(TAB_FAVOURITES, false);
                 return true;
             case Utils.HANDLE_PROGRESS:
-                if(pd != null)
+                if (pd != null)
                     pd.setMessage(getString(R.string.parsing_data));
                 return true;
             case Utils.HANDLE_PROGRESS_2:
-                if(pd != null)
+                if (pd != null)
                     pd.setMessage(getString(R.string.sorting_data));
                 return true;
             case Utils.HANDLE_UPDATE_HEADERS:
                 // обрабатываем обновление контента
                 mLogin.setText(getUser().userName);
-                if(getUser().newDiaryCommentsNum != 0)
+                if (getUser().newDiaryCommentsNum != 0)
                     mCommentsNum.setText(getString(R.string.my_diary) + " - " + getUser().newDiaryCommentsNum.toString());
                 else
                     mCommentsNum.setText(getString(R.string.my_diary));
 
-                if(getUser().newDiscussNum != 0)
+                if (getUser().newDiscussNum != 0)
                     mDiscussNum.setText(getString(R.string.discussions) + " - " + getUser().newDiscussNum);
                 else
                     mDiscussNum.setText(getString(R.string.discussions));
 
-                if(getUser().newUmailNum != 0)
-                {
+                if (getUser().newUmailNum != 0) {
                     mUmailNum.setText(getUser().newUmailNum.toString());
                     mUmailNum.setVisibility(View.VISIBLE);
-                }
-                else
-                {
+                } else {
                     mUmailNum.setText("");
                     mUmailNum.setVisibility(View.GONE);
                 }
@@ -384,14 +347,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiaryBrowser.removeFooterView(mDiaryBrowser.findViewWithTag("footer"));
                 mFavouritesAdapter = new DiaryListArrayAdapter(DiaryListActivity.this, android.R.layout.simple_list_item_1, getUser().currentDiaries);
                 mDiaryBrowser.setAdapter(mFavouritesAdapter);
-                if(getUser().currentDiaries.getPageLinks() != null)
-                {
+                if (getUser().currentDiaries.getPageLinks() != null) {
                     LinearLayout LL = new LinearLayout(mDiaryBrowser.getContext());
                     LL.setTag("footer");
                     Spanned pageLinks = getUser().currentDiaries.getPageLinks();
                     URLSpan[] URLs = pageLinks.getSpans(0, pageLinks.length(), URLSpan.class);
-                    for(URLSpan url : URLs)
-                    {
+                    for (URLSpan url : URLs) {
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
@@ -426,10 +387,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleTabChange(getUser().currentDiaryPage.getPageURL());
 
                     setTitle(getUser().currentDiaryPage.getTitle());
-                    if(getUser().currentDiaryPage.getClass() == DiaryPage.class)
+                    if (getUser().currentDiaryPage.getClass() == DiaryPage.class)
                         mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().currentDiaryPage.getPageURL(), getUser().currentDiaryPage.getTitle());
-                }
-                else // it's image
+                } else // it's image
                 {
                     String src = (String) message.obj;
                     mPageBrowser.loadUrl(src);
@@ -459,22 +419,19 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 int pos = (Integer) message.obj;
                 mDiscussionBrowser.expandGroup(pos);
                 break;
-            case Utils.HANDLE_NAME_CLICK:
-            {
+            case Utils.HANDLE_NAME_CLICK: {
                 String href = message.getData().getString("url");
-                if(href != null && href.contains("#form") && slider.isDouble())
-                {
+                if (href != null && href.contains("#form") && slider.isDouble()) {
                     slider.openPane();
                     String name = message.getData().getString("title");
-                    if(name != null)
+                    if (name != null)
                         messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L], ");
                 }
                 break;
             }
-            case Utils.HANDLE_IMAGE_CLICK:
-            {
+            case Utils.HANDLE_IMAGE_CLICK: {
                 final String src = message.getData().getString("url");
-                if(src == null) // нет картинки!
+                if (src == null) // нет картинки!
                     return false;
 
                 ArrayList<String> itemsBuilder = new ArrayList<>();
@@ -485,13 +442,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
                 AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
                 builder.setTitle(R.string.image_action);
-                builder.setItems(items, new DialogInterface.OnClickListener()
-                {
+                builder.setItems(items, new DialogInterface.OnClickListener() {
                     @SuppressWarnings("deprecation")
-                    public void onClick(DialogInterface dialog, int item)
-                    {
-                        switch(item)
-                        {
+                    public void onClick(DialogInterface dialog, int item) {
+                        switch (item) {
                             case DiaryWebView.IMAGE_SAVE: // save
                             {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
@@ -519,19 +473,19 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             }
             break;
             case Utils.HANDLE_EDIT_POST:
-                Post sendPost = (Post)message.obj;
+                Post sendPost = (Post) message.obj;
                 editPost(sendPost);
                 break;
             case Utils.HANDLE_EDIT_COMMENT:
-                Comment sendComment = (Comment)message.obj;
+                Comment sendComment = (Comment) message.obj;
                 editComment(sendComment);
                 break;
             case Utils.HANDLE_REPOST:
-                Post repost = (Post)message.obj;
+                Post repost = (Post) message.obj;
                 newPostPost(repost);
                 break;
             case Utils.HANDLE_PRELOAD_THEMES:
-                Post newPost = (Post)message.obj;
+                Post newPost = (Post) message.obj;
                 newPostPost(newPost);
                 break;
         }
@@ -541,37 +495,28 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    protected void onMessagePaneRemove(boolean reload)
-    {
+    protected void onMessagePaneRemove(boolean reload) {
         super.onMessagePaneRemove(reload);
-        if(reload)
+        if (reload)
             reloadContent();
     }
 
-    private void handleTabChange(String url)
-    {
+    private void handleTabChange(String url) {
         // Обработка случая, когда URL страницы совпадает с URL одного из табов
-        if(url.equals(getUser().favoritesURL))
-        {
+        if (url.equals(getUser().favoritesURL)) {
             setTitle(R.string.title_activity_diary_list);
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 0;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
-        }
-        else if(url.equals(getUser().ownDiaryURL + "?favorite"))
-        {
+        } else if (url.equals(getUser().ownDiaryURL + "?favorite")) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 1;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
-        }
-        else if(url.equals(getUser().ownDiaryURL) || getUser().newDiaryLink.startsWith(url))
-        {
+        } else if (url.equals(getUser().ownDiaryURL) || getUser().newDiaryLink.startsWith(url)) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 2;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
-        }
-        else if(url.equals(getUser().discussionsURL) || getUser().newDiscussLink.startsWith(url))
-        {
+        } else if (url.equals(getUser().discussionsURL) || getUser().newDiscussLink.startsWith(url)) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 3;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
@@ -579,14 +524,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     // Часть кода относится к кнопке быстрой промотки
-    void handleScroll(int direction)
-    {
+    void handleScroll(int direction) {
         mScrollButton.setVisibility(View.VISIBLE);
         mScrollButton.removeCallbacks(fadeAnimation);
         mScrollButton.clearAnimation();
         mScrollButton.postDelayed(fadeAnimation, 2000);
-        switch (direction)
-        {
+        switch (direction) {
             case Utils.VIEW_SCROLL_DOWN:
                 mScrollButton.setImageResource(R.drawable.overscroll_button_down);
                 break;
@@ -597,16 +540,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     }
 
-    public void onClick(View view)
-    {
-        if (view == mExitButton)
-        {
+    public void onClick(View view) {
+        if (view == mExitButton) {
             AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
             builder.setTitle(R.string.really_exit);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
-            {
-                public void onClick(DialogInterface dialog, int item)
-                {
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
                     Editor lysosome = mService.mPreferences.edit();
                     lysosome.remove(Utils.KEY_USERNAME);
                     lysosome.remove(Utils.KEY_PASSWORD);
@@ -624,44 +563,33 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             });
             builder.setNegativeButton(android.R.string.no, null);
             builder.create().show();
-        }
-        else if (view == mQuotesButton)
-        {
+        } else if (view == mQuotesButton) {
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL + "?quote", false));
-        }
-        else if (view == mUmailButton)
-        {
+        } else if (view == mUmailButton) {
             Intent postIntent = new Intent(getApplicationContext(), UmailListActivity.class);
             startActivity(postIntent);
-        }
-        else if (view == mScrollButton)
-        {
+        } else if (view == mScrollButton) {
             // Офигительная штука, документации по которой нет.
             // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
-            if(mPageBrowser.scrolling == Utils.VIEW_SCROLL_DOWN)
+            if (mPageBrowser.scrolling == Utils.VIEW_SCROLL_DOWN)
                 mPageBrowser.flingScroll(0, 100000);
             else
                 mPageBrowser.flingScroll(0, -100000);
-        }
-        else if (view == mUmailNum)
-        {
+        } else if (view == mUmailNum) {
             Intent postIntent = new Intent(getApplicationContext(), UmailListActivity.class);
             postIntent.putExtra("url", getUser().newUmailLink);
             startActivity(postIntent);
-        }
-        else if (view.getParent() == mTabs)   // Если это кнопка табов
+        } else if (view.getParent() == mTabs)   // Если это кнопка табов
         {
             setCurrentTab(mTabs.indexOfChild(view), false);
-        }
-        else if (view.getTag(R.integer.button_url) != null)  // нижние кнопки списков
+        } else if (view.getTag(R.integer.button_url) != null)  // нижние кнопки списков
         {
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String)view.getTag(R.integer.button_url), false));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String) view.getTag(R.integer.button_url), false));
         }
     }
 
     @Override
-    public boolean onLongClick(View view)
-    {
+    public boolean onLongClick(View view) {
         // по долгому клику принудительно входим в дневник/дискуссии без читки новых сообщений
         if (view.getParent() == mTabs)
             setCurrentTab(mTabs.indexOfChild(view), true);
@@ -670,45 +598,37 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     // Загружаем дискуссии
-    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id)
-    {
+    public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
         String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
         handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(link, false));
         return true;
     }
 
-    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id)
-    {
-        if(parent.isGroupExpanded(groupPosition))
-        {
+    public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+        if (parent.isGroupExpanded(groupPosition)) {
             parent.collapseGroup(groupPosition);
             return true;
         }
 
-        if(((DiscPage)parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty())
-        {
+        if (((DiscPage) parent.getExpandableListAdapter().getGroup(groupPosition)).getDiscussions().isEmpty()) {
             ArrayList<Object> params = new ArrayList<>();
             params.add(groupPosition);
             params.add(mDiscussionBrowser.getExpandableListAdapter().getGroup(groupPosition));
             params.add(false);
             handleBackground(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, params);
-        }
-        else
+        } else
             parent.expandGroup(groupPosition);
         return true;
     }
 
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
-    {
-        if(parent == mDiscussionBrowser)
-        {
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        if (parent == mDiscussionBrowser) {
             ExpandableListView elv = (ExpandableListView) parent;
-            if(ExpandableListView.getPackedPositionType(id) != ExpandableListView.PACKED_POSITION_TYPE_GROUP)
+            if (ExpandableListView.getPackedPositionType(id) != ExpandableListView.PACKED_POSITION_TYPE_GROUP)
                 return false;
 
             int groupPosition = ExpandableListView.getPackedPositionGroup(id);
-            if(elv.isGroupExpanded(groupPosition))
-            {
+            if (elv.isGroupExpanded(groupPosition)) {
                 elv.collapseGroup(groupPosition);
                 return true;
             }
@@ -720,8 +640,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             return true;
         }
 
-        if(parent == mDiaryBrowser)
-        {
+        if (parent == mDiaryBrowser) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
             builder.setMessage(diary.getPageHint()).create().show();
@@ -734,36 +653,33 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
      * (non-Javadoc) Sets the contents to current tab and hides everything other. In addition, refreshes content on
      * page, if needed.
      */
-    private void setCurrentTab(int index, boolean force)
-    {
-        switch (index)
-        {
+    private void setCurrentTab(int index, boolean force) {
+        switch (index) {
             case TAB_FAVOURITES:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().favoritesURL, false));
-            break;
+                break;
             case TAB_FAV_POSTS:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL + "?favorite", false));
-            break;
+                break;
             case TAB_MY_DIARY:
-                if(getUser().newDiaryCommentsNum != 0 && !force)
+                if (getUser().newDiaryCommentsNum != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().newDiaryLink, true));
                 else
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().ownDiaryURL, false));
-            break;
+                break;
             case TAB_DISCUSSIONS:
-                if(getUser().newDiscussNum != 0 && !force)
+                if (getUser().newDiscussNum != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().newDiscussLink, true));
                 else
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().discussionsURL, false));
-            break;
+                break;
             default:
                 Utils.showDevelSorry(this);
-            break;
+                break;
         }
     }
 
-    private void setCurrentVisibleComponent(int needed)
-    {   
+    private void setCurrentVisibleComponent(int needed) {
         mDiaryBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
         mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
@@ -772,21 +688,18 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mainPane.mCurrentComponent = needed;
     }
 
-    private void reloadContent()
-    {
-        if(mainPane.mCurrentComponent == PART_WEB)
+    private void reloadContent() {
+        if (mainPane.mCurrentComponent == PART_WEB)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().currentDiaryPage.getPageURL(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().favoritesURL, true));
     }
 
     @Override
-    public void onBackPressed()
-    {
-        if(slider.isOpen())
+    public void onBackPressed() {
+        if (slider.isOpen())
             slider.closePane();
-        else if(browserHistory.hasPrevious())
-        {
+        else if (browserHistory.hasPrevious()) {
             browserHistory.moveBack();
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(browserHistory.getUrl(), false));
         } else
@@ -794,16 +707,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    public boolean onSearchRequested()
-    {
+    public boolean onSearchRequested() {
         int visibility = mTabs.getVisibility();
-        if(visibility == View.GONE)
-        {
+        if (visibility == View.GONE) {
             mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.VISIBLE);
             mTabs.setVisibility(View.VISIBLE);
-        }
-        else
-        {
+        } else {
             mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.GONE);
             mTabs.setVisibility(View.GONE);
         }
@@ -811,64 +720,58 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         return super.onSearchRequested();
     }
 
-    public void newPostPost()
-    {
-        if(!(getUser().currentDiaryPage instanceof DiaryPage))
+    public void newPostPost() {
+        if (!(getUser().currentDiaryPage instanceof DiaryPage))
             return;
 
-        if(((DiaryPage)getUser().currentDiaryPage).getDiaryID().equals(""))
+        if (((DiaryPage) getUser().currentDiaryPage).getDiaryID().equals(""))
             return;
 
         Post post = new Post();
-        post.diaryID = ((DiaryPage)getUser().currentDiaryPage).getDiaryID();
+        post.diaryID = ((DiaryPage) getUser().currentDiaryPage).getDiaryID();
 
         messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", post);
         slider.openPane();
     }
 
-    public void newPostPost(Post post)
-    {
-        if(!(getUser().currentDiaryPage instanceof DiaryPage))
+    public void newPostPost(Post post) {
+        if (!(getUser().currentDiaryPage instanceof DiaryPage))
             return;
 
-        if(((DiaryPage)getUser().currentDiaryPage).getDiaryID().equals(""))
+        if (((DiaryPage) getUser().currentDiaryPage).getDiaryID().equals(""))
             return;
 
         messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", post);
         slider.openPane();
     }
 
-    public void newCommentPost()
-    {
-        if(!(getUser().currentDiaryPage instanceof CommentsPage))
+    public void newCommentPost() {
+        if (!(getUser().currentDiaryPage instanceof CommentsPage))
             return;
 
-        if(((CommentsPage)getUser().currentDiaryPage).getPostID().equals(""))
+        if (((CommentsPage) getUser().currentDiaryPage).getPostID().equals(""))
             return;
 
         Comment comment = new Comment();
-        comment.postID = ((CommentsPage)getUser().currentDiaryPage).getPostID();
+        comment.postID = ((CommentsPage) getUser().currentDiaryPage).getPostID();
 
         messagePane.prepareFragment(getUser().signature, ((CommentsPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", comment);
         slider.openPane();
     }
 
-    public void editPost(Post post)
-    {
+    public void editPost(Post post) {
         messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", post);
         slider.openPane();
     }
 
-    public void editComment(Comment comment)
-    {
+    public void editComment(Comment comment) {
         messagePane.prepareFragment(getUser().signature, ((DiaryPage) getUser().currentDiaryPage).getDiaryURL() + "diary.php", comment);
         slider.openPane();
     }
 
     @SuppressWarnings("deprecation")
     @Override
-    public void acceptDialogClick(View view, boolean pasteClipboard)
-    {
+    public void acceptDialogClick(View view, boolean pasteClipboard) {
         messagePane.acceptDialogClick(view, pasteClipboard);
     }
 }

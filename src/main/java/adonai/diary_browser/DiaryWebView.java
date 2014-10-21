@@ -24,20 +24,19 @@ import adonai.diary_browser.entities.Umail;
 // Это была шутка.
 // Если что, я не хотел обидеть никаких печальных разработчиков
 @SuppressLint("SetJavaScriptEnabled")
-public class DiaryWebView extends WebView
-{
+public class DiaryWebView extends WebView {
     public static final int MILLIS_TO_FAST_SCROLL = 200;
 
- // текущий контекст
+    // текущий контекст
     public static final int IMAGE_SAVE = 0;
     public static final int IMAGE_COPY_URL = 1;
     public static final int IMAGE_OPEN = 2;
 
     DiaryActivity mActivity;
     int scrolling = 0;
+    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
 
-    public DiaryWebView(Context context, AttributeSet attrs)
-    {
+    public DiaryWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -47,63 +46,23 @@ public class DiaryWebView extends WebView
         init();
     }
 
-    public DiaryWebView(Context context)
-    {
+    public DiaryWebView(Context context) {
         super(context);
         init();
     }
 
-    public void init()
-    {
-        if(getContext() instanceof DiaryActivity)
+    public void init() {
+        if (getContext() instanceof DiaryActivity)
             mActivity = (DiaryActivity) getContext();
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event)
-    {
+    public boolean onTouchEvent(MotionEvent event) {
         mGestureDetector.onTouchEvent(event);
         return super.onTouchEvent(event);
     }
 
-    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
-
-    private class webGestureDetector extends GestureDetector.SimpleOnGestureListener
-    {
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY)
-        {
-            if(mActivity instanceof DiaryListActivity)
-                if(e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL)
-                {
-                    if(distanceY > 90)
-                    {
-                        scrolling = Utils.VIEW_SCROLL_DOWN;
-                        ((DiaryListActivity)mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
-                    }
-                    else if (distanceY < -90)
-                    {
-                        scrolling = Utils.VIEW_SCROLL_UP;
-                        ((DiaryListActivity)mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
-                    }
-                }
-
-
-            return false;
-        }
-
-        @Override
-        public boolean onSingleTapConfirmed(MotionEvent e)
-        {
-            Message msg = Message.obtain(mActivity.mUiHandler, Utils.HANDLE_NAME_CLICK);
-            mActivity.mPageBrowser.requestFocusNodeHref(msg);
-
-            return super.onSingleTapConfirmed(e);
-        }
-    }
-
-    public void setDefaultSettings()
-    {
+    public void setDefaultSettings() {
         WebSettings settings = getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("windows-1251");
@@ -113,20 +72,42 @@ public class DiaryWebView extends WebView
         setWebChromeClient(new WebChromeClient());
     }
 
-    private class DiaryWebClient extends WebViewClient
-    {
+    private class webGestureDetector extends GestureDetector.SimpleOnGestureListener {
         @Override
-        public void onPageFinished(WebView view, String url)
-        {
-            if(mActivity instanceof DiaryListActivity)
-            {
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            if (mActivity instanceof DiaryListActivity)
+                if (e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL) {
+                    if (distanceY > 90) {
+                        scrolling = Utils.VIEW_SCROLL_DOWN;
+                        ((DiaryListActivity) mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
+                    } else if (distanceY < -90) {
+                        scrolling = Utils.VIEW_SCROLL_UP;
+                        ((DiaryListActivity) mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
+                    }
+                }
+
+
+            return false;
+        }
+
+        @Override
+        public boolean onSingleTapConfirmed(MotionEvent e) {
+            Message msg = Message.obtain(mActivity.mUiHandler, Utils.HANDLE_NAME_CLICK);
+            mActivity.mPageBrowser.requestFocusNodeHref(msg);
+
+            return super.onSingleTapConfirmed(e);
+        }
+    }
+
+    private class DiaryWebClient extends WebViewClient {
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            if (mActivity instanceof DiaryListActivity) {
                 final Integer pos = ((DiaryListActivity) mActivity).browserHistory.getPosition();
-                if(pos > 0)
-                    view.postDelayed(new Runnable()
-                    {
+                if (pos > 0)
+                    view.postDelayed(new Runnable() {
                         @Override
-                        public void run()
-                        {
+                        public void run() {
                             scrollTo(0, pos);
                         }
                     }, 1000);
@@ -135,20 +116,16 @@ public class DiaryWebView extends WebView
         }
 
         @Override
-        public boolean shouldOverrideUrlLoading(WebView  view, String  url)
-        {
-            if(url.contains("diary"))
-            {
-                if(url.contains("?delpost&postid=")) // удаление поста
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            if (url.contains("diary")) {
+                if (url.contains("?delpost&postid=")) // удаление поста
                 {
                     final String id = url.substring(url.lastIndexOf("=") + 1);
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
-                    {
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
+                        public void onClick(DialogInterface dialog, int which) {
                             mActivity.handleBackground(Utils.HANDLE_DELETE_POST, id);
                         }
                     }).setNegativeButton(android.R.string.no, null);
@@ -157,21 +134,19 @@ public class DiaryWebView extends WebView
                     return true;
                 }
 
-                if(url.contains("newpost&quote_")) { // кнопка репоста
+                if (url.contains("newpost&quote_")) { // кнопка репоста
                     mActivity.handleBackground(Utils.HANDLE_REPOST, url);
                     return true;
                 }
 
-                if(url.contains("?delcomment&commentid=")) // удаление коммента
+                if (url.contains("?delcomment&commentid=")) // удаление коммента
                 {
                     final String id = url.substring(url.lastIndexOf("=") + 1);
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener()
-                    {
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
-                        public void onClick(DialogInterface dialog, int which)
-                        {
+                        public void onClick(DialogInterface dialog, int which) {
                             mActivity.handleBackground(Utils.HANDLE_DELETE_COMMENT, id);
                         }
                     }).setNegativeButton(android.R.string.no, null);
@@ -180,29 +155,26 @@ public class DiaryWebView extends WebView
                     return true;
                 }
 
-                if(url.contains("?editpost&postid=")) // редактирование поста
+                if (url.contains("?editpost&postid=")) // редактирование поста
                 {
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
                     return true;
                 }
 
-                if(url.contains("?editcomment&commentid=")) // редактирование комментария
+                if (url.contains("?editcomment&commentid=")) // редактирование комментария
                 {
                     mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
                     return true;
                 }
 
-                if(url.contains("u-mail/?new&username=")) // послать кому-то U-Mail
+                if (url.contains("u-mail/?new&username=")) // послать кому-то U-Mail
                 {
-                    try
-                    {
+                    try {
                         Umail withAddress = new Umail();
                         withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
                         mActivity.messagePane.prepareFragment(mActivity.getUser().signature, "http://www.diary.ru/diary.php", withAddress);
                         mActivity.slider.openPane();
-                    }
-                    catch (UnsupportedEncodingException e)
-                    {
+                    } catch (UnsupportedEncodingException e) {
                         Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();
                     }
                     return true;
@@ -210,14 +182,13 @@ public class DiaryWebView extends WebView
 
 
                 // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
-                if(url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature=") || url.contains("down&signature=") || url.contains("?fav_add&userid=") || url.contains("?fav_del&userid="))
-                {
+                if (url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature=") || url.contains("down&signature=") || url.contains("?fav_add&userid=") || url.contains("?fav_del&userid=")) {
                     mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
                     return true;
                 }
             }
-            if(mActivity instanceof DiaryListActivity)
-                ((DiaryListActivity)mActivity).browserHistory.setPosition(getScrollY());
+            if (mActivity instanceof DiaryListActivity)
+                ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
 
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.getUser().currentDiaryPage.getPageURL())));
             return true;

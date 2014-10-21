@@ -1,11 +1,9 @@
 package adonai.diary_browser.entities;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class Post extends Comment
-{
+public class Post extends Comment {
     // Идентификатор дневника
     public String diaryID = "";
     // ссылка на пост
