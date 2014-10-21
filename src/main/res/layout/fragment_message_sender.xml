@@ -68,7 +68,7 @@
             android:ems="10"
             android:hint="@string/message_title"
             android:imeOptions="actionNext"
-            android:inputType="textCapWords|textEmailSubject"
+            android:inputType="textEmailSubject"
             android:maxLines="1"
             android:tag="@string/tag_edit_style"/>
 
