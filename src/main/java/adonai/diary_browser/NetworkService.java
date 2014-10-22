@@ -348,10 +348,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
                         Element content = rootNode.getElementById("container");
 
-                        Element favoritesOnline = content.select("div.sp:nth-child(12)").first();
+                        Element favoritesOnline = content.select("span.sel:containsOwn(в том числе мои избранные) + div.sp").first();
                         onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "http://www.diary.ru/member/")));
 
-                        Element subscribersOnline = content.select("div.sp:nth-child(14)").first();
+                        Element subscribersOnline = content.select("span.sel:containsOwn(и мои постоянные читатели) + div.sp").first();
                         onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "http://www.diary.ru/member/")));
                     } catch (Exception ignored) {
 
@@ -742,11 +742,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         // заполняем ссылки (пока что только какие можем обработать)
         // TODO: сделать generic-обработчик всех таких ссылок и вынести в новую процедуру (убрать tags)
-        Elements userLinks = rootNode.select("div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
+        Elements userLinks = rootNode.select("li#tagslistlink, div#thisCommunityMember li, div#thisCommunity li, div#thisDiaryLinks li");
         for (Element link : userLinks)
-            if (link.id().equals("communityMyPosts") || link.id().equals("communityFav") || link.id().equals("communityQuote") ||
-                    link.id().equals("authorFav") || link.id().equals("authorQuot"))
-                scannedDiary.userLinks.put(link.text(), link.child(0).attr("href")); //they all contain <a> tag first
+            if (link.id().matches("communityMyPosts|communityFav|communityQuote|authorFav|authorQuot|tagslistlink"))
+                scannedDiary.userLinks.put(link.child(0).text(), link.child(0).attr("href")); //they all contain <a> tag first
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");

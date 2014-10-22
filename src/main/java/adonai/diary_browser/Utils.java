@@ -90,7 +90,7 @@ public class Utils {
         if (response.contains("class=\"table r\""))
             return DiaryListPage.class;
 
-        if (response.contains("name=\"membershiplist\""))
+        if (response.contains("name=\"membershiplist\"") || response.contains("Профиль пользователя"))
             return DiaryProfilePage.class;
 
         if (response.contains("id=\"all_bits\""))

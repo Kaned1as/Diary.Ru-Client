@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="tag_layout_style">!layout|LAYOUT</string>
-    <string name="tag_statusbar_style">!status_layout|LAYOUT</string>
-    <string name="tag_loginlabel_style">!loginlabel|TEXT</string>
-    <string name="tag_button_style">!button|BUTTON</string>
-    <string name="tag_listview_style">!listview|LISTVIEW</string>
-    <string name="tag_listitem_style">!listitem|LISTITEM</string>
-    <string name="tag_listitem_title_style">!listitem_title|TEXT</string>
-    <string name="tag_listitem_signature_style">!listitem_signature|TEXT</string>
-    <string name="tag_horizontal_divider_style">!horizontal_divider|LAYOUT</string>
-    <string name="tag_vertical_divider_style">!vertical_divider|LAYOUT</string>
-    <string name="tag_edit_style">!edit|EDIT</string>
-    <string name="tag_label_style">!label|TEXT</string>
-    <string name="tag_actionbar_style">!actionbar|ACTIONBAR</string>
-    <string name="tag_checkbox_style">!checkbox|CHECKBOX</string>
+    <string name="tag_layout_style" translatable="false">!layout|LAYOUT</string>
+    <string name="tag_statusbar_style" translatable="false">!status_layout|LAYOUT</string>
+    <string name="tag_loginlabel_style" translatable="false">!loginlabel|TEXT</string>
+    <string name="tag_button_style" translatable="false">!button|BUTTON</string>
+    <string name="tag_listview_style" translatable="false">!listview|LISTVIEW</string>
+    <string name="tag_listitem_style" translatable="false">!listitem|LISTITEM</string>
+    <string name="tag_listitem_title_style" translatable="false">!listitem_title|TEXT</string>
+    <string name="tag_listitem_signature_style" translatable="false">!listitem_signature|TEXT</string>
+    <string name="tag_horizontal_divider_style" translatable="false">!horizontal_divider|LAYOUT</string>
+    <string name="tag_vertical_divider_style" translatable="false">!vertical_divider|LAYOUT</string>
+    <string name="tag_edit_style" translatable="false">!edit|EDIT</string>
+    <string name="tag_label_style" translatable="false">!label|TEXT</string>
+    <string name="tag_actionbar_style" translatable="false">!actionbar|ACTIONBAR</string>
+    <string name="tag_checkbox_style" translatable="false">!checkbox|CHECKBOX</string>
 
     <integer name="button_url">100</integer>
     <integer name="avatar_id">101</integer>

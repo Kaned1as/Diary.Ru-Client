@@ -63,10 +63,8 @@ public class DiaryListFragment extends DiaryFragment {
 
         // Только если это дневник
         if (mCurrentComponent == DiaryListActivity.PART_WEB && mUser.getCurrentDiaryPage().getClass().equals(DiaryPage.class)) {
-            menu.findItem(R.id.menu_tags).setVisible(true);
             menu.findItem(R.id.menu_new_post).setVisible(true);
         } else {
-            menu.findItem(R.id.menu_tags).setVisible(false);
             menu.findItem(R.id.menu_new_post).setVisible(false);
         }
 

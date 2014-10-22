@@ -21,17 +21,26 @@
         android:icon="@android:drawable/ic_menu_agenda"
         android:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_tags"
-        android:title="@string/diary_tags"
-        android:icon="@android:drawable/ic_menu_agenda" />
     <group
         android:id="@+id/group_all"
         android:menuCategory="container">
         <item
-            android:id="@+id/menu_share"
-            android:title="@string/menu_share"
-            android:icon="@android:drawable/ic_menu_share" />
+            android:id="@+id/share"
+            android:title="@string/share"
+            android:icon="@android:drawable/ic_menu_share">
+            <menu>
+                <item
+                    android:id="@+id/menu_share"
+                    android:title="@string/menu_share"
+                    android:icon="@android:drawable/ic_menu_share"/>
+
+                <item
+                    android:id="@+id/copy_to_clipboard"
+                    android:title="@string/copy"
+                    android:icon="@android:drawable/ic_menu_set_as"/>
+            </menu>
+
+            </item>
         <item
             android:id="@+id/menu_about"
             android:title="@string/about"

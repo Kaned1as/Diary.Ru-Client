@@ -2,6 +2,8 @@ package adonai.diary_browser;
 
 import android.app.AlertDialog;
 import android.app.DialogFragment;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -228,6 +230,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().getCurrentDiaryPage().getPageURL());
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
+            case R.id.copy_to_clipboard:
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageURL(), Toast.LENGTH_SHORT).show();
+                clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageURL()));
+                return true;
             case R.id.menu_about:
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
                 AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
@@ -241,11 +248,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 app.setMovementMethod(LinkMovementMethod.getInstance());
                 builder.setView(aboutContent);
                 builder.create().show();
-                return true;
-            case R.id.menu_tags:
-                // Берем lastIndex из-за того, что список постов может быть не только в дневниках (к примеру, ?favorite)
-                if (getUser().getCurrentDiaryPage() instanceof DiaryPage) // следим чтобы текущая страничка обязательно была в пределах иерархии
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL().substring(0, ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL().lastIndexOf('/') + 1) + "?tags", false));
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getSubscribersUrl(), false));
