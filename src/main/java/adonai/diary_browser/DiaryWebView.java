@@ -20,9 +20,6 @@ import java.net.URLDecoder;
 
 import adonai.diary_browser.entities.Umail;
 
-// не боимся и не печалимся, запускаем приложение с флагом -Dflag_no_pichal
-// Это была шутка.
-// Если что, я не хотел обидеть никаких печальных разработчиков
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends WebView {
     public static final int MILLIS_TO_FAST_SCROLL = 200;
