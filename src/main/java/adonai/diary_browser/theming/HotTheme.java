@@ -163,7 +163,9 @@ public class HotTheme {
                         if (themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
                             GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{(int) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), 0xFFA0A0A0 & (Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR)});
                             v.setBackgroundDrawable(gd);
-                            traverse(themeRow, v);
+                            if(themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
+                                traverse(themeRow, v);
+                            }
                         }
                     }
 
@@ -178,6 +180,8 @@ public class HotTheme {
 
                             if (v instanceof TextView) {
                                 ((TextView) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
+                                if(v.getBackground() != null)
+                                    v.setBackground(null);
                             }
                         }
                     }

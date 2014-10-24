@@ -146,6 +146,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getDiscussionsUrl(), true));
             }
         }).setup(mPullToRefreshAttacher);
+        mPullToRefreshAttacher.getHeaderView().setTag(getString(R.string.tag_actionbar_style));
+        HotTheme.manage(mPullToRefreshAttacher.getHeaderView());
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
 

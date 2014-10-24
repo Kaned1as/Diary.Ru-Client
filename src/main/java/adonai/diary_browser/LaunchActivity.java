@@ -10,6 +10,8 @@ public class LaunchActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        System.setProperty("java.net.preferIPv4Stack" , "true");
+
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
 
         if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") &&
