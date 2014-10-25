@@ -11,12 +11,14 @@ public class LaunchActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         System.setProperty("java.net.preferIPv4Stack" , "true");
+        System.getProperty("java.net.preferIPv6Addresses", "false");
 
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
 
         if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") &&
                 !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals("") &&
                 mSharedPrefs.getBoolean(Utils.KEY_KEEP_AUTH, true))
+
             startActivity(new Intent(this, DiaryListActivity.class));
         else
             startActivity(new Intent(this, AuthorizationForm.class));

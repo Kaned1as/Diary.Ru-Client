@@ -181,7 +181,7 @@ public class HotTheme {
                             if (v instanceof TextView) {
                                 ((TextView) v).setTextColor((Integer) themeRow.get(DatabaseHandler.ThemeField.TEXT_COLOR));
                                 if(v.getBackground() != null)
-                                    v.setBackground(null);
+                                    v.setBackgroundDrawable(null);
                             }
                         }
                     }
