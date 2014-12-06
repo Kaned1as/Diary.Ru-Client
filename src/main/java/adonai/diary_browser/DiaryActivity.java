@@ -111,13 +111,19 @@ public abstract class DiaryActivity extends Activity implements Callback {
         manageActionBar();
     }
 
-    private void manageActionBar() {
+    public void manageActionBar() {
         try {
             Field f = getActionBar().getClass().getDeclaredField("mActionView");
             f.setAccessible(true);
             View v = (View) f.get(getActionBar());
             v.setTag(getString(R.string.tag_actionbar_style));
             HotTheme.manage(v);
+
+            // refresh view theme apply
+            if(mPullToRefreshAttacher != null) {
+                mPullToRefreshAttacher.getHeaderView().setTag(getString(R.string.tag_actionbar_style));
+                HotTheme.manage(mPullToRefreshAttacher.getHeaderView());
+            }
         } catch (IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
@@ -234,6 +240,17 @@ public abstract class DiaryActivity extends Activity implements Callback {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        mUiHandler.postDelayed(new Runnable() { // ugly hack for AB-color
+            @Override
+            public void run() {
+                manageActionBar();
+            }
+        }, 500);
+    }
+
+    @Override
+    public void invalidateOptionsMenu() {
+        super.invalidateOptionsMenu();
         mUiHandler.postDelayed(new Runnable() { // ugly hack for AB-color
             @Override
             public void run() {
