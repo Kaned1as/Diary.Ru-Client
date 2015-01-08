@@ -186,8 +186,8 @@ public class DiaryHttpClient {
 
     private void setDefaultParameters(HttpURLConnection conn) {
         conn.setRequestProperty(HTTP.USER_AGENT, USER_AGENT_STRING);
-        conn.setConnectTimeout(5000);
-        conn.setReadTimeout(5000);
+        conn.setConnectTimeout(10000);
+        conn.setReadTimeout(10000);
     }
 
 

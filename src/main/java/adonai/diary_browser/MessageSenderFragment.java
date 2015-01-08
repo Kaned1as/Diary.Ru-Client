@@ -776,7 +776,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     public void onClick(View view) {
         if (view instanceof ImageButton && view.getTag(R.integer.avatar_id) != null && view.getParent() == mAvatars) {
             postParams.clear();
-            postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag().toString()));
+            postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag(R.integer.avatar_id).toString()));
             postParams.add(new BasicNameValuePair("avatar_url", ""));
             postParams.add(new BasicNameValuePair("signature", mSignature));
             mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
