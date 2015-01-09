@@ -18,7 +18,7 @@
     <string name="username">Имя пользователя</string>
     <string name="password">Пароль</string>
     <string name="not_impl_sc">Еще не реализовано</string>
-    <string name="details_missing">Необзодимо заполнить поля логина и пароля</string>
+    <string name="details_missing">Необходимо заполнить поля логина и пароля</string>
     <string name="title_activity_diary_list">Список дневников</string>
     <string name="loading">Загрузка…</string>
     <string name="please_wait">Авторизация…</string>
