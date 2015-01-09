@@ -28,9 +28,12 @@ import android.webkit.URLUtil;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,8 +42,7 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpCookie;
-import java.net.HttpURLConnection;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -385,7 +387,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
 
                     final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
-                    final List<HttpCookie> cookies = mDHCL.getCookieStore().getCookies();
+                    final List<Cookie> cookies = mDHCL.getCookieStore().getCookies();
 
                     if (loginScreen == null) { // no connection
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -393,7 +395,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
 
                     boolean user = false, password = false;
-                    for (HttpCookie cookie : cookies) {
+                    for (Cookie cookie : cookies) {
                         switch (cookie.getName()) {
                             case "user_login":
                                 user = true;
@@ -404,8 +406,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         }
                     }
 
-                    if (!(user && password)) // not authorised
-                    {
+                    if (!(user && password)) { // not authorised
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
                     }
@@ -413,12 +414,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final CookieManager cookieManager = CookieManager.getInstance();
                     // cookieManager.removeSessionCookie();
 
-                    for (HttpCookie cookie : cookies) {
+                    for (Cookie cookie : cookies) {
                         String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
                         cookieManager.setCookie("diary.ru", cookieString);
                     }
                     CookieSyncManager.getInstance().sync();
-                    mUser.setAuthorised(true);
+                    //cookieManager.flush();
+                    mUser.setAuthorized(true);
 
                     if (message.obj != null) // возвращаемся к загрузке
                         handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
@@ -450,7 +452,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = ((Pair<String, Boolean>) message.obj).first;
                     boolean reload = ((Pair<String, Boolean>) message.obj).second;
 
-                    if (!mUser.isAuthorised())
+                    if (!mUser.isAuthorized())
                         handleRequest(Utils.HANDLE_SET_HTTP_COOKIE, URL);
                     else
                         checkUrlAndHandle(URL, reload);
@@ -1098,25 +1100,25 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 cachedPage = mCache.loadPageFromCache(requestedUrl);
                 handled = cachedPage.getClass();
             } else {
-                final HttpURLConnection page = mDHCL.getPageAndContext(requestedUrl);
-                if (page == null) {
+                final HttpResponse page = mDHCL.getPageAndContext(requestedUrl);
+                if (page == null || page.getEntity() == null) {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                     return;
                 }
 
-                if (page.getContentType() != null && page.getContentType().contains("image")) // Just load image, no further processing
+                if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) // Just load image, no further processing
                 {
                     if (reload) // reload - save
                     {
-                        final String srcName = page.getHeaderField("Content-Disposition");
+                        final String srcName = page.getFirstHeader("Content-Disposition").getValue();
                         final String realName = URLUtil.guessFileName(requestedUrl, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
-                        CacheManager.saveDataToSD(getApplicationContext(), realName, mDHCL.getResponseBytes(page));
+                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
                     } else // no reload - open
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, requestedUrl);
                     return;
                 }
 
-                dataPage = mDHCL.getResponseString(page);
+                dataPage = EntityUtils.toString(page.getEntity());
                 handled = Utils.checkDiaryUrl(dataPage);
             }
 
@@ -1186,8 +1188,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
         } catch (NullPointerException e) {
             notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
-        } catch (Exception e) {
-            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+        } catch (InterruptedIOException e) {
+            notifyListeners(Utils.HANDLE_CANCELED_ERROR);
+        } catch (IOException e) {
+            if(e.getMessage().contains("closed")) {
+                notifyListeners(Utils.HANDLE_CANCELED_ERROR);
+            } else {
+                notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+            }
         }
 
     }
@@ -1253,7 +1261,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     public void newSession() {
         mUser = new UserData();
-        mDHCL.getCookieStore().removeAll();
+        mDHCL.getCookieStore().clear();
         mCache.clear();
     }
 }

@@ -46,7 +46,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
@@ -390,12 +389,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         try {
                             File file = new File((String) message.obj);
                             final long length = file.length();
-                            MultipartEntity mpEntity = new MultipartEntity();
-                            ContentBody cbFile = new FileBody(file, "image/*");
-                            mpEntity.addPart("module", new StringBody("photolib"));
-                            mpEntity.addPart("signature", new StringBody(mSignature));
-                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
-                            mpEntity.addPart("attachment1", cbFile);
 
                             final DiaryHttpClient.ProgressListener listener = new DiaryHttpClient.ProgressListener() {
                                 @Override
@@ -405,7 +398,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 }
                             };
 
-                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity, listener);
+                            MultipartEntity mpEntity = new MultipartEntity();
+                            ContentBody cbFile = new DiaryHttpClient.CountingFileBody(file, "image/*", listener);
+                            mpEntity.addPart("module", new StringBody("photolib"));
+                            mpEntity.addPart("signature", new StringBody(mSignature));
+                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
+                            mpEntity.addPart("attachment1", cbFile);
+
+                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
                             if (result != null) {
                                 if (result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
                                     Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();

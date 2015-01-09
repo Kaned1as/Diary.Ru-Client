@@ -14,7 +14,7 @@ public class UserData {
     private final String favoritesUrl = "http://www.diary.ru/list/?act=show&fgroup_id=0";
     private final String subscribersUrl = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
 
-    private boolean isAuthorised;
+    private boolean isAuthorized;
     // Динамические списки постов
     private DiaryListPage currentDiaries;
     private DiaryListPage currentUmails;
@@ -110,12 +110,12 @@ public class UserData {
         return subscribersUrl;
     }
 
-    boolean isAuthorised() {
-        return isAuthorised;
+    boolean isAuthorized() {
+        return isAuthorized;
     }
 
-    void setAuthorised(boolean isAuthorised) {
-        this.isAuthorised = isAuthorised;
+    void setAuthorized(boolean isAuthorised) {
+        this.isAuthorized = isAuthorised;
     }
 
     DiaryListPage getCurrentDiaries() {

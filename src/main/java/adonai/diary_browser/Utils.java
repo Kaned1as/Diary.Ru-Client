@@ -68,6 +68,7 @@ public class Utils {
     static final int HANDLE_SERVICE_ERROR                           = 130 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CLOSED_ERROR                            = 140 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_NOTFOUND_ERROR                          = 141 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_CANCELED_ERROR                          = 151 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
 
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;

@@ -181,27 +181,27 @@ public abstract class DiaryActivity extends Activity implements Callback {
                 break;
             case Utils.HANDLE_SERVICE_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.service_not_running), Toast.LENGTH_SHORT).show();
-                mPullToRefreshAttacher.setRefreshComplete();
                 break;
             case Utils.HANDLE_CONNECTIVITY_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
-                mPullToRefreshAttacher.setRefreshComplete();
                 break;
             case Utils.HANDLE_PAGE_INCORRECT:
                 Toast.makeText(getApplicationContext(), getString(R.string.page_incorrect), Toast.LENGTH_SHORT).show();
-                mPullToRefreshAttacher.setRefreshComplete();
                 break;
             case Utils.HANDLE_CLOSED_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.closed_error), Toast.LENGTH_SHORT).show();
-                mPullToRefreshAttacher.setRefreshComplete();
                 break;
             case Utils.HANDLE_NOTFOUND_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.notfound_error), Toast.LENGTH_SHORT).show();
+                break;
+            case Utils.HANDLE_CANCELED_ERROR:
+                Toast.makeText(getApplicationContext(), getString(R.string.canceled), Toast.LENGTH_SHORT).show();
                 break;
             case Utils.HANDLE_JUST_DO_GET:
                 Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
                 break;
         }
+        mPullToRefreshAttacher.setRefreshComplete();
 
         if (pd != null) {
             pd.dismiss();
@@ -271,8 +271,12 @@ public abstract class DiaryActivity extends Activity implements Callback {
     }
 
     public void handleBackground(int opCode, Object body) {
-        if (pd == null)
-            pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, false);
+        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            public void onCancel(DialogInterface dialog) {
+                mDHCL.abort();
+            }
+        });
         mService.handleRequest(opCode, body);
     }
 
