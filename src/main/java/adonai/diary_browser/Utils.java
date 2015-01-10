@@ -46,6 +46,7 @@ public class Utils {
     static final int HANDLE_PRELOAD_THEMES                          = 14  | DIARY_HANDLERS_MASK;
     static final int HANDLE_REPOST                                  = 15  | DIARY_HANDLERS_MASK;
     static final int HANDLE_QUERY_ONLINE                            = 16  | DIARY_HANDLERS_MASK;
+    static final int HANDLE_DELETE_POST_DRAFT                       = 17  | DIARY_HANDLERS_MASK;
 
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                             = 20  | DIARY_HANDLERS_MASK;

@@ -12,6 +12,8 @@ public class Post extends Comment {
     public String date = "";
     // Заголовок поста
     public String title = "";
+    // Черновик?
+    public String postType = "";
 
     public String themes = "";
     public String music = "";

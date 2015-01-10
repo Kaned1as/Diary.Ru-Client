@@ -481,6 +481,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_OPEN_MAIL);
                     break;
                 }
+                case Utils.HANDLE_DELETE_POST_DRAFT:
                 case Utils.HANDLE_DELETE_POST: {
                     final String id = (String) message.obj;
                     final List<NameValuePair> postParams = new ArrayList<>();
@@ -488,6 +489,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     postParams.add(new BasicNameValuePair("act", "del_post_post"));
                     postParams.add(new BasicNameValuePair("post_id", id));
                     postParams.add(new BasicNameValuePair("yes", "Да"));
+
+                    if(message.what == Utils.HANDLE_DELETE_POST_DRAFT) { // удаляем черновик
+                        postParams.add(new BasicNameValuePair("draft", ""));
+                    }
+
                     mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
@@ -520,8 +526,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
                 case Utils.HANDLE_EDIT_POST: {
-                    final String URL = (String) message.obj;
-                    final String dataPage = mDHCL.getPageAsString(URL);
+                    final String url = (String) message.obj;
+                    final String dataPage = mDHCL.getPageAsString(url);
                     if (dataPage == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
@@ -529,12 +535,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     try {
                         final Post sendPost = serializePostEditPage(dataPage);
-                        sendPost.postID = URL.substring(URL.lastIndexOf("=") + 1);
+                        sendPost.postID = url.substring(url.lastIndexOf("=") + 1);
                         sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryID();
+                        sendPost.postType = url.endsWith("draft") ? "draft" : "";
                         notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                         break;
-                    } catch (NullPointerException ex) // cannot serialize
-                    {
+                    } catch (NullPointerException ex) { // cannot serialize
                         notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
                         break;
                     }

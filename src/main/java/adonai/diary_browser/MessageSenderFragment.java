@@ -38,6 +38,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,6 +66,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
 import adonai.diary_browser.entities.Comment;
+import adonai.diary_browser.entities.DraftListArrayAdapter;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.theming.HotLayoutInflater;
@@ -81,8 +83,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_SET_AVATAR = 6;
     private static final int HANDLE_PROGRESS = 8;
     private static final int HANDLE_GET_SMILIES = 9;
+    private static final int HANDLE_GET_DRAFTS = 10;
     private static final int HANDLE_SEND_ERROR = -1;
+
     Handler.Callback UiCallback = new Handler.Callback() {
+        @SuppressWarnings("unchecked")
         public boolean handleMessage(Message message) {
             switch (message.what) {
                 case HANDLE_DO_POST:
@@ -91,6 +96,55 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     pd.dismiss();
 
                     closeMe(true);
+                    break;
+                }
+                case HANDLE_GET_DRAFTS: {
+                    pd.dismiss();
+
+                    final List<Post> drafts = (List<Post>) message.obj;
+                    if(drafts == null) {
+                        Toast.makeText(getActivity(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+
+                    if(drafts.isEmpty()) {
+                        Toast.makeText(getActivity(), getString(R.string.no_drafts), Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    ListAdapter adapter = new DraftListArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, drafts);
+                    builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            final Post clicked = drafts.get(which);
+
+                            // выбираем действие - удалить или редактировать
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() { // редактировать
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // http://xxxx.diary.ru/?editpost&postid=#######&draft
+                                    String editUrl = clicked.URL.substring(0, clicked.URL.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
+                                    ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_EDIT_POST, editUrl);
+                                }
+                            }).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() { // удалить
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    // диалог подтверждения
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_DELETE_POST_DRAFT, clicked.postID);
+                                        }
+                                    }).setNegativeButton(android.R.string.no, null).create().show();
+                                }
+                            }).setTitle(R.string.select_action).create().show();
+                        }
+                    }).setTitle(R.string.select_draft).create().show();
+
                     break;
                 }
                 case HANDLE_UMAIL_ACK: {
@@ -185,10 +239,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     break;
             }
 
-            return false;
+            return true;
         }
     };
-    Button mPublish;
+
+    Button mPublish, mSaveDraft, mLoadDraft;
     Button mShowSmilies;
     EditText toText;
     EditText titleText;
@@ -240,6 +295,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     Map<String, Object> smileMap;
     DiaryHttpClient mDHCL;
     String mSendURL = "";
+
     Handler.Callback HttpCallback = new Handler.Callback() {
         @SuppressWarnings("unchecked")
         public boolean handleMessage(Message message) {
@@ -260,14 +316,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_GET_SMILIES: {
-                        String URL = message.obj != null ? (String) message.obj : "http://www.diary.ru/smile.php";
-                        String URLValid = URL.replaceAll("[:/]", "_"); // не содержащее недопустимых символов для ФС имя
+                        String url = message.obj != null ? (String) message.obj : "http://www.diary.ru/smile.php";
+                        String urlValid = url.replaceAll("[:/]", "_"); // не содержащее недопустимых символов для ФС имя
                         String result;
-                        if (mCache.hasData(getActivity(), URLValid))
-                            result = new String(mCache.retrieveData(getActivity(), URLValid));
+                        if (mCache.hasData(getActivity(), urlValid))
+                            result = new String(mCache.retrieveData(getActivity(), urlValid));
                         else {
-                            result = mDHCL.getPageAsString(URL);
-                            mCache.cacheData(getActivity(), result.getBytes(), URLValid);
+                            result = mDHCL.getPageAsString(url);
+                            mCache.cacheData(getActivity(), result.getBytes(), urlValid);
                         }
                         Document rootNode = Jsoup.parse(result);
                         Elements smilies = rootNode.select("tr img");
@@ -281,17 +337,17 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         // в массиве теперь будет храниться строка вызова смайлика - задача загрузки аватара
                         ExecutorService executor = Executors.newFixedThreadPool(smileMap.size());
                         for (String id : smileMap.keySet()) {
-                            final String url = (String) smileMap.get(id);
+                            final String smileUrl = (String) smileMap.get(id);
                             FutureTask<Drawable> future = new FutureTask<>(new Callable<Drawable>() {
                                 @Override
                                 public Drawable call() throws Exception {
-                                    String name = url.substring(url.lastIndexOf('/') + 1);
+                                    String name = smileUrl.substring(smileUrl.lastIndexOf('/') + 1);
                                     byte[] outputBytes;
 
                                     if (mCache.hasData(getActivity(), name))
                                         outputBytes = mCache.retrieveData(getActivity(), name);
                                     else {
-                                        outputBytes = mDHCL.getPageAsByteArray(url);
+                                        outputBytes = mDHCL.getPageAsByteArray(smileUrl);
                                         // caching image
                                         mCache.cacheData(getActivity(), outputBytes, name);
                                     }
@@ -328,8 +384,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_REQUEST_AVATARS: {
-                        String URL = "http://www.diary.ru/options/member/?avatar";
-                        String dataPage = mDHCL.getPageAsString(URL);
+                        String url = "http://www.diary.ru/options/member/?avatar";
+                        String dataPage = mDHCL.getPageAsString(url);
                         if (dataPage == null)
                             return false;
 
@@ -338,20 +394,20 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         avatarMap = new SparseArray<>();
                         for (Element avatarbit : avatardivs) {
                             Integer avId = Integer.valueOf(avatarbit.select("input[name=use_avatar_id]").val());
-                            String url = avatarbit.child(0).attr("style");
-                            url = url.substring(url.lastIndexOf('(') + 1, url.lastIndexOf(')'));
-                            avatarMap.put(avId, url);
+                            String imageUrl = avatarbit.child(0).attr("style");
+                            imageUrl = imageUrl.substring(imageUrl.lastIndexOf('(') + 1, imageUrl.lastIndexOf(')'));
+                            avatarMap.put(avId, imageUrl);
                         }
 
                         // распараллеливаем получение аватарок
                         // в массиве теперь будет храниться ID аватара - задача загрузки аватара
                         ExecutorService executor = Executors.newFixedThreadPool(avatarMap.size());
                         for (int i = 0; i < avatarMap.size(); i++) {
-                            final String url = (String) avatarMap.valueAt(i);
+                            final String imageUrl = (String) avatarMap.valueAt(i);
                             FutureTask<Drawable> future = new FutureTask<>(new Callable<Drawable>() {
                                 @Override
                                 public Drawable call() throws Exception {
-                                    final byte[] imageBytes = mDHCL.getPageAsByteArray(url);
+                                    final byte[] imageBytes = mDHCL.getPageAsByteArray(imageUrl);
                                     Bitmap image = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
                                     return new BitmapDrawable(getResources(), image);
                                 }
@@ -377,6 +433,37 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         }
 
                         mUiHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
+                        return true;
+                    }
+                    case HANDLE_GET_DRAFTS: {
+                        String url = mDHCL.currentURL + "?draft";
+                        String dataPage = mDHCL.getPageAsString(url);
+                        if (dataPage == null) {
+                            // ошибка соединения
+                            mUiHandler.sendMessage(mUiHandler.obtainMessage(message.what, null));
+                            return false;
+                        }
+
+                        Elements posts = Jsoup.parse(dataPage).select("#postsArea > [id~=post\\d+]");
+                        List<Post> drafts = new ArrayList<>(posts.size());
+                        if(posts.isEmpty()) {
+                            // нет черновиков?
+                            mUiHandler.sendMessage(mUiHandler.obtainMessage(message.what, drafts));
+                            return false;
+                        }
+
+                        for(Element post : posts) {
+                            Post draft = new Post();
+                            draft.date = post.select(".postTitle > span").attr("title");
+                            draft.title = post.select(".postTitle h2").text();
+                            String fullContent = post.select(".postContent .postInner .paragraph").text();
+                            draft.content = fullContent.substring(0, fullContent.length() > 100 ? 100 : fullContent.length());
+                            draft.postID = post.id().substring(4); // после post#####
+                            draft.URL = post.select(".postLinksBackg .urlLink a").attr("href");
+                            drafts.add(draft);
+                        }
+
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(message.what, drafts));
                         return true;
                     }
                     case HANDLE_SET_AVATAR: {
@@ -467,6 +554,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         moodText = (EditText) sender.findViewById(R.id.message_mood);
         mPublish = (Button) sender.findViewById(R.id.message_publish);
         mPublish.setOnClickListener(this);
+        mSaveDraft = (Button) sender.findViewById(R.id.message_save_draft);
+        mSaveDraft.setOnClickListener(this);
+        mLoadDraft = (Button) sender.findViewById(R.id.message_load_draft);
+        mLoadDraft.setOnClickListener(this);
         mTitle = (TextView) sender.findViewById(R.id.fragment_title);
         mCurrentPage = (TextView) sender.findViewById(R.id.fragment_page);
 
@@ -534,7 +625,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         commentElements.add(mSubscribe);
         commentElements.add(mSecureOptions);
 
-        postElements.add(sender.findViewById(R.id.message_title_hint));
+        postElements.add(mSaveDraft);
+        postElements.add(mLoadDraft);
         postElements.add(titleText);
         postElements.add(mShowOptionals);
         postElements.add(mShowCloseOptions);
@@ -543,7 +635,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
-        umailElements.add(sender.findViewById(R.id.message_title_hint));
         umailElements.add(titleText);
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
@@ -601,8 +692,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     builder.create().show();
                 } else
                     prepareUi((Post) mPost);
-            } else // если редактирование поста
-            {
+            } else { // если редактирование поста
                 mTitle.setText(R.string.edit_post);
                 mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
 
@@ -635,8 +725,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     builder.create().show();
                 } else
                     prepareUi(mPost);
-            } else // редактирование комментария
-            {
+            } else { // редактирование комментария
                 mTitle.setText(R.string.edit_comment);
                 mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
 
@@ -646,8 +735,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                 prepareUi(mPost);
             }
-        } else if (mPost.getClass() == Umail.class) // Если почта
-        {
+        } else if (mPost.getClass() == Umail.class) { // Если почта
             mTitle.setText(R.string.new_umail);
             mCurrentPage.setVisibility(View.GONE);
 
@@ -774,6 +862,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     }
 
     public void onClick(View view) {
+
+        // обработка кнопок смайлов
         if (view instanceof ImageButton && view.getTag(R.integer.avatar_id) != null && view.getParent() == mAvatars) {
             postParams.clear();
             postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag(R.integer.avatar_id).toString()));
@@ -789,9 +879,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
             mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, view.getTag(R.integer.smile_page)));
         }
+
+        // обычные кнопки
         switch (view.getId()) {
+            case R.id.message_save_draft:
             case R.id.message_publish: {
-                // TODO: Сохранение в черновики
                 postParams.clear();
 
                 // Добавляем параметры из настроек
@@ -804,22 +896,30 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
+                    postParams.add(new BasicNameValuePair("save_type", "js2"));
 
-                    if (mPost.postID.equals("")) // новый пост
-                    {
+                    postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
+                    postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
+                    postParams.add(new BasicNameValuePair("attachment", ""));
+
+                    // draft or publish
+                    if(view.getId() == R.id.message_save_draft) {
+                        postParams.add(new BasicNameValuePair("draft_save", "draft_save"));
+                    } else {
+                        postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
+                    }
+
+                    if (mPost.postID.equals("")) { // новый пост
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_post_post"));
                         postParams.add(new BasicNameValuePair("post_id", ""));
-                    } else // редактируем пост
-                    {
+                        postParams.add(new BasicNameValuePair("post_type", ""));
+                    } else { // редактируем пост
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
                         postParams.add(new BasicNameValuePair("act", "edit_post_post"));
                         postParams.add(new BasicNameValuePair("post_id", mPost.postID));
-
+                        postParams.add(new BasicNameValuePair("post_type", ((Post) mPost).postType));
                     }
-                    postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
-                    postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
-                    postParams.add(new BasicNameValuePair("post_type", ""));
 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     if (mShowOptionals.isChecked()) {
@@ -839,8 +939,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         postParams.add(new BasicNameValuePair("current_music", ""));
                         postParams.add(new BasicNameValuePair("current_mood", ""));
                     }
-
-                    postParams.add(new BasicNameValuePair("attachment", ""));
 
                     if (mShowPoll.isChecked()) {
                         postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
@@ -904,17 +1002,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     if (mNoComments.isChecked())
                         postParams.add(new BasicNameValuePair("no_comments", "1"));
 
-                    postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
-                    postParams.add(new BasicNameValuePair("save_type", "js2"));
-
                     mHandler.sendEmptyMessage(HANDLE_DO_POST);
-                } else if (mPost.getClass() == Comment.class)  // если коммент
-                {
+                } else if (mPost.getClass() == Comment.class) {  // если коммент
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
-                    if (mPost.commentID.equals("")) // новый пост
-                    {
+                    if (mPost.commentID.equals("")) { // новый пост
                         switch (mSecureOptions.getCheckedRadioButtonId()) {
                             case R.id.message_anonymous:
                                 postParams.add(new BasicNameValuePair("write_from", "1"));
@@ -931,8 +1024,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_comment_post"));
                         postParams.add(new BasicNameValuePair("commentid", ""));
-                    } else // редактируем пост
-                    {
+                    } else { // редактируем пост
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
                         postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
                         postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
@@ -944,15 +1036,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("page", "last"));
                     postParams.add(new BasicNameValuePair("open_uri", ""));
 
-                    //postParams.add(new BasicNameValuePair("write_from_name", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_USERNAME, "")));
-                    //postParams.add(new BasicNameValuePair("write_from_pass", Globals.mSharedPrefs.getString(AuthorizationForm.KEY_PASSWORD, "")));
-
                     postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
                     postParams.add(new BasicNameValuePair("attachment1", ""));
 
                     mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
-                } else if (mPost.getClass() == Umail.class)  // если почта
-                {
+                } else if (mPost.getClass() == Umail.class) { // если почта
                     postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                     postParams.add(new BasicNameValuePair("module", "umail"));
                     postParams.add(new BasicNameValuePair("act", "umail_send"));
@@ -973,6 +1061,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             case R.id.message_show_smilies:
                 pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, null));
+                break;
+            case R.id.message_load_draft:
+                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+                mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DRAFTS, null));
                 break;
         }
     }
@@ -1189,5 +1281,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if (curr instanceof RadioGroup)
                 ((RadioGroup) curr).clearCheck();
         }
+
+        // TODO: переделать обработку с использованием ViewGroup
+        mSaveDraft.setVisibility(View.GONE);
+        mLoadDraft.setVisibility(View.GONE);
     }
 }

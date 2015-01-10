@@ -229,4 +229,9 @@
     <string name="share">Поделиться</string>
     <string name="copy">Копировать</string>
     <string name="canceled">Отменено</string>
+    <string name="no_drafts">Нет черновиков в этом дневнике/сообществе!</string>
+    <string name="select_draft">Выберите черновик</string>
+    <string name="edit">Редактировать</string>
+    <string name="delete">Удалить</string>
+    <string name="select_action">Выберите действие</string>
 </resources>

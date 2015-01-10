@@ -54,7 +54,7 @@
             <requestFocus />
         </EditText>
 
-        <TextView
+        TextView
             android:id="@+id/message_title_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -72,7 +72,7 @@
             android:maxLines="1"
             android:tag="@string/tag_edit_style"/>
 
-        <TextView
+        TextView
             android:id="@+id/message_content_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -620,17 +620,39 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <Button
-            android:id="@+id/message_publish"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_gravity="center_horizontal"
-            android:text="@string/message_publish"
-            android:layout_weight="1"
-            android:paddingLeft="50dp"
-            android:paddingRight="50dp"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_button_style"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:contentDescription="@string/persistent">
+
+            <Button
+                android:id="@+id/message_load_draft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:text="⤴"
+                android:tag="@string/tag_button_style"/>
+
+            <Button
+                android:id="@+id/message_publish"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@string/message_publish"
+                android:layout_weight="1"
+                android:contentDescription="@string/persistent"
+                android:tag="@string/tag_button_style"/>
+
+            <Button
+                android:id="@+id/message_save_draft"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.2"
+                android:text="⤵"
+                android:tag="@string/tag_button_style"/>
+
+
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
