@@ -426,7 +426,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     if (name != null)
                         messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L], ");
                 }
-                break;
+                return true;
             }
             case Utils.HANDLE_IMAGE_CLICK: {
                 final String src = message.getData().getString("url");
