@@ -303,12 +303,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 switch (message.what) {
                     case HANDLE_DO_POST:
                     case HANDLE_DO_COMMENT: {
-                        mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "windows-1251"));
                         mUiHandler.sendEmptyMessage(message.what);
                         return true;
                     }
                     case HANDLE_DO_UMAIL: {
-                        String result = mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        String result = mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "windows-1251"));
                         if (result.contains("Письмо отправлено"))
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_ACK);
                         else
@@ -468,7 +468,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     }
                     case HANDLE_SET_AVATAR: {
                         String URL = "http://www.diary.ru/options/member/?avatar";
-                        mDHCL.postPageToString(URL, new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                        mDHCL.postPageToString(URL, new UrlEncodedFormEntity(postParams, "windows-1251"));
                         Toast.makeText(getActivity(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
                     }

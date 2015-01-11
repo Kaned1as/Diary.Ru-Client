@@ -375,7 +375,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     for (long id : ids)
                         nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
 
-                    mDHCL.postPageToString("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                    mDHCL.postPageToString("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
 
                     notifyListeners(Utils.HANDLE_DELETE_UMAILS);
                     break;
@@ -384,9 +384,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final List<NameValuePair> nameValuePairs = new ArrayList<>();
                     nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
                     nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
-                    nameValuePairs.add(new BasicNameValuePair("save_on", "1"));
+                    nameValuePairs.add(new BasicNameValuePair("save", "on"));
 
-                    final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "WINDOWS-1251"));
+                    final String loginScreen = mDHCL.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
                     final List<Cookie> cookies = mDHCL.getCookieStore().getCookies();
 
                     if (loginScreen == null) { // no connection
@@ -406,7 +406,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         }
                     }
 
-                    if (!(user && password)) { // not authorised
+                    if (!(user && password)) { // not authorized
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
                     }
@@ -494,7 +494,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         postParams.add(new BasicNameValuePair("draft", ""));
                     }
 
-                    mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "WINDOWS-1251"));
+                    mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "windows-1251"));
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
                     break;
@@ -1112,10 +1112,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return;
                 }
 
-                if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) // Just load image, no further processing
-                {
-                    if (reload) // reload - save
-                    {
+                if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) { // Just load image, no further processing
+                    if (reload) { // reload - save
                         final String srcName = page.getFirstHeader("Content-Disposition").getValue();
                         final String realName = URLUtil.guessFileName(requestedUrl, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
@@ -1128,10 +1126,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 handled = Utils.checkDiaryUrl(dataPage);
             }
 
-            if (handled != null) // Если это страничка дайри
-            {
-                if (cachedPage != null) // если страничка была в кэше
-                {
+            if (handled != null) { // Если это страничка дайри
+                if (cachedPage != null) { // если страничка была в кэше
                     mDHCL.currentURL = requestedUrl;
 
                     if (cachedPage instanceof DiaryListPage) {
@@ -1148,8 +1144,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         mUser.setCurrentDiaryPage((WebPage) cachedPage);
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
-                } else // если нет такого кэша
-                {
+                } else { // если нет такого кэша
                     if (handled == DiaryPage.class) {
                         serializeDiaryPage(dataPage);
                         mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
@@ -1180,8 +1175,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }
-            } else // неопознанная страничка
-            {
+            } else { // неопознанная страничка
                 assert (cachedPage == null);
                 if (requestedUrl.contains("diary.ru") && dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
                     notifyListeners(Utils.HANDLE_CLOSED_ERROR);
@@ -1197,7 +1191,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         } catch (InterruptedIOException e) {
             notifyListeners(Utils.HANDLE_CANCELED_ERROR);
         } catch (IOException e) {
-            if(e.getMessage().contains("closed")) {
+            if(e.getMessage() != null && e.getMessage().contains("closed")) {
                 notifyListeners(Utils.HANDLE_CANCELED_ERROR);
             } else {
                 notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);

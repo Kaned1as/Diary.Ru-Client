@@ -378,8 +378,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
-                if (message.obj == null) // it's page
-                {
+                if (message.obj == null) { // это страница
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
 
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
@@ -388,8 +387,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     setTitle(getUser().getCurrentDiaryPage().getTitle());
                     if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class)
                         mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getTitle());
-                } else // it's image
-                {
+                } else { // это картинка
                     String src = (String) message.obj;
                     mPageBrowser.loadUrl(src);
                     browserHistory.add(src);
@@ -467,10 +465,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         }
                     }
                 });
-                AlertDialog alert = builder.create();
-                alert.show();
+                builder.create().show();
+                break;
             }
-            break;
             case Utils.HANDLE_EDIT_POST:
                 Post sendPost = (Post) message.obj;
                 editPost(sendPost);
