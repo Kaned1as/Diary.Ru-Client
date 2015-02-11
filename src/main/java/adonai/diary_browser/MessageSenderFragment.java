@@ -24,6 +24,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -220,20 +221,34 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 case HANDLE_GET_SMILIES:
                     Elements smileLinks = (Elements) message.obj;
 
+                    DisplayMetrics dm = new DisplayMetrics();
+                    getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+
+                    // detect max gif height
+                    int maxHeight = 0;
+                    for (Map.Entry<String, Object> smile : smileMap.entrySet()) {
+                        GifDrawable gif = (GifDrawable) smile.getValue();
+                        maxHeight = Math.max(maxHeight, gif.getIntrinsicHeight());
+                    }
+
                     mSmilies.removeAllViews();
                     for (Map.Entry<String, Object> smile : smileMap.entrySet()) {
-                        ((GifDrawable) smile.getValue()).start();
+                        GifDrawable gif = (GifDrawable) smile.getValue();
+                        gif.start();
 
                         GifImageButton current = new GifImageButton(getActivity());
                         current.setTag(getString(R.string.tag_button_style));
                         HotTheme.manage(current);
                         current.setTag(R.integer.smile_key, smile.getKey());
 
-                        current.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                        current.setAdjustViewBounds(true);
-                        current.setImageDrawable((Drawable) smile.getValue());
+                        current.setScaleType(ImageView.ScaleType.FIT_XY);
+                        current.setMinimumHeight((int) (maxHeight * dm.density));
+                        // for scale with same aspect ration
+                        current.setMinimumWidth((int) (gif.getIntrinsicWidth() * dm.density * maxHeight / gif.getIntrinsicHeight()));
+                        //current.setAdjustViewBounds(true);
+                        current.setImageDrawable(gif);
                         current.setOnClickListener(MessageSenderFragment.this);
-                        current.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
+                        current.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         mSmilies.addView(current);
                     }
 

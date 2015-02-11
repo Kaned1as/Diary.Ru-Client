@@ -370,7 +370,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     HotTheme.manage(LL);
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
-                handleTabChange(getUser().getCurrentDiaries().getURL());
+                handleTabChange(mDHCL.currentURL);
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
@@ -382,7 +382,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
 
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
-                    handleTabChange(getUser().getCurrentDiaryPage().getPageURL());
+                    handleTabChange(mDHCL.currentURL);
 
                     setTitle(getUser().getCurrentDiaryPage().getTitle());
                     if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class)
@@ -402,7 +402,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
                 browserHistory.add(getUser().getDiscussions().getURL());
-                handleTabChange(getUser().getDiscussions().getURL());
+                handleTabChange(mDHCL.currentURL);
 
                 invalidateOptionsMenu(); // PART_DISC_LIST
                 break;
