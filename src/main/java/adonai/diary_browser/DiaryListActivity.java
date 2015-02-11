@@ -113,6 +113,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
+        //getWindow().setStatusBarColor();
 
         mainPane = (DiaryListFragment) getFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getFragmentManager().findFragmentById(R.id.message_pane);

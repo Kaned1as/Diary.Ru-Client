@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -113,7 +114,12 @@ public abstract class DiaryActivity extends Activity implements Callback {
 
     public void manageActionBar() {
         try {
-            Field f = getActionBar().getClass().getDeclaredField("mActionView");
+            Field f;
+            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                f = getActionBar().getClass().getDeclaredField("mActionView");
+            } else {
+                f = getActionBar().getClass().getDeclaredField("mDecorToolbar");
+            }
             f.setAccessible(true);
             View v = (View) f.get(getActionBar());
             v.setTag(getString(R.string.tag_actionbar_style));

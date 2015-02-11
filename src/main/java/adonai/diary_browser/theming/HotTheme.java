@@ -7,8 +7,11 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -161,8 +164,19 @@ public class HotTheme {
                         DatabaseHandler mDatabase = ((DiaryActivity) v.getContext()).getDatabase();
                         final HashMap<DatabaseHandler.ThemeField, Object> themeRow = mDatabase.getThemeRow(base);
                         if (themeRow.containsKey(DatabaseHandler.ThemeField.BACKGROUND_COLOR)) {
-                            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM, new int[]{(int) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR), 0xFFA0A0A0 & (Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR)});
+                            int topColor = (int) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR);
+                            int downColor = 0xFFA0A0A0 & (Integer) themeRow.get(DatabaseHandler.ThemeField.BACKGROUND_COLOR);
+                            GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.TOP_BOTTOM,
+                                    new int[]{topColor, downColor});
                             v.setBackgroundDrawable(gd);
+
+                            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                Window window = ((DiaryActivity) v.getContext()).getWindow();
+                                window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                                window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                                window.setStatusBarColor(downColor);
+                            }
+
                             if(themeRow.containsKey(DatabaseHandler.ThemeField.TEXT_COLOR)) {
                                 traverse(themeRow, v);
                             }
