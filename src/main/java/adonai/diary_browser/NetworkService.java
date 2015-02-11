@@ -559,8 +559,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
 
                     final Post sendPost = serializePostEditPage(dataPage);
-                    if (sendPost == null) // additional check due to nullptrs
-                    {
+                    if (sendPost == null) { // additional check due to nullptrs
                         notifyListeners(Utils.HANDLE_CLOSED_ERROR);
                         break;
                     }
@@ -581,8 +580,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
 
                     final Umail sendMail = serializeUmailEditPage(dataPage, type);
-                    if (sendMail == null) // additional check due to nullptrs
-                    {
+                    if (sendMail == null) { // additional check due to nullptrs
                         notifyListeners(Utils.HANDLE_CLOSED_ERROR);
                         break;
                     }
@@ -604,8 +602,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         sendComment.postID = ((CommentsPage) mUser.getCurrentDiaryPage()).getPostID();
                         notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
                         break;
-                    } catch (NullPointerException ex) // cannot serialize
-                    {
+                    } catch (NullPointerException ex) { // cannot serialize
                         notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
                         break;
                     }
@@ -737,7 +734,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
+        // handle 'favorite' page case
+        String diaryUrl = mDHCL.currentURL.contains("/")
+                ? mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1)
+                : mDHCL.currentURL;
+        DiaryPage scannedDiary = new DiaryPage(diaryUrl);
 
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if (diaryTag != null) {
@@ -811,7 +812,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        CommentsPage scannedPost = new CommentsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
+        String diaryUrl = mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1);
+        CommentsPage scannedPost = new CommentsPage(diaryUrl);
 
         Element diaryTag = rootNode.select("#authorName").first();
         if (diaryTag != null) {

@@ -25,6 +25,9 @@ public class Utils {
     public static final String KEY_USERPASS_CACHE = "diary.password.cache";
     public static final String mPrefsFile = "diary.shared.prefs";
 
+    public static final String CLOSING_PANE_BROADCAST = "CLOSING_PANE";
+    public static final String OPENING_PANE_BROADCAST = "OPENING_PANE";
+
     static final int VIEW_SCROLL_UP = 1;
     static final int VIEW_SCROLL_DOWN = 2;
 

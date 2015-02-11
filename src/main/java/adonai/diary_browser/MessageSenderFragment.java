@@ -4,10 +4,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -20,8 +22,8 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -71,6 +73,8 @@ import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.theming.HotLayoutInflater;
 import adonai.diary_browser.theming.HotTheme;
+import pl.droidsonroids.gif.GifDrawable;
+import pl.droidsonroids.gif.GifImageButton;
 
 public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener {
 
@@ -85,6 +89,22 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_GET_SMILIES = 9;
     private static final int HANDLE_GET_DRAFTS = 10;
     private static final int HANDLE_SEND_ERROR = -1;
+
+    BroadcastReceiver mPaneStateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case Utils.CLOSING_PANE_BROADCAST:
+                    // выключаем смайлики
+                    setSmiliesState(false);
+                    break;
+                case Utils.OPENING_PANE_BROADCAST:
+                    // включаем смайлики
+                    setSmiliesState(true);
+                    break;
+            }
+        }
+    };
 
     Handler.Callback UiCallback = new Handler.Callback() {
         @SuppressWarnings("unchecked")
@@ -202,7 +222,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     mSmilies.removeAllViews();
                     for (Map.Entry<String, Object> smile : smileMap.entrySet()) {
-                        ImageButton current = new ImageButton(getActivity());
+                        ((GifDrawable) smile.getValue()).start();
+
+                        GifImageButton current = new GifImageButton(getActivity());
                         current.setTag(getString(R.string.tag_button_style));
                         HotTheme.manage(current);
                         current.setTag(R.integer.smile_key, smile.getKey());
@@ -352,12 +374,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                         mCache.cacheData(getActivity(), outputBytes, name);
                                     }
 
-                                    Bitmap smilie = BitmapFactory.decodeByteArray(outputBytes, 0, outputBytes.length);
-                                    // scale smilie to larger size
-                                    DisplayMetrics dm = new DisplayMetrics();
-                                    getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
-                                    smilie = Bitmap.createScaledBitmap(smilie, (int) (smilie.getWidth() * dm.density), (int) (smilie.getHeight() * dm.density), false);
-                                    return new BitmapDrawable(getResources(), smilie);
+                                    return new GifDrawable(outputBytes);
                                 }
 
                             });
@@ -538,6 +555,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mHandler = new Handler(mLooper, HttpCallback);
         mUiHandler = new Handler(UiCallback);
 
+        IntentFilter paneActionsFilter = new IntentFilter();
+        paneActionsFilter.addAction(Utils.OPENING_PANE_BROADCAST);
+        paneActionsFilter.addAction(Utils.CLOSING_PANE_BROADCAST);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mPaneStateReceiver, paneActionsFilter);
+
         mMainLayout = (LinearLayout) sender.findViewById(R.id.message_main_layout);
 
         toText = (EditText) sender.findViewById(R.id.message_to);
@@ -654,6 +676,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public void onDestroyView() {
         mLooper.quit();
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mPaneStateReceiver);
         super.onDestroyView();
     }
 
@@ -861,9 +884,20 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     }
 
+    private void insertInCursorPosition(CharSequence what) {
+        int cursorPos = contentText.getSelectionStart();
+        if (cursorPos == -1)
+            cursorPos = contentText.getText().length();
+
+        String beforeCursor = contentText.getText().toString().substring(0, cursorPos);
+        String afterCursor = contentText.getText().toString().substring(cursorPos, contentText.getText().length());
+        contentText.setText(beforeCursor + what + afterCursor);
+        contentText.setSelection(contentText.getText().toString().indexOf(afterCursor, cursorPos));
+    }
+
     public void onClick(View view) {
 
-        // обработка кнопок смайлов
+        // обработка кнопок аватаров
         if (view instanceof ImageButton && view.getTag(R.integer.avatar_id) != null && view.getParent() == mAvatars) {
             postParams.clear();
             postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag(R.integer.avatar_id).toString()));
@@ -872,8 +906,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
         }
 
-        if (view instanceof ImageButton && view.getTag(R.integer.smile_key) != null && view.getParent() == mSmilies)
-            contentText.append((CharSequence) view.getTag(R.integer.smile_key));
+        // обработка кнопок смайлов
+        if (view instanceof GifImageButton && view.getTag(R.integer.smile_key) != null && view.getParent() == mSmilies) {
+            insertInCursorPosition((CharSequence) view.getTag(R.integer.smile_key));
+        }
 
         if (view instanceof Button && view.getTag(R.integer.smile_page) != null && view.getParent() == mSmilieButtons) {
             pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
@@ -1269,6 +1305,19 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     private void closeMe(boolean reload) {
         ((DiaryActivity) getActivity()).onMessagePaneRemove(reload);
+    }
+
+    private void setSmiliesState(boolean animate) {
+        int childCount = mSmilies.getChildCount();
+        for(int i = 0; i < childCount; ++i) {
+            GifImageButton gib = (GifImageButton) mSmilies.getChildAt(i);
+            GifDrawable gd = (GifDrawable) gib.getDrawable();
+            if(animate) {
+                gd.start();
+            } else {
+                gd.stop();
+            }
+        }
     }
 
     private void purgeContents() {

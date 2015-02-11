@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.0.1'
     }
 }
 apply plugin: 'com.android.application'
@@ -16,13 +16,16 @@ dependencies {
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
     compile 'com.larswerkman:HoloColorPicker:1.4'
     compile 'com.android.support:support-v4:21.0.3'
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'
+    compile 'org.jsoup:jsoup:1.8.1'
+
 //    compile 'com.android.support:appcompat-v7:20.0.0'
     compile fileTree(dir: 'libs', include: '*.jar')
 }
 
 android {
     compileSdkVersion 21
-    buildToolsVersion '21.1.1'
+    buildToolsVersion '21.1.2'
 
     defaultConfig {
         minSdkVersion 14
@@ -47,7 +50,7 @@ android {
         pro {
             debuggable false
             signingConfig signingConfigs.release
-            applicationIdSuffix 'pro'
+            applicationIdSuffix '.pro'
         }
 
         release {

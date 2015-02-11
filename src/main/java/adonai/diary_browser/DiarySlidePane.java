@@ -1,6 +1,8 @@
 package adonai.diary_browser;
 
 import android.content.Context;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -23,12 +25,14 @@ public class DiarySlidePane extends SlidingPaneLayout {
     @Override
     public boolean closePane() {
         slideRestrict = true;
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(Utils.CLOSING_PANE_BROADCAST));
         return super.closePane();
     }
 
     @Override
     public boolean openPane() {
         slideRestrict = false;
+        LocalBroadcastManager.getInstance(getContext()).sendBroadcast(new Intent(Utils.OPENING_PANE_BROADCAST));
         return super.openPane();
     }
 
