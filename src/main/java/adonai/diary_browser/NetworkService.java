@@ -546,7 +546,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     }
                 }
                 case Utils.HANDLE_PRELOAD_THEMES: {
-                    final String URL = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "?newpost";
+                    // handle 'favorite' page case
+                    String currentUrl = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL();
+                    String diaryUrl = currentUrl.contains("/")
+                            ? currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1)
+                            : currentUrl;
+                    final String URL = diaryUrl + "?newpost";
                     final String dataPage = mDHCL.getPageAsString(URL);
                     if (dataPage == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
@@ -734,11 +739,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        // handle 'favorite' page case
-        String diaryUrl = mDHCL.currentURL.contains("/")
-                ? mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1)
-                : mDHCL.currentURL;
-        DiaryPage scannedDiary = new DiaryPage(diaryUrl);
+        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
 
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if (diaryTag != null) {
