@@ -234,4 +234,5 @@
     <string name="edit">Редактировать</string>
     <string name="delete">Удалить</string>
     <string name="select_action">Выберите действие</string>
+    <string name="stroked">Перечёркнутый</string>
 </resources>

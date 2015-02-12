@@ -76,4 +76,11 @@
         android:id="@+id/button_offtopic"
         android:drawableLeft="@drawable/offtopic" />
 
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/stroked"
+        android:id="@+id/button_stroked"
+        android:drawableLeft="@drawable/stroked" />
+
 </LinearLayout>

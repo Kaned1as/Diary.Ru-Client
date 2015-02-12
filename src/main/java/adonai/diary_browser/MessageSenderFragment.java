@@ -1199,42 +1199,38 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         switch (view.getId()) {
             case R.id.button_bold: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<b>" + paste.toString() + "</b>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("</b>", cursorPos));
+                insertInCursorPosition("<b>" + paste.toString() + "</b>");
                 break;
             }
             case R.id.button_italic: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<i>" + paste.toString() + "</i>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("</i>", cursorPos));
+                insertInCursorPosition("<i>" + paste.toString() + "</i>");
                 break;
             }
             case R.id.button_underlined: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<u>" + paste.toString() + "</u>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("</u>", cursorPos));
+                insertInCursorPosition("<u>" + paste.toString() + "</u>");
                 break;
             }
             case R.id.button_nick: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "[L]" + paste.toString() + "[/L]" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("[/L]", cursorPos));
+                insertInCursorPosition("[L]" + paste.toString() + "[/L]");
                 break;
             }
             case R.id.button_link: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<a href=\"" + paste.toString() + "\">" + paste.toString() + "</a>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("/a>", cursorPos));
+                insertInCursorPosition("<a href=\"" + paste.toString() + "\">" + paste.toString() + "</a>");
                 break;
             }
             case R.id.button_more: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "[MORE=" + getString(R.string.read_more) + "]" + paste.toString() + "[/MORE]" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("[/MORE]", cursorPos));
+                insertInCursorPosition("[MORE=" + getString(R.string.read_more) + "]" + paste.toString() + "[/MORE]");
                 break;
             }
             case R.id.button_offtopic: {
-                contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<span class='offtop'>" + paste.toString() + "</span>" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                contentText.setSelection(contentText.getText().toString().indexOf("</span>", cursorPos));
+                insertInCursorPosition("<span class='offtop'>" + paste.toString() + "</span>");
+                break;
+            }
+            case R.id.button_stroked: {
+                insertInCursorPosition("<s>" + paste.toString() + "</s>");
                 break;
             }
             case R.id.button_image: {
-
                 Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                 intent.setType("image/*");
                 intent.addCategory(Intent.CATEGORY_OPENABLE);
