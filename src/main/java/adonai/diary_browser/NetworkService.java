@@ -8,7 +8,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.graphics.Color;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -25,7 +27,6 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -94,6 +95,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Handler mHandler;
     private Looper mLooper; // петля времени
     private List<DiaryActivity> mListeners = new ArrayList<>();
+    private Bitmap mNotifIcon;
 
     /*
     К сожалению, НЕТ другой возможности запустить сервис.
@@ -229,6 +231,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         if (is_sticky)
             startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
 
+        Bitmap appIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_inverted);
+        Resources res = getResources();
+        int height = (int) res.getDimension(android.R.dimen.notification_large_icon_height);
+        int width = (int) res.getDimension(android.R.dimen.notification_large_icon_width);
+        mNotifIcon = Bitmap.createScaledBitmap(appIcon, width, height, false);
+
         mInstance = this;
         mIsStarting = false;
     }
@@ -305,22 +313,21 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         lastLinks[1] = mUser.getNewDiscussLink();
                         lastLinks[2] = mUser.getNewUmailLink();
 
-                        final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
-
-                        views.setTextViewText(R.id.notification_title, getString(R.string.new_comments));
-                        views.setTextViewText(R.id.notification_text, getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
+                        Notification.Builder nBuilder = new Notification.Builder(this);
+                        nBuilder.setContentTitle(getString(R.string.new_comments));
+                        nBuilder.setContentText(
+                                getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
                                 getString(R.string.discussions) + ": " + mUser.getNewDiscussNum() + " | " +
                                 getString(R.string.umail_activity_title) + ": " + mUser.getNewUmailNum());
-
-                        final Notification notification = new Notification();
-                        notification.contentView = views;
-                        notification.icon = R.drawable.ic_launcher_inverted; // иконка
-                        notification.ledOnMS = 1000;
-                        notification.ledOffMS = 10000;
-                        notification.sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                        notification.ledARGB = Color.parseColor("#FFD8BD");
-                        notification.tickerText = getString(R.string.new_comments) + ": " + Integer.toString(mUser.getNewDiaryCommentsNum() + mUser.getNewDiscussNum() + mUser.getNewUmailNum());
-                        notification.flags |= Notification.FLAG_SHOW_LIGHTS | Notification.FLAG_ONLY_ALERT_ONCE | Notification.FLAG_AUTO_CANCEL;
+                        nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
+                        nBuilder.setLargeIcon(mNotifIcon);
+                        nBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                        nBuilder.setTicker(getString(R.string.new_comments) + ": " +
+                                Integer.toString(mUser.getNewDiaryCommentsNum() +
+                                                mUser.getNewDiscussNum() +
+                                                mUser.getNewUmailNum()));
+                        nBuilder.setOnlyAlertOnce(true);
+                        nBuilder.setAutoCancel(true);
 
                         final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -328,8 +335,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         if(newUrl != null) { // we don't support U-Mails for now
                             intent.putExtra("url", newUrl);
                         }
-                        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, notification); // запускаем уведомление
+                        nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, nBuilder.getNotification()); // запускаем уведомление
                     } else if (mUser.getNewDiscussNum() + mUser.getNewDiaryCommentsNum() + mUser.getNewUmailNum() == 0)
                         mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
                     break;
@@ -1262,19 +1269,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foreground-режиме
     private Notification createNotification(WebPage page) {
-        final RemoteViews views = new RemoteViews(getPackageName(), R.layout.notification);
-        views.setTextViewText(R.id.notification_text, page.getContent() != null && page.getTitle() != null ? page.getTitle() : "");
-
-
-        final Notification notification = new Notification();
-        notification.contentView = views;
-        notification.icon = R.drawable.ic_launcher_inverted;
-        notification.flags |= Notification.FLAG_ONGOING_EVENT;
+        Notification.Builder nBuilder = new Notification.Builder(this);
+        nBuilder.setContentTitle(getString(R.string.service_notification));
+        nBuilder.setContentText(page.getContent() != null && page.getTitle() != null ? page.getTitle() : "");
+        nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
+        nBuilder.setLargeIcon(mNotifIcon);
+        nBuilder.setOngoing(true);
 
         final Intent intent = new Intent(this, DiaryListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-        notification.contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        return notification;
+        nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, 0));
+        return nBuilder.getNotification();
     }
 
     public void newSession() {
