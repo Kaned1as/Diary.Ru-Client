@@ -43,6 +43,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -874,6 +876,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         resultPage.title(rootNode.title());
         for (Element to : result)
             resultPage.body().appendChild(to);
+
+        // добавляем Umail к профилям
+        Element userName = resultPage.select("h2 + p > b").first();
+        Element contactsLine = resultPage.select("p:containsOwn(Контакты:)").first();
+        if(userName != null && contactsLine != null) {
+            try {
+                String usernameEncoded = URLEncoder.encode(userName.text(), "windows-1251");
+                String umailLink = "/u-mail/?new&username=" + usernameEncoded;
+                contactsLine.append(String.format("<a href='%s'>U-Mail</a>", umailLink));
+            } catch (UnsupportedEncodingException e) {
+                // never happens
+            }
+        }
 
         parseContent(resultPage);
 
