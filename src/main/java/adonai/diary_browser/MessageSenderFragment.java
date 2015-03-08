@@ -72,8 +72,6 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.DraftListArrayAdapter;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.theming.HotLayoutInflater;
-import adonai.diary_browser.theming.HotTheme;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageButton;
 
@@ -199,8 +197,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 case HANDLE_REQUEST_AVATARS: {
                     for (int i = 0; i < avatarMap.size(); i++) {
                         ImageButton current = new ImageButton(getActivity());
-                        current.setTag(getString(R.string.tag_button_style));
-                        HotTheme.manage(current);
                         current.setImageDrawable((Drawable) avatarMap.valueAt(i));
                         current.setTag(R.integer.avatar_id, avatarMap.keyAt(i));
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -237,8 +233,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         gif.start();
 
                         GifImageButton current = new GifImageButton(getActivity());
-                        current.setTag(getString(R.string.tag_button_style));
-                        HotTheme.manage(current);
                         current.setTag(R.integer.smile_key, smile.getKey());
 
                         current.setScaleType(ImageView.ScaleType.FIT_XY);
@@ -258,8 +252,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             continue;
 
                         Button current = new Button(getActivity());
-                        current.setTag(getString(R.string.tag_button_style));
-                        HotTheme.manage(current);
                         current.setTag(R.integer.smile_page, link.attr("href"));
                         current.setText(link.text());
                         current.setOnClickListener(MessageSenderFragment.this);
@@ -560,7 +552,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View sender = HotLayoutInflater.wrap(inflater).inflate(R.layout.fragment_message_sender, container, false);
+        View sender = inflater.inflate(R.layout.fragment_message_sender, container, false);
         mPost = new Post();
         postParams = new ArrayList<>();
 

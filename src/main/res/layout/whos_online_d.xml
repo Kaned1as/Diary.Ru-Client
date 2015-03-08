@@ -11,8 +11,7 @@
         android:text="@string/favourites_online"
         android:id="@+id/favs_online_label"
         android:layout_gravity="center_horizontal"
-        android:textStyle="bold"
-        android:tag="@string/tag_label_style" />
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -30,8 +29,7 @@
         android:text="@string/subscribers_online"
         android:id="@+id/subs_online_label"
         android:layout_gravity="center_horizontal"
-        android:textStyle="bold"
-        android:tag="@string/tag_label_style" />
+        android:textStyle="bold" />
 
     <TextView
         android:layout_width="wrap_content"

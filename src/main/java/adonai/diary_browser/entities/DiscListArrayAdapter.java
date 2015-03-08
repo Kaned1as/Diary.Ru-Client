@@ -2,13 +2,13 @@ package adonai.diary_browser.entities;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import adonai.diary_browser.R;
-import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter {
     DiscListPage discussions;
@@ -51,7 +51,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter {
         View view;
         DiscPage discussion = (DiscPage) getGroup(groupPosition);
         if (convertView == null)
-            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_item, null);
+            view = LayoutInflater.from(context).inflate(R.layout.discussion_item, null);
         else
             view = convertView;
 
@@ -71,7 +71,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter {
         View view;
         DiscPage.Discussion discussion = (DiscPage.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
-            view = HotLayoutInflater.from(context).inflate(R.layout.discussion_expanded_group_item, null);
+            view = LayoutInflater.from(context).inflate(R.layout.discussion_expanded_group_item, null);
         else
             view = convertView;
 

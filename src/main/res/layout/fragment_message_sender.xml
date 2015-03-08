@@ -3,8 +3,7 @@
     android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="false"
-    android:tag="@string/tag_layout_style">
+    android:fillViewport="false">
 
     <LinearLayout
         android:id="@+id/message_main_layout"
@@ -22,8 +21,7 @@
             android:layout_gravity="center"
             android:focusable="false"
             android:gravity="center_horizontal"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_label_style"/>
+            android:contentDescription="@string/persistent"/>
 
         <TextView
             android:layout_width="match_parent"
@@ -32,8 +30,7 @@
             android:id="@+id/fragment_page"
             android:layout_gravity="center"
             android:gravity="center_horizontal"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_label_style"/>
+            android:contentDescription="@string/persistent"/>
 
         <TextView
             android:id="@+id/message_to_hint"
@@ -54,12 +51,11 @@
             <requestFocus />
         </EditText>
 
-        TextView
+        <TextView
             android:id="@+id/message_title_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/message_title"
-            android:tag="@string/tag_label_style"/>
+            android:text="@string/message_title"/>
 
         <EditText
             android:id="@+id/message_title"
@@ -69,16 +65,14 @@
             android:hint="@string/message_title"
             android:imeOptions="actionNext"
             android:inputType="textEmailSubject"
-            android:maxLines="1"
-            android:tag="@string/tag_edit_style"/>
+            android:maxLines="1"/>
 
-        TextView
+        <TextView
             android:id="@+id/message_content_hint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/message_content"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_label_style"/>
+            android:contentDescription="@string/persistent"/>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -107,8 +101,7 @@
                         android:text="«"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -117,8 +110,7 @@
                         android:text="»"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -127,8 +119,7 @@
                         android:text="©"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -137,8 +128,7 @@
                         android:text="®"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -147,8 +137,7 @@
                         android:text="½"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -157,8 +146,7 @@
                         android:text="§"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                     <Button
                         style="?android:attr/buttonStyleSmall"
@@ -167,8 +155,7 @@
                         android:text="—"
                         android:textSize="20sp"
                         android:height="40dp"
-                        android:width="40dp"
-                        android:tag="@string/tag_button_style"/>
+                        android:width="40dp"/>
 
                 </LinearLayout>
             </HorizontalScrollView>
@@ -189,8 +176,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/smilies"
-                        android:id="@+id/message_show_smilies"
-                        android:tag="@string/tag_button_style"/>
+                        android:id="@+id/message_show_smilies"/>
                 </LinearLayout>
 
             </HorizontalScrollView>
@@ -223,8 +209,7 @@
             android:imeOptions="actionSend"
             android:inputType="text|textMultiLine|textCapSentences"
             android:minLines="2"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_edit_style"/>
+            android:contentDescription="@string/persistent"/>
 
         <EditText
             android:id="@+id/message_requote_content"
@@ -235,7 +220,6 @@
             android:imeOptions="actionSend"
             android:inputType="text|textMultiLine|textCapSentences"
             android:minLines="2"
-            android:tag="@string/tag_edit_style"
             android:enabled="false" />
 
         <CheckBox
@@ -244,16 +228,14 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/message_subscribe"
-            android:visibility="gone"
-            android:tag="@string/tag_checkbox_style"/>
+            android:visibility="gone"/>
 
         <CheckBox
             android:id="@+id/message_getreceipt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/message_need_receipt"
-            android:visibility="gone"
-            android:tag="@string/tag_checkbox_style"/>
+            android:visibility="gone"/>
 
         <CheckBox
             android:id="@+id/message_requote"
@@ -261,8 +243,7 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:text="@string/message_requote"
-            android:visibility="gone"
-            android:tag="@string/tag_checkbox_style"/>
+            android:visibility="gone"/>
 
         <CheckBox
             android:id="@+id/message_copy"
@@ -270,15 +251,13 @@
             android:layout_height="wrap_content"
             android:text="@string/message_copy"
             android:checked="true"
-            android:visibility="gone"
-            android:tag="@string/tag_checkbox_style"/>
+            android:visibility="gone"/>
 
         <CheckBox
             android:id="@+id/message_optional"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/message_optional"
-            android:tag="@string/tag_checkbox_style"/>
+            android:text="@string/message_optional"/>
 
         <LinearLayout
             android:layout_width="fill_parent"
@@ -299,8 +278,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/message_themes"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -318,8 +296,7 @@
                 android:id="@+id/message_music_hint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_music"
-                android:tag="@string/tag_label_style"/>
+                android:text="@string/message_music"/>
 
             <EditText
                 android:id="@+id/message_music"
@@ -327,15 +304,13 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/message_music"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <TextView
                 android:id="@+id/message_mood_hint"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_mood"
-                android:tag="@string/tag_label_style"/>
+                android:text="@string/message_mood"/>
 
             <EditText
                 android:id="@+id/message_mood"
@@ -343,8 +318,7 @@
                 android:layout_height="wrap_content"
                 android:ems="10"
                 android:hint="@string/message_mood"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
         </LinearLayout>
 
         <RadioGroup
@@ -356,15 +330,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/anonymously"
-                android:id="@+id/message_anonymous"
-                android:tag="@string/tag_checkbox_style"/>
+                android:id="@+id/message_anonymous"/>
 
             <RadioButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/as_user"
-                android:id="@+id/message_as_user"
-                android:tag="@string/tag_checkbox_style"/>
+                android:id="@+id/message_as_user"/>
 
             <LinearLayout
                 android:orientation="vertical"
@@ -377,16 +349,14 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/as_user_login"
                     android:hint="@string/login"
-                    android:inputType="textPersonName"
-                    android:tag="@string/tag_edit_style"/>
+                    android:inputType="textPersonName"/>
 
                 <EditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"
                     android:id="@+id/as_user_password"
-                    android:hint="@string/password"
-                    android:tag="@string/tag_edit_style"/>
+                    android:hint="@string/password"/>
             </LinearLayout>
         </RadioGroup>
 
@@ -394,8 +364,7 @@
             android:id="@+id/message_close"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/message_close"
-            android:tag="@string/tag_checkbox_style"/>
+            android:text="@string/message_close"/>
 
         <RadioGroup
             android:id="@+id/close_opts"
@@ -409,44 +378,38 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:hint="@string/message_close_text"
-                android:tag="@string/tag_edit_style"/>
+                android:hint="@string/message_close_text"/>
 
             <RadioButton
                 android:id="@+id/close_only_reg"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/message_close_only_reg"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_only_reg"/>
 
             <RadioButton
                 android:id="@+id/close_only_fav"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_only_fav"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_only_fav"/>
 
             <RadioButton
                 android:id="@+id/close_only_sub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_only_sub"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_only_sub"/>
 
             <RadioButton
                 android:id="@+id/close_only_white"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_only_white"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_only_white"/>
 
             <RadioButton
                 android:id="@+id/close_for_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_for_list"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_for_list"/>
 
             <EditText
                 android:id="@+id/close_denied_list"
@@ -456,15 +419,13 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="@string/message_close_denied_list"
-                android:visibility="gone"
-                android:tag="@string/tag_edit_style"/>
+                android:visibility="gone"/>
 
             <RadioButton
                 android:id="@+id/close_only_list"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_only_list"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_only_list"/>
 
             <EditText
                 android:id="@+id/close_allowed_list"
@@ -474,15 +435,13 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="@string/message_close_allowed_list"
-                android:visibility="gone"
-                android:tag="@string/tag_edit_style"/>
+                android:visibility="gone"/>
 
             <RadioButton
                 android:id="@+id/close_for_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/message_close_for_all"
-                android:tag="@string/tag_checkbox_style"/>
+                android:text="@string/message_close_for_all"/>
 
         </RadioGroup>
 
@@ -490,8 +449,7 @@
             android:id="@+id/message_poll"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/message_poll"
-            android:tag="@string/tag_checkbox_style"/>
+            android:text="@string/message_poll"/>
 
         <LinearLayout
             android:orientation="vertical"
@@ -505,96 +463,84 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_title"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_3"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_4"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_6"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_7"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_8"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_9"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
 
             <EditText
                 android:id="@+id/message_poll_10"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
-                android:maxLines="1"
-                android:tag="@string/tag_edit_style"/>
+                android:maxLines="1"/>
         </LinearLayout>
 
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/message_no_comments"
-            android:text="@string/no_comments"
-            android:tag="@string/tag_checkbox_style"/>
+            android:text="@string/no_comments"/>
 
         <CheckBox
             android:id="@+id/message_custom_avatar"
@@ -602,8 +548,7 @@
             android:layout_height="wrap_content"
             android:text="@string/select_custom_avatar"
             android:checked="false"
-            android:contentDescription="@string/persistent"
-            android:tag="@string/tag_checkbox_style"/>
+            android:contentDescription="@string/persistent"/>
 
         <HorizontalScrollView
             android:layout_width="wrap_content"
@@ -631,8 +576,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
-                android:text="⤴"
-                android:tag="@string/tag_button_style"/>
+                android:text="⤴"/>
 
             <Button
                 android:id="@+id/message_publish"
@@ -640,16 +584,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/message_publish"
                 android:layout_weight="1"
-                android:contentDescription="@string/persistent"
-                android:tag="@string/tag_button_style"/>
+                android:contentDescription="@string/persistent"/>
 
             <Button
                 android:id="@+id/message_save_draft"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
-                android:text="⤵"
-                android:tag="@string/tag_button_style"/>
+                android:text="⤵"/>
 
 
         </LinearLayout>

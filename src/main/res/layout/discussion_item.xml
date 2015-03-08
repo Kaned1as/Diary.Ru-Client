@@ -5,8 +5,7 @@
     android:layout_height="match_parent"
     android:minHeight="40dip"
     android:orientation="horizontal"
-    android:paddingLeft="50dip"
-    android:tag="@string/tag_listview_style">
+    android:paddingLeft="50dip">
 
     <TextView
         android:id="@+id/discussion_title"
@@ -17,7 +16,6 @@
         android:text="@string/title"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:tag="@string/tag_listitem_title_style"
         android:gravity="center_vertical" />
 
     <TextView
@@ -26,7 +24,6 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="@string/last_post"
-        android:textSize="14sp"
-        android:tag="@string/tag_listitem_signature_style"/>
+        android:textSize="14sp"/>
 
 </LinearLayout>

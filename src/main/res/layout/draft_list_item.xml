@@ -19,8 +19,7 @@
             android:textSize="16sp"
             android:textStyle="bold"
             android:maxEms="10"
-            android:maxLines="2"
-            android:tag="@string/tag_listitem_title_style"/>
+            android:maxLines="2"/>
 
         <TextView
             android:id="@+id/post_date"

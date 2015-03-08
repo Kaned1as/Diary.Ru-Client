@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -15,7 +14,6 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -30,12 +28,7 @@ import java.util.Map;
 
 import adonai.diary_browser.NetworkService;
 import adonai.diary_browser.R;
-import adonai.diary_browser.Utils;
 import adonai.diary_browser.database.DatabaseHandler;
-import adonai.diary_browser.theming.HotLayoutInflater;
-import adonai.diary_browser.theming.HotTheme;
-
-import static adonai.diary_browser.database.DatabaseHandler.ThemeField;
 
 /**
  * Created by adonai on 09.10.14.
@@ -78,7 +71,7 @@ public class ThemePreference extends DialogPreference {
 
         mCssMappings = NetworkService.getCssColors(getContext());
         for (final Map.Entry<String, String> pair : mCssMappings.entrySet()) {
-            LinearLayout item = (LinearLayout) HotLayoutInflater.from(getContext()).inflate(R.layout.color_list_item, verticalContainer, false);
+            LinearLayout item = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.color_list_item, verticalContainer, false);
             TextView label = (TextView) item.findViewById(R.id.text_label);
             label.setText(pair.getKey());
             final View colorView = item.findViewById(R.id.color_view);
@@ -88,47 +81,6 @@ public class ThemePreference extends DialogPreference {
             verticalContainer.addView(item);
         }
 
-        TextView interfaceColors = new TextView(getContext());
-        interfaceColors.setTextSize(16);
-        interfaceColors.setGravity(Gravity.CENTER_HORIZONTAL);
-        interfaceColors.setTypeface(null, Typeface.BOLD);
-        interfaceColors.setText(R.string.interface_themes);
-        verticalContainer.addView(interfaceColors);
-
-        final DatabaseHandler database = ((PreferencesScreen) getContext()).getDatabase();
-        Cursor themeBindings = database.getThemesCursor();
-        while (themeBindings.moveToNext()) {
-            LinearLayout item = new LinearLayout(getContext());
-            item.setPadding((int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()), (int) Utils.convertDpToPixel(10f, getContext()));
-            item.setOrientation(LinearLayout.HORIZONTAL);
-
-            TextView label = new TextView(getContext());
-            label.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
-            label.setText(themeBindings.getString(ThemeField.TITLE.ordinal()));
-            item.addView(label);
-
-            for (int columnIndex = 2; columnIndex < themeBindings.getColumnCount(); ++columnIndex) {
-                if (!themeBindings.isNull(columnIndex)) {
-                    final String type = themeBindings.getString(0);
-                    switch (themeBindings.getType(columnIndex)) {
-                        case Cursor.FIELD_TYPE_INTEGER:
-                            final View colorView = new View(getContext());
-                            final ThemeField field = ThemeField.valueOf(themeBindings.getColumnName(columnIndex));
-                            final int originalColor = themeBindings.getInt(columnIndex);
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams((int) Utils.convertDpToPixel(25f, getContext()), (int) Utils.convertDpToPixel(25f, getContext()));
-                            lp.setMargins((int) Utils.convertDpToPixel(5f, getContext()), 0, 0, 0);
-                            colorView.setLayoutParams(lp);
-
-                            colorView.setBackgroundColor(originalColor);
-                            colorView.setOnClickListener(new StyleOnClickListener(originalColor, colorView, database, type, field));
-                            item.addView(colorView);
-                            break;
-                    }
-                }
-            }
-            verticalContainer.addView(item);
-        }
-        themeBindings.close();
         return sv;
     }
 
@@ -156,7 +108,6 @@ public class ThemePreference extends DialogPreference {
     private void resetColors() {
         final DatabaseHandler database = ((PreferencesScreen) getContext()).getDatabase();
         database.resetColors();
-        HotTheme.updateTheme();
         NetworkService.resetCssColors(getContext());
     }
 
@@ -222,77 +173,6 @@ public class ThemePreference extends DialogPreference {
                 public void onClick(DialogInterface dialogInterface, int i) {
                     colorView.setBackgroundColor(cp.getColor());
                     pair.setValue(String.format("#%06X", 0xFFFFFF & cp.getColor()));
-                }
-            }).create().show();
-        }
-    }
-
-    private class StyleOnClickListener implements View.OnClickListener {
-        private final int originalColor;
-        private final View colorView;
-        private final DatabaseHandler database;
-        private final String type;
-        private final ThemeField field;
-
-        public StyleOnClickListener(int originalColor, View colorView, DatabaseHandler database, String type, ThemeField field) {
-            this.originalColor = originalColor;
-            this.colorView = colorView;
-            this.database = database;
-            this.type = type;
-            this.field = field;
-        }
-
-        @Override
-        public void onClick(View v) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            LinearLayout colorPickerView = (LinearLayout) LayoutInflater.from(getContext()).inflate(R.layout.color_picker, null, false);
-            final ColorPicker cp = (ColorPicker) colorPickerView.findViewById(R.id.picker);
-            final SaturationBar sBar = (SaturationBar) colorPickerView.findViewById(R.id.saturation_bar);
-            final ValueBar vBar = (ValueBar) colorPickerView.findViewById(R.id.value_bar);
-            final OpacityBar opBar = (OpacityBar) colorPickerView.findViewById(R.id.opacitybar);
-            final EditText colorChooserEdit = (EditText) colorPickerView.findViewById(R.id.certain_color_selector);
-            cp.setOnColorChangedListener(new ColorPicker.OnColorChangedListener() {
-                @Override
-                public void onColorChanged(int i) {
-                    colorChooserEdit.setText(String.format("%08x", cp.getColor()));
-                }
-            });
-            colorChooserEdit.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    String text = s.toString();
-                    if (s.length() == 8) {
-                        try {
-                            int color = Color.parseColor("#" + text);
-                            if (cp.getColor() != color) {
-                                cp.setColor(color);
-                            }
-                        } catch (IllegalArgumentException ignored) {
-
-                        }
-                    }
-                }
-            });
-            cp.addOpacityBar(opBar);
-            cp.addSaturationBar(sBar);
-            cp.addValueBar(vBar);
-            cp.setColor(originalColor);
-            builder.setView(colorPickerView).setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    colorView.setBackgroundColor(cp.getColor());
-                    database.modifyThemeRow(type, field, cp.getColor());
-                    HotTheme.updateTheme();
                 }
             }).create().show();
         }

@@ -10,8 +10,7 @@
         android:layout_height="wrap_content"
         android:measureWithLargestChild="false"
         android:minHeight="30dip"
-        android:paddingTop="5dp"
-        android:tag="@string/tag_listview_style">
+        android:paddingTop="5dp">
 
         <Button
             android:id="@+id/incoming"
@@ -19,7 +18,6 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:tag="@string/tag_button_style"
             android:text="@string/incoming_mail"
             android:textStyle="bold" />
 
@@ -29,7 +27,6 @@
             android:layout_height="fill_parent"
             android:layout_weight="1"
             android:gravity="center"
-            android:tag="@string/tag_button_style"
             android:text="@string/outcoming_mail"
             android:textStyle="bold" />
 
@@ -37,8 +34,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:tag="@string/tag_horizontal_divider_style" />
+        android:layout_height="1dp" />
 
     <FrameLayout
         android:id="@android:id/tabcontent"
@@ -58,7 +54,6 @@
                 android:divider="@null"
                 android:background="#edd8bd"
                 android:choiceMode="multipleChoiceModal"
-                android:tag="@string/tag_listview_style"
                 android:dividerHeight="5dp" />
 
             <adonai.diary_browser.DiaryWebView

@@ -7,13 +7,11 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import adonai.diary_browser.theming.HotLayoutInflater;
-
 public class UmailListFragment extends DiaryFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mCurrentComponent = 1;
         this.setHasOptionsMenu(true);
-        return HotLayoutInflater.wrap(inflater).inflate(R.layout.fragment_umail, container, false);
+        return inflater.inflate(R.layout.fragment_umail, container, false);
     }
 
     @Override

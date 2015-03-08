@@ -2,6 +2,7 @@ package adonai.diary_browser.entities;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -11,8 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adonai.diary_browser.R;
-import adonai.diary_browser.theming.HotLayoutInflater;
-import adonai.diary_browser.theming.HotTheme;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
     ArrayList<Long> checkedIds = new ArrayList<Long>();
@@ -52,7 +51,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
         View view;
         ListPage diary = getItem(pos);
         if (convertView == null)
-            view = HotLayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
         else
             view = convertView;
 
@@ -65,13 +64,11 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
 
         if (checkedIds.contains(getItemId(pos)))
             view.setBackgroundColor(Color.LTGRAY);
-        else
-            HotTheme.manage(view);
+        //else
+        //    view.setBackground(R.drawable.item_background);
 
         if (diary instanceof UmailListPage && !((UmailListPage) diary).isRead())
             title.setTextColor(Color.RED);
-        else
-            HotTheme.manage(view);
 
         return view;
     }

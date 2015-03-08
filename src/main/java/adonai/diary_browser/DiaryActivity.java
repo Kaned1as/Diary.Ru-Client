@@ -7,9 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -27,10 +25,7 @@ import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
-import java.lang.reflect.Field;
-
 import adonai.diary_browser.database.DatabaseHandler;
-import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public abstract class DiaryActivity extends Activity implements Callback {
@@ -91,7 +86,6 @@ public abstract class DiaryActivity extends Activity implements Callback {
     @Override
     protected void onStart() {
         super.onStart();
-        manageActionBar(); // to restore color
         slider = (DiarySlidePane) findViewById(R.id.slider);
         slider.setPanelSlideListener(sliderListener);
         slider.setSliderFadeColor(Color.WHITE);
@@ -103,36 +97,6 @@ public abstract class DiaryActivity extends Activity implements Callback {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         setIntent(intent);
-    }
-
-    @Override
-    public void setContentView(int id) {
-        super.setContentView(id);
-        HotTheme.manage(getWindow().getDecorView());
-        manageActionBar();
-    }
-
-    public void manageActionBar() {
-        try {
-            Field f;
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                f = getActionBar().getClass().getDeclaredField("mActionView");
-            } else {
-                f = getActionBar().getClass().getDeclaredField("mDecorToolbar");
-            }
-            f.setAccessible(true);
-            View v = (View) f.get(getActionBar());
-            v.setTag(getString(R.string.tag_actionbar_style));
-            HotTheme.manage(v);
-
-            // refresh view theme apply
-            if(mPullToRefreshAttacher != null) {
-                mPullToRefreshAttacher.getHeaderView().setTag(getString(R.string.tag_actionbar_style));
-                HotTheme.manage(mPullToRefreshAttacher.getHeaderView());
-            }
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
@@ -241,28 +205,6 @@ public abstract class DiaryActivity extends Activity implements Callback {
                 }
             }, "NothingAndNowhere" + getUser().getUserName());
         }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mUiHandler.postDelayed(new Runnable() { // ugly hack for AB-color
-            @Override
-            public void run() {
-                manageActionBar();
-            }
-        }, 500);
-    }
-
-    @Override
-    public void invalidateOptionsMenu() {
-        super.invalidateOptionsMenu();
-        mUiHandler.postDelayed(new Runnable() { // ugly hack for AB-color
-            @Override
-            public void run() {
-                manageActionBar();
-            }
-        }, 500);
     }
 
     @Override

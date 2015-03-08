@@ -19,6 +19,7 @@ import android.util.Pair;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -53,8 +54,6 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import adonai.diary_browser.theming.HotLayoutInflater;
-import adonai.diary_browser.theming.HotTheme;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
@@ -147,8 +146,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getDiscussionsUrl(), true));
             }
         }).setup(mPullToRefreshAttacher);
-        mPullToRefreshAttacher.getHeaderView().setTag(getString(R.string.tag_actionbar_style));
-        HotTheme.manage(mPullToRefreshAttacher.getHeaderView());
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
 
@@ -242,7 +239,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
                 AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
                 builder.setTitle(R.string.about);
-                View aboutContent = HotLayoutInflater.from(ctw).inflate(R.layout.about_d, null);
+                View aboutContent = LayoutInflater.from(ctw).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
                 author.setText(Html.fromHtml(getString(R.string.author_description)));
                 author.setMovementMethod(LinkMovementMethod.getInstance());
@@ -356,7 +353,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         Button click = new Button(LL.getContext());
                         click.setMaxLines(1);
                         click.setText(pageLinks.subSequence(pageLinks.getSpanStart(url), pageLinks.getSpanEnd(url)).toString());
-                        click.setTag(getString(R.string.tag_button_style));
                         click.setLayoutParams(new LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
                         click.setTag(R.integer.button_url, url.getURL());
                         click.setOnClickListener(DiaryListActivity.this);
@@ -368,7 +364,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                         LP.weight = 1.0f;
                     }
                     mDiaryBrowser.addFooterView(LL);
-                    HotTheme.manage(LL);
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
                 handleTabChange(mDHCL.currentURL);
@@ -493,7 +488,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.whos_online);
-                View aboutContent = HotLayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
+                View aboutContent = LayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
                 TextView favs = (TextView) aboutContent.findViewById(R.id.favs_online);
                 favs.setMovementMethod(LinkMovementMethod.getInstance());
                 if(onliners.containsKey(R.string.favourites_online)) {

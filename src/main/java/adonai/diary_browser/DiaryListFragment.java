@@ -24,7 +24,6 @@ import java.net.URLEncoder;
 import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.theming.HotLayoutInflater;
 
 public class DiaryListFragment extends DiaryFragment {
     public final static int GROUP_PAGE_LINKS = 100;
@@ -40,7 +39,7 @@ public class DiaryListFragment extends DiaryFragment {
 
 
         setHasOptionsMenu(true);
-        return HotLayoutInflater.wrap(inflater).inflate(R.layout.fragment_diary_list, container, false);
+        return inflater.inflate(R.layout.fragment_diary_list, container, false);
     }
 
     @Override
@@ -135,7 +134,7 @@ public class DiaryListFragment extends DiaryFragment {
 
         @Override
         public View newView(Context context, Cursor cursor, ViewGroup parent) {
-            return HotLayoutInflater.from(context).inflate(android.R.layout.simple_list_item_2, null);
+            return LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_2, null);
         }
 
         @Override
