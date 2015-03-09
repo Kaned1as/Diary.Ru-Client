@@ -114,8 +114,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         setContentView(R.layout.activity_diary_main);
         //getWindow().setStatusBarColor();
 
-        mainPane = (DiaryListFragment) getFragmentManager().findFragmentById(R.id.main_pane);
-        messagePane = (MessageSenderFragment) getFragmentManager().findFragmentById(R.id.message_pane);
+        mainPane = (DiaryListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
+        messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
 
         // Оповещаем остальных, что мы создались
         // Если был простой приложения
@@ -128,7 +128,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void initializeUI(View main) {
-        getActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
 
         mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
@@ -370,7 +370,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
-                invalidateOptionsMenu(); // PART_LIST
+                supportInvalidateOptionsMenu(); // PART_LIST
                 break;
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
                 setCurrentVisibleComponent(PART_WEB);
@@ -390,7 +390,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                invalidateOptionsMenu(); // PART_WEB
+                supportInvalidateOptionsMenu(); // PART_WEB
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 setCurrentVisibleComponent(PART_DISC_LIST);
@@ -400,7 +400,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 browserHistory.add(getUser().getDiscussions().getURL());
                 handleTabChange(mDHCL.currentURL);
 
-                invalidateOptionsMenu(); // PART_DISC_LIST
+                supportInvalidateOptionsMenu(); // PART_DISC_LIST
                 break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
                 mPullToRefreshAttacher.setRefreshComplete();

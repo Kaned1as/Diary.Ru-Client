@@ -5,6 +5,6 @@
         android:id="@+id/menu_special_paste"
         android:title="@string/menu_special_paste"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom|withText"
+        compat:showAsAction="ifRoom|withText"
         android:icon="@drawable/ic_menu_paste" />
 </menu>

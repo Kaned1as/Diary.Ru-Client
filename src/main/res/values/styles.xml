@@ -1,3 +1,5 @@
 <resources>
-    <style name="DiaryTheme" parent="android:Theme.Holo.Light"/>
+    <style name="DiaryThemeRed" parent="Theme.AppCompat"/>
+    <style name="DiaryTheme" parent="Theme.AppCompat.Light"/>
+    <style name="DiaryThemeDark" parent="Theme.AppCompat"/>
 </resources>

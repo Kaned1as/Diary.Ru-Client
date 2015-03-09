@@ -60,8 +60,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
         mUiHandler = new Handler(this);
         setContentView(R.layout.activity_umail);
 
-        mainPane = (UmailListFragment) getFragmentManager().findFragmentById(R.id.main_pane);
-        messagePane = (MessageSenderFragment) getFragmentManager().findFragmentById(R.id.message_pane);
+        mainPane = (UmailListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
+        messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
 
         initializeUI(mainPane.getView());
     }
@@ -211,7 +211,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 mFolderBrowser.setAdapter(mFolderAdapter);
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                invalidateOptionsMenu();
+                supportInvalidateOptionsMenu();
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
@@ -219,7 +219,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 setTitle(getUser().getCurrentUmailPage().getTitle());
                 mPullToRefreshAttacher.setRefreshComplete();
 
-                invalidateOptionsMenu();
+                supportInvalidateOptionsMenu();
                 break;
             case Utils.HANDLE_PRELOAD_UMAIL:
                 newUmail((Umail) message.obj);

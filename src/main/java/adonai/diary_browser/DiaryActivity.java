@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -13,6 +12,7 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.view.Gravity;
@@ -28,7 +28,7 @@ import com.android.vending.util.Purchase;
 import adonai.diary_browser.database.DatabaseHandler;
 import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
-public abstract class DiaryActivity extends Activity implements Callback {
+public abstract class DiaryActivity extends ActionBarActivity implements Callback {
     private static final int HANDLE_APP_START = 0;
     private static final String SKU_DONATE = "small";
 
