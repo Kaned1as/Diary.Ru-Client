@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="persistent">persistent</string>
+
+    <string-array name="preference_themes_titles" translatable="false">
+        <item>@string/light_theme</item>
+        <item>@string/dark_theme</item>
+        <item>@string/red_theme</item>
+    </string-array>
+    <string-array name="preference_themes_values" translatable="false">
+        <item>light</item>
+        <item>dark</item>
+        <item>red</item>
+    </string-array>
 </resources>

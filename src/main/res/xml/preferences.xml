@@ -1,16 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-    <adonai.diary_browser.preferences.ThemePreference android:title="@string/decorations" android:summary="@string/decorations_sum" />
-    <CheckBoxPreference android:summary="@string/images_autoload_summary" android:key="images.autoload" android:title="@string/images_autoload" android:defaultValue="false"/>
-    <CheckBoxPreference android:key="service.notify.updates" android:summary="@string/notify_updates_sum" android:title="@string/notify_updates" android:defaultValue="true"/>
-    <CheckBoxPreference android:key="service.always.running" android:summary="@string/sticky_service_sum" android:title="@string/sticky_service" android:defaultValue="false"/>
-    <CheckBoxPreference android:key="service.keep.device.on" android:summary="@string/keep_device_on_sum" android:title="@string/keep_device_on" android:defaultValue="false" android:dependency="service.notify.updates" />
-    <CheckBoxPreference android:key="show.version" android:summary="@string/show_version_sum" android:title="@string/show_version" android:defaultValue="true" />
-    <CheckBoxPreference android:key="preload.themes" android:summary="@string/preload_themes_sum" android:title="@string/preload_themes" android:defaultValue="false" />
-    <CheckBoxPreference android:key="preload.umail.quoting" android:summary="@string/preload_umail_sum" android:title="@string/preload_umail" android:defaultValue="true" />
-    <EditTextPreference android:title="@string/post_signature" android:key="post.signature" android:summary="@string/post_signature_summary"/>
-    <EditTextPreference android:key="post.tags" android:title="@string/post_tags" android:summary="@string/post_tags_summary" android:defaultValue="@string/posted_via_client"/>
-    <EditTextPreference android:key="webview.font.size" android:title="@string/webview_font_size" android:summary="@string/webview_font_size_sum" android:digits="1234567890" android:defaultValue="8"/>
-    <ListPreference android:key="screen.orientation" android:title="@string/screen_orientation" android:summary="@string/screen_orientation_sum" android:entryValues="@array/orientation_values" android:entries="@array/orientation_items" />
-    <!--CheckBoxPreference android:key="keep.auth" android:title="@string/keep_auth" android:summary="@string/keep_auth_sum" android:defaultValue="true" /-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <ListPreference
+        android:entries="@array/preference_themes_titles"
+        android:entryValues="@array/preference_themes_values"
+        android:key="app.theme"
+        android:summary="@string/app_theme_summary"
+        android:title="@string/app_theme"/>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="images.autoload"
+        android:summary="@string/images_autoload_summary"
+        android:title="@string/images_autoload"/>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="service.notify.updates"
+        android:summary="@string/notify_updates_sum"
+        android:title="@string/notify_updates"/>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="service.always.running"
+        android:summary="@string/sticky_service_sum"
+        android:title="@string/sticky_service"/>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:dependency="service.notify.updates"
+        android:key="service.keep.device.on"
+        android:summary="@string/keep_device_on_sum"
+        android:title="@string/keep_device_on"/>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="show.version"
+        android:summary="@string/show_version_sum"
+        android:title="@string/show_version"/>
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="preload.themes"
+        android:summary="@string/preload_themes_sum"
+        android:title="@string/preload_themes"/>
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="preload.umail.quoting"
+        android:summary="@string/preload_umail_sum"
+        android:title="@string/preload_umail"/>
+
+    <EditTextPreference
+        android:key="post.signature"
+        android:summary="@string/post_signature_summary"
+        android:title="@string/post_signature"/>
+
+    <EditTextPreference
+        android:defaultValue="@string/posted_via_client"
+        android:key="post.tags"
+        android:summary="@string/post_tags_summary"
+        android:title="@string/post_tags"/>
+
+    <EditTextPreference
+        android:defaultValue="12"
+        android:digits="1234567890"
+        android:key="webview.font.size"
+        android:summary="@string/webview_font_size_sum"
+        android:title="@string/webview_font_size"/>
+
+    <ListPreference
+        android:entries="@array/orientation_items"
+        android:entryValues="@array/orientation_values"
+        android:key="screen.orientation"
+        android:summary="@string/screen_orientation_sum"
+        android:title="@string/screen_orientation"/>
+
 </PreferenceScreen>

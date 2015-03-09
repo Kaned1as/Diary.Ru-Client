@@ -272,7 +272,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void addListener(DiaryActivity listener) {
         if (!mListeners.contains(listener)) {
             mListeners.add(listener);
-            listener.handleFontChange(mPreferences.getString("webview.font.size", "8"));
+            listener.handleFontChange(mPreferences.getString("webview.font.size", "12"));
         }
     }
 
@@ -1253,7 +1253,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             case "webview.font.size":
                 for (DiaryActivity current : mListeners)
-                    current.handleFontChange(sharedPreferences.getString("webview.font.size", "8"));
+                    current.handleFontChange(sharedPreferences.getString("webview.font.size", "12"));
                 break;
             case "preload.themes":
                 preload_themes = sharedPreferences.getBoolean("preload.themes", true);

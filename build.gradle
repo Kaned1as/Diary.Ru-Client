@@ -14,7 +14,6 @@ repositories {
 
 dependencies {
     compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
-    compile 'com.larswerkman:HoloColorPicker:1.4'
     compile 'com.android.support:support-v4:21.0.3'
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'
     compile "com.android.support:appcompat-v7:21.0.3"                   // support library (material design)

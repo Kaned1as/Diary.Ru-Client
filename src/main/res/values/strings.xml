@@ -210,16 +210,6 @@
     <string name="theme_customization">Оформление и темы</string>
     <string name="color_selection">Выбор цветовой схемы</string>
     <string name="placeholder">Пример текста</string>
-    <string name="decorations">Оформление</string>
-    <string name="decorations_sum">Выбор цветов, смена стилей оформления (!!ЭКСПЕРИМЕНТАЛЬНО!!)</string>
-    <string name="interface_themes">Цвета интерфейса</string>
-    <string name="web_themes">Цвета страниц</string>
-    <string name="sharp_mark">#</string>
-    <string name="color_hint">ffffff</string>
-    <string name="saturation">Насыщенность</string>
-    <string name="brightness">Яркость</string>
-    <string name="opacity">Прозрачность</string>
-    <string name="reset">Сброс</string>
     <string name="preload_umail">Расширенная работа с U-Mail</string>
     <string name="preload_umail_sum">Включает цитирование сообщений в U-Mail. Примечание: Загрузка идёт дольше, но становится возможным цитирование получателя и пересылка U-Mail.</string>
     <string name="requote_text">Цитируемый текст</string>
@@ -235,4 +225,9 @@
     <string name="delete">Удалить</string>
     <string name="select_action">Выберите действие</string>
     <string name="stroked">Перечёркнутый</string>
+    <string name="dark_theme">Темная</string>
+    <string name="light_theme">Светлая</string>
+    <string name="red_theme">Красная</string>
+    <string name="app_theme">Тема оформления</string>
+    <string name="app_theme_summary">Применяется после перезагрузки приложения</string>
 </resources>
