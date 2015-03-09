@@ -28,7 +28,6 @@ import java.util.Map;
 
 import adonai.diary_browser.NetworkService;
 import adonai.diary_browser.R;
-import adonai.diary_browser.database.DatabaseHandler;
 
 /**
  * Created by adonai on 09.10.14.
@@ -87,7 +86,7 @@ public class ThemePreference extends DialogPreference {
     @Override
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
-        builder.setNeutralButton(R.string.reset, this);
+        //builder.setNeutralButton(R.string.reset, this);
     }
 
     @Override
@@ -99,16 +98,7 @@ public class ThemePreference extends DialogPreference {
             case DialogInterface.BUTTON_NEGATIVE:
                 super.onClick(dialog, which);
                 break;
-            case DialogInterface.BUTTON_NEUTRAL:
-                resetColors();
-                break;
         }
-    }
-
-    private void resetColors() {
-        final DatabaseHandler database = ((PreferencesScreen) getContext()).getDatabase();
-        database.resetColors();
-        NetworkService.resetCssColors(getContext());
     }
 
     private class CssOnClickListener implements View.OnClickListener {

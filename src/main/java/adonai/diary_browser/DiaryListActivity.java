@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -172,6 +173,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mTabs = (LinearLayout) main.findViewById(R.id.tabs);
         for (int i = 0; i < mTabs.getChildCount(); i++) {
             Button current = (Button) mTabs.getChildAt(i);
+
+            Drawable drawable = current.getBackground().mutate();
+            drawable.setAlpha(50);
+            current.setBackgroundDrawable(drawable);
+
             current.setOnClickListener(this);
             current.setOnLongClickListener(this);
         }

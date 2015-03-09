@@ -1,32 +1,32 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LinearLayout1"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:id="@+id/LinearLayout1"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:ignore="RtlHardcoded">
 
     <RelativeLayout
         android:id="@+id/upperDeck"
         android:layout_width="match_parent"
-        android:layout_height="30dip">
+        android:layout_height="30dip"
+        android:background="?attr/panel_background">
 
         <ImageButton
             android:id="@+id/quotes_button"
             android:layout_width="30dip"
             android:layout_height="match_parent"
             android:layout_alignParentLeft="true"
-            android:layout_centerVertical="true"
             android:background="#00FFFFFF"
-            android:contentDescription="@string/quotes_decription"
+            android:contentDescription="@string/quotes_description"
             android:scaleType="center"
-            android:src="@drawable/quotations" />
+            android:src="@drawable/quotations"/>
 
         <ImageButton
             android:id="@+id/exit_button"
             android:layout_width="30dip"
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="right|center_vertical"
             android:background="@android:color/transparent"
             android:contentDescription="@string/logout_drawable"
             android:paddingBottom="5dip"
@@ -38,18 +38,18 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"
-            android:layout_gravity="right|center_vertical"
+            android:layout_gravity="end|center_vertical"
             android:layout_marginRight="10dip"
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
+            android:textColor="?attr/colorPrimary"
             android:gravity="center_vertical" />
 
         <ImageButton
             android:id="@+id/umail_button"
             android:layout_width="30dip"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
             android:layout_marginLeft="10dip"
             android:layout_toRightOf="@+id/quotes_button"
             android:background="#00FFFFFF"
@@ -76,6 +76,7 @@
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView1"
+            android:background="?attr/panel_background"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fillViewport="true"
@@ -95,8 +96,8 @@
                     android:text="@string/favourites"
                     android:id="@+id/favlist_button"
                     android:textStyle="bold"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:layout_weight="1"/>
 
                 <Button
@@ -105,8 +106,8 @@
                     android:text="@string/posts"
                     android:id="@+id/fav_button"
                     android:textStyle="bold"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:layout_weight="1"/>
 
                 <Button
@@ -115,8 +116,8 @@
                     android:text="@string/my_diary"
                     android:id="@+id/diary_button"
                     android:textStyle="bold"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:layout_weight="1"/>
 
                 <Button
@@ -125,14 +126,15 @@
                     android:text="@string/discussions"
                     android:id="@+id/discussions_button"
                     android:textStyle="bold"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
                     android:layout_weight="1"/>
             </LinearLayout>
         </HorizontalScrollView>
 
         <View
             android:layout_width="match_parent"
+            android:background="?attr/horizontal_divider_color"
             android:layout_height="1dp"/>
 
         <FrameLayout
@@ -150,9 +152,7 @@
                     android:id="@+id/diary_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:cacheColorHint="@android:color/transparent"
-                    android:dividerHeight="5dp"
-                    android:divider="@null" />
+                    android:cacheColorHint="@android:color/transparent" />
 
                 <adonai.diary_browser.DiaryWebView
                     android:id="@+id/page_browser"

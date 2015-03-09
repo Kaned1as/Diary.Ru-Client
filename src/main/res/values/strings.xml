@@ -121,7 +121,7 @@
     <string name="menu_close">Остановка и выход</string>
     <string name="umail_activity_title">U-Mail Папки</string>
     <string name="umail_description">Почтовая служба UMail</string>
-    <string name="quotes_decription">Цитатник пользователя</string>
+    <string name="quotes_description">Цитатник пользователя</string>
     <string name="message_to">Получатель</string>
     <string name="message_need_receipt">Подтверждение о прочтении</string>
     <string name="message_copy">Сохранить сообщение</string>

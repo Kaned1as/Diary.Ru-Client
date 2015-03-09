@@ -1,5 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="DiaryThemeRed" parent="Theme.AppCompat"/>
-    <style name="DiaryTheme" parent="Theme.AppCompat.Light"/>
-    <style name="DiaryThemeDark" parent="Theme.AppCompat"/>
+    <attr name="horizontal_divider_color" format="color" />
+    <attr name="panel_background" format="color" />
+    <attr name="list_item_color" format="color" />
+    <attr name="list_item_color_secondary" format="color" />
+
+    <style name="DiaryThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#800000</item>
+        <item name="colorPrimaryDark">#600000</item>
+        <item name="colorAccent">#ffd13325</item>
+
+        <item name="list_item_color">@android:color/black</item>
+        <item name="list_item_color_secondary">#303030</item>
+        <item name="horizontal_divider_color">#400000</item>
+        <item name="panel_background">#f2ebe5</item>
+    </style>
+
+
+    <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
+        <item name="colorPrimary">#A0A0A0</item>
+        <item name="colorPrimaryDark">#808080</item>
+        <item name="colorAccent">#607D8B</item>
+    </style>
+
+    <style name="DiaryThemeDark" parent="Theme.AppCompat">
+    </style>
+
 </resources>

@@ -6,8 +6,6 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import java.util.HashMap;
-
 /**
  * Класс базы данных, нужен преимущественно для предоставления
  * сведений автодополнения и оффлайн-работы
@@ -17,34 +15,13 @@ import java.util.HashMap;
 public class DatabaseHandler extends SQLiteOpenHelper {
 
     public static final String DATABASE_NAME = "diaryDB";
-    public static final int DB_VERSION = 3;
+    public static final int DB_VERSION = 4;
     public static final String AUTOCOMPLETIONS_TABLE_NAME = "autocomplete";
     /**
      * Null-value fields mean that no particular color can be chosen for particular widget
      */
-    public static final String THEME_TABLE_NAME = "theme";
-
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DB_VERSION);
-    }
-
-    public void resetColors() {
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM " + THEME_TABLE_NAME);
-        db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -7757, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listview', 'Фон списков', -1, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem', 'Фон элементов списка', 788505856, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem_title', 'Текст заголовка элемента', -4130, NULL, NULL, -9437184, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem_signature', 'Текст подписи элемента',-4403, NULL, NULL, -10020352, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('horizontal_divider', 'Горизонтальный разделитель', -16777216, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода', NULL, NULL, NULL, -16777216, -7829368)");
     }
 
     @Override
@@ -56,31 +33,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
                 AutocompleteFields.TITLE + " TEXT DEFAULT NULL" +
                 ")");
         db.execSQL("CREATE UNIQUE INDEX " + "AUTOCOMPLETE_NAME_IDX ON " + AUTOCOMPLETIONS_TABLE_NAME + " (" + AutocompleteFields.TEXT + ")");
-
-        db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
-                ThemeField.KEY + " TEXT PRIMARY KEY, " +
-                ThemeField.TITLE + " TEXT NOT NULL, " +
-                ThemeField.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeField.UP_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeField.DOWN_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeField.TEXT_COLOR + " INTEGER DEFAULT NULL, " +
-                ThemeField.HINT_COLOR + " INTEGER DEFAULT NULL" +
-                ")");
-
-        db.execSQL("INSERT INTO `theme` VALUES('actionbar', 'Заголовок', -5111808, NULL, NULL, -1, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('layout', 'Общий фон', -7757, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('status_layout', 'Фон статус-панели', -1189699, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('loginlabel', 'Цвет текста логина', NULL, NULL, NULL, -5233152, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('button', 'Цвет кнопок', NULL, -1189699, -527665, -8382464, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listview', 'Фон списков', -1, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem', 'Фон элементов списка', 788505856, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem_title', 'Текст заголовка элемента', -4130, NULL, NULL, -9437184, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('listitem_signature', 'Текст подписи элемента',-4403, NULL, NULL, -10020352, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('horizontal_divider', 'Горизонтальный разделитель', -16777216, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('vertical_divider', 'Вертикальный разделитель', -65536, NULL, NULL, NULL, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода', NULL, NULL, NULL, -16777216, -7829368)");
-        db.execSQL("INSERT INTO `theme` VALUES('label', 'Текстовые метки', 0, NULL, NULL, -11272192, NULL)");
-        db.execSQL("INSERT INTO `theme` VALUES('checkbox', 'Чекбоксы (маска)', 4294967295, NULL, NULL, NULL, NULL)");
     }
 
     @Override
@@ -95,7 +47,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         switch (oldVersion) {
             case 1:
-                db.execSQL("CREATE TABLE " + THEME_TABLE_NAME + " (" +
+                db.execSQL("CREATE TABLE theme (" +
                         ThemeField.KEY + " TEXT PRIMARY KEY, " +
                         ThemeField.TITLE + " TEXT NOT NULL, " +
                         ThemeField.BACKGROUND_COLOR + " INTEGER DEFAULT NULL, " +
@@ -123,45 +75,13 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             case 2:
                 db.execSQL("DELETE FROM `theme` WHERE " + ThemeField.KEY + " = 'edit'");
                 db.execSQL("INSERT INTO `theme` VALUES('edit', 'Поля ввода', NULL, NULL, NULL, -16777216, -7829368)");
+            case 3:
+                db.execSQL("DROP TABLE theme");
         }
     }
 
     public Cursor getAutocompleteCursor(AutocompleteType type, String filter) {
         return getWritableDatabase().query(AUTOCOMPLETIONS_TABLE_NAME, new String[]{AutocompleteFields._id.toString(), AutocompleteFields.TEXT.toString(), AutocompleteFields.TITLE.toString()}, "TYPE = ? AND TEXT LIKE ?", new String[]{String.valueOf(type.ordinal()), "%" + filter + "%"}, null, null, null, null);
-    }
-
-    public HashMap<ThemeField, Object> getThemeRow(String type) {
-        HashMap<ThemeField, Object> themeRow = new HashMap<>(5);
-        Cursor cursor = getWritableDatabase().query(THEME_TABLE_NAME, null, "KEY = ?", new String[]{type}, null, null, null, null);
-        if (cursor.moveToFirst()) {
-            for (int i = 2; i < cursor.getColumnCount(); ++i) {
-                if (!cursor.isNull(i)) {
-                    switch (cursor.getType(i)) {
-                        case Cursor.FIELD_TYPE_INTEGER:
-                            themeRow.put(ThemeField.valueOf(cursor.getColumnName(i)), cursor.getInt(i));
-                            break;
-                        case Cursor.FIELD_TYPE_STRING:
-                            themeRow.put(ThemeField.valueOf(cursor.getColumnName(i)), cursor.getString(i));
-                    }
-                }
-            }
-        }
-        cursor.close();
-        return themeRow;
-    }
-
-    public Cursor getThemesCursor() {
-        return getWritableDatabase().query(THEME_TABLE_NAME, null, null, null, null, null, null, null);
-    }
-
-    public void modifyThemeRow(String type, ThemeField field, Object value) {
-        ContentValues cv = new ContentValues(3);
-        if (value instanceof Integer) {
-            cv.put(field.toString(), (Integer) value);
-        } else if (value instanceof String) {
-            cv.put(field.toString(), (String) value);
-        }
-        getWritableDatabase().update(THEME_TABLE_NAME, cv, "KEY = ?", new String[]{type});
     }
 
     public void addAutocompleteText(AutocompleteType type, String query) {

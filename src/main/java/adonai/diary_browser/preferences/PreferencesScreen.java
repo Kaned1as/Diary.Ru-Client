@@ -24,8 +24,4 @@ public class PreferencesScreen extends PreferenceActivity {
 
         addPreferencesFromResource(R.xml.preferences);
     }
-
-    public DatabaseHandler getDatabase() {
-        return mDatabase;
-    }
 }
