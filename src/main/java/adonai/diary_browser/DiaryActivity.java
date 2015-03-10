@@ -67,6 +67,21 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // ставим тему до инстанцирования любых View
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
+        final String theme = prefs.getString("app.theme", "red");
+        switch (theme) {
+            case "red":
+                setTheme(R.style.DiaryThemeRed);
+                break;
+            case "light":
+                setTheme(R.style.DiaryThemeLight);
+                break;
+            case "dark":
+                setTheme(R.style.DiaryThemeDark);
+                break;
+        }
+
         super.onCreate(savedInstanceState);
         mDatabase = new DatabaseHandler(this);
         mUiHandler = new Handler(this);
@@ -123,6 +138,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                             mUiHandler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
+                                    if (isFinishing()) // бывает при неверной авторизации
+                                        return;
+
                                     AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
                                     TextView message = new TextView(DiaryActivity.this);
                                     message.setMovementMethod(LinkMovementMethod.getInstance());

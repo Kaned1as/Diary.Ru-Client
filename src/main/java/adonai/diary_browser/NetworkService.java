@@ -27,7 +27,6 @@ import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
-import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -42,16 +41,12 @@ import org.jsoup.nodes.Entities;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
@@ -70,14 +65,11 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
-    public static final String CUSTOM_CSS_CACHED_FILE = "custom.css";
     private static final int NOTIFICATION_ID = 3; // I SWEAR IT'S RANDOM!!11
     private static final int NEWS_NOTIFICATION_ID = 4;
     private static final int PENDING_INTENT_ID = 1408;  // I SWEAR IT'S RANDOM!!11
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
-
-    private static String mCssContent;
 
     public UserData mUser = new UserData();
     public DiaryHttpClient mDHCL = new DiaryHttpClient();
@@ -110,90 +102,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             mIsStarting = true;
         }
         return mInstance;
-    }
-
-    private static String getCssContent(Context ctx) {
-        if (mCssContent == null) {
-            mCssContent = retrieveCss(ctx);
-        }
-        return mCssContent;
-    }
-
-    private static void setCssContent(Context ctx, String content) {
-        mCssContent = content;
-    }
-
-    /**
-     * Retrieves current css content from cached file or android assets (on first launch)
-     *
-     * @param ctx context to live in
-     * @return String representing file contents
-     */
-    private static String retrieveCss(Context ctx) {
-        try {
-            if (CacheManager.getInstance().hasData(ctx, CUSTOM_CSS_CACHED_FILE)) {
-                return new String(CacheManager.getInstance().retrieveData(ctx, CUSTOM_CSS_CACHED_FILE));
-            } else {
-                InputStream is = ctx.getAssets().open("css/journal.css");
-                String contents = Utils.getStringFromInputStream(is);
-                CacheManager.getInstance().cacheData(ctx, contents.getBytes(), CUSTOM_CSS_CACHED_FILE);
-                return contents;
-            }
-        } catch (IOException e) {
-            return "";
-        }
-    }
-
-    /**
-     * Css file parsed to retrieve colors
-     *
-     * @param ctx context to live in
-     * @return mapping of colors like (Name:color)
-     */
-    public static Map<String, String> getCssColors(Context ctx) {
-        String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";
-        Pattern parser = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = parser.matcher(getCssContent(ctx));
-        Map<String, String> result = new HashMap<>();
-        while (matcher.find()) {
-            result.put(matcher.group(2), matcher.group(1));
-        }
-        return result;
-    }
-
-    /**
-     * Css string is replaced with colors put in
-     *
-     * @param ctx          context to live in
-     * @param replacements mapping of colors like (Name:color)
-     */
-    public static void replaceCssColors(Context ctx, Map<String, String> replacements) {
-        String css = getCssContent(ctx);
-        String regex = ":\\s?(#[\\w\\d]+);?\\s+/\\*\\s(.*?)\\s\\*/";
-        Pattern parser = Pattern.compile(regex, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = parser.matcher(css);
-        while (matcher.find()) {
-            if (replacements.containsKey(matcher.group(2))) {
-                css = css.replace(matcher.group(), ": " + replacements.get(matcher.group(2)) + ";   /* " + matcher.group(2) + " */");
-                replacements.remove(matcher.group(2));
-                matcher = parser.matcher(css);
-            }
-        }
-        try {
-            setCssContent(ctx, css);
-            CacheManager.getInstance().cacheData(ctx, css.getBytes(), CUSTOM_CSS_CACHED_FILE);
-        } catch (IOException e) {
-            Toast.makeText(ctx, R.string.io_error, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public static void resetCssColors(Context ctx) {
-        try {
-            CacheManager.getInstance().dropData(ctx, CUSTOM_CSS_CACHED_FILE);
-            mCssContent = null;
-        } catch (IOException e) {
-            Toast.makeText(ctx, R.string.io_error, Toast.LENGTH_SHORT).show();
-        }
     }
 
     @Override
@@ -1069,11 +977,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private void parseContent(Document resultPage) {
         // страница будет иметь наш стиль
         resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
-        //getAssets().open("css/journal.css");
-        //resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
-        if (!getCssContent(this).isEmpty()) {
-            resultPage.head().append("<style type=\"text/css\" media=screen>" + mCssContent + "</style>");
-        }
+        String theme = mPreferences.getString("app.theme", "red");
+        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/" + theme + ".css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
 
         // кнопка репоста указывает на нужную ссылку
         Elements shareLinks = resultPage.select(".postLinks li[class^=quote]");

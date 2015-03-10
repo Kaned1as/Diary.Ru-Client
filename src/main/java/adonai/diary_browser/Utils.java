@@ -5,11 +5,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
-
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
@@ -112,15 +107,6 @@ public class Utils {
         dlg.setTitle("Sorry :(");
         dlg.setMessage("This object is under development now, please, have a patience! ^_^");
         dlg.create().show();
-    }
-
-    static String getStringFromInputStream(InputStream stream) throws IOException {
-        int n = 0;
-        char[] buffer = new char[1024 * 4];
-        InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
-        StringWriter writer = new StringWriter();
-        while (-1 != (n = reader.read(buffer))) writer.write(buffer, 0, n);
-        return writer.toString();
     }
 
     /**
