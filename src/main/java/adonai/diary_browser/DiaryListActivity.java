@@ -129,8 +129,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void initializeUI(View main) {
-        getSupportActionBar().setHomeButtonEnabled(true);
-
         mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
@@ -266,8 +264,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 finish();
                 System.exit(0);
                 return true;
-            case android.R.id.home:
-                return onSearchRequested();
             case R.id.menu_special_paste:
                 DialogFragment newFragment = PasteSelector.newInstance();
                 newFragment.show(getFragmentManager(), "selector");
@@ -523,6 +519,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     private void handleTabChange(String url) {
         // Обработка случая, когда URL страницы совпадает с URL одного из табов
+        mTabs.getChildAt(mCurrentTab).getBackground().setAlpha(50);
         if (url.equals(getUser().getFavoritesUrl())) {
             setTitle(R.string.title_activity_diary_list);
             mTabs.getChildAt(mCurrentTab).setSelected(false);
@@ -541,6 +538,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             mCurrentTab = 3;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         }
+        mTabs.getChildAt(mCurrentTab).getBackground().setAlpha(150);
     }
 
     // Часть кода относится к кнопке быстрой промотки
@@ -730,10 +728,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public boolean onSearchRequested() {
         int visibility = mTabs.getVisibility();
         if (visibility == View.GONE) {
-            mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.VISIBLE);
+            mainPane.getView().findViewById(R.id.upper_deck).setVisibility(View.VISIBLE);
             mTabs.setVisibility(View.VISIBLE);
         } else {
-            mainPane.getView().findViewById(R.id.upperDeck).setVisibility(View.GONE);
+            mainPane.getView().findViewById(R.id.upper_deck).setVisibility(View.GONE);
             mTabs.setVisibility(View.GONE);
         }
 

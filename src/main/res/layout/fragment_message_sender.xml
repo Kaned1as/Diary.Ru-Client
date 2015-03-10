@@ -3,7 +3,8 @@
     android:id="@+id/scroll"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="false">
+    android:fillViewport="false"
+    android:background="?attr/panel_background">
 
     <LinearLayout
         android:id="@+id/message_main_layout"

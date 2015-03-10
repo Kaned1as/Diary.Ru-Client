@@ -7,7 +7,7 @@
     tools:ignore="RtlHardcoded">
 
     <RelativeLayout
-        android:id="@+id/upperDeck"
+        android:id="@+id/upper_deck"
         android:layout_width="match_parent"
         android:layout_height="30dip"
         android:background="?attr/panel_background">

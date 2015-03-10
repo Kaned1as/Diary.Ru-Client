@@ -14,6 +14,14 @@
         <item name="list_item_color_secondary">#303030</item>
         <item name="horizontal_divider_color">#400000</item>
         <item name="panel_background">#edd8bd</item>
+
+        <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeRed.OverflowHeaderText</item>
+    </style>
+
+
+    <style name="DiaryThemeRed.OverflowHeaderText" parent="android:TextAppearance.Large">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
 
