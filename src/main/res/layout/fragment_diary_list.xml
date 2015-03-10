@@ -20,7 +20,8 @@
             android:background="#00FFFFFF"
             android:contentDescription="@string/quotes_description"
             android:scaleType="center"
-            android:src="@drawable/quotations"/>
+            android:src="@drawable/quotations"
+            android:tint="?attr/button_tint"/>
 
         <ImageButton
             android:id="@+id/exit_button"
@@ -43,7 +44,7 @@
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:textColor="?attr/colorPrimary"
+            android:textColor="?attr/horizontal_divider_color"
             android:gravity="center_vertical" />
 
         <ImageButton
@@ -55,7 +56,8 @@
             android:background="#00FFFFFF"
             android:contentDescription="@string/umail_description"
             android:scaleType="center"
-            android:src="@drawable/umail_folders" />
+            android:src="@drawable/umail_folders"
+            android:tint="?attr/button_tint"/>
 
         <TextView
             android:id="@+id/umail_counter"
@@ -72,7 +74,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:clickable="true">
+        android:layout_marginTop="-5dp">
 
         <HorizontalScrollView
             android:id="@+id/horizontalScrollView1"
@@ -85,7 +87,7 @@
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:id="@+id/tabs"
                 android:clickable="false"
                 android:showDividers="middle">

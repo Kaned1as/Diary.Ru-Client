@@ -1,7 +1,7 @@
 body
 {
-    background-color: #f7f2ee;   /* Фон */
-    color: #000000;   /* Цвет текста */
+    background-color: #070707;   /* Фон */
+    color: #ffffff;   /* Цвет текста */
     font-family: Verdana, Arial, Helvetica, sans-serif;
     font-size: 80%;
     padding: 5px;
@@ -303,7 +303,7 @@ a:hover
 .singlePost, .singleComment
 {
     margin-top: 20px;
-    background-color: #edd8bd; /* Фон поста/комментария */
+    background-color: #202020; /* Фон поста/комментария */
     border-radius: 12px;
 }
 
@@ -349,7 +349,7 @@ h6
 {
     text-align: left;
     padding: 5px;
-    border-bottom: 1px solid #c7b29b;
+    border-bottom: 1px solid #707070;
 }
 
 .header *, .postDate *
@@ -367,7 +367,7 @@ h6
     padding: 5px;
     font-size: 100%;
     text-align: right;
-    border-top: 1px solid #c7b29b;
+    border-top: 1px solid #707070;
 }
 
 .formcontainer
@@ -594,7 +594,7 @@ blockquote, .paragraph li, .paragraph ul
 a
 {
     text-decoration: none;
-    color: #800000; /* Цвет ссылки */
+    color: #aaaaaa; /* Цвет ссылки */
 }
 
 .linkssection .paragraph

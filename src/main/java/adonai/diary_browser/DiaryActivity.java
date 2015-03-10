@@ -67,21 +67,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        // ставим тему до инстанцирования любых View
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
-        final String theme = prefs.getString("app.theme", "red");
-        switch (theme) {
-            case "red":
-                setTheme(R.style.DiaryThemeRed);
-                break;
-            case "light":
-                setTheme(R.style.DiaryThemeLight);
-                break;
-            case "dark":
-                setTheme(R.style.DiaryThemeDark);
-                break;
-        }
-
+        Utils.setupTheme(this);
         super.onCreate(savedInstanceState);
         mDatabase = new DatabaseHandler(this);
         mUiHandler = new Handler(this);

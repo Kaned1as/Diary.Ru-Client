@@ -30,6 +30,7 @@ public class AuthorizationForm extends Activity implements OnClickListener {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Utils.setupTheme(this);
         super.onCreate(savedInstanceState);
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
 

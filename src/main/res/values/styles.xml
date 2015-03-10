@@ -4,6 +4,7 @@
     <attr name="panel_background" format="color" />
     <attr name="list_item_color" format="color" />
     <attr name="list_item_color_secondary" format="color" />
+    <attr name="button_tint" format="color" />
 
     <style name="DiaryThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#800000</item>
@@ -14,6 +15,7 @@
         <item name="list_item_color_secondary">#303030</item>
         <item name="horizontal_divider_color">#400000</item>
         <item name="panel_background">#edd8bd</item>
+        <item name="button_tint">#600000</item>
 
         <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeRed.OverflowHeaderText</item>
     </style>
@@ -26,12 +28,33 @@
 
 
     <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
-        <item name="colorPrimary">#A0A0A0</item>
-        <item name="colorPrimaryDark">#808080</item>
+        <item name="colorPrimary">#909090</item>
+        <item name="colorPrimaryDark">#707070</item>
         <item name="colorAccent">#607D8B</item>
+
+        <item name="list_item_color">@android:color/black</item>
+        <item name="list_item_color_secondary">#303030</item>
+        <item name="horizontal_divider_color">#000000</item>
+        <item name="panel_background">#eeeeee</item>
+        <item name="button_tint">#000000</item>
+
+        <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeLight.OverflowHeaderText</item>
+    </style>
+
+    <style name="DiaryThemeLight.OverflowHeaderText" parent="android:TextAppearance.Large">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="DiaryThemeDark" parent="Theme.AppCompat">
+        <item name="colorPrimary">#202020</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">#a0a0a0</item>
+
+        <item name="list_item_color">@android:color/white</item>
+        <item name="list_item_color_secondary">#a0a0a0</item>
+        <item name="horizontal_divider_color">#ffffff</item>
+        <item name="panel_background">#111111</item>
+        <item name="button_tint">#ffffff</item>
     </style>
 
 </resources>

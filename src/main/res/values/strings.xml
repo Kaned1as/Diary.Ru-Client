@@ -69,8 +69,7 @@
     <string name="new_comment">Новый комментарий</string>
     <string name="sorting_data">Сортировка данных…</string>
     <string name="images_autoload">Автозагрузка изображений</string>
-    <string name="images_autoload_summary">Используйте с осторожностью! Может вызвать переполнение доступной памяти!
-    </string>
+    <string name="images_autoload_summary">Автоматически загружать все изображения на страницах</string>
     <string name="post_signature">Подпись к сообщению</string>
     <string name="post_signature_summary">Подпись, которая будет добавлена к любому сообщению, которое вы добавите через
         приложение.
@@ -80,10 +79,6 @@
     <string name="post_tags_summary">Тэги, которые будут добавлены к любому посту, который вы опубликуете</string>
     <string name="cache_size">Максимальный размер кэша</string>
     <string name="cache_size_summary">Размер кэша, используемого для картинок и постов, в МБ</string>
-    <string name="autoload_cached_images">Автозагрузка кэша</string>
-    <string name="autoload_cached_images_summary">Если изображение имеется в кэше, то по клику оно загружается из
-        памяти. Выберите, чтобы автоматически загружать все такие изображения без клика.
-    </string>
     <string name="menu_share">Отправить</string>
     <string name="copied">Скопировано:</string>
     <string name="message_close">Закрытый пост</string>
@@ -161,7 +156,7 @@
     <string name="notify_updates_sum">Делать проверку на наличие новых комментариев время от времени</string>
     <string name="new_comments">Новые комментарии</string>
     <string name="keep_device_on">Держать телефон включенным</string>
-    <string name="keep_device_on_sum">Необходимо, чтобы сервис всегда получал уведомления о новых комментариях, а не только при включенном экране. Внимание! Садит батарейку, поскольку телефон не уходит в режим полного сна.</string>
+    <string name="keep_device_on_sum">Необходимо, чтобы сервис всегда получал уведомления о новых комментариях, а не только при включенном экране. Внимание! Разряжает батарею, поскольку телефон не уходит в режим полного сна.</string>
     <string name="webview_font_size">Размер шрифта</string>
     <string name="webview_font_size_sum">Минимальный размер шрифта на вебформах</string>
     <string name="invalid_number">Неверное число</string>
@@ -189,7 +184,8 @@
     <string name="clear_contents">Вы собираетесь отправить сообщение в тот же дневник. Желаете очистить поля ввода?</string>
     <string name="no">Нет</string>
     <string name="preload_themes_sum">Предзагружает темы перед открытием панели отправки сообщения. Загрузка идёт дольше, но вы можете выбрать темы из существующих в дневнике</string>
-    <string name="preload_themes">Загружать список тем дневников?</string><string name="no_comments">Отключить комментарии</string>
+    <string name="preload_themes">Загружать список тем дневников</string>
+    <string name="no_comments">Отключить комментарии</string>
     <string name="keep_auth">Запомнить</string>
     <string name="keep_auth_sum">Если включено, авторизация будет сохранена даже после выхода из приложения. Если нет, вам придется авторизовываться каждый раз, когда вы запускаете приложение.</string>
     <string name="page_incorrect">Неверная страница! Скорее всего, сервис @Дневников недоступен, попробуйте позже!</string>

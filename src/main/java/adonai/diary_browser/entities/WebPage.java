@@ -13,7 +13,7 @@ public abstract class WebPage {
     }
 
     public String getTitle() {
-        return title;
+        return title.replaceAll("@дневники — ", "");
     }
 
     public void setTitle(String title) {

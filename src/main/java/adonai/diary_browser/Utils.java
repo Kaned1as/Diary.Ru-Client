@@ -1,7 +1,9 @@
 package adonai.diary_browser;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
@@ -133,5 +135,22 @@ public class Utils {
         final Resources resources = context.getResources();
         final DisplayMetrics metrics = resources.getDisplayMetrics();
         return px / (metrics.densityDpi / 160f);
+    }
+
+    public static void setupTheme(Activity activity) {
+        // ставим тему до инстанцирования любых View
+        SharedPreferences prefs = activity.getSharedPreferences(Utils.mPrefsFile, Context.MODE_PRIVATE);
+        final String theme = prefs.getString("app.theme", "red");
+        switch (theme) {
+            case "red":
+                activity.setTheme(R.style.DiaryThemeRed);
+                break;
+            case "light":
+                activity.setTheme(R.style.DiaryThemeLight);
+                break;
+            case "dark":
+                activity.setTheme(R.style.DiaryThemeDark);
+                break;
+        }
     }
 }
