@@ -51,10 +51,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:cacheColorHint="@android:color/transparent"
-                android:divider="@null"
-                android:background="#edd8bd"
-                android:choiceMode="multipleChoiceModal"
-                android:dividerHeight="5dp" />
+                android:choiceMode="multipleChoiceModal" />
 
             <adonai.diary_browser.DiaryWebView
                 android:id="@+id/page_browser"

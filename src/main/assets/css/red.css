@@ -310,14 +310,14 @@ a:hover
 #contant
 {
     border-radius: 12px;
-    border: 2px dotted #c7b29b;
+    border: 2px dotted #c7b29b; /* Цвет окантовки профиля */
     padding: 5px;
-    background-color: #fde8cd;
+    background-color: #fde8cd; /* Фон профиля */
 }
 
 p[align=justify]
 {
-    background-color: #fdf8dd;
+    background-color: #fdf8dd; /* Цвет списков ссылок профиля */
     border-radius: 12px;
     padding: 5px;
 }
