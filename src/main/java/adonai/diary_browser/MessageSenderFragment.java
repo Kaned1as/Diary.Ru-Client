@@ -67,6 +67,8 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.DraftListArrayAdapter;
@@ -88,6 +90,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_GET_SMILIES = 9;
     private static final int HANDLE_GET_DRAFTS = 10;
     private static final int HANDLE_SEND_ERROR = -1;
+
+    static Pattern EMAIL_ANSWER_REGEX = Pattern.compile("Re\\[(\\d+)\\]: (.*)");
 
     BroadcastReceiver mPaneStateReceiver = new BroadcastReceiver() {
         @Override
@@ -788,12 +792,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
     private void prepareUi(Umail mail) {
         toText.setText(mail.receiver);
-        if (mail.receiver.isEmpty()) {
-            titleText.setText("Fwd: " + mail.messageTheme);
-        } else if (!mail.messageTheme.startsWith("Re: ")) {
-            titleText.setText("Re: " + mail.messageTheme);
-        } else {
+        if(mail.receiver.isEmpty() && mail.messageTheme.isEmpty()) {        // новое сообщение
             titleText.setText(mail.messageTheme);
+        } else if (mail.receiver.isEmpty()) {                               // пересылаемое сообщение
+            titleText.setText("Fw: " + mail.messageTheme);
+        } else {                                                            // сообщение-ответ
+            Matcher replyFinder = EMAIL_ANSWER_REGEX.matcher(mail.messageTheme);
+            if(replyFinder.find()) {                                    // это ответ с номером, инкрементим
+                int counter = Integer.parseInt(replyFinder.group(1));
+                String realTheme = replyFinder.group(2);
+                titleText.setText(String.format("Re[%d]: %s", ++counter, realTheme));
+            } else if(mail.messageTheme.startsWith("Re: ")) {           // это ответ ещё без номера, вставляем
+                titleText.setText(mail.messageTheme.replace("Re: ", "Re[1]: "));
+            } else {
+                titleText.setText("Re: " + mail.messageTheme);          // это первый ответ
+            }
         }
 
         mRequote.setChecked(true);
