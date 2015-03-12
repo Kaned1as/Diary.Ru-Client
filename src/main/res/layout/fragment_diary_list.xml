@@ -93,6 +93,7 @@
                 android:showDividers="middle">
 
                 <Button
+                    android:textColor="?attr/list_item_color"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/favourites"
@@ -103,6 +104,7 @@
                     android:layout_weight="1"/>
 
                 <Button
+                    android:textColor="?attr/list_item_color"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/posts"
@@ -113,6 +115,7 @@
                     android:layout_weight="1"/>
 
                 <Button
+                    android:textColor="?attr/list_item_color"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/my_diary"
@@ -123,6 +126,7 @@
                     android:layout_weight="1"/>
 
                 <Button
+                    android:textColor="?attr/list_item_color"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:text="@string/discussions"

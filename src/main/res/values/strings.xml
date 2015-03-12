@@ -224,6 +224,7 @@
     <string name="dark_theme">Темная</string>
     <string name="light_theme">Светлая</string>
     <string name="red_theme">Красная</string>
+    <string name="lilac_theme">Сиреневая</string>
     <string name="app_theme">Тема оформления</string>
     <string name="app_theme_summary">Применяется после перезагрузки приложения</string>
 </resources>

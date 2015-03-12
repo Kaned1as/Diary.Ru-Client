@@ -151,6 +151,9 @@ public class Utils {
             case "dark":
                 activity.setTheme(R.style.DiaryThemeDark);
                 break;
+            case "lilac":
+                activity.setTheme(R.style.DiaryThemeLilac);
+                break;
         }
     }
 }

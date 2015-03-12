@@ -6,10 +6,12 @@
         <item>@string/light_theme</item>
         <item>@string/dark_theme</item>
         <item>@string/red_theme</item>
+        <item>@string/lilac_theme</item>
     </string-array>
     <string-array name="preference_themes_values" translatable="false">
         <item>light</item>
         <item>dark</item>
         <item>red</item>
+        <item>lilac</item>
     </string-array>
 </resources>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <attr name="horizontal_divider_color" format="color" />
-    <attr name="panel_background" format="color" />
-    <attr name="list_item_color" format="color" />
-    <attr name="list_item_color_secondary" format="color" />
-    <attr name="button_tint" format="color" />
+    <attr name="horizontal_divider_color" format="color" /> <!-- Фон разделителя и ника -->
+    <attr name="panel_background" format="color" /> <!-- Фон верхней панели -->
+    <attr name="list_item_color" format="color" /> <!-- заголовки списков и кнопки табов -->
+    <attr name="list_item_color_secondary" format="color" /> <!-- Подписи списков -->
+    <attr name="button_tint" format="color" /> <!-- значки цитатника и U-Mail -->
 
     <style name="DiaryThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#800000</item>
@@ -55,6 +55,18 @@
         <item name="horizontal_divider_color">#ffffff</item>
         <item name="panel_background">#111111</item>
         <item name="button_tint">#ffffff</item>
+    </style>
+
+    <style name="DiaryThemeLilac" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#8c8bc7</item>
+        <item name="colorPrimaryDark">#6c6ba7</item>
+        <item name="colorAccent">#433f58</item>
+
+        <item name="list_item_color">#000440</item>
+        <item name="list_item_color_secondary">#000660</item>
+        <item name="horizontal_divider_color">#0043b0</item>
+        <item name="panel_background">#a595d5</item>
+        <item name="button_tint">#000a80</item>
     </style>
 
 </resources>
