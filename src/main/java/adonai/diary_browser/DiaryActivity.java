@@ -1,7 +1,5 @@
 package adonai.diary_browser;
 
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +18,8 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.vending.util.IabHelper;
 import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
@@ -40,7 +40,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     MessageSenderFragment messagePane;
     Handler mUiHandler;
     NetworkService mService;
-    ProgressDialog pd;
+    MaterialDialog pd;
     DiaryHttpClient mDHCL;
     String pageToLoad;
     DatabaseHandler mDatabase;
@@ -127,7 +127,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                                     if (isFinishing()) // бывает при неверной авторизации
                                         return;
 
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
+                                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
                                     TextView message = new TextView(DiaryActivity.this);
                                     message.setMovementMethod(LinkMovementMethod.getInstance());
                                     message.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -191,7 +191,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 @Override
                 public void onIabPurchaseFinished(IabResult result, Purchase info) {
                     if (result.isSuccess()) {
-                        AlertDialog.Builder builder = new AlertDialog.Builder(DiaryActivity.this);
+                        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
                         builder.setTitle(R.string.completed).setMessage(R.string.thanks);
                         builder.setPositiveButton(android.R.string.ok, null);
                         builder.create().show();
@@ -223,7 +223,13 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     }
 
     public void handleBackground(int opCode, Object body) {
-        pd = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loading_data), true, true);
+        pd = new MaterialDialog.Builder(this)
+                .title(R.string.loading)
+                .content(R.string.loading_data)
+                .progress(true, 0)
+                .build();
+        pd.show();
+
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface dialog) {
                 mDHCL.abort();

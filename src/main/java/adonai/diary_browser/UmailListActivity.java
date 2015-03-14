@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -26,6 +25,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.ListPage;
@@ -226,7 +227,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 break;
             case Utils.HANDLE_PROGRESS:
                 if (pd != null)
-                    pd.setMessage(getString(R.string.parsing_data));
+                    pd.setContent(getString(R.string.parsing_data));
                 return true;
         }
 
@@ -275,7 +276,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 return true;
             case R.id.menu_about:
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(ctw);
                 builder.setTitle(R.string.about);
                 View aboutContent = LayoutInflater.from(ctw).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);

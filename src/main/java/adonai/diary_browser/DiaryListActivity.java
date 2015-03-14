@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.app.AlertDialog;
 import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -41,6 +40,8 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -241,7 +242,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case R.id.menu_about:
                 ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-                AlertDialog.Builder builder = new AlertDialog.Builder(ctw);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(ctw);
                 builder.setTitle(R.string.about);
                 View aboutContent = LayoutInflater.from(ctw).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
@@ -310,11 +311,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if (pd != null)
-                    pd.setMessage(getString(R.string.parsing_data));
+                    pd.setContent(getString(R.string.parsing_data));
                 return true;
             case Utils.HANDLE_PROGRESS_2:
                 if (pd != null)
-                    pd.setMessage(getString(R.string.sorting_data));
+                    pd.setContent(getString(R.string.sorting_data));
                 return true;
             case Utils.HANDLE_UPDATE_HEADERS:
                 // обрабатываем обновление контента
@@ -338,7 +339,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 return true;
             case Utils.HANDLE_SET_HTTP_COOKIE: // успешно авторизовались
-                pd.setMessage(getString(R.string.getting_user_info));
+                pd.setContent(getString(R.string.getting_user_info));
                 return true;
             case Utils.HANDLE_GET_LIST_PAGE_DATA:
                 setCurrentVisibleComponent(PART_LIST);
@@ -435,7 +436,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 itemsBuilder.add(getString(R.string.image_open));
 
                 final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
-                AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
                 builder.setTitle(R.string.image_action);
                 builder.setItems(items, new DialogInterface.OnClickListener() {
                     @SuppressWarnings("deprecation")
@@ -488,7 +489,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     Toast.makeText(DiaryListActivity.this, getString(R.string.nobody_here), Toast.LENGTH_SHORT).show();
                     break;
                 }
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
                 builder.setTitle(R.string.whos_online);
                 View aboutContent = LayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
                 TextView favs = (TextView) aboutContent.findViewById(R.id.favs_online);
@@ -560,7 +561,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void onClick(View view) {
         if (view == mExitButton) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(mPageBrowser.getContext());
+            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
             builder.setTitle(R.string.really_exit);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int item) {
@@ -659,7 +660,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
 
         if (parent == mDiaryBrowser) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
             ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
             builder.setMessage(diary.getPageHint()).create().show();
         }

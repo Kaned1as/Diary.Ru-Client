@@ -1,8 +1,6 @@
 package adonai.diary_browser;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -45,6 +43,9 @@ import android.widget.ListAdapter;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -135,7 +136,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         break;
                     }
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     ListAdapter adapter = new DraftListArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, drafts);
                     builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
                         @Override
@@ -143,7 +144,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             final Post clicked = drafts.get(which);
 
                             // выбираем действие - удалить или редактировать
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                             builder.setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() { // редактировать
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -155,7 +156,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // диалог подтверждения
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
                                     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                         @Override
@@ -172,7 +173,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
                 case HANDLE_UMAIL_ACK: {
                     pd.dismiss();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     builder.setTitle(android.R.string.ok).setCancelable(false).setMessage(R.string.message_send_ok);
                     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
 
@@ -186,7 +187,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 }
                 case HANDLE_UMAIL_REJ: {
                     pd.dismiss();
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     builder.setTitle(android.R.string.no).setCancelable(false).setMessage(R.string.message_send_error);
                     builder.setPositiveButton(android.R.string.no, new DialogInterface.OnClickListener() {
 
@@ -316,7 +317,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     RadioGroup mCloseOpts;
     Handler mHandler, mUiHandler;
     Looper mLooper;
-    ProgressDialog pd;
+    MaterialDialog pd;
     LinearLayout mAvatars, mOptionals, mPoll, mSmilies, mSmilieButtons, mPredefinedThemes, mMainLayout, mAsUserLayout;
     List<View> postElements = new ArrayList<>();
     List<View> commentElements = new ArrayList<>();
@@ -714,7 +715,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     v.setVisibility(View.VISIBLE);
 
                 if (oldpost.getClass() == Post.class && ((Post) oldpost).diaryID.equals(((Post) mPost).diaryID)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
                     builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
@@ -747,7 +748,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     v.setVisibility(View.VISIBLE);
 
                 if (oldpost.getClass() == Comment.class && oldpost.postID.equals(mPost.postID)) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
                     builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                         @Override
@@ -932,7 +933,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
 
         if (view instanceof Button && view.getTag(R.integer.smile_page) != null && view.getParent() == mSmilieButtons) {
-            pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+            pd = new MaterialDialog.Builder(getActivity())
+                    .title(R.string.loading)
+                    .content(R.string.loading_data)
+                    .progress(true, 0)
+                    .build();
+            pd.show();
+
             mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, view.getTag(R.integer.smile_page)));
         }
 
@@ -945,7 +952,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 // Добавляем параметры из настроек
                 postParams.add(new BasicNameValuePair("signature", mSignature));
                 postParams.add(new BasicNameValuePair("action", "dosend"));
-                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, false);
+                pd = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.loading)
+                        .content(R.string.sending_data)
+                        .progress(true, 0)
+                        .cancelable(false)
+                        .build();
+                pd.show();
+                //ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, false);
 
                 // Если пост
                 if (mPost.getClass() == Post.class) {
@@ -1115,11 +1129,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 break;
             }
             case R.id.message_show_smilies:
-                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+                pd = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.loading)
+                        .content(R.string.loading_data)
+                        .progress(true, 0)
+                        .build();
+                pd.show();
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_SMILIES, null));
                 break;
             case R.id.message_load_draft:
-                pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+                pd = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.loading)
+                        .content(R.string.loading_data)
+                        .progress(true, 0)
+                        .build();
+                pd.show();
                 mHandler.sendMessage(mHandler.obtainMessage(HANDLE_GET_DRAFTS, null));
                 break;
         }
@@ -1155,7 +1179,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 if (isChecked) {
                     mAvatars.setVisibility(View.VISIBLE);
                     if (avatarMap == null) {
-                        pd = ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.loading_data), true, true);
+                        pd = new MaterialDialog.Builder(getActivity())
+                                .title(R.string.loading)
+                                .content(R.string.loading_data)
+                                .progress(true, 0)
+                                .build();
+                        pd.show();
                         mHandler.sendEmptyMessage(HANDLE_REQUEST_AVATARS);
                     }
                 } else
@@ -1268,6 +1297,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             file = new File(cursor.getString(column_index));
                         else
                             Toast.makeText(getActivity(), R.string.no_file_on_device, Toast.LENGTH_LONG).show();
+                        cursor.close();
 
                     } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
                         file = new File(uri.getPath());
@@ -1276,7 +1306,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         if (file != null) {
                             final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
                             msg.arg1 = 3;
-                            AlertDialog.Builder origOrMoreOrLink = new AlertDialog.Builder(getActivity());
+                            AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
                             DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -1293,11 +1323,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                             break;
                                     }
 
-                                    pd = new ProgressDialog(getActivity());
-                                    pd.setIndeterminate(false);
-                                    pd.setTitle(R.string.loading);
-                                    pd.setMessage(getString(R.string.sending_data));
-                                    pd.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                                    pd = new MaterialDialog.Builder(getActivity())
+                                            .title(R.string.loading)
+                                            .content(R.string.sending_data)
+                                            .progress(false, 100)
+                                            .build();
                                     pd.show();
                                     mHandler.sendMessage(msg);
                                 }

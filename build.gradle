@@ -1,25 +1,24 @@
 buildscript {
-    repositories {
-        mavenCentral()
-    }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
+
 apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'
-    compile 'com.android.support:support-v4:21.0.3'
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'
-    compile "com.android.support:appcompat-v7:21.0.3"                   // support library (material design)
+    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'    // pull to refresh lib
+    compile 'com.android.support:support-v4:22.0.0'                         // support library (Drawers)
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'               // animated gif drawables
+    compile 'com.android.support:appcompat-v7:22.0.0'                       // support library (material design)
+    compile 'com.afollestad:material-dialogs:0.6.4.1'                       // material design for dialogs
 //    compile 'org.jsoup:jsoup:1.8.1'
-//    compile 'com.android.support:appcompat-v7:20.0.0'
-    compile fileTree(dir: 'libs', include: '*.jar')
+    compile fileTree(dir: 'libs', include: '*.jar')                         // apache html entity + custom jsoup
 }
 
 android {

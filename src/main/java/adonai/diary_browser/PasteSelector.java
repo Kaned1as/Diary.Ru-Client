@@ -10,6 +10,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
+
 
 public class PasteSelector extends DialogFragment {
     CheckBox mShouldPaste;
@@ -29,7 +31,7 @@ public class PasteSelector extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View mainView = inflater.inflate(R.layout.special_paste_selector, null);
 

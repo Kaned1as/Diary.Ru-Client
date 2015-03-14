@@ -1,11 +1,12 @@
 package adonai.diary_browser;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
@@ -105,7 +106,7 @@ public class Utils {
     }
 
     static void showDevelSorry(Context ctx) {
-        AlertDialog.Builder dlg = new AlertDialog.Builder(ctx);
+        AlertDialogWrapper.Builder dlg = new AlertDialogWrapper.Builder(ctx);
         dlg.setTitle("Sorry :(");
         dlg.setMessage("This object is under development now, please, have a patience! ^_^");
         dlg.create().show();

@@ -1,7 +1,6 @@
 package adonai.diary_browser;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Message;
@@ -14,6 +13,8 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
+
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -118,7 +119,7 @@ public class DiaryWebView extends WebView {
                 if (url.contains("?delpost&postid=")) // удаление поста
                 {
                     final String id = url.substring(url.lastIndexOf("=") + 1);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
                     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override
@@ -139,7 +140,7 @@ public class DiaryWebView extends WebView {
                 if (url.contains("?delcomment&commentid=")) // удаление коммента
                 {
                     final String id = url.substring(url.lastIndexOf("=") + 1);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
                     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         @Override

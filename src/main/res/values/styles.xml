@@ -18,6 +18,7 @@
         <item name="button_tint">#600000</item>
 
         <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeRed.OverflowHeaderText</item>
+        <item name="md_background_color">?attr/panel_background</item>
     </style>
 
 
@@ -39,6 +40,7 @@
         <item name="button_tint">#000000</item>
 
         <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeLight.OverflowHeaderText</item>
+        <item name="md_background_color">?attr/panel_background</item>
     </style>
 
     <style name="DiaryThemeLight.OverflowHeaderText" parent="android:TextAppearance.Large">
@@ -67,6 +69,8 @@
         <item name="horizontal_divider_color">#0043b0</item>
         <item name="panel_background">#a595d5</item>
         <item name="button_tint">#000a80</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
     </style>
 
 </resources>
