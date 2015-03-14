@@ -2,8 +2,8 @@
 <resources>
     <attr name="horizontal_divider_color" format="color" /> <!-- Фон разделителя и ника -->
     <attr name="panel_background" format="color" /> <!-- Фон верхней панели -->
-    <attr name="list_item_color" format="color" /> <!-- заголовки списков и кнопки табов -->
-    <attr name="list_item_color_secondary" format="color" /> <!-- Подписи списков -->
+    <attr name="text_color_main" format="color" /> <!-- заголовки списков и кнопки табов -->
+    <attr name="text_color_secondary" format="color" /> <!-- Подписи списков -->
     <attr name="button_tint" format="color" /> <!-- значки цитатника и U-Mail -->
 
     <style name="DiaryThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -11,14 +11,16 @@
         <item name="colorPrimaryDark">#600000</item>
         <item name="colorAccent">#ffd13325</item>
 
-        <item name="list_item_color">@android:color/black</item>
-        <item name="list_item_color_secondary">#303030</item>
+        <item name="text_color_main">@android:color/black</item>
+        <item name="text_color_secondary">#303030</item>
         <item name="horizontal_divider_color">#400000</item>
         <item name="panel_background">#edd8bd</item>
         <item name="button_tint">#600000</item>
 
         <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeRed.OverflowHeaderText</item>
         <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
 
@@ -33,14 +35,16 @@
         <item name="colorPrimaryDark">#707070</item>
         <item name="colorAccent">#607D8B</item>
 
-        <item name="list_item_color">@android:color/black</item>
-        <item name="list_item_color_secondary">#303030</item>
+        <item name="text_color_main">@android:color/black</item>
+        <item name="text_color_secondary">#303030</item>
         <item name="horizontal_divider_color">#000000</item>
         <item name="panel_background">#eeeeee</item>
         <item name="button_tint">#000000</item>
 
         <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeLight.OverflowHeaderText</item>
         <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
     <style name="DiaryThemeLight.OverflowHeaderText" parent="android:TextAppearance.Large">
@@ -52,11 +56,15 @@
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">#a0a0a0</item>
 
-        <item name="list_item_color">@android:color/white</item>
-        <item name="list_item_color_secondary">#a0a0a0</item>
+        <item name="text_color_main">@android:color/white</item>
+        <item name="text_color_secondary">#a0a0a0</item>
         <item name="horizontal_divider_color">#ffffff</item>
         <item name="panel_background">#111111</item>
         <item name="button_tint">#ffffff</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
     <style name="DiaryThemeLilac" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -64,13 +72,15 @@
         <item name="colorPrimaryDark">#6c6ba7</item>
         <item name="colorAccent">#433f58</item>
 
-        <item name="list_item_color">#000440</item>
-        <item name="list_item_color_secondary">#000660</item>
+        <item name="text_color_main">#000440</item>
+        <item name="text_color_secondary">#000660</item>
         <item name="horizontal_divider_color">#0043b0</item>
         <item name="panel_background">#a595d5</item>
         <item name="button_tint">#000a80</item>
 
         <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
 </resources>

@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:text="@string/title"
             android:textSize="24sp"
-            android:textColor="?attr/list_item_color"
+            android:textColor="?attr/text_color_main"
             android:textStyle="bold"/>
 
     </LinearLayout>
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/author"
-            android:textColor="?attr/list_item_color_secondary"
+            android:textColor="?attr/text_color_secondary"
             android:textSize="16sp"/>
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:gravity="end"
             android:text="@string/last_post"
-            android:textColor="?attr/list_item_color_secondary"
+            android:textColor="?attr/text_color_secondary"
             android:textSize="16sp"/>
 
     </LinearLayout>

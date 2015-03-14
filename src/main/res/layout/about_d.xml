@@ -29,7 +29,7 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:text="@string/app_name"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="?attr/text_color_main" />
 
         </LinearLayout>
 
@@ -55,7 +55,7 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:text="@string/author"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="?attr/text_color_main" />
 
         </LinearLayout>
 
@@ -65,7 +65,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:text="@string/gpl_notice"
-            android:textColor="#BBBBBB"
+            android:textColor="?attr/text_color_main"
             android:textSize="10sp"
             android:textStyle="italic" />
     </LinearLayout>

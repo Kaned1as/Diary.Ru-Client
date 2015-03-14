@@ -16,7 +16,7 @@
         android:text="@string/title"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="?attr/list_item_color"
+        android:textColor="?attr/text_color_main"
         android:gravity="center_vertical" />
 
     <TextView

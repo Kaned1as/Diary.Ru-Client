@@ -241,10 +241,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageURL()));
                 return true;
             case R.id.menu_about:
-                ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(ctw);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
                 builder.setTitle(R.string.about);
-                View aboutContent = LayoutInflater.from(ctw).inflate(R.layout.about_d, null);
+                View aboutContent = LayoutInflater.from(this).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
                 author.setText(Html.fromHtml(getString(R.string.author_description)));
                 author.setMovementMethod(LinkMovementMethod.getInstance());
@@ -491,18 +490,18 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
                 builder.setTitle(R.string.whos_online);
-                View aboutContent = LayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
-                TextView favs = (TextView) aboutContent.findViewById(R.id.favs_online);
+                View whosOnline = LayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
+                TextView favs = (TextView) whosOnline.findViewById(R.id.favs_online);
                 favs.setMovementMethod(LinkMovementMethod.getInstance());
                 if(onliners.containsKey(R.string.favourites_online)) {
                     favs.setText(onliners.get(R.string.favourites_online));
                 }
-                TextView subs = (TextView) aboutContent.findViewById(R.id.subs_online);
+                TextView subs = (TextView) whosOnline.findViewById(R.id.subs_online);
                 favs.setMovementMethod(LinkMovementMethod.getInstance());
                 if(onliners.containsKey(R.string.subscribers_online)) {
                     subs.setText(onliners.get(R.string.subscribers_online));
                 }
-                builder.setView(aboutContent);
+                builder.setView(whosOnline);
                 builder.create().show();
                 break;
         }
