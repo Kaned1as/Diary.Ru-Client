@@ -101,6 +101,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="«"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -110,6 +111,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="»"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -119,6 +121,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="©"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -128,6 +131,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="®"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -137,6 +141,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="½"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -146,6 +151,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="§"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -155,6 +161,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
+                        android:textColor="?attr/text_color_main"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -178,6 +185,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/smilies"
+                        android:textColor="?attr/text_color_main"
                         android:id="@+id/message_show_smilies"/>
                 </LinearLayout>
 
@@ -579,13 +587,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
-                android:text="⤴"/>
+                android:text="⤴"
+                android:textColor="?attr/text_color_main"/>
 
             <Button
                 android:id="@+id/message_publish"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/message_publish"
+                android:textColor="?attr/text_color_main"
                 android:layout_weight="1"
                 android:contentDescription="@string/persistent"/>
 
@@ -594,7 +604,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
-                android:text="⤵"/>
+                android:text="⤵"
+                android:textColor="?attr/text_color_main"/>
 
 
         </LinearLayout>

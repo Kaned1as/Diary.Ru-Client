@@ -83,4 +83,20 @@
         <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
+    <style name="DiaryThemeDarkLilac" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#6e4e89</item>
+        <item name="colorPrimaryDark">#ff4e3468</item>
+        <item name="colorAccent">#450038</item>
+
+        <item name="text_color_main">#1e0d2d</item>
+        <item name="text_color_secondary">#311549</item>
+        <item name="horizontal_divider_color">#4f0c3f</item>
+        <item name="panel_background">#d4beed</item>
+        <item name="button_tint">#ff382f4a</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
+    </style>
+
 </resources>
