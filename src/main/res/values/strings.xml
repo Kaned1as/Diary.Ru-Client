@@ -228,4 +228,5 @@
     <string name="app_theme">Тема оформления</string>
     <string name="app_theme_summary">Применяется после перезагрузки приложения</string>
     <string name="dark_lilac_theme">Тёмно-сиреневая</string>
+    <string name="green_theme">Зелёная</string>
 </resources>

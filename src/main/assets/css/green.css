@@ -1,0 +1,844 @@
+body
+{
+    background-color: #003911;   /* Фон */
+    color: #070e03;   /* Цвет текста */
+    font-family: Verdana, Arial, Helvetica, sans-serif;
+    font-size: 80%;
+    padding: 5px;
+}
+
+
+.header h2, .header h3, .header h4
+{
+    display: inline;
+    font-size: 120%;
+}
+
+.aleft
+{
+    text-align: left;
+}
+
+iframe
+{
+    max-width: 100%;
+}
+
+.fleft
+{
+    float: left;
+}
+
+.fright
+{
+    float: right;
+}
+
+.postInner
+{
+    clear: left;
+    padding: 5px;
+}
+
+.paragraph2
+{
+    margin-left: 0;
+    padding: 0 5px 5px 5px;
+    line-height: 130%;
+    text-align: justify;
+}
+
+.paragraph
+{
+    line-height: 130%;
+    text-align: justify;
+    overflow: auto;
+}
+
+.commentAuthor
+{
+    width: 130px;
+    float: left;
+    padding-left: 5px;
+    overflow: hidden;
+    position: relative;
+}
+
+.commentAuthor div
+{
+    width: 120px;
+    margin: 0 0 10px 0;
+}
+
+@media (max-device-width:300px)
+{
+    .commentAuthor img
+    {
+        max-width: 50px;
+    }
+}
+
+@media (orientation: landscape)
+{
+    .postInner
+    {
+        clear: none;
+    }
+}
+
+
+.sign
+{
+    overflow: hidden;
+    font-size: 85%;
+}
+
+.postActionLinks
+{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    float: right;
+    position: relative;
+}
+
+.postActionLinks li
+{
+    /* 	display: none; */
+    float: left;
+    list-style: none;
+    margin: 0 0 0 5px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.postActionLinks .delPostLink
+{
+    margin: 0 0 0 2px;
+}
+
+.postActionLinks .upPostLink
+{
+    margin: 0 0 0 3px;
+}
+
+.postActionLinks li a
+{
+    padding-left: 0;
+    display: block;
+}
+
+.voting
+{
+    margin: 0 0 10px;
+    clear: left;
+}
+
+.atMusic, .atMood, .atTag
+{
+    margin: 0;
+    clear: both;
+    font-size: 92%;
+    padding: 0;
+}
+
+.atMusic span, .atMood span, .atTag span
+{
+    font-size: 108%;
+}
+
+.postLinks
+{
+    /*	float:right;  */
+    display: inline;
+    margin: 0 0 1px 0;
+    padding: 0;
+}
+
+.postLinks li
+{
+    list-style: none;
+    display: inline;
+    padding: 0;
+    margin: 0 0 0 10px;
+}
+
+/* некоторым не нравится перенос ссылки "В цитатник" */
+postLinks li.addToQuote
+{
+    white-space: nowrap;
+}
+
+a:hover
+{
+    text-decoration: underline;
+}
+
+.paragraph a
+{
+    text-decoration: underline;
+}
+
+.paragraph a:hover
+{
+    text-decoration: none;
+}
+
+#sortOrder
+{
+    float: right;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#sortOrder li
+{
+    float: left;
+    list-style: none;
+    margin: 0 0 0 5px;
+    padding: 0;
+    height: 14px;
+}
+
+#sortOrder li a
+{
+    padding-left: 0;
+    display: block;
+}
+
+.postLinksOld
+{
+    padding: 0;
+    font-size: 120%;
+    clear: both;
+    margin: 0;
+}
+
+.postLinksOld li
+{
+    list-style: none;
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+.prevNextLinks
+{
+    margin-bottom: 1px;
+}
+
+.prevNextLinks .prevPostLink
+{
+    float: left;
+    margin-left: 0;
+    padding: 0 0 5px 0;
+}
+
+.prevNextLinks .nextPostLink
+{
+    text-align: right;
+    margin-left: 0;
+    padding: 0 0 5px 0;
+}
+
+/*��� ����������*/
+#topNav
+{
+    padding: 5px;
+    margin: 0 0 1px 0;
+    text-align: center;
+    font-size: 93%;
+}
+
+#topNavLinks
+{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#topNavLinks li
+{
+    margin: 0 10px;
+    padding: 0;
+    list-style: none;
+    display: inline;
+}
+
+#bottomNav
+{
+    padding: 5px;
+    margin: 0 0 1px 0;
+    text-align: center;
+    font-size: 93%;
+    display: none;
+    height: 31px;
+}
+
+#bottomNavLinks
+{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 28px;
+}
+
+#bottomNavLinks li
+{
+    margin: 0 10px;
+    padding: 0;
+    list-style: none;
+    display: inline;
+}
+
+.singlePost, .menuSection, #side h1, .header, .postContent, .singleComment, .section, .postDate
+{
+    margin-bottom: 1px;
+    word-wrap: break-word
+    /*word-break: break-all;*/
+    /*border: 1px dotted black;*/
+}
+
+.singlePost, .singleComment
+{
+    margin-top: 20px;
+    background-color: #e6ffb6; /* Фон поста/комментария */
+    border-radius: 12px;
+}
+
+#contant
+{
+    border-radius: 12px;
+    border: 2px dotted #004f00; /* Цвет окантовки профиля */
+    padding: 5px;
+    background-color: #e6ffb6; /* Фон профиля */
+}
+
+p[align=justify]
+{
+    background-color: #d1e4ac; /* Цвет списков ссылок профиля */
+    border-radius: 12px;
+    padding: 5px;
+}
+
+h6
+{
+    font-size: 150%;
+    margin: 0px;
+    padding: 0px;
+}
+
+#epigraph, .list_box
+{
+    padding: 5px 5px 5px 5px;
+    width: auto;
+}
+
+#epigraph a
+{
+    text-decoration: underline;
+}
+
+#epigraph a:hover
+{
+    text-decoration: none;
+}
+
+.header, .postDate
+{
+    text-align: left;
+    padding: 5px;
+    border-bottom: 1px solid #5f694b;
+}
+
+.header *, .postDate *
+{
+    font-size: 100%;
+}
+
+.postDate
+{
+    text-align: right;
+}
+
+.postLinksBackg
+{
+    padding: 5px;
+    font-size: 100%;
+    text-align: right;
+    border-top: 1px solid #5f694b;
+}
+
+.formcontainer
+{
+    margin: 0 0 1px 0;
+    padding: 5px;
+}
+
+img
+{
+    border: none;
+    max-width:100%;
+    height: auto;
+}
+
+
+img[width="3"] /* хак! >_< ну почему, почему у IMG нет nowrap!! */
+{
+    display: none;
+}
+
+.voting img
+{
+    border: none;
+    max-height: 10px;
+}
+
+table
+{
+    font-size: 100%;
+    border-collapse: collapse;
+}
+
+.menuSection
+{
+    overflow: visible;
+    font-size: 92%;
+    margin: 0 0 1px 0;
+    padding: 5px 10px 5px 10px;
+}
+
+.section
+{
+    font-size: 100%;
+    margin: 0 0 1px 0;
+    padding: 5px 10px 5px 10px;
+}
+
+.authorName
+{
+    padding: 3px 0 7px 5px;
+}
+
+.communityName
+{
+    padding: 3px 0 0 5px;
+}
+
+#TagsList
+{
+    padding: 5px 0 0 10px;
+    font-size: 90%;
+}
+
+#TagsList ul
+{
+    width: 95%;
+    overflow: hidden;
+}
+
+#TagsList ul li
+{
+    margin: 0 0 5px;
+    width: 100%;
+    overflow: hidden;
+}
+
+#TagsList ul li span
+{
+    display: block;
+    float: right;
+}
+
+.birthday
+{
+    background: url("http://static.diary.ru/images/sharik.gif") no-repeat 0;
+    padding-left: 15px;
+}
+
+.headlineTitle
+{
+    font-weight: normal;
+}
+
+#content
+{
+    padding: 5px;
+    overflow: auto;
+}
+
+.tags_ul_all
+{
+    float: left;
+    width: 25%;
+    margin-right: 3%;
+    margin-bottom: 20px;
+    padding-left: 15px;
+    margin-left: 5px;
+}
+
+.tags_header
+{
+    font-weight: bold;
+    list-style: none;
+    margin-left: -15px;
+    margin-bottom: 3px;
+}
+
+.vDash
+{
+    margin: 0 5px;
+}
+/* Some very old stuff from diary.ru */
+
+.swb, .s
+{
+    font-size: 92%;
+}
+
+.s li
+{
+    list-style-position: outside;
+    list-style-type: square;
+    padding: 0 0 2px 10px;
+    margin: 0 0 2px 10px;
+}
+
+#cn1
+{
+    width: 100%;
+    margin-left: 20%;
+    text-align: right;
+}
+.TagL
+{
+    text-decoration: none !important;
+    font-weight: bold;
+}
+
+.TagJIco
+{
+    background: url('http://static.diary.ru/images/j.gif') no-repeat 0;
+    position: relative;
+    padding-left: 16px;
+    display: inline-block;
+    text-decoration: none !important;
+}
+
+.offtop
+{
+    color: #808080; /* Цвет оффтопа */
+}
+
+.quote_text
+{
+    font-style: italic;
+}
+
+.pageBar, #pageBar
+{
+    text-align: center;
+    font-size: 130%;
+    margin-bottom: 1px;
+    padding: 5px;
+}
+
+.pageBar table, #pageBar table
+{
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.pageBar td, #pageBar td
+{
+    white-space: nowrap;
+    padding: 0;
+}
+
+.pageBar a, #pageBar a,
+.pageBar strong, #pageBar strong
+{
+    margin: 0 1px 0 1px;
+    padding: 0 5px 0 5px;
+}
+
+.pageBar strong, #pageBar strong
+{
+    font-size: 105%;
+}
+
+.pages_str a
+{
+    font-weight: normal;
+    margin: 0 7px 0 7px;
+    padding: 0;
+}
+
+.clear
+{
+    clear: both;
+}
+
+blockquote, .paragraph li, .paragraph ul
+{
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.linkssection
+{
+    margin-bottom: 1px;
+}
+
+a
+{
+    text-decoration: none;
+    color: #003c0f; /* Цвет ссылки */
+}
+
+.linkssection .paragraph
+{
+    padding: 5px;
+}
+
+.linkssection .postLinks
+{
+    clear: none;
+    font-size: 100%;
+    font-weight: normal;
+    float: right;
+}
+
+/*end .block_design*/
+.prevNextLinks span
+{
+    font-size: 115%;
+}
+
+#lastComments ul
+{
+    width: 100%;
+    overflow: hidden;
+}
+
+#lastComments ul li
+{
+    margin: 0 0 0.5em 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+#lastComments ul li span
+{
+    display: block;
+    float: right;
+}
+
+.in-list.first
+{
+    padding-top: 0;
+}
+
+.Attention a, .urlLink a
+{
+    font-size: 150%;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+
+.Attention a:hover, .urlLink a:hover
+{
+    text-decoration: underline !important;
+}
+
+.Attention, .urlLink
+{
+    float: left;
+}
+
+.Attention
+{
+    display: none;
+}
+
+.prevnext
+{
+    margin-top: 1px;
+}
+
+.block_design .prevnext
+{
+    margin-top: 0;
+}
+
+p
+{
+    margin: 5px 0 10px 0;
+}
+
+.group_link
+{
+    text-align: right;
+}
+
+.opac6
+{
+    opacity: 0.5;
+}
+
+#Journal.journal_list .postInner,
+#Journal.journal_list .paragraph,
+#post0 .paragraph,
+#post0 .postInner
+{
+    float: none;
+    margin-left: 0;
+}
+
+#Journal.journal_list .commentAuthor,
+#post0 .commentAuthor
+{
+    float: none;
+    display: none;
+}
+
+#pchs ul
+{
+    overflow: hidden;
+    width: 100%;
+}
+
+.blockquote
+{
+    padding-left: 30px;
+}
+
+#closetext_box td
+{
+    padding-top: 5px;
+}
+
+#close_text
+{
+    width: 100%;
+}
+
+#NContentFrame
+{
+    width: 50% !important;
+}
+
+.code
+{
+    font-family: "Courier New", Courier, monospace;
+    font-size: 90%;
+    border-width: 1px;
+    width: 97%;
+    padding: 0 3px;
+}
+
+.menuSection_title
+{
+    display: none;
+}
+
+#pchs_title, #lastComments_title
+{
+    display: block;
+}
+
+/*������� ����*/
+.top .menuSection_title
+{
+    display: block;
+    cursor: pointer;
+}
+
+.top #topNav
+{
+    display: none;
+}
+
+.top #bottomNav
+{
+    display: block;
+}
+
+#bottomNav #Stats
+{
+    float: right;
+}
+
+.top .menuSection
+{
+    float: left;
+    background-color: transparent;
+}
+
+.top.block_design .menuSection
+{
+    padding-top: 0;
+    margin-top: 0;
+}
+
+.top #side h1
+{
+    text-align: left;
+}
+
+.top.block_design #side h1
+{
+    padding-bottom: 10px;
+}
+
+.top .menuSection ul, .top #sign
+{
+    display: none;
+    position: absolute;
+    z-index: 50;
+    margin-top: 0;
+    padding: 7px !important;
+}
+
+.top .menuSection:hover ul, .top .menuSection.iehover ul, .top #login_form:hover #sign, .top #login_form.iehover #sign
+{
+    display: block;
+}
+
+.top #lastComments ul
+{
+    width: 250px;
+}
+
+.top #lastComments ul li
+{
+    width: auto;
+}
+
+.top #pchs ul
+{
+    width: 250px;
+}
+
+.top #pchs ul li
+{
+    white-space: normal;
+}
+
+.top.block_design #thisDiaryInfo
+{
+    top: 10px;
+}
+
+.top #sign
+{
+    width: 200px;
+}
+
+.authorName .othercommposts
+{
+    float: right;
+    font-size: 85%;
+    padding-right: 5px;
+}

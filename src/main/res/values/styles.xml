@@ -99,4 +99,20 @@
         <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
+    <style name="DiaryThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#003911</item>
+        <item name="colorPrimaryDark">#ff001c0b</item>
+        <item name="colorAccent">#ff006919</item>
+
+        <item name="text_color_main">#003004</item>
+        <item name="text_color_secondary">#ff004704</item>
+        <item name="horizontal_divider_color">#007c11</item>
+        <item name="panel_background">#e6ffb6</item>
+        <item name="button_tint">#0f5c00</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
+    </style>
+
 </resources>
