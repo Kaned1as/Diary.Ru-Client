@@ -9,6 +9,8 @@
         <item>@string/lilac_theme</item>
         <item>@string/dark_lilac_theme</item>
         <item>@string/green_theme</item>
+        <item>@string/pink_theme</item>
+        <!--<item>@string/greeny_brown_theme</item>-->
     </string-array>
     <string-array name="preference_themes_values" translatable="false">
         <item>light</item>
@@ -17,5 +19,7 @@
         <item>lilac</item>
         <item>dark_lilac</item>
         <item>green</item>
+        <item>pink</item>
+        <!--<item>greeny_brown</item>-->
     </string-array>
 </resources>

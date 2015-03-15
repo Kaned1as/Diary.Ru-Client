@@ -102,4 +102,36 @@
         <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
 
+    <style name="DiaryThemePink" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#c649ad</item>
+        <item name="colorPrimaryDark">#ff75365d</item>
+        <item name="colorAccent">#ffe74bcb</item>
+
+        <item name="text_color_main">#ff230e1c</item>
+        <item name="text_color_secondary">#ff410f38</item>
+        <item name="horizontal_divider_color">#ff8f3376</item>
+        <item name="panel_background">#edc6e5</item>
+        <item name="button_tint">#ff633155</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/text_color_main</item>
+        <item name="md_content_color">?attr/text_color_secondary</item>
+    </style>
+
+    <style name="DiaryThemeGreenyBrown" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">#1d5710</item>
+        <item name="colorPrimaryDark">#ff172f0e</item>
+        <item name="colorAccent">#ff207a11</item>
+
+        <item name="text_color_main">#251d15</item>
+        <item name="text_color_secondary">#483a29</item>
+        <item name="horizontal_divider_color">#ff33ac13</item>
+        <item name="panel_background">#1e4611</item>
+        <item name="button_tint">#ffffff</item>
+
+        <item name="md_background_color">?attr/panel_background</item>
+        <item name="md_title_color">?attr/button_tint</item>
+        <item name="md_content_color">?attr/button_tint</item>
+    </style>
+
 </resources>

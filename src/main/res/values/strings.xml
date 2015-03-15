@@ -229,4 +229,6 @@
     <string name="app_theme_summary">Применяется после перезагрузки приложения</string>
     <string name="dark_lilac_theme">Тёмно-сиреневая</string>
     <string name="green_theme">Зелёная</string>
+    <string name="pink_theme">Розовая</string>
+    <string name="greeny_brown_theme">Зелено-коричневая</string>
 </resources>

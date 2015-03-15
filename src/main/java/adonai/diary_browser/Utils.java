@@ -161,6 +161,12 @@ public class Utils {
             case "green":
                 activity.setTheme(R.style.DiaryThemeGreen);
                 break;
+            case "pink":
+                activity.setTheme(R.style.DiaryThemePink);
+                break;
+            case "greeny_brown":
+                activity.setTheme(R.style.DiaryThemeGreenyBrown);
+                break;
         }
     }
 }
