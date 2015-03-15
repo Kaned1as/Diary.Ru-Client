@@ -9,13 +9,13 @@
     <RelativeLayout
         android:id="@+id/upper_deck"
         android:layout_width="match_parent"
-        android:layout_height="30dip"
+        android:layout_height="wrap_content"
         android:background="?attr/panel_background">
 
         <ImageButton
             android:id="@+id/quotes_button"
-            android:layout_width="30dip"
-            android:layout_height="match_parent"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
             android:layout_alignParentLeft="true"
             android:background="#00FFFFFF"
             android:contentDescription="@string/quotes_description"
@@ -25,33 +25,30 @@
 
         <ImageButton
             android:id="@+id/exit_button"
-            android:layout_width="30dip"
-            android:layout_height="match_parent"
+            android:layout_width="30dp"
+            android:layout_height="30dip"
             android:layout_alignParentRight="true"
             android:background="@android:color/transparent"
             android:contentDescription="@string/logout_drawable"
-            android:paddingBottom="5dip"
             android:scaleType="center"
             android:src="@drawable/user_diary_change" />
 
         <TextView
             android:id="@+id/login_name"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_gravity="end|center_vertical"
+            android:layout_height="30dp"
             android:layout_marginRight="10dip"
+            android:gravity="center"
             android:layout_toLeftOf="@id/exit_button"
             android:textAppearance="?android:attr/textAppearanceMedium"
             android:textStyle="bold"
-            android:textColor="?attr/horizontal_divider_color"
-            android:gravity="center_vertical" />
+            android:textColor="?attr/horizontal_divider_color" />
 
         <ImageButton
             android:id="@+id/umail_button"
-            android:layout_width="30dip"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dip"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/quotes_button"
             android:background="#00FFFFFF"
             android:contentDescription="@string/umail_description"
@@ -62,32 +59,25 @@
         <TextView
             android:id="@+id/umail_counter"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
+            android:layout_height="30dp"
             android:layout_toRightOf="@+id/umail_button"
             android:textStyle="bold"
-            android:gravity="center_vertical"/>
-
-    </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginTop="-5dp">
+            android:gravity="center_vertical"
+            android:textColor="?attr/horizontal_divider_color"/>
 
         <HorizontalScrollView
-            android:id="@+id/horizontalScrollView1"
-            android:background="?attr/panel_background"
+            android:id="@+id/tabs_scrollview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/umail_button"
+            android:layout_marginTop="-5dp"
             android:fillViewport="true"
             android:scrollbars="none">
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:id="@+id/tabs"
                 android:clickable="false"
                 android:showDividers="middle">
@@ -95,7 +85,7 @@
                 <Button
                     android:textColor="?attr/text_color_main"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="@string/favourites"
                     android:id="@+id/favlist_button"
                     android:textStyle="bold"
@@ -106,7 +96,7 @@
                 <Button
                     android:textColor="?attr/text_color_main"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="@string/posts"
                     android:id="@+id/fav_button"
                     android:textStyle="bold"
@@ -117,7 +107,7 @@
                 <Button
                     android:textColor="?attr/text_color_main"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="@string/my_diary"
                     android:id="@+id/diary_button"
                     android:textStyle="bold"
@@ -128,7 +118,7 @@
                 <Button
                     android:textColor="?attr/text_color_main"
                     android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:text="@string/discussions"
                     android:id="@+id/discussions_button"
                     android:textStyle="bold"
@@ -136,70 +126,73 @@
                     android:paddingRight="10dp"
                     android:layout_weight="1"/>
             </LinearLayout>
+
         </HorizontalScrollView>
 
         <View
             android:layout_width="match_parent"
+            android:layout_height="1dp"
             android:background="?attr/horizontal_divider_color"
-            android:layout_height="1dp"/>
+            android:layout_below="@id/tabs_scrollview" />
 
-        <FrameLayout
-            android:id="@android:id/tabcontent"
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@android:id/tabcontent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible">
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresher_layout_list"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible">
+            android:layout_height="match_parent">
 
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/refresher_layout_list"
+            <ListView
+                android:id="@+id/diary_browser"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:cacheColorHint="@android:color/transparent" />
 
-                <ListView
-                    android:id="@+id/diary_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:cacheColorHint="@android:color/transparent" />
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            </android.support.v4.widget.SwipeRefreshLayout>
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresher_layout_browser"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/refresher_layout_browser"
+            <adonai.diary_browser.DiaryWebView
+                android:id="@+id/page_browser"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"/>
 
-                <adonai.diary_browser.DiaryWebView
-                    android:id="@+id/page_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            </android.support.v4.widget.SwipeRefreshLayout>
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/refresher_layout_discussions"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/refresher_layout_discussions"
+            <ExpandableListView
+                android:id="@+id/discussion_browser"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:divider="@null"/>
 
-                <ExpandableListView
-                    android:id="@+id/discussion_browser"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:divider="@null"/>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            </android.support.v4.widget.SwipeRefreshLayout>
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/updown_button"
+            android:layout_gravity="right|center_vertical"
+            android:background="@android:color/transparent"
+            android:src="@drawable/overscroll_button_down"
+            android:visibility="invisible"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/overscroll_button"
+            android:padding="5dp" />
 
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/updown_button"
-                android:layout_gravity="right|center_vertical"
-                android:background="@android:color/transparent"
-                android:src="@drawable/overscroll_button_down"
-                android:visibility="invisible"
-                android:scaleType="fitXY"
-                android:contentDescription="@string/overscroll_button"
-                android:padding="5dp" />
-
-        </FrameLayout>
-    </LinearLayout>
+    </FrameLayout>
 
 </LinearLayout>
