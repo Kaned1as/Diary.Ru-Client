@@ -4,7 +4,7 @@
         android:id="@+id/menu_new_post"
         android:title="@string/new_post"
         android:orderInCategory="100"
-        android:showAsAction="ifRoom|withText"
+        compat:showAsAction="ifRoom|withText"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark" />
 
     <item
@@ -12,14 +12,14 @@
         android:orderInCategory="101"
         android:title="@string/new_comment"
         android:icon="@drawable/ic_menu_msg_compose_holo_dark"
-        android:showAsAction="ifRoom|withText" />
+        compat:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/menu_purchase"
         android:orderInCategory="102"
         android:title="@string/help"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:showAsAction="never"
+        compat:showAsAction="never"
         android:visible="false" />
 
     <group
@@ -60,25 +60,25 @@
         android:id="@+id/menu_manual_input"
         android:title="@string/manual_input"
         android:icon="@android:drawable/ic_menu_edit"
-        android:showAsAction="ifRoom|withText"
-        android:actionViewClass="android.widget.SearchView" />
+        compat:showAsAction="ifRoom|withText"
+        compat:actionViewClass="android.support.v7.widget.SearchView" />
     <item
         android:id="@+id/menu_subscr_list"
         android:title="@string/subscribers_list"
         android:icon="@drawable/ic_menu_allfriends"
-        android:showAsAction="ifRoom|withText" />
+        compat:showAsAction="ifRoom|withText" />
 
     <item
         android:id="@+id/menu_show_online_list"
         android:title="@string/whos_online"
         android:icon="@android:drawable/ic_menu_help"
-        android:showAsAction="ifRoom|withText" />
+        compat:showAsAction="ifRoom|withText" />
 
     <group android:id="@+id/group_web">
         <item
             android:id="@+id/menu_refresh"
             android:title="@string/refresh"
             android:icon="@drawable/ic_menu_refresh"
-            android:showAsAction="never" />
+            compat:showAsAction="never" />
     </group>
 </menu>
