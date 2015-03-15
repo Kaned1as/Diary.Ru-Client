@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:measureWithLargestChild="false"
         android:minHeight="30dip"
-        android:paddingTop="5dp">
+        android:paddingTop="5dp"
+        android:background="?attr/panel_background">
 
         <Button
             android:id="@+id/incoming"
@@ -22,7 +23,7 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/outcoming"
+            android:id="@+id/outgoing"
             android:layout_width="wrap_content"
             android:layout_height="fill_parent"
             android:layout_weight="1"

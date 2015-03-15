@@ -1,6 +1,7 @@
 package adonai.diary_browser;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -99,11 +100,15 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
         });
 
         mTabs = (TabWidget) main.findViewById(R.id.folder_selector);
+        for (int i = 0; i < mTabs.getChildCount(); i++) {
+            Button current = (Button) mTabs.getChildAt(i);
 
-        mIncoming = (TextView) main.findViewById(R.id.incoming);
-        mOutcoming = (TextView) main.findViewById(R.id.outcoming);
-        mIncoming.setOnClickListener(this);
-        mOutcoming.setOnClickListener(this);
+            Drawable drawable = current.getBackground().mutate();
+            drawable.setAlpha(50);
+            current.setBackgroundDrawable(drawable);
+
+            current.setOnClickListener(this);
+        }
     }
 
     private void setContextDeleter() {
@@ -242,7 +247,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 mTabs.setCurrentTab(TAB_INCOMING);
                 handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
                 return;
-            case R.id.outcoming:
+            case R.id.outgoing:
                 mTabs.setCurrentTab(TAB_OUTCOMING);
                 handleBackground(Utils.HANDLE_OPEN_FOLDER, outFolderAddress);
                 return;
