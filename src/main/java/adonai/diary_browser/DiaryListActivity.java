@@ -11,14 +11,15 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -56,9 +57,6 @@ import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
     // вкладки приложения
@@ -86,6 +84,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     ImageButton mScrollButton;
     LinearLayout mTabs;
     Handler mUiHandler;
+
+    SwipeRefreshLayout swipeDiscussions;
 
     // Часть кода относится к кнопке быстрой промотки
     private Runnable fadeAnimation = new Runnable() {
@@ -130,22 +130,33 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void initializeUI(View main) {
-        mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
+        swipeList = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_list);
+        swipeList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaries().getURL(), true));
+            }
+        });
+
+        swipeBrowser = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_browser);
+        swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaryPage().getPageURL(), true));
+            }
+        });
+        swipeDiscussions = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_discussions);
+        swipeDiscussions.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getDiscussionsUrl(), true));
+            }
+        });
+
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         mPageBrowser.setOnClickListener(this);
         registerForContextMenu(mPageBrowser);
-        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener() {
-            @Override
-            public void onRefreshStarted(View view) {
-                if (view == mPageBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaryPage().getPageURL(), true));
-                if (view == mDiaryBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaries().getURL(), true));
-                if (view == mDiscussionBrowser)
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getDiscussionsUrl(), true));
-            }
-        }).setup(mPullToRefreshAttacher);
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
 
@@ -191,7 +202,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mDiscussionBrowser.setOnGroupClickListener(this);
         mDiscussionBrowser.setOnItemLongClickListener(this);
 
-        setCurrentVisibleComponent(0);
+        setCurrentVisibleComponent(PART_LIST);
     }
 
     @Override
@@ -200,6 +211,16 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         super.onDestroy();
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // swipeDiscussions не обрабатывается в DiaryActivity
+        TypedValue color = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
+        swipeDiscussions.setColorSchemeColors(color.data);
     }
 
     // старые телефоны тоже должны работать
@@ -369,7 +390,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
                 handleTabChange(mDHCL.currentURL);
-                mPullToRefreshAttacher.setRefreshComplete();
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
@@ -390,7 +410,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mPageBrowser.loadUrl(src);
                     browserHistory.add(src);
                 }
-                mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu(); // PART_WEB
                 break;
@@ -402,10 +421,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 browserHistory.add(getUser().getDiscussions().getURL());
                 handleTabChange(mDHCL.currentURL);
 
+                swipeDiscussions.setRefreshing(false);
                 supportInvalidateOptionsMenu(); // PART_DISC_LIST
                 break;
             case Utils.HANDLE_AUTHORIZATION_ERROR:
-                mPullToRefreshAttacher.setRefreshComplete();
                 Toast.makeText(getApplicationContext(), getString(R.string.not_authorized), Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                 finish();
@@ -698,10 +717,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     private void setCurrentVisibleComponent(int needed) {
-        mDiaryBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
-        mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
+        swipeList.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
+        swipeBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
         //mAuthorBrowser.setVisibility(needed == AUTHOR_PAGE ? View.VISIBLE : View.GONE);
-        mDiscussionBrowser.setVisibility(needed == PART_DISC_LIST ? View.VISIBLE : View.GONE);
+        swipeDiscussions.setVisibility(needed == PART_DISC_LIST ? View.VISIBLE : View.GONE);
 
         mainPane.mCurrentComponent = needed;
     }

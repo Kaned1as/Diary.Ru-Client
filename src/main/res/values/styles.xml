@@ -17,18 +17,10 @@
         <item name="panel_background">#edd8bd</item>
         <item name="button_tint">#600000</item>
 
-        <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeRed.OverflowHeaderText</item>
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
     </style>
-
-
-    <style name="DiaryThemeRed.OverflowHeaderText" parent="android:TextAppearance.Large">
-        <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@android:color/white</item>
-    </style>
-
 
     <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">#909090</item>
@@ -41,14 +33,9 @@
         <item name="panel_background">#eeeeee</item>
         <item name="button_tint">#000000</item>
 
-        <item name="ptrHeaderTitleTextAppearance">@style/DiaryThemeLight.OverflowHeaderText</item>
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
-    </style>
-
-    <style name="DiaryThemeLight.OverflowHeaderText" parent="android:TextAppearance.Large">
-        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="DiaryThemeDark" parent="Theme.AppCompat">

@@ -12,7 +12,6 @@ repositories {
 }
 
 dependencies {
-    compile 'com.github.chrisbanes.actionbarpulltorefresh:library:0.9.9'    // pull to refresh lib
     compile 'com.android.support:support-v4:22.0.0'                         // support library (Drawers)
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'               // animated gif drawables
     compile 'com.android.support:appcompat-v7:22.0.0'                       // support library (material design)

@@ -25,6 +25,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="@string/last_post"
+        android:textColor="?attr/text_color_main"
         android:textSize="12sp"/>
 
 </LinearLayout>

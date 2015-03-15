@@ -62,7 +62,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter {
         if (!discussion.getLastPost().contains("/0"))
             newPosts.setTextColor(Color.RED);
         else
-            newPosts.setTextColor(Color.BLACK);
+            newPosts.setTextColor(title.getCurrentTextColor());
 
         return view;
     }

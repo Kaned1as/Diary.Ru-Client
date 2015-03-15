@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -33,9 +34,6 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
-import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
-import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener {
     static final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
@@ -71,16 +69,21 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         registerForContextMenu(mPageBrowser);
-        mPullToRefreshAttacher = (PullToRefreshLayout) main.findViewById(R.id.refresher_layout);
-        ActionBarPullToRefresh.from(this).allChildrenArePullable().listener(new OnRefreshListener() {
+        swipeList = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_list);
+        swipeList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onRefreshStarted(View view) {
-                if (view == mFolderBrowser)
-                    handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
-                if (view == mPageBrowser)
-                    handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
+            public void onRefresh() {
+                handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
             }
-        }).setup(mPullToRefreshAttacher);
+        });
+
+        swipeBrowser = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_browser);
+        swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
+            }
+        });
 
         mFolderBrowser = (ListView) main.findViewById(R.id.ufolder_browser);
 
@@ -210,7 +213,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     mFolderBrowser.addFooterView(LL);
                 }
                 mFolderBrowser.setAdapter(mFolderAdapter);
-                mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu();
                 break;
@@ -218,7 +220,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageURL(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageURL());
                 setTitle(getUser().getCurrentUmailPage().getTitle());
-                mPullToRefreshAttacher.setRefreshComplete();
 
                 supportInvalidateOptionsMenu();
                 break;
@@ -309,8 +310,8 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
     }
 
     private void setCurrentVisibleComponent(int needed) {
-        mFolderBrowser.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
-        mPageBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
+        swipeList.setVisibility(needed == PART_LIST ? View.VISIBLE : View.GONE);
+        swipeBrowser.setVisibility(needed == PART_WEB ? View.VISIBLE : View.GONE);
         mainPane.mCurrentComponent = needed;
     }
 }

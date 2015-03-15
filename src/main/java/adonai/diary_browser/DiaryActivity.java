@@ -10,9 +10,11 @@ import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.widget.SlidingPaneLayout;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.TextView;
@@ -26,7 +28,6 @@ import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
 import adonai.diary_browser.database.DatabaseHandler;
-import uk.co.senab.actionbarpulltorefresh.library.PullToRefreshLayout;
 
 public abstract class DiaryActivity extends ActionBarActivity implements Callback {
     private static final int HANDLE_APP_START = 0;
@@ -34,7 +35,10 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
     protected IabHelper mHelper;
     protected boolean mCanBuy = false;
-    protected PullToRefreshLayout mPullToRefreshAttacher;
+
+    protected SwipeRefreshLayout swipeList;
+    protected SwipeRefreshLayout swipeBrowser;
+
     DiarySlidePane slider;
     DiaryFragment mainPane;
     MessageSenderFragment messagePane;
@@ -92,6 +96,11 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
         slider.setSliderFadeColor(Color.WHITE);
 
         mUiHandler.sendEmptyMessage(HANDLE_APP_START); // ensure that service is running
+
+        TypedValue color = new TypedValue();
+        getTheme().resolveAttribute(R.attr.colorPrimary, color, true);
+        swipeList.setColorSchemeColors(color.data);
+        swipeBrowser.setColorSchemeColors(color.data);
     }
 
     @Override
@@ -175,7 +184,8 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
                 break;
         }
-        mPullToRefreshAttacher.setRefreshComplete();
+        swipeBrowser.setRefreshing(false);
+        swipeList.setRefreshing(false);
 
         if (pd != null) {
             pd.dismiss();

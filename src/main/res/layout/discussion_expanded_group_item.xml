@@ -16,7 +16,8 @@
         android:ellipsize="marquee"
         android:text="@string/title"
         android:textSize="12sp"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"
+        android:textColor="?attr/text_color_secondary"/>
 
     <TextView
         android:id="@+id/discussion_post_date"
@@ -24,6 +25,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="@string/last_post"
-        android:textSize="10sp"/>
+        android:textSize="10sp"
+        android:textColor="?attr/text_color_secondary"/>
 
 </LinearLayout>
