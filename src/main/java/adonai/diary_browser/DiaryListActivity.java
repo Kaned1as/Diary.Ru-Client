@@ -1,5 +1,8 @@
 package adonai.diary_browser;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -12,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -25,8 +29,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Transformation;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.AdapterView;
@@ -39,6 +46,7 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +64,7 @@ import adonai.diary_browser.entities.DiscListArrayAdapter;
 import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.misc.ArrowDrawable;
 import adonai.diary_browser.preferences.PreferencesScreen;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
@@ -86,6 +95,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     Handler mUiHandler;
 
     SwipeRefreshLayout swipeDiscussions;
+    ArrowDrawable mActionBarToggle;
 
     // Часть кода относится к кнопке быстрой промотки
     private Runnable fadeAnimation = new Runnable() {
@@ -114,7 +124,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_diary_main);
-        //getWindow().setStatusBarColor();
 
         mainPane = (DiaryListFragment) getSupportFragmentManager().findFragmentById(R.id.main_pane);
         messagePane = (MessageSenderFragment) getSupportFragmentManager().findFragmentById(R.id.message_pane);
@@ -130,6 +139,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void initializeUI(View main) {
+        // Настраиваем верхнюю панель
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mActionBarToggle = new ArrowDrawable(this, getSupportActionBar().getThemedContext());
+        getSupportActionBar().setHomeAsUpIndicator(mActionBarToggle);
+
         swipeList = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_list);
         swipeList.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -231,6 +245,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
 
         switch (item.getItemId()) {
+            case android.R.id.home:
+                onSearchRequested();
+                return true;
             case R.id.menu_new_post:
                 if (mService.preload_themes)
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
@@ -745,13 +762,83 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     @Override
     public boolean onSearchRequested() {
-        int visibility = mTabs.getVisibility();
-        if (visibility == View.GONE) {
-            mainPane.getView().findViewById(R.id.upper_deck).setVisibility(View.VISIBLE);
-            mTabs.setVisibility(View.VISIBLE);
-        } else {
-            mainPane.getView().findViewById(R.id.upper_deck).setVisibility(View.GONE);
-            mTabs.setVisibility(View.GONE);
+        final RelativeLayout upperDeck = (RelativeLayout) mainPane.getView().findViewById(R.id.upper_deck);
+        final LinearLayout.LayoutParams lp = (LayoutParams) upperDeck.getLayoutParams();
+        final int height = upperDeck.getHeight();
+        int visibility = upperDeck.getVisibility();
+        if (visibility == View.GONE) { // делаем видимым
+            ValueAnimator animator = ValueAnimator.ofInt(-height, 0);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                    lp.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                    upperDeck.requestLayout();
+                }
+            });
+            animator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+                    upperDeck.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+            animator.setInterpolator(new DecelerateInterpolator());
+            animator.setDuration(300).start();
+
+            Animator toBread = ObjectAnimator.ofFloat(mActionBarToggle, "position", 1, 0);
+            toBread.setInterpolator(new DecelerateInterpolator());
+            toBread.setDuration(300).start();
+        } else { // скрываем
+            ValueAnimator animator = ValueAnimator.ofInt(0, -height);
+            animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                @Override
+                public void onAnimationUpdate(ValueAnimator valueAnimator)
+                {
+                    lp.topMargin = (Integer) valueAnimator.getAnimatedValue();
+                    upperDeck.requestLayout();
+                }
+            });
+            animator.addListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    upperDeck.setVisibility(View.GONE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animation) {
+
+                }
+            });
+            animator.setInterpolator(new DecelerateInterpolator());
+            animator.setDuration(300).start();
+
+            Animator fromBread = ObjectAnimator.ofFloat(mActionBarToggle, "position", 0, 1);
+            fromBread.setInterpolator(new DecelerateInterpolator());
+            fromBread.setDuration(300).start();
         }
 
         return super.onSearchRequested();
