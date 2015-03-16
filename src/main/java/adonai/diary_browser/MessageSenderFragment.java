@@ -19,6 +19,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -61,7 +62,9 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -77,6 +80,7 @@ import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.DraftListArrayAdapter;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.misc.FileUtils;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageButton;
 
@@ -93,8 +97,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_GET_SMILIES = 9;
     private static final int HANDLE_GET_DRAFTS = 10;
     private static final int HANDLE_SEND_ERROR = -1;
-
-    private static final int ACTION_REQUEST_IMAGE = 0;
 
     static Pattern EMAIL_ANSWER_REGEX = Pattern.compile("Re\\[(\\d+)\\]: (.*)");
 
@@ -921,15 +923,25 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     }
 
-    public void insertInCursorPosition(CharSequence what) {
+    public void insertInCursorPosition(@NonNull CharSequence prefix, @NonNull CharSequence what, @NonNull CharSequence suffix) {
         int cursorPos = contentText.getSelectionStart();
         if (cursorPos == -1)
             cursorPos = contentText.getText().length();
 
         String beforeCursor = contentText.getText().toString().substring(0, cursorPos);
         String afterCursor = contentText.getText().toString().substring(cursorPos, contentText.getText().length());
-        contentText.setText(beforeCursor + what + afterCursor);
-        contentText.setSelection(contentText.getText().toString().indexOf(afterCursor, cursorPos));
+
+        String beforeCursorWithPrefix = beforeCursor + prefix;
+        String suffixWithAfterCursor = suffix + afterCursor;
+        contentText.setText(beforeCursorWithPrefix + what + suffixWithAfterCursor);
+
+        if(what.length() == 0) { // пустая строчка между тэгами, позиционируем в центр
+            contentText.setSelection(contentText.getText().toString().indexOf(suffixWithAfterCursor, cursorPos));
+        } else if(afterCursor.isEmpty()) { // вставляем в конец, позиционируем на конец строки
+            contentText.setSelection(contentText.getText().length());
+        } else { // вставляем в середину, позиционируем на строку после вставки
+            contentText.setSelection(contentText.getText().toString().indexOf(afterCursor, cursorPos));
+        }
     }
 
     public void onClick(View view) {
@@ -945,7 +957,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         // обработка кнопок смайлов
         if (view instanceof GifImageButton && view.getTag(R.integer.smile_key) != null && view.getParent() == mSmilies) {
-            insertInCursorPosition((CharSequence) view.getTag(R.integer.smile_key));
+            insertInCursorPosition("", (CharSequence) view.getTag(R.integer.smile_key), "");
         }
 
         if (view instanceof Button && view.getTag(R.integer.smile_page) != null && view.getParent() == mSmilieButtons) {
@@ -1239,20 +1251,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case ACTION_REQUEST_IMAGE:
+            case Utils.ACTIVITY_ACTION_REQUEST_IMAGE:
                 if (resultCode == Activity.RESULT_OK) {
                     Uri uri = data.getData();
                     File file = null;
                     if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
-                        String[] projection = {MediaStore.Images.Media.DATA};
-                        Cursor cursor = getActivity().getContentResolver().query(uri, projection, null, null, null);
-                        int column_index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
-                        if (cursor.moveToFirst() && cursor.getString(0) != null) // ensure we have this file on our device...
-                            file = new File(cursor.getString(column_index));
-                        else
-                            Toast.makeText(getActivity(), R.string.no_file_on_device, Toast.LENGTH_LONG).show();
-                        cursor.close();
-
+                        file = FileUtils.getFile(getActivity(), uri);
                     } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
                         file = new File(uri.getPath());
 

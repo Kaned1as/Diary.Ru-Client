@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -21,7 +22,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 public class PasteSelector extends DialogFragment {
 
-    Switch mShouldPaste;
+    SwitchCompat mShouldPaste;
 
     private View.OnClickListener selectorHandler = new View.OnClickListener() {
         @Override
@@ -43,7 +44,7 @@ public class PasteSelector extends DialogFragment {
         View mainView = inflater.inflate(R.layout.special_paste_selector, null);
 
         LinearLayout layout = (LinearLayout) mainView.findViewById(R.id.selector_layout);
-        mShouldPaste = (Switch) layout.findViewById(R.id.checkbox_paste_clip);
+        mShouldPaste = (SwitchCompat) layout.findViewById(R.id.checkbox_paste_clip);
 
         for (int i = 0; i < layout.getChildCount(); i++) {
             View child = layout.getChildAt(i);
@@ -72,38 +73,38 @@ public class PasteSelector extends DialogFragment {
 
         switch (view.getId()) {
             case R.id.button_bold:
-                msf.insertInCursorPosition("<b>" + paste.toString() + "</b>");
+                msf.insertInCursorPosition("<b>", paste.toString(), "</b>");
                 break;
             case R.id.button_italic:
-                msf.insertInCursorPosition("<i>" + paste.toString() + "</i>");
+                msf.insertInCursorPosition("<i>", paste.toString(), "</i>");
                 break;
             case R.id.button_underlined:
-                msf.insertInCursorPosition("<u>" + paste.toString() + "</u>");
+                msf.insertInCursorPosition("<u>", paste.toString(), "</u>");
                 break;
             case R.id.button_nick:
-                msf.insertInCursorPosition("[L]" + paste.toString() + "[/L]");
+                msf.insertInCursorPosition("[L]", paste.toString(), "[/L]");
                 break;
             case R.id.button_link:
-                msf.insertInCursorPosition("<a href=\"" + paste.toString() + "\">" + paste.toString() + "</a>");
+                msf.insertInCursorPosition("<a href=\"" + paste.toString() + "\">", paste.toString(), "</a>");
                 break;
             case R.id.button_more:
-                msf.insertInCursorPosition("[MORE=" + getString(R.string.read_more) + "]" + paste.toString() + "[/MORE]");
+                msf.insertInCursorPosition("[MORE=" + getString(R.string.read_more) + "]", paste.toString(), "[/MORE]");
                 break;
             case R.id.button_offtopic:
-                msf.insertInCursorPosition("<span class='offtop'>" + paste.toString() + "</span>");
+                msf.insertInCursorPosition("<span class='offtop'>", paste.toString(), "</span>");
                 break;
             case R.id.button_stroked:
-                msf.insertInCursorPosition("<s>" + paste.toString() + "</s>");
+                msf.insertInCursorPosition("<s>", paste.toString(), "</s>");
                 break;
             case R.id.button_image:
                 if (pasteClipboard) {
-                    msf.insertInCursorPosition("<img src=\"" + paste.toString() + "\" />");
+                    msf.insertInCursorPosition("<img src=\"", paste.toString(), "\" />");
                 } else
                     try {
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                         intent.setType("image/*");
                         intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), Utils.ACTIVITY_ACTION_REQUEST_IMAGE);
+                        msf.startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), Utils.ACTIVITY_ACTION_REQUEST_IMAGE);
                     } catch (android.content.ActivityNotFoundException ex) {
                         Toast.makeText(getActivity(), getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
                     }
