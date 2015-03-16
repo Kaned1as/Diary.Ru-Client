@@ -19,6 +19,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
@@ -29,6 +30,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -91,6 +93,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_GET_SMILIES = 9;
     private static final int HANDLE_GET_DRAFTS = 10;
     private static final int HANDLE_SEND_ERROR = -1;
+
+    private static final int ACTION_REQUEST_IMAGE = 0;
 
     static Pattern EMAIL_ANSWER_REGEX = Pattern.compile("Re\\[(\\d+)\\]: (.*)");
 
@@ -686,6 +690,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_special_paste:
+                DialogFragment newFragment = PasteSelector.newInstance();
+                newFragment.show(getActivity().getSupportFragmentManager(), "selector");
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onDestroyView() {
         mLooper.quit();
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mPaneStateReceiver);
@@ -905,7 +921,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         }
     }
 
-    private void insertInCursorPosition(CharSequence what) {
+    public void insertInCursorPosition(CharSequence what) {
         int cursorPos = contentText.getSelectionStart();
         if (cursorPos == -1)
             cursorPos = contentText.getText().length();
@@ -1220,72 +1236,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
     }
 
-    @SuppressWarnings("deprecation")
-    public void acceptDialogClick(View view, boolean pasteClipboard) {
-        int cursorPos = contentText.getSelectionStart();
-        if (cursorPos == -1)
-            cursorPos = contentText.getText().length();
-
-        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
-        CharSequence paste = clipboard.getText();
-        if (paste == null || !pasteClipboard)
-            paste = "";
-
-        switch (view.getId()) {
-            case R.id.button_bold: {
-                insertInCursorPosition("<b>" + paste.toString() + "</b>");
-                break;
-            }
-            case R.id.button_italic: {
-                insertInCursorPosition("<i>" + paste.toString() + "</i>");
-                break;
-            }
-            case R.id.button_underlined: {
-                insertInCursorPosition("<u>" + paste.toString() + "</u>");
-                break;
-            }
-            case R.id.button_nick: {
-                insertInCursorPosition("[L]" + paste.toString() + "[/L]");
-                break;
-            }
-            case R.id.button_link: {
-                insertInCursorPosition("<a href=\"" + paste.toString() + "\">" + paste.toString() + "</a>");
-                break;
-            }
-            case R.id.button_more: {
-                insertInCursorPosition("[MORE=" + getString(R.string.read_more) + "]" + paste.toString() + "[/MORE]");
-                break;
-            }
-            case R.id.button_offtopic: {
-                insertInCursorPosition("<span class='offtop'>" + paste.toString() + "</span>");
-                break;
-            }
-            case R.id.button_stroked: {
-                insertInCursorPosition("<s>" + paste.toString() + "</s>");
-                break;
-            }
-            case R.id.button_image: {
-                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                intent.setType("image/*");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                if (pasteClipboard) {
-                    contentText.setText(contentText.getText().toString().substring(0, cursorPos) + "<img src=\"" + paste.toString() + "\" />" + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
-                    contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
-                } else
-                    try {
-                        startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), 0);
-                    } catch (android.content.ActivityNotFoundException ex) {
-                        Toast.makeText(getActivity(), getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
-                    }
-                break;
-            }
-        }
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 0:
+            case ACTION_REQUEST_IMAGE:
                 if (resultCode == Activity.RESULT_OK) {
                     Uri uri = data.getData();
                     File file = null;

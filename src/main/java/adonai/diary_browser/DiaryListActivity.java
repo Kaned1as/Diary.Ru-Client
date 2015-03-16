@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.app.DialogFragment;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -14,8 +13,8 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -29,11 +28,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
-import android.view.animation.Transformation;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.widget.AdapterView;
@@ -67,7 +64,7 @@ import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.misc.ArrowDrawable;
 import adonai.diary_browser.preferences.PreferencesScreen;
 
-public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener, PasteSelector.PasteAcceptor {
+public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
     // вкладки приложения
     public static final int TAB_FAVOURITES = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -301,10 +298,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 stopService(new Intent(this, NetworkService.class));
                 finish();
                 System.exit(0);
-                return true;
-            case R.id.menu_special_paste:
-                DialogFragment newFragment = PasteSelector.newInstance();
-                newFragment.show(getFragmentManager(), "selector");
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -891,11 +884,5 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public void editComment(Comment comment) {
         messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", comment);
         slider.openPane();
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public void acceptDialogClick(View view, boolean pasteClipboard) {
-        messagePane.acceptDialogClick(view, pasteClipboard);
     }
 }

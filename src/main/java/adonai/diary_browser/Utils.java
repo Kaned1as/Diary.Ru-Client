@@ -75,6 +75,8 @@ public class Utils {
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;
 
+    static final int ACTIVITY_ACTION_REQUEST_IMAGE              = 0;
+
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
