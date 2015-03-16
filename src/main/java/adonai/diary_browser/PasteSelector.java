@@ -10,14 +10,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 
 public class PasteSelector extends DialogFragment {
-    CheckBox mShouldPaste;
+
+    Switch mShouldPaste;
+
     private View.OnClickListener selectorHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -38,11 +43,14 @@ public class PasteSelector extends DialogFragment {
         View mainView = inflater.inflate(R.layout.special_paste_selector, null);
 
         LinearLayout layout = (LinearLayout) mainView.findViewById(R.id.selector_layout);
-        mShouldPaste = (CheckBox) layout.findViewById(R.id.checkbox_paste_clip);
+        mShouldPaste = (Switch) layout.findViewById(R.id.checkbox_paste_clip);
 
-        for (int i = 0; i < layout.getChildCount(); i++)
-            if (layout.getChildAt(i) instanceof Button)  // Кнопки вставки, а не чекбокс, к примеру
-                layout.getChildAt(i).setOnClickListener(selectorHandler);
+        for (int i = 0; i < layout.getChildCount(); i++) {
+            View child = layout.getChildAt(i);
+            if (child instanceof Button) {  // Кнопки вставки
+                child.setOnClickListener(selectorHandler);
+            }
+        }
 
         builder.setTitle(R.string.menu_special_paste);
         builder.setView(mainView);
