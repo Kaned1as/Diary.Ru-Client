@@ -1,9 +1,9 @@
 package adonai.diary_browser;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -18,7 +18,7 @@ import android.widget.Toast;
 import java.util.HashMap;
 import java.util.Map;
 
-public class AuthorizationForm extends Activity implements OnClickListener {
+public class AuthorizationForm extends ActionBarActivity implements OnClickListener {
 
     Button mLogin;
     EditText mUsername, mPassword;

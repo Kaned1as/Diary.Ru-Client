@@ -1,11 +1,11 @@
 package adonai.diary_browser;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 
-public class LaunchActivity extends Activity {
+public class LaunchActivity extends ActionBarActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {

@@ -20,6 +20,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
     </style>
 
     <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
@@ -52,6 +56,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeLilac" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -68,6 +76,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
     </style>
 
     <style name="DiaryThemeDarkLilac" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -84,6 +96,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -100,6 +116,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
     </style>
 
     <style name="DiaryThemePink" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -116,6 +136,10 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreenyBrown" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -132,6 +156,18 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/button_tint</item>
         <item name="md_content_color">?attr/button_tint</item>
+
+        <!-- fixing bug with action style -->
+        <!-- TODO: remove this when fixed upstream -->
+        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+    </style>
+
+    <style name="DiaryTheme.WithDarkActionBar.ActionMode" parent="Widget.AppCompat.ActionMode">
+        <item name="background">?attr/text_color_main</item>
+    </style>
+
+    <style name="DiaryTheme.Dark.ActionMode" parent="Widget.AppCompat.Light.ActionMode.Inverse">
+        <item name="background">?attr/colorPrimary</item>
     </style>
 
 </resources>
