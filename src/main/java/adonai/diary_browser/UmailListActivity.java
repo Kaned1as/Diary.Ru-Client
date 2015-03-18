@@ -280,20 +280,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             case R.id.menu_settings:
                 startActivity(new Intent(this, PreferencesScreen.class));
                 return true;
-            case R.id.menu_about:
-                ContextThemeWrapper ctw = new ContextThemeWrapper(this, android.R.style.Theme_Black);
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(ctw);
-                builder.setTitle(R.string.about);
-                View aboutContent = LayoutInflater.from(ctw).inflate(R.layout.about_d, null);
-                TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
-                author.setText(Html.fromHtml(getString(R.string.author_description)));
-                author.setMovementMethod(LinkMovementMethod.getInstance());
-                TextView app = (TextView) aboutContent.findViewById(R.id.app_info);
-                app.setText(Html.fromHtml(getString(R.string.application_description)));
-                app.setMovementMethod(LinkMovementMethod.getInstance());
-                builder.setView(aboutContent);
-                builder.create().show();
-                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }

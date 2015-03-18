@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,8 @@ import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -110,6 +113,36 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_about:
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
+                builder.setTitle(R.string.about);
+                View aboutContent = LayoutInflater.from(this).inflate(R.layout.about_d, null);
+                TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
+                author.setText(Html.fromHtml(getString(R.string.author_description)));
+                author.setMovementMethod(LinkMovementMethod.getInstance());
+                TextView app = (TextView) aboutContent.findViewById(R.id.app_info);
+
+                String appWithVersion;
+                try {
+                    PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                    appWithVersion = String.format(getString(R.string.application_description), pInfo.versionName);
+                } catch (PackageManager.NameNotFoundException nnfe) {
+                    appWithVersion = String.format(getString(R.string.application_description), "unknown");
+                }
+
+                app.setText(Html.fromHtml(appWithVersion));
+                app.setMovementMethod(LinkMovementMethod.getInstance());
+                builder.setView(aboutContent);
+                builder.create().show();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     public boolean handleMessage(Message msg) {
         switch (msg.what) {
             case HANDLE_APP_START:
@@ -141,6 +174,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                                     message.setMovementMethod(LinkMovementMethod.getInstance());
                                     message.setGravity(Gravity.CENTER_HORIZONTAL);
                                     message.setText(Html.fromHtml(getString(R.string.ad_text)));
+                                    TypedValue color = new TypedValue();
+                                    getTheme().resolveAttribute(R.attr.text_color_main, color, true);
+                                    message.setTextColor(color.data);
                                     builder.setTitle(R.string.ad_title).setView(message);
                                     builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener() {
                                         @Override

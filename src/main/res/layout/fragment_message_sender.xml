@@ -215,7 +215,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/message_content"
-            android:ems="10"
             android:imeOptions="actionSend"
             android:inputType="text|textMultiLine|textCapSentences"
             android:minLines="2"

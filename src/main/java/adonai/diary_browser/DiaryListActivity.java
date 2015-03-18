@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
@@ -274,19 +276,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                 Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageURL(), Toast.LENGTH_SHORT).show();
                 clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageURL()));
-                return true;
-            case R.id.menu_about:
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
-                builder.setTitle(R.string.about);
-                View aboutContent = LayoutInflater.from(this).inflate(R.layout.about_d, null);
-                TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
-                author.setText(Html.fromHtml(getString(R.string.author_description)));
-                author.setMovementMethod(LinkMovementMethod.getInstance());
-                TextView app = (TextView) aboutContent.findViewById(R.id.app_info);
-                app.setText(Html.fromHtml(getString(R.string.application_description)));
-                app.setMovementMethod(LinkMovementMethod.getInstance());
-                builder.setView(aboutContent);
-                builder.create().show();
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getSubscribersUrl(), false));
