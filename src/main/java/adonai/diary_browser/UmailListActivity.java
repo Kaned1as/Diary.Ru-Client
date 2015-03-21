@@ -6,14 +6,10 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
 import android.text.Spanned;
-import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
 import android.view.ActionMode;
-import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -27,8 +23,6 @@ import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
-
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.ListPage;
@@ -266,13 +260,13 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 newUmail((UmailPage) null);
                 return true;
             case R.id.menu_reply_umail:
-                if (mService.preload_umail)
+                if (mService.mPreloadUmails)
                     handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_REPLY);
                 else
                     newUmail(getUser().getCurrentUmailPage());
                 return true;
             case R.id.menu_forward_umail:
-                if (mService.preload_umail)
+                if (mService.mPreloadUmails)
                     handleBackground(Utils.HANDLE_PRELOAD_UMAIL, Utils.UMAIL_FORWARD);
                 else
                     newUmail(getUser().getCurrentUmailPage());

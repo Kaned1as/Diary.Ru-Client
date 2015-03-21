@@ -150,7 +150,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 if (mService == null)
                     mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 50);
                 else {
-                    setRequestedOrientation(mService.orientation);
+                    setRequestedOrientation(mService.mOrientation);
                     mDHCL = mService.mDHCL;
                     mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 
@@ -169,6 +169,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                                     if (isFinishing()) // бывает при неверной авторизации
                                         return;
 
+                                    // TODO: move to XML
                                     AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
                                     TextView message = new TextView(DiaryActivity.this);
                                     message.setMovementMethod(LinkMovementMethod.getInstance());

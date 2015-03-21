@@ -248,4 +248,8 @@ public class UserData {
 
         return null;
     }
+    
+    public boolean hasNotifications() {
+        return  getNewDiaryCommentsNum() + getNewDiscussNum() + getNewUmailNum() > 0;
+    }
 }

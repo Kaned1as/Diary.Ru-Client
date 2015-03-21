@@ -9,15 +9,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.text.Html;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
@@ -248,7 +244,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 onSearchRequested();
                 return true;
             case R.id.menu_new_post:
-                if (mService.preload_themes)
+                if (mService.mPreloadThemes)
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
                 else
                     newPostPost();

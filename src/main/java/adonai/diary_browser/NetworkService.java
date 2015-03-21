@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Pair;
@@ -65,36 +66,42 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
-    private static final int NOTIFICATION_ID = 3; // I SWEAR IT'S RANDOM!!11
+    
+    private static final int NOTIFICATION_ID = 3; // i swear it's random
     private static final int NEWS_NOTIFICATION_ID = 4;
-    private static final int PENDING_INTENT_ID = 1408;  // I SWEAR IT'S RANDOM!!11
+    
+    // self state
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
 
+    // diary data
     public UserData mUser = new UserData();
     public DiaryHttpClient mDHCL = new DiaryHttpClient();
+    private List<DiaryActivity> mListeners = new ArrayList<>(2);
     public SharedPreferences mPreferences;
-    boolean load_images;
-    boolean is_sticky;
-    boolean notify_on_updates;
-    boolean keep_device_on;
-    boolean preload_themes;
-    boolean preload_umail;
-    int orientation;
-    String[] lastLinks = {"", "", ""}; // дополнительная проверка, есть ли уже уведомление об этих ссылках
+    
+    // settings
+    private boolean mLoadImages;
+    private boolean mIsStickyService;
+    private boolean mNotifyOnUpdates;
+    private boolean mKeepDeviceOn;
+    boolean mPreloadThemes;
+    boolean mPreloadUmails;
+    int mOrientation;
+    
+    // service data
     private CacheManager mCache = CacheManager.getInstance();
-    private PowerManager.WakeLock waker;
+    private PowerManager.WakeLock mWakeLock;
     private Handler mHandler;
-    private Looper mLooper; // петля времени
-    private List<DiaryActivity> mListeners = new ArrayList<>();
-    private Bitmap mNotifIcon;
+    private Looper mLooper;
+    private Bitmap mNotificationIcon;
+    private NotifyState mCurrentLinkSet = new NotifyState();
 
     /*
     К сожалению, НЕТ другой возможности запустить сервис.
     Контекст способен к запуску сервиса только если цикл его главного потока выполняется.
     Поэтому НЕЛЬЗЯ остановить контекст, создающий сервис и подождать пока он запустится
-    Из-за этого, в частности, и нужен механизм HANDLE_APP_START.
-    SPICE MUST FLOW!
+    Из-за этого, в частности, и нужен механизм с HANDLE_APP_START.
     */
     public static NetworkService getInstance(Context context) {
         if (mInstance == null && !mIsStarting) {
@@ -115,35 +122,35 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         mPreferences.registerOnSharedPreferenceChangeListener(this);
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        waker = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "diary.client");
+        mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "diary.client");
 
-        load_images = mPreferences.getBoolean("images.autoload", false);
-        is_sticky = mPreferences.getBoolean("service.always.running", false);
-        notify_on_updates = mPreferences.getBoolean("service.notify.updates", false);
-        keep_device_on = mPreferences.getBoolean("service.keep.device.on", false);
-        preload_themes = mPreferences.getBoolean("preload.themes", true);
-        preload_umail = mPreferences.getBoolean("preload.umail.quoting", true);
-        orientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
+        mLoadImages = mPreferences.getBoolean("images.autoload", false);
+        mIsStickyService = mPreferences.getBoolean("service.always.running", false);
+        mNotifyOnUpdates = mPreferences.getBoolean("service.notify.updates", false);
+        mKeepDeviceOn = mPreferences.getBoolean("service.keep.device.on", false);
+        mPreloadThemes = mPreferences.getBoolean("preload.themes", true);
+        mPreloadUmails = mPreferences.getBoolean("preload.umail.quoting", true);
+        mOrientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
         mLooper = thr.getLooper();
         mHandler = new Handler(mLooper, this);
 
-        if (notify_on_updates)
+        if (mNotifyOnUpdates)
             mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
 
-        if (keep_device_on)
-            waker.acquire();
+        if (mKeepDeviceOn)
+            mWakeLock.acquire();
 
-        if (is_sticky)
+        if (mIsStickyService)
             startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
 
         Bitmap appIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher_inverted);
         Resources res = getResources();
         int height = (int) res.getDimension(android.R.dimen.notification_large_icon_height);
         int width = (int) res.getDimension(android.R.dimen.notification_large_icon_width);
-        mNotifIcon = Bitmap.createScaledBitmap(appIcon, width, height, false);
+        mNotificationIcon = Bitmap.createScaledBitmap(appIcon, width, height, false);
 
         mInstance = this;
         mIsStarting = false;
@@ -152,8 +159,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     @Override
     public void onDestroy() {
         mInstance = null;
-        if (waker.isHeld())
-            waker.release();
+        if (mWakeLock.isHeld())
+            mWakeLock.release();
         mLooper.quit();
 
         // убираем значок
@@ -170,7 +177,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return is_sticky ? START_STICKY : START_NOT_STICKY;
+        return mIsStickyService ? START_STICKY : START_NOT_STICKY;
     }
 
     public void handleRequest(int opcode, Object message) {
@@ -215,20 +222,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
                     final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (mUser.getNewDiaryCommentsNum() + mUser.getNewDiscussNum() + mUser.getNewUmailNum() > 0 && (!lastLinks[0].equals(mUser.getNewDiaryLink()) || !lastLinks[1].equals(mUser.getNewDiscussLink()) || !lastLinks[2].equals(mUser.getNewUmailLink()))) // старые данные или нет?
-                    {
-                        lastLinks[0] = mUser.getNewDiaryLink(); // устанавливаем линки на новые значения
-                        lastLinks[1] = mUser.getNewDiscussLink();
-                        lastLinks[2] = mUser.getNewUmailLink();
+                    if (mUser.hasNotifications() && mCurrentLinkSet.shouldNotify(mUser)) { // старые данные или нет?
+                        mCurrentLinkSet.lastDiaryLink = mUser.getNewDiaryLink(); // устанавливаем линки на новые значения
+                        mCurrentLinkSet.lastDiscussionLink = mUser.getNewDiscussLink();
+                        mCurrentLinkSet.lastUmailLink = mUser.getNewUmailLink();
 
-                        Notification.Builder nBuilder = new Notification.Builder(this);
+                        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
                         nBuilder.setContentTitle(getString(R.string.new_comments));
                         nBuilder.setContentText(
                                 getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
                                 getString(R.string.discussions) + ": " + mUser.getNewDiscussNum() + " | " +
                                 getString(R.string.umail_activity_title) + ": " + mUser.getNewUmailNum());
                         nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
-                        nBuilder.setLargeIcon(mNotifIcon);
+                        nBuilder.setLargeIcon(mNotificationIcon);
                         nBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                         nBuilder.setTicker(getString(R.string.new_comments) + ": " +
                                 Integer.toString(mUser.getNewDiaryCommentsNum() +
@@ -244,9 +250,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                             intent.putExtra("url", newUrl);
                         }
                         nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, nBuilder.getNotification()); // запускаем уведомление
-                    } else if (mUser.getNewDiscussNum() + mUser.getNewDiaryCommentsNum() + mUser.getNewUmailNum() == 0)
+                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, nBuilder.build()); // запускаем уведомление
+                    } else if (!mUser.hasNotifications()) {
                         mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
+                    }
                     break;
                 }
                 case Utils.HANDLE_JUST_DO_GET: {
@@ -429,8 +436,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         sendPost.diaryID = mUser.getOwnProfileId();
                         notifyListeners(Utils.HANDLE_REPOST, sendPost);
                         break;
-                    } catch (NullPointerException ex) // cannot serialize
-                    {
+                    } catch (NullPointerException ex) {
                         notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
                         break;
                     }
@@ -542,8 +548,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private Post serializePostEditPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
-        if (rootNode == null)
-            return null;
 
         final Post result = new Post();
 
@@ -997,7 +1001,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             if (!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature=") && !js.attr("href").contains("down&signature="))
                 js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE, поднятия/опускания постов, результатов голосования и подписки
 
-        if (!load_images) {
+        if (!mLoadImages) {
             Elements images = resultPage.select("img[src^=http], a:has(img)");
             for (Element current : images) {
                 if (current.tagName().equals("img")) {
@@ -1133,25 +1137,25 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
             case "images.autoload":
-                load_images = sharedPreferences.getBoolean(key, false);
+                mLoadImages = sharedPreferences.getBoolean(key, false);
                 break;
             case "service.notify.updates":
                 mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);
-                notify_on_updates = sharedPreferences.getBoolean(key, false);
-                if (notify_on_updates)
+                mNotifyOnUpdates = sharedPreferences.getBoolean(key, false);
+                if (mNotifyOnUpdates)
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
                 break;
             case "service.keep.device.on":
-                if (waker.isHeld())
-                    waker.release();
+                if (mWakeLock.isHeld())
+                    mWakeLock.release();
 
-                keep_device_on = sharedPreferences.getBoolean(key, false);
-                if (keep_device_on)
-                    waker.acquire();
+                mKeepDeviceOn = sharedPreferences.getBoolean(key, false);
+                if (mKeepDeviceOn)
+                    mWakeLock.acquire();
                 break;
             case "service.always.running":
-                is_sticky = sharedPreferences.getBoolean(key, false);
-                if (is_sticky)
+                mIsStickyService = sharedPreferences.getBoolean(key, false);
+                if (mIsStickyService)
                     startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
                 else
                     stopForeground(true);
@@ -1161,35 +1165,47 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     current.handleFontChange(sharedPreferences.getString("webview.font.size", "12"));
                 break;
             case "preload.themes":
-                preload_themes = sharedPreferences.getBoolean("preload.themes", true);
+                mPreloadThemes = sharedPreferences.getBoolean("preload.themes", true);
                 break;
             case "preload.umail.quoting":
-                preload_umail = sharedPreferences.getBoolean("preload.umail.quoting", true);
+                mPreloadUmails = sharedPreferences.getBoolean("preload.umail.quoting", true);
                 break;
             case "screen.orientation":
-                orientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
+                mOrientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
                 break;
         }
     }
 
     // Создаем уведомление в статусной строке - для принудительно живого сервиса в Foreground-режиме
     private Notification createNotification(WebPage page) {
-        Notification.Builder nBuilder = new Notification.Builder(this);
+        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
         nBuilder.setContentTitle(getString(R.string.service_notification));
         nBuilder.setContentText(page.getContent() != null && page.getTitle() != null ? page.getTitle() : "");
         nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
-        nBuilder.setLargeIcon(mNotifIcon);
+        nBuilder.setLargeIcon(mNotificationIcon);
         nBuilder.setOngoing(true);
 
         final Intent intent = new Intent(this, DiaryListActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
         nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, 0));
-        return nBuilder.getNotification();
+        return nBuilder.build();
     }
 
     public void newSession() {
         mUser = new UserData();
         mDHCL.getCookieStore().clear();
         mCache.clear();
+    }
+    
+    private static class NotifyState {
+        private String lastDiaryLink = "";
+        private String lastDiscussionLink = "";
+        private String lastUmailLink = "";
+        
+        public boolean shouldNotify(UserData user) {
+            return !lastDiaryLink.equals(user.getNewDiaryLink()) || 
+                   !lastDiscussionLink.equals(user.getNewDiscussLink()) || 
+                   !lastUmailLink.equals(user.getNewUmailLink());
+        }
     }
 }
