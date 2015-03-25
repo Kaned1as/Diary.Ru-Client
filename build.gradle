@@ -30,6 +30,18 @@ android {
         versionCode 194
         versionName "1.9.4"
     }
+    
+    try {
+        def proc = 'git rev-parse --short HEAD'.execute()
+        def gitOutput = new StringBuilder('-')
+        proc.waitForProcessOutput(gitOutput, System.err)
+        def hash = gitOutput.toString().replace('\n', '').replace('\r', '')
+        if(!hash.empty) {
+            defaultConfig.versionName += hash
+        }
+    } catch (ignored) {
+        println "Be sure that git executable is in your PATH to see extended version info in app"
+    }
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
