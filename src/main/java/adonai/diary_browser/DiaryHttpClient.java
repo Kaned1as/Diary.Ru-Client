@@ -1,5 +1,7 @@
 package adonai.diary_browser;
 
+import android.support.annotation.NonNull;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.CookieStore;
@@ -147,7 +149,7 @@ public class DiaryHttpClient {
         }
     }
 
-    public static interface ProgressListener {
+    public interface ProgressListener {
         void transferred(long transferredBytes);
     }
 
@@ -163,7 +165,7 @@ public class DiaryHttpClient {
         }
 
         @Override
-        public void write(final byte[] b, final int off, final int len) throws IOException {
+        public void write(@NonNull final byte[] b, final int off, final int len) throws IOException {
             //// NO, double-counting, as super.write(byte[], int, int) delegates to write(int).
             //super.write(b, off, len);
             out.write(b, off, len);

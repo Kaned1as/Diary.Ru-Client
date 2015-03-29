@@ -28,6 +28,7 @@ import adonai.diary_browser.entities.DiaryListArrayAdapter;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
+import adonai.diary_browser.entities.WebPage;
 import adonai.diary_browser.preferences.PreferencesScreen;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener {
@@ -114,7 +115,6 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     mFolderAdapter.addSelection(id);
                 else
                     mFolderAdapter.removeSelection(id);
-                mFolderBrowser.invalidateViews();
             }
 
             @Override
@@ -185,6 +185,10 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     handleBackground(Utils.HANDLE_OPEN_FOLDER, inFolderAddress);
                 return true;
             case Utils.HANDLE_DELETE_UMAILS:
+                // перед пересозданием индикатора загрузки его нужно уничтожить
+                if(pd.isShowing()) {
+                    pd.dismiss();
+                }
                 handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
                 return true;
             case Utils.HANDLE_OPEN_FOLDER:
@@ -218,7 +222,11 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageURL(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageURL());
-                setTitle(getUser().getCurrentUmailPage().getTitle());
+                
+                // смена заголовка
+                WebPage page = getUser().getCurrentUmailPage();
+                getSupportActionBar().setTitle(page.getTitle());
+                getSupportActionBar().setSubtitle(page.getSubtitle());
 
                 supportInvalidateOptionsMenu();
                 break;
@@ -231,8 +239,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 return true;
         }
 
-        super.handleMessage(message);
-        return true;
+        return super.handleMessage(message);
     }
 
     public void onClick(View view) {

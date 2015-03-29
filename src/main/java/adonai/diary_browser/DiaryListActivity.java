@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
@@ -59,6 +60,7 @@ import adonai.diary_browser.entities.DiscListArrayAdapter;
 import adonai.diary_browser.entities.DiscPage;
 import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.entities.WebPage;
 import adonai.diary_browser.misc.ArrowDrawable;
 import adonai.diary_browser.preferences.PreferencesScreen;
 
@@ -314,6 +316,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public boolean handleMessage(Message message) {
         switch (message.what) {
             case Utils.HANDLE_START:
@@ -397,7 +400,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
                     handleTabChange(mDHCL.currentURL);
 
-                    setTitle(getUser().getCurrentDiaryPage().getTitle());
+                    // меняем заголовок приложения и подзаголовок, если есть
+                    WebPage page = getUser().getCurrentDiaryPage();
+                    getSupportActionBar().setTitle(page.getTitle());
+                    getSupportActionBar().setSubtitle(page.getSubtitle());
+                    
                     if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class)
                         mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getTitle());
                 } else { // это картинка
@@ -535,7 +542,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         // Обработка случая, когда URL страницы совпадает с URL одного из табов
         mTabs.getChildAt(mCurrentTab).getBackground().setAlpha(50);
         if (url.equals(getUser().getFavoritesUrl())) {
-            setTitle(R.string.title_activity_diary_list);
+            getSupportActionBar().setTitle(R.string.title_activity_diary_list);
+            getSupportActionBar().setSubtitle("");
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 0;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
@@ -548,6 +556,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             mCurrentTab = 2;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         } else if (url.equals(getUser().getDiscussionsUrl()) || getUser().getNewDiscussLink().startsWith(url)) {
+            getSupportActionBar().setTitle(R.string.discussions);
+            getSupportActionBar().setSubtitle("");
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = 3;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
@@ -840,7 +850,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
-        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID().equals(""))
+        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID().isEmpty())
             return;
 
         messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", post);
@@ -851,7 +861,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (!(getUser().getCurrentDiaryPage() instanceof CommentsPage))
             return;
 
-        if (((CommentsPage) getUser().getCurrentDiaryPage()).getPostID().equals(""))
+        if (((CommentsPage) getUser().getCurrentDiaryPage()).getPostID().isEmpty())
             return;
 
         Comment comment = new Comment();

@@ -1,8 +1,8 @@
 package adonai.diary_browser.entities;
 
 public abstract class WebPage {
-    private String content;
-    private String title;
+    private String content = "";
+    private String title = "";
 
     public String getContent() {
         return content;
@@ -13,11 +13,15 @@ public abstract class WebPage {
     }
 
     public String getTitle() {
-        return title.replaceAll("@дневники — ", "");
+        return title.replace("@дневники — ", "");
     }
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getSubtitle() {
+        return "";
     }
 
     public abstract String getPageURL();

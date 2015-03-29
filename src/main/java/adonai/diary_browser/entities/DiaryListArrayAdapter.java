@@ -2,6 +2,7 @@ package adonai.diary_browser.entities;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,13 +63,10 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
 
-        if (checkedIds.contains(getItemId(pos)))
-            view.setBackgroundColor(Color.LTGRAY);
-        //else
-        //    view.setBackground(R.drawable.item_background);
-
-        if (diary instanceof UmailListPage && !((UmailListPage) diary).isRead())
-            title.setTextColor(Color.RED);
+        if (diary instanceof UmailListPage && !((UmailListPage) diary).isRead()) {
+            title.setTypeface(null, Typeface.BOLD);
+        } else
+            title.setTypeface(null, Typeface.NORMAL);
 
         return view;
     }

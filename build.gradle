@@ -33,11 +33,9 @@ android {
     
     try {
         def proc = 'git rev-parse --short HEAD'.execute()
-        def gitOutput = new StringBuilder('-')
-        proc.waitForProcessOutput(gitOutput, System.err)
-        def hash = gitOutput.toString().replace('\n', '').replace('\r', '')
-        if(!hash.empty) {
-            defaultConfig.versionName += hash
+        def version = "-${proc.text}";
+        if(!version.empty) {
+            defaultConfig.versionName += version
         }
     } catch (ignored) {
         println "Be sure that git executable is in your PATH to see extended version info in app"

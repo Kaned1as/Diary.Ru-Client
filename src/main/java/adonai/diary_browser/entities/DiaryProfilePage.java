@@ -11,4 +11,9 @@ public class DiaryProfilePage extends WebPage {
     public String getPageURL() {
         return profileURL;
     }
+
+    @Override
+    public String getTitle() {
+        return super.getTitle().replace("@дневники: ", "");
+    }
 }

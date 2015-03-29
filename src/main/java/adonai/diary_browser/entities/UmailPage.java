@@ -51,4 +51,14 @@ public class UmailPage extends WebPage {
     public void setMessageText(String messageText) {
         this.messageText = messageText;
     }
+
+    @Override
+    public String getTitle() {
+        return super.getTitle().replace("@дневники: ", "");
+    }
+
+    @Override
+    public String getSubtitle() {
+        return senderName;
+    }
 }
