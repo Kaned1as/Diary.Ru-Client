@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -18,7 +17,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -984,7 +982,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         .title(R.string.loading)
                         .content(R.string.sending_data)
                         .progress(true, 0)
-                        .cancelable(false)
+                        .cancelListener(new DialogInterface.OnCancelListener() {
+                            @Override
+                            public void onCancel(DialogInterface dialog) {
+                                mDHCL.abort();
+                            }
+                        })
                         .build();
                 pd.show();
                 //ProgressDialog.show(getActivity(), getString(R.string.loading), getString(R.string.sending_data), true, false);
