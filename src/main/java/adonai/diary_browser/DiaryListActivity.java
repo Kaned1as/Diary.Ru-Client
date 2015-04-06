@@ -462,21 +462,18 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     @SuppressWarnings("deprecation")
                     public void onClick(DialogInterface dialog, int item) {
                         switch (item) {
-                            case DiaryWebView.IMAGE_SAVE: // save
-                            {
+                            case DiaryWebView.IMAGE_SAVE: {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
                                 mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, true));
                             }
                             break;
-                            case DiaryWebView.IMAGE_COPY_URL: // copy
-                            {
+                            case DiaryWebView.IMAGE_COPY_URL: {
                                 android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
                                 clipboard.setText(src);
                             }
                             break;
-                            case DiaryWebView.IMAGE_OPEN: // open Link
-                            {
+                            case DiaryWebView.IMAGE_OPEN:  {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
                                 mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, false));
                             }

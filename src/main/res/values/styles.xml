@@ -56,6 +56,7 @@
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
         <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_item_color">?attr/text_color_main</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->

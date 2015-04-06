@@ -29,6 +29,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -1048,8 +1049,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                 if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) { // Just load image, no further processing
                     if (reload) { // reload - save
-                        final String srcName = page.getFirstHeader("Content-Disposition").getValue();
-                        final String realName = URLUtil.guessFileName(requestedUrl, srcName != null ? srcName : null, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
+                        Header contentDisposition = page.getFirstHeader("Content-Disposition");
+                        String srcName = null;
+                        if(contentDisposition != null)
+                            srcName = contentDisposition.getValue();
+                        final String realName = URLUtil.guessFileName(requestedUrl, srcName, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
                     } else // no reload - open
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, requestedUrl);
