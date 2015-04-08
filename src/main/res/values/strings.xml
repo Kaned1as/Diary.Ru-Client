@@ -260,4 +260,5 @@
     <string name="green_theme">Зелёная</string>
     <string name="pink_theme">Розовая</string>
     <string name="greeny_brown_theme">Зелено-коричневая</string>
+    <string name="unknown_page">Неизвестная страница</string>
 </resources>

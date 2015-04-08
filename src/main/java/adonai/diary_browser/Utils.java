@@ -62,7 +62,7 @@ public class Utils {
     static final int HANDLE_PRELOAD_UMAIL                           = 5   | UMAIL_HANDLERS_MASK;
 
     static final int HANDLE_START                                   = 1   | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
-    static final int HANDLE_PAGE_INCORRECT                          = 2   | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_SERVICE_UNAVAILABLE = 2   | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_SERVICE_UPDATE                          = 3   | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_PROGRESS                                = 10  | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_PROGRESS_2                              = 11  | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
@@ -71,6 +71,7 @@ public class Utils {
     static final int HANDLE_CLOSED_ERROR                            = 140 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_NOTFOUND_ERROR                          = 141 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CANCELED_ERROR                          = 151 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_UNKNOWN_PAGE_ERROR                      = 160 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
 
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;

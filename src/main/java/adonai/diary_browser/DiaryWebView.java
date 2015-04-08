@@ -122,8 +122,7 @@ public class DiaryWebView extends WebView {
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
             if (url.contains("diary")) {
-                if (url.contains("?delpost&postid=")) // удаление поста
-                {
+                if (url.contains("?delpost&postid=")) { // удаление поста
                     final String id = url.substring(url.lastIndexOf("=") + 1);
                     AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
@@ -143,8 +142,7 @@ public class DiaryWebView extends WebView {
                     return true;
                 }
 
-                if (url.contains("?delcomment&commentid=")) // удаление коммента
-                {
+                if (url.contains("?delcomment&commentid=")) { // удаление коммента
                     final String id = url.substring(url.lastIndexOf("=") + 1);
                     AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
                     builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
@@ -159,20 +157,17 @@ public class DiaryWebView extends WebView {
                     return true;
                 }
 
-                if (url.contains("?editpost&postid=")) // редактирование поста
-                {
+                if (url.contains("?editpost&postid=")) { // редактирование поста
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
                     return true;
                 }
 
-                if (url.contains("?editcomment&commentid=")) // редактирование комментария
-                {
+                if (url.contains("?editcomment&commentid=")) { // редактирование комментария
                     mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
                     return true;
                 }
 
-                if (url.contains("u-mail/?new&username=")) // послать кому-то U-Mail
-                {
+                if (url.contains("u-mail/?new&username=")) { // послать кому-то U-Mail
                     try {
                         Umail withAddress = new Umail();
                         withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
@@ -194,7 +189,7 @@ public class DiaryWebView extends WebView {
             if (mActivity instanceof DiaryListActivity)
                 ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
 
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<String, Boolean>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
             return true;
         }
     }

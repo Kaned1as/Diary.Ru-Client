@@ -318,6 +318,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
                     }
+                    
+                    if(loginScreen.contains("недоступен")) {
+                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                    }
 
                     boolean user = false, password = false;
                     for (Cookie cookie : cookies) {
@@ -421,7 +425,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "windows-1251"));
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
                     break;
                 }
                 case Utils.HANDLE_REPOST: {
@@ -438,7 +442,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_REPOST, sendPost);
                         break;
                     } catch (NullPointerException ex) {
-                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
                         break;
                     }
                 }
@@ -446,7 +450,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String id = (String) message.obj;
                     mDHCL.getPageAsString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.getSignature());
 
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mUser.getCurrentDiaryPage().getPageURL(), true));
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
                     break;
                 }
                 case Utils.HANDLE_EDIT_POST: {
@@ -465,7 +469,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                         break;
                     } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
                         break;
                     }
                 }
@@ -532,7 +536,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
                         break;
                     } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
                         break;
                     }
                 }
@@ -540,7 +544,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return false;
             }
         } catch (IOException ignored) {
-            // all URLs are valid
+            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
         }
 
         return true;
@@ -1032,7 +1036,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     }
 
     private void checkUrlAndHandle(String requestedUrl, boolean reload) {
-        Class<?> handled;
+        Class<?> handled = null;
         Object cachedPage = null;
         String dataPage = null;
 
@@ -1041,18 +1045,25 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 cachedPage = mCache.loadPageFromCache(requestedUrl);
                 handled = cachedPage.getClass();
             } else {
-                final HttpResponse page = mDHCL.getPageAndContext(requestedUrl);
-                if (page == null || page.getEntity() == null) {
+                final HttpResponse page = mDHCL.getPage(requestedUrl);
+                if(page == null) { // no response, may be ssl error
+                    createChooserForUrl(requestedUrl);
+                    return;
+                }
+                
+                if (page.getEntity() == null) {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                     return;
                 }
 
+                // проверим, не картинка ли это
                 if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) { // Just load image, no further processing
                     if (reload) { // reload - save
                         Header contentDisposition = page.getFirstHeader("Content-Disposition");
                         String srcName = null;
-                        if(contentDisposition != null)
+                        if(contentDisposition != null) {
                             srcName = contentDisposition.getValue();
+                        }
                         final String realName = URLUtil.guessFileName(requestedUrl, srcName, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
                         CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
                     } else // no reload - open
@@ -1061,13 +1072,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 dataPage = EntityUtils.toString(page.getEntity());
-                handled = Utils.checkDiaryUrl(dataPage);
+                if(requestedUrl.contains("diary.ru")) { // можем загружать только странички дайри
+                    handled = Utils.checkDiaryUrl(dataPage);
+                }
             }
 
             if (handled != null) { // Если это страничка дайри
+                mDHCL.setCurrentURL(requestedUrl);
                 if (cachedPage != null) { // если страничка была в кэше
-                    mDHCL.setCurrentURL(requestedUrl);
-
                     if (cachedPage instanceof DiaryListPage) {
                         mUser.setCurrentDiaries((DiaryListPage) cachedPage);
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
@@ -1115,17 +1127,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
             } else { // неопознанная страничка
                 assert (cachedPage == null);
-                if (requestedUrl.contains("diary.ru") && dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
+                if (dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
                     notifyListeners(Utils.HANDLE_CLOSED_ERROR);
-                else {
-                    final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(requestedUrl));
-                    // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
-                    startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                else { // страница с другого ресурса
+                    createChooserForUrl(requestedUrl);
                 }
             }
-        } catch (NullPointerException e) {
-            notifyListeners(Utils.HANDLE_PAGE_INCORRECT);
+        } catch (NullPointerException | IllegalArgumentException e) {
+            notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
         } catch (InterruptedIOException e) {
             notifyListeners(Utils.HANDLE_CANCELED_ERROR);
         } catch (IOException e) {
@@ -1135,7 +1144,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
             }
         }
-
+    }
+    
+    private void createChooserForUrl(String url) {
+        final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+        // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
+        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        notifyListeners(Utils.HANDLE_UNKNOWN_PAGE_ERROR);
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

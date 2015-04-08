@@ -153,7 +153,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaryPage().getPageURL(), true));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
             }
         });
         swipeDiscussions = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_discussions);
@@ -618,11 +618,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             Intent postIntent = new Intent(getApplicationContext(), UmailListActivity.class);
             postIntent.putExtra("url", getUser().getNewUmailLink());
             startActivity(postIntent);
-        } else if (view.getParent() == mTabs)   // Если это кнопка табов
-        {
+        } else if (view.getParent() == mTabs) {
             setCurrentTab(mTabs.indexOfChild(view), false);
-        } else if (view.getTag(R.integer.button_url) != null)  // нижние кнопки списков
-        {
+        } else if (view.getTag(R.integer.button_url) != null) {
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>((String) view.getTag(R.integer.button_url), false));
         }
     }
@@ -729,7 +727,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     private void reloadContent() {
         if (mainPane.mCurrentComponent == PART_WEB)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaryPage().getPageURL(), true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getFavoritesUrl(), true));
     }

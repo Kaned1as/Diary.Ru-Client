@@ -60,9 +60,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -94,7 +92,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private static final int HANDLE_PROGRESS = 8;
     private static final int HANDLE_GET_SMILIES = 9;
     private static final int HANDLE_GET_DRAFTS = 10;
-    private static final int HANDLE_SEND_ERROR = -1;
+    private static final int HANDLE_CONN_ERROR = -1;
 
     static Pattern EMAIL_ANSWER_REGEX = Pattern.compile("Re\\[(\\d+)\\]: (.*)");
 
@@ -269,7 +267,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     pd.dismiss();
                     break;
-                case HANDLE_SEND_ERROR:
+                case HANDLE_CONN_ERROR:
                     Toast.makeText(getActivity(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
                     pd.dismiss();
                     break;
@@ -361,6 +359,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             result = new String(mCache.retrieveData(getActivity(), urlValid));
                         else {
                             result = mDHCL.getPageAsString(url);
+                            if(result == null) {
+                                mUiHandler.sendEmptyMessage(HANDLE_CONN_ERROR);
+                                return true;
+                            }
                             mCache.cacheData(getActivity(), result.getBytes(), urlValid);
                         }
                         Document rootNode = Jsoup.parse(result);
@@ -399,6 +401,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         }
 
                         // по мере выполнения задач переписываем массив по кусочкам на результат задачи
+                        // хак для того, чтобы всё работало в одном потоке
                         while (true) {
                             int remaining = 0;
                             for (String id : smileMap.keySet())
@@ -451,6 +454,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         }
 
                         // по мере выполнения задач переписываем массив по кусочкам на результат задачи
+                        // хак для того, чтобы всё работало в одном потоке
                         while (true) {
                             int remaining = 0;
                             for (int i = 0; i < avatarMap.size(); i++)
@@ -550,7 +554,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         break;
                 }
             } catch (Exception ignored) {
-               mUiHandler.sendEmptyMessage(HANDLE_SEND_ERROR);
+               mUiHandler.sendEmptyMessage(HANDLE_CONN_ERROR);
             }
 
             return false;

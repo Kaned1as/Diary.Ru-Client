@@ -205,7 +205,10 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
             case Utils.HANDLE_CONNECTIVITY_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
                 break;
-            case Utils.HANDLE_PAGE_INCORRECT:
+            case Utils.HANDLE_UNKNOWN_PAGE_ERROR:
+                Toast.makeText(getApplicationContext(), getString(R.string.unknown_page), Toast.LENGTH_SHORT).show();
+                break;
+            case Utils.HANDLE_SERVICE_UNAVAILABLE:
                 Toast.makeText(getApplicationContext(), getString(R.string.page_incorrect), Toast.LENGTH_SHORT).show();
                 break;
             case Utils.HANDLE_CLOSED_ERROR:
