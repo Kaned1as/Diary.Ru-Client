@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
@@ -68,6 +69,11 @@ public class DiaryWebView extends WebView {
         settings.setUseWideViewPort(false);
         setWebViewClient(new DiaryWebClient());
         setWebChromeClient(new WebChromeClient());
+
+        // Lollipop blocks mixed content but we should load CSS from filesystem
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW);
+        }
     }
 
     private class webGestureDetector extends GestureDetector.SimpleOnGestureListener {

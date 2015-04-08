@@ -27,15 +27,17 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 194
-        versionName "1.9.4"
+        versionCode 195
+        versionName "1.9.5"
     }
     
     try {
         def proc = 'git rev-parse --short HEAD'.execute()
-        def version = "-${proc.text}";
-        if(!version.empty) {
-            defaultConfig.versionName += version
+        def gitOutput = new StringBuilder('-')
+        proc.waitForProcessOutput(gitOutput, System.err)
+        def hash = gitOutput.toString().replace('\n', '').replace('\r', '')
+        if(!hash.empty) {
+            defaultConfig.versionName += hash
         }
     } catch (ignored) {
         println "Be sure that git executable is in your PATH to see extended version info in app"

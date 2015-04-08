@@ -624,7 +624,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        mUser.setCurrentDiaries(new DiaryListPage(mDHCL.currentURL));
+        mUser.setCurrentDiaries(new DiaryListPage(mDHCL.getCurrentURL()));
 
         Element table = rootNode.getElementsByAttributeValue("class", "table r").first();
         if (table == null) // Нет вообще никаких дневников, заканчиваем
@@ -661,7 +661,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        DiaryPage scannedDiary = new DiaryPage(mDHCL.currentURL);
+        DiaryPage scannedDiary = new DiaryPage(mDHCL.getCurrentURL());
 
         Element diaryTag = rootNode.select("[id=authorName]").first();
         if (diaryTag != null) {
@@ -687,7 +687,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
 
         Elements result = postsArea.clone();
-        Document resultPage = Document.createShell(mDHCL.currentURL);
+        Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (Element to : result) {
             resultPage.body().appendChild(to);
@@ -705,7 +705,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        final SearchPage scannedSearch = new SearchPage(mDHCL.currentURL);
+        final SearchPage scannedSearch = new SearchPage(mDHCL.getCurrentURL());
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         final String searchText = rootNode.select("input[name=q]").val();
@@ -717,7 +717,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
 
         final Elements result = postsArea.clone();
-        final Document resultPage = Document.createShell(mDHCL.currentURL);
+        final Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (final Element to : result)
             resultPage.body().appendChild(to);
@@ -735,7 +735,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        String diaryUrl = mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1);
+        String diaryUrl = mDHCL.getCurrentURL().substring(0, mDHCL.getCurrentURL().lastIndexOf('/') + 1);
         CommentsPage scannedPost = new CommentsPage(diaryUrl);
 
         Element diaryTag = rootNode.select("#authorName").first();
@@ -767,7 +767,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedPost.setPostURL(postURL);
             scannedPost.setPostID(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
-        Document resultPage = Document.createShell(mDHCL.currentURL);
+        Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (Element to : result) {
             resultPage.body().appendChild(to);
@@ -786,13 +786,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.currentURL);
+        DiaryProfilePage profilePage = new DiaryProfilePage(mDHCL.getCurrentURL());
 
         Elements effectiveAreas = rootNode.select("div#contant");
         Elements result = effectiveAreas.clone();
         notifyListeners(Utils.HANDLE_PROGRESS_2);
 
-        Document resultPage = Document.createShell(mDHCL.currentURL);
+        Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (Element to : result)
             resultPage.body().appendChild(to);
@@ -823,7 +823,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        TagsPage scannedTags = new TagsPage(mDHCL.currentURL.substring(0, mDHCL.currentURL.lastIndexOf('/') + 1));
+        TagsPage scannedTags = new TagsPage(mDHCL.getCurrentURL().substring(0, mDHCL.getCurrentURL().lastIndexOf('/') + 1));
 
         Element diaryTag = rootNode.select("#authorName").first();
         if (diaryTag != null) {
@@ -839,7 +839,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Elements result = effectiveAreas.clone();
         result.select("input[type=checkbox]").remove();
 
-        Document resultPage = Document.createShell(mDHCL.currentURL);
+        Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (Element to : result) {
             resultPage.body().appendChild(to);
@@ -858,7 +858,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
         mUser.getDiscussions().clear();
-        mUser.getDiscussions().setURL(mDHCL.currentURL);
+        mUser.getDiscussions().setURL(mDHCL.getCurrentURL());
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
@@ -901,7 +901,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        mUser.setCurrentUmails(new DiaryListPage(mDHCL.currentURL));
+        mUser.setCurrentUmails(new DiaryListPage(mDHCL.getCurrentURL()));
 
         Element table = rootNode.getElementsByAttributeValue("class", "table l").first();
         if (table == null) // Нет вообще никаких сообщений, заканчиваем
@@ -952,7 +952,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mUser.parseData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        scannedUmail.setUmailURL(mDHCL.currentURL);
+        scannedUmail.setUmailURL(mDHCL.getCurrentURL());
         scannedUmail.setUmailID(scannedUmail.getUmailURL().substring(scannedUmail.getUmailURL().lastIndexOf('=') + 1));
         notifyListeners(Utils.HANDLE_PROGRESS_2);
 
@@ -969,7 +969,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedUmail.setMessageTheme(theme.text());
 
         Elements result = mailArea.clone();
-        Document resultPage = Document.createShell(mDHCL.currentURL);
+        Document resultPage = Document.createShell(mDHCL.getCurrentURL());
         resultPage.title(rootNode.title());
         for (Element to : result)
             resultPage.body().appendChild(to);
@@ -1066,7 +1066,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
             if (handled != null) { // Если это страничка дайри
                 if (cachedPage != null) { // если страничка была в кэше
-                    mDHCL.currentURL = requestedUrl;
+                    mDHCL.setCurrentURL(requestedUrl);
 
                     if (cachedPage instanceof DiaryListPage) {
                         mUser.setCurrentDiaries((DiaryListPage) cachedPage);
@@ -1085,19 +1085,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 } else { // если нет такого кэша
                     if (handled == DiaryPage.class) {
                         serializeDiaryPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(mDHCL.getCurrentURL(), mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == CommentsPage.class) {
                         serializeCommentsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(mDHCL.getCurrentURL(), mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == TagsPage.class) {
                         serializeTagsPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(mDHCL.getCurrentURL(), mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryProfilePage.class) {
                         serializeProfilePage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(mDHCL.getCurrentURL(), mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryListPage.class) {
                         serializeDiaryListPage(dataPage);
@@ -1109,7 +1109,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     } else if (handled == SearchPage.class) {
                         serializeSearchPage(dataPage);
-                        mCache.putPageToCache(mDHCL.currentURL, mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(mDHCL.getCurrentURL(), mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }

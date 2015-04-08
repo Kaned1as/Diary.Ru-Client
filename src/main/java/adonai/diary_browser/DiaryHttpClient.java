@@ -1,6 +1,7 @@
 package adonai.diary_browser;
 
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DiaryHttpClient {
-    String currentURL = "";
+    private String currentURL = "";
 
     HttpClient httpClient = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
@@ -56,34 +57,26 @@ public class DiaryHttpClient {
     }
 
     public String postPageToString(String url, HttpEntity data) throws IOException {
-        try {
-            URI address = new URI(currentURL).resolve(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
-            HttpPost httpPost = new HttpPost(address.toURL().toString());
-            runningRequests.add(httpPost);
-            if(data != null) {
-                httpPost.setEntity(data);
-            }
-            HttpResponse response = httpClient.execute(httpPost, localContext);
-            return EntityUtils.toString(response.getEntity());
-        } catch (URISyntaxException e) {
-            throw new IOException(String.format("Wrong URL: %s", url));
+        setCurrentURL(url.trim().replace(" ", "")); // убиваем символ Non-breaking space
+        HttpPost httpPost = new HttpPost(currentURL);
+        runningRequests.add(httpPost);
+        if(data != null) {
+            httpPost.setEntity(data);
         }
+        HttpResponse response = httpClient.execute(httpPost, localContext);
+        return EntityUtils.toString(response.getEntity());
     }
 
     public String getPageAsString(String url) throws IOException {
         if (url.startsWith("file"))
             return null; // Не загружать локальные
 
-        try {
-            DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
-            URI address = new URI(currentURL).resolve(url);
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
-            runningRequests.add(httpGet);
-            HttpResponse response = AsyncRetriever.execute(httpGet, localContext);
-            return EntityUtils.toString(response.getEntity());
-        } catch (URISyntaxException e) {
-            throw new IOException(String.format("Wrong URL: %s", url));
-        }
+        DefaultHttpClient AsyncRetriever = new DefaultHttpClient();
+        setCurrentURL(url);
+        HttpGet httpGet = new HttpGet(currentURL);
+        runningRequests.add(httpGet);
+        HttpResponse response = AsyncRetriever.execute(httpGet, localContext);
+        return EntityUtils.toString(response.getEntity());
     }
 
     public byte[] getPageAsByteArray(String url) {
@@ -92,8 +85,8 @@ public class DiaryHttpClient {
 
         try {
             DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            final URI address = new URI(currentURL).resolve(url);
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
+            setCurrentURL(url);
+            HttpGet httpGet = new HttpGet(currentURL);
             runningRequests.add(httpGet);
             HttpResponse response = asyncRetriever.execute(httpGet, localContext);
 
@@ -114,18 +107,13 @@ public class DiaryHttpClient {
     }
 
     public String getPageAndContextAsString(String url) throws IOException {
-        try {
-            DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            URI address = new URI(currentURL).resolve(url);
-            currentURL = address.toString();
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
-            runningRequests.add(httpGet);
-            HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+        DefaultHttpClient asyncRetriever = new DefaultHttpClient();
+        setCurrentURL(url);
+        HttpGet httpGet = new HttpGet(currentURL);
+        runningRequests.add(httpGet);
+        HttpResponse response = asyncRetriever.execute(httpGet, localContext);
 
-            return EntityUtils.toString(response.getEntity());
-        } catch (URISyntaxException e) {
-            throw new IOException(String.format("Wrong URL: %s", url));
-        }
+        return EntityUtils.toString(response.getEntity());
     }
 
     /**
@@ -136,17 +124,12 @@ public class DiaryHttpClient {
      * @return connection for manual usage
      */
     public HttpResponse getPageAndContext(String url) throws IOException {
-        try {
-            DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            URI address = new URI(currentURL).resolve(url);
-            currentURL = address.toString();
-            HttpGet httpGet = new HttpGet(address.toURL().toString());
-            runningRequests.add(httpGet);
+        DefaultHttpClient asyncRetriever = new DefaultHttpClient();
+        setCurrentURL(url);
+        HttpGet httpGet = new HttpGet(currentURL);
+        runningRequests.add(httpGet);
 
-            return asyncRetriever.execute(httpGet, localContext);
-        } catch (URISyntaxException e) {
-            throw new IOException(String.format("Wrong URL: %s", url));
-        }
+        return asyncRetriever.execute(httpGet, localContext);
     }
 
     public interface ProgressListener {
@@ -181,19 +164,27 @@ public class DiaryHttpClient {
         }
     }
 
-    static public class CountingFileBody extends FileBody
-    {
+    static public class CountingFileBody extends FileBody {
         ProgressListener listener;
-        CountingFileBody(File f, String str, ProgressListener progressListener)
-        {
+        CountingFileBody(File f, String str, ProgressListener progressListener) {
             super(f, str);
             listener = progressListener;
         }
 
         @Override
-        public void writeTo(OutputStream out) throws IOException
-        {
+        public void writeTo(OutputStream out) throws IOException {
             super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
         }
+    }
+    
+    public void setCurrentURL(String url) {
+        try {
+            currentURL = new URI(currentURL).resolve(url).toString();
+        } catch (URISyntaxException ignored) {
+        }
+    }
+    
+    public String getCurrentURL() {
+        return currentURL;
     }
 }

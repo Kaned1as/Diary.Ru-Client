@@ -387,7 +387,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mDiaryBrowser.addFooterView(LL);
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
-                handleTabChange(mDHCL.currentURL);
+                handleTabChange(mDHCL.getCurrentURL());
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
@@ -398,7 +398,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
 
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
-                    handleTabChange(mDHCL.currentURL);
+                    handleTabChange(mDHCL.getCurrentURL());
 
                     // меняем заголовок приложения и подзаголовок, если есть
                     WebPage page = getUser().getCurrentDiaryPage();
@@ -421,7 +421,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
                 browserHistory.add(getUser().getDiscussions().getURL());
-                handleTabChange(mDHCL.currentURL);
+                handleTabChange(mDHCL.getCurrentURL());
 
                 swipeDiscussions.setRefreshing(false);
                 supportInvalidateOptionsMenu(); // PART_DISC_LIST

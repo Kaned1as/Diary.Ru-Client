@@ -469,7 +469,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_GET_DRAFTS: {
-                        String url = mDHCL.currentURL + "?draft";
+                        String url = mDHCL.getCurrentURL() + "?draft";
                         String dataPage = mDHCL.getPageAsString(url);
                         if (dataPage == null) {
                             // ошибка соединения
@@ -1000,7 +1000,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("save_type", "js2"));
 
                     postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
-                    postParams.add(new BasicNameValuePair("referer", mDHCL.currentURL));
+                    postParams.add(new BasicNameValuePair("referer", mDHCL.getCurrentURL()));
                     postParams.add(new BasicNameValuePair("attachment", ""));
 
                     // draft or publish
