@@ -171,7 +171,7 @@ public class DiaryWebView extends WebView {
                     try {
                         Umail withAddress = new Umail();
                         withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
-                        mActivity.messagePane.prepareFragment(mActivity.getUser().getSignature(), "http://www.diary.ru/diary.php", withAddress);
+                        mActivity.messagePane.prepareFragment(mActivity.getUser().getSignature(), withAddress);
                         mActivity.slider.openPane();
                     } catch (UnsupportedEncodingException e) {
                         Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();

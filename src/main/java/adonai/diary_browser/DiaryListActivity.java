@@ -837,7 +837,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         Post post = new Post();
         post.diaryID = ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID();
 
-        messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", post);
+        messagePane.prepareFragment(getUser().getSignature(), post);
         slider.openPane();
     }
 
@@ -848,7 +848,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID().isEmpty())
             return;
 
-        messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", post);
+        messagePane.prepareFragment(getUser().getSignature(), post);
         slider.openPane();
     }
 
@@ -862,17 +862,17 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         Comment comment = new Comment();
         comment.postID = ((CommentsPage) getUser().getCurrentDiaryPage()).getPostID();
 
-        messagePane.prepareFragment(getUser().getSignature(), ((CommentsPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", comment);
+        messagePane.prepareFragment(getUser().getSignature(), comment);
         slider.openPane();
     }
 
     public void editPost(Post post) {
-        messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", post);
+        messagePane.prepareFragment(getUser().getSignature(), post);
         slider.openPane();
     }
 
     public void editComment(Comment comment) {
-        messagePane.prepareFragment(getUser().getSignature(), ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryURL() + "diary.php", comment);
+        messagePane.prepareFragment(getUser().getSignature(), comment);
         slider.openPane();
     }
 }

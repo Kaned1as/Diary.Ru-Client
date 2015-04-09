@@ -330,7 +330,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     SparseArray<Object> avatarMap;
     Map<String, Object> smileMap;
     DiaryHttpClient mDHCL;
-    String mSendURL = "";
 
     Handler.Callback HttpCallback = new Handler.Callback() {
         @SuppressWarnings("unchecked")
@@ -339,12 +338,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 switch (message.what) {
                     case HANDLE_DO_POST:
                     case HANDLE_DO_COMMENT: {
-                        mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "windows-1251"));
+                        mDHCL.postPageToString(new UrlEncodedFormEntity(postParams, "windows-1251"));
                         mUiHandler.sendEmptyMessage(message.what);
                         return true;
                     }
                     case HANDLE_DO_UMAIL: {
-                        String result = mDHCL.postPageToString(mSendURL, new UrlEncodedFormEntity(postParams, "windows-1251"));
+                        String result = mDHCL.postPageToString(new UrlEncodedFormEntity(postParams, "windows-1251"));
                         if (result.contains("Письмо отправлено"))
                             mUiHandler.sendEmptyMessage(HANDLE_UMAIL_ACK);
                         else
@@ -529,7 +528,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
                             mpEntity.addPart("attachment1", cbFile);
 
-                            String result = mDHCL.postPageToString(mSendURL.substring(0, mSendURL.lastIndexOf('/') + 1) + "diary.php?upload=1&js", mpEntity);
+                            String result = mDHCL.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntity);
                             if (result != null) {
                                 if (result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
                                     Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();
@@ -712,7 +711,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         super.onDestroyView();
     }
 
-    public <T extends Comment> void prepareFragment(String signature, String sendURL, T contents) {
+    public <T extends Comment> void prepareFragment(String signature, T contents) {
         mService = NetworkService.getInstance(getActivity());
         assert (mService != null);
         mDHCL = mService.mDHCL;
@@ -722,7 +721,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         // обязательно
         mSignature = signature;
-        mSendURL = sendURL;
 
         if (mPost.getClass() == Post.class) {
             // Если это новый пост

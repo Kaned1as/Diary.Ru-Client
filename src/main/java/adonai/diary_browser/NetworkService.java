@@ -300,7 +300,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     for (long id : ids)
                         nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
 
-                    mDHCL.postPageToString("http://www.diary.ru/diary.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
+                    mDHCL.postPageToString(new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
 
                     notifyListeners(Utils.HANDLE_DELETE_UMAILS);
                     break;
@@ -389,7 +389,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
                 case Utils.HANDLE_OPEN_FOLDER: {
-                    final String uFolder = mDHCL.getPageAndContextAsString((String) message.obj);
+                    final String uFolder = mDHCL.getPageAsString((String) message.obj);
                     if (uFolder == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
@@ -400,7 +400,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
                 case Utils.HANDLE_OPEN_MAIL: {
-                    final String uMail = mDHCL.getPageAndContextAsString((String) message.obj);
+                    final String uMail = mDHCL.getPageAsString((String) message.obj);
                     if (uMail == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
@@ -423,7 +423,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         postParams.add(new BasicNameValuePair("draft", ""));
                     }
 
-                    mDHCL.postPageToString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryURL() + "diary.php", new UrlEncodedFormEntity(postParams, "windows-1251"));
+                    mDHCL.postPageToString(new UrlEncodedFormEntity(postParams, "windows-1251"));
 
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
                     break;
@@ -523,7 +523,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 case Utils.HANDLE_EDIT_COMMENT: {
                     final String URL = (String) message.obj;
-                    final String dataPage = mDHCL.getPageAndContextAsString(URL);
+                    final String dataPage = mDHCL.getPageAsString(URL);
                     if (dataPage == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;

@@ -292,12 +292,12 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             mail.receiver = receiver.getSenderName();
             mail.messageTheme = receiver.getMessageTheme();
         }
-        messagePane.prepareFragment(getUser().getSignature(), "http://www.diary.ru/diary.php", mail);
+        messagePane.prepareFragment(getUser().getSignature(), mail);
         slider.openPane();
     }
 
     private void newUmail(Umail composed) {
-        messagePane.prepareFragment(getUser().getSignature(), "http://www.diary.ru/diary.php", composed);
+        messagePane.prepareFragment(getUser().getSignature(), composed);
         slider.openPane();
     }
 

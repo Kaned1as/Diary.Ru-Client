@@ -45,11 +45,15 @@ public class DiaryHttpClient {
     }
 
     public void abort() {
-        for(AbortableHttpRequest request : runningRequests) {
-            request.abort();
-        }
-
-        runningRequests.clear();
+        new Thread() {
+            @Override
+            public void run() {
+                for(AbortableHttpRequest request : runningRequests) {
+                    request.abort();
+                }
+                runningRequests.clear();
+            }
+        }.start();
     }
 
     public CookieStore getCookieStore() {
@@ -65,6 +69,10 @@ public class DiaryHttpClient {
         }
         HttpResponse response = httpClient.execute(httpPost, localContext);
         return EntityUtils.toString(response.getEntity());
+    }
+
+    public String postPageToString(HttpEntity data) throws IOException {
+        return postPageToString("http://www.diary.ru/diary.php", data);
     }
 
     public String getPageAsString(String url) throws IOException {
