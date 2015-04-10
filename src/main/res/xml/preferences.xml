@@ -68,6 +68,12 @@
         android:key="webview.font.size"
         android:summary="@string/webview_font_size_sum"
         android:title="@string/webview_font_size"/>
+    
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="use.text.links"
+        android:summary="@string/use_text_links_sum"
+        android:title="@string/use_text_links"/>
 
     <ListPreference
         android:entries="@array/orientation_items"

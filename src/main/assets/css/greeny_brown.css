@@ -107,25 +107,20 @@ iframe
     /* 	display: none; */
     float: left;
     list-style: none;
-    margin: 0 0 0 5px;
     padding: 0;
     overflow: hidden;
 }
 
 .postActionLinks .delPostLink
 {
-    margin: 0 0 0 2px;
-}
-
-.postActionLinks .upPostLink
-{
-    margin: 0 0 0 3px;
+    margin: 0 8pt 0 8pt;
 }
 
 .postActionLinks li a
 {
     padding-left: 0;
     display: block;
+    font-size: 30%;
 }
 
 .voting

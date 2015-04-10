@@ -40,6 +40,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Entities;
+import org.jsoup.nodes.Node;
+import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
@@ -88,6 +90,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     private boolean mKeepDeviceOn;
     boolean mPreloadThemes;
     boolean mPreloadUmails;
+    boolean mUseTextInsteadOfImages;
     int mOrientation;
     
     // service data
@@ -131,6 +134,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mKeepDeviceOn = mPreferences.getBoolean("service.keep.device.on", false);
         mPreloadThemes = mPreferences.getBoolean("preload.themes", true);
         mPreloadUmails = mPreferences.getBoolean("preload.umail.quoting", true);
+        mUseTextInsteadOfImages = mPreferences.getBoolean("use.text.links", false);
         mOrientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
@@ -210,8 +214,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public boolean handleMessage(Message message) {
         try {
             switch (message.what) {
-                case Utils.HANDLE_SERVICE_UPDATE: // уведомления о новых комментариях раз в 5 минут
-                {
+                case Utils.HANDLE_SERVICE_UPDATE: { // уведомления о новых комментариях раз в 5 минут
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
                     final String dataPage = mDHCL.getPageAsString(mUser.getFavoritesUrl()); // подойдет любая ссылка с дневников
@@ -1001,6 +1004,16 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 repostLink.attr("href", diaryRepost.attr("href"));
         }
 
+        if(mUseTextInsteadOfImages) {
+            Elements postActionImages = resultPage.select("ul.postActionLinks img");
+            for (Element img : postActionImages) { // переделываем на текст
+                if (img.hasAttr("title")) {
+                    Node text = new TextNode(img.attr("title"), resultPage.baseUri());
+                    img.replaceWith(text);
+                }
+            }
+        }
+
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
         for (Element js : jsElems)
             if (!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature=") && !js.attr("href").contains("down&signature="))
@@ -1188,6 +1201,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             case "preload.umail.quoting":
                 mPreloadUmails = sharedPreferences.getBoolean("preload.umail.quoting", true);
+                break;
+            case "use.text.links":
+                mUseTextInsteadOfImages = sharedPreferences.getBoolean("use.text.links", false);
                 break;
             case "screen.orientation":
                 mOrientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
