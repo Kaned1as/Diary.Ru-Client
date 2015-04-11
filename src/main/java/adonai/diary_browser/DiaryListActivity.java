@@ -15,7 +15,6 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
@@ -153,7 +152,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentUrl(), true));
             }
         });
         swipeDiscussions = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_discussions);
@@ -387,7 +386,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mDiaryBrowser.addFooterView(LL);
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
-                handleTabChange(mDHCL.getCurrentURL());
+                handleTabChange(mDHCL.getCurrentUrl());
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
@@ -398,7 +397,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
 
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
-                    handleTabChange(mDHCL.getCurrentURL());
+                    handleTabChange(mDHCL.getCurrentUrl());
 
                     // меняем заголовок приложения и подзаголовок, если есть
                     WebPage page = getUser().getCurrentDiaryPage();
@@ -421,7 +420,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
                 browserHistory.add(getUser().getDiscussions().getURL());
-                handleTabChange(mDHCL.getCurrentURL());
+                handleTabChange(mDHCL.getCurrentUrl());
 
                 swipeDiscussions.setRefreshing(false);
                 supportInvalidateOptionsMenu(); // PART_DISC_LIST
@@ -727,7 +726,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     private void reloadContent() {
         if (mainPane.mCurrentComponent == PART_WEB)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentURL(), true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentUrl(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getFavoritesUrl(), true));
     }
@@ -831,11 +830,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
-        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID().equals(""))
+        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId().equals(""))
             return;
 
         Post post = new Post();
-        post.diaryID = ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID();
+        post.diaryID = ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId();
 
         messagePane.prepareFragment(getUser().getSignature(), post);
         slider.openPane();
@@ -845,7 +844,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
-        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryID().isEmpty())
+        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId().isEmpty())
             return;
 
         messagePane.prepareFragment(getUser().getSignature(), post);
@@ -856,11 +855,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if (!(getUser().getCurrentDiaryPage() instanceof CommentsPage))
             return;
 
-        if (((CommentsPage) getUser().getCurrentDiaryPage()).getPostID().isEmpty())
+        if (((CommentsPage) getUser().getCurrentDiaryPage()).getPostId().isEmpty())
             return;
 
         Comment comment = new Comment();
-        comment.postID = ((CommentsPage) getUser().getCurrentDiaryPage()).getPostID();
+        comment.postID = ((CommentsPage) getUser().getCurrentDiaryPage()).getPostId();
 
         messagePane.prepareFragment(getUser().getSignature(), comment);
         slider.openPane();

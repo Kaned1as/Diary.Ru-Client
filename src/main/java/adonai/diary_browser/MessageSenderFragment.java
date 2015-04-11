@@ -472,7 +472,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_GET_DRAFTS: {
-                        String url = mDHCL.getCurrentURL() + "?draft";
+                        String url = mDHCL.getCurrentUrl() + "?draft";
                         String dataPage = mDHCL.getPageAsString(url);
                         if (dataPage == null) {
                             // ошибка соединения
@@ -714,7 +714,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     public <T extends Comment> void prepareFragment(String signature, T contents) {
         mService = NetworkService.getInstance(getActivity());
         assert (mService != null);
-        mDHCL = mService.mDHCL;
+        mDHCL = mService.mNetworkClient;
 
         final Comment oldpost = mPost;
         mPost = contents;
@@ -759,7 +759,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             // если это новый комментарий
             if (mPost.commentID.equals("")) {
                 mTitle.setText(R.string.new_comment);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
+                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getSubtitle());
 
                 purgeContents();
                 for (View v : commentElements)
@@ -780,7 +780,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     prepareUi(mPost);
             } else { // редактирование комментария
                 mTitle.setText(R.string.edit_comment);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
+                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getSubtitle());
 
                 purgeContents();
                 for (View v : commentElements)
@@ -1002,7 +1002,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("save_type", "js2"));
 
                     postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
-                    postParams.add(new BasicNameValuePair("referer", mDHCL.getCurrentURL()));
+                    postParams.add(new BasicNameValuePair("referer", mDHCL.getCurrentUrl()));
                     postParams.add(new BasicNameValuePair("attachment", ""));
 
                     // draft or publish

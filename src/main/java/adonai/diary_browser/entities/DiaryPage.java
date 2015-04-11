@@ -6,35 +6,35 @@ import java.util.Map;
 public class DiaryPage extends WebPage {
     public Map<String, String> userLinks = new HashMap<>();
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
-    private String diaryURL = "";
+    private String diaryUrl = "";
     // идентификатор этого же дневника
-    private String diaryID = "";
+    private String diaryId = "";
 
     public DiaryPage() {
 
     }
 
     public DiaryPage(String diaryUrl) {
-        this.diaryURL = diaryUrl;
+        this.diaryUrl = diaryUrl;
     }
 
-    public String getDiaryURL() {
-        return diaryURL;
+    public String getDiaryUrl() {
+        return diaryUrl;
     }
 
-    public void setDiaryURL(String diaryURL) {
-        this.diaryURL = diaryURL;
+    public void setDiaryUrl(String diaryUrl) {
+        this.diaryUrl = diaryUrl;
     }
 
-    public String getDiaryID() {
-        return diaryID;
+    public String getDiaryId() {
+        return diaryId;
     }
 
-    public void setDiaryID(String diaryId) {
-        this.diaryID = diaryId;
+    public void setDiaryId(String diaryId) {
+        this.diaryId = diaryId;
     }
 
     public String getPageURL() {
-        return diaryURL;
+        return diaryUrl;
     }
 }

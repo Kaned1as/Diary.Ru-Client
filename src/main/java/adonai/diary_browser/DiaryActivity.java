@@ -151,7 +151,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                     mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 50);
                 else {
                     setRequestedOrientation(mService.mOrientation);
-                    mDHCL = mService.mDHCL;
+                    mDHCL = mService.mNetworkClient;
                     mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 
                     if (getPackageName().contains("pro"))

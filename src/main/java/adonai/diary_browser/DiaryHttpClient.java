@@ -32,7 +32,7 @@ import java.util.List;
 import javax.net.ssl.SSLException;
 
 public class DiaryHttpClient {
-    private URI currentURL = URI.create("");
+    private URI currentUrl = URI.create("");
 
     HttpClient httpClient = new DefaultHttpClient();
     HttpContext localContext = new BasicHttpContext();
@@ -61,7 +61,7 @@ public class DiaryHttpClient {
     }
 
     public String postPageToString(String url, HttpEntity data) throws IOException {
-        String current = currentURL.resolve(url.trim().replace(" ", "")).toString(); // убиваем символ Non-breaking space
+        String current = resolve(url).toString();
         HttpPost httpPost = new HttpPost(current);
         runningRequests.add(httpPost);
         if(data != null) {
@@ -80,7 +80,7 @@ public class DiaryHttpClient {
             return null; // Не загружать локальные
 
         DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-        String current = currentURL.resolve(url).toString();
+        String current = resolve(url).toString();
         HttpGet httpGet = new HttpGet(current);
         runningRequests.add(httpGet);
         HttpResponse response = asyncRetriever.execute(httpGet, localContext);
@@ -96,7 +96,7 @@ public class DiaryHttpClient {
 
         try {
             DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            String current = currentURL.resolve(url).toString();
+            String current = resolve(url).toString();
             HttpGet httpGet = new HttpGet(current);
             runningRequests.add(httpGet);
             HttpResponse response = asyncRetriever.execute(httpGet, localContext);
@@ -120,18 +120,6 @@ public class DiaryHttpClient {
         return null;
     }
 
-    public String getPageAndContextAsString(String url) throws IOException {
-        DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-        setCurrentURL(url);
-        HttpGet httpGet = new HttpGet(currentURL);
-        runningRequests.add(httpGet);
-        HttpResponse response = asyncRetriever.execute(httpGet, localContext);
-        if(response.getEntity() == null) {
-            return null;
-        }
-        return EntityUtils.toString(response.getEntity());
-    }
-
     /**
      * Manual page processing
      * Remember to disconnect connection!
@@ -139,11 +127,10 @@ public class DiaryHttpClient {
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public HttpResponse getPage(String url) throws IOException {
+    public HttpResponse getPage(URI url) throws IOException {
         try {
             DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            String current = currentURL.resolve(url).toString();
-            HttpGet httpGet = new HttpGet(current);
+            HttpGet httpGet = new HttpGet(url);
             runningRequests.add(httpGet);
     
             return asyncRetriever.execute(httpGet, localContext);
@@ -196,12 +183,16 @@ public class DiaryHttpClient {
             super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
         }
     }
-    
-    public void setCurrentURL(String url) {
-        currentURL = currentURL.resolve(url);
+
+    public void setCurrentUrl(URI url) {
+        currentUrl = url;
     }
     
-    public String getCurrentURL() {
-        return currentURL.toString();
+    public URI resolve(String url) {
+        return currentUrl.resolve(url);
+    }
+
+    public String getCurrentUrl() {
+        return currentUrl.toString();
     }
 }

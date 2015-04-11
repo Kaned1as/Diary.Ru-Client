@@ -1,31 +1,31 @@
 package adonai.diary_browser.entities;
 
 public class CommentsPage extends DiaryPage {
-    private String postID = "";
-    private String postURL = "";
+    private String postId = "";
+    private String postUrl = "";
     public CommentsPage(String diaryURL) {
-        setDiaryURL(diaryURL);
+        setDiaryUrl(diaryURL);
     }
 
-    public String getPostID() {
-        return postID;
+    public String getPostId() {
+        return postId;
     }
 
-    public void setPostID(String _ID) {
-        this.postID = _ID;
+    public void setPostId(String _ID) {
+        this.postId = _ID;
     }
 
-    public String getPostURL() {
-        return postURL;
+    public String getPostUrl() {
+        return postUrl;
     }
 
-    public void setPostURL(String _post_URL) {
-        this.postURL = _post_URL;
+    public void setPostUrl(String _post_URL) {
+        this.postUrl = _post_URL;
     }
 
     @Override
     public String getPageURL() {
-        return postURL;
+        return postUrl;
     }
 
     @Override
