@@ -224,9 +224,7 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
                 break;
         }
-        swipeBrowser.setRefreshing(false);
-        swipeList.setRefreshing(false);
-
+        
         if (pd != null) {
             pd.dismiss();
             pd = null;

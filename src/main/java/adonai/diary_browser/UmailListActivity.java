@@ -70,6 +70,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             @Override
             public void onRefresh() {
                 handleBackground(Utils.HANDLE_OPEN_FOLDER, getUser().getCurrentUmails().getURL());
+                swipeList.setRefreshing(false);
             }
         });
 
@@ -78,6 +79,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             @Override
             public void onRefresh() {
                 handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
+                swipeBrowser.setRefreshing(false);
             }
         });
 

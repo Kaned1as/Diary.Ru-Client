@@ -145,6 +145,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefresh() {
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getCurrentDiaries().getURL(), true));
+                swipeList.setRefreshing(false);
             }
         });
 
@@ -153,6 +154,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefresh() {
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentUrl(), true));
+                swipeBrowser.setRefreshing(false);
             }
         });
         swipeDiscussions = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_discussions);
@@ -160,6 +162,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             @Override
             public void onRefresh() {
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getDiscussionsUrl(), true));
+                swipeDiscussions.setRefreshing(false);
             }
         });
 
