@@ -817,14 +817,14 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             titleText.setText("Fw: " + mail.messageTheme);
         } else {                                                            // сообщение-ответ
             Matcher replyFinder = EMAIL_ANSWER_REGEX.matcher(mail.messageTheme);
-            if(replyFinder.find()) {                                    // это ответ с номером, инкрементим
+            if(replyFinder.find()) {                                        // это ответ с номером, инкрементим
                 int counter = Integer.parseInt(replyFinder.group(1));
                 String realTheme = replyFinder.group(2);
                 titleText.setText(String.format("Re[%d]: %s", ++counter, realTheme));
-            } else if(mail.messageTheme.startsWith("Re: ")) {           // это ответ ещё без номера, вставляем
-                titleText.setText(mail.messageTheme.replace("Re: ", "Re[1]: "));
+            } else if(mail.messageTheme.startsWith("Re:")) {                // это ответ ещё без номера, вставляем
+                titleText.setText(mail.messageTheme.replace("Re:", "Re[1]:"));
             } else {
-                titleText.setText("Re: " + mail.messageTheme);          // это первый ответ
+                titleText.setText("Re: " + mail.messageTheme);              // это первый ответ
             }
         }
 

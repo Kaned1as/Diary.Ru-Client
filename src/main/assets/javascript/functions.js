@@ -125,13 +125,13 @@ function swap3(id)
     var imgobj = get('img' + id);
 
     if(obj.style.display=='none'){
-          obj.style.display='block';
-          obj.style.visibility='visible';
-		  if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/-.gif";
+        _setProperty(obj, "display", "block", "important");
+        _setProperty(obj, "visibility", "visible", "important");
+	if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/-.gif";
     }else{
-          obj.style.display='none';
-          obj.style.visibility='hidden';
-		  if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/+.gif";
+        _setProperty(obj, "display", "none", "important");
+        _setProperty(obj, "visibility", "hidden", "important");
+	if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/+.gif";
     }
 	return false;
 }
@@ -141,13 +141,13 @@ function swap2(id)
     var imgobj = get('img' + id);
 
     if(obj.style.display=='none'){
-          obj.style.display='';
-          obj.style.visibility='visible';
-		  if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/-.gif";
+        _setProperty(obj, "display", "", "important");
+        _setProperty(obj, "visibility", "visible", "important");
+	if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/-.gif";
     }else{
-          obj.style.display='none';
-          obj.style.visibility='hidden';
-		  if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/+.gif";
+        _setProperty(obj, "display", "none", "important");
+        _setProperty(obj, "visibility", "hidden", "important");
+	if (imgobj!=null) imgobj.src = "http://static.diary.ru/images/+.gif";
     }
 	return false;
 }
@@ -174,8 +174,8 @@ function show3(id)
 	var obj = get(id);
 	if(obj==null || obj.style.display!="none" && obj.className != 'hidden') return false;
 	if(obj.className == 'hidden') obj.className = null;
-        obj.style.display = "";
-        obj.style.visibility = "visible";
+        _setProperty(obj, "display", "", "important");
+        _setProperty(obj, "visibility", "visible", "important")
 
 	return false;
 }
@@ -193,15 +193,15 @@ function HideDiv(id)
 function Hide2Div(id)
 {
 	var obj = get(id);
-	if (obj!=null)	obj.style.visibility='hidden';
+	if (obj!=null)	_setProperty(obj, "visibility", "hidden", "important");
 	return false;
 }
 function hide3(id)
 {
 	var obj = get(id);
 	if(obj==null || obj.style.display=="none") return false;
-        obj.style.display = "none";
-        obj.style.visibility = "hidden";
+        _setProperty(obj, "display", "none", "important");
+        _setProperty(obj, "visibility", "hidden", "important");
 
 	return false;
 }
@@ -278,10 +278,12 @@ function clUploadData ()
 	this.oldScript  = document.createElement("SCRIPT");
 	this.oldScript.type = "text/javascript";
 	this.callId = 0;
+
 //	document.body.appendChild(this.oldScript);
 	document.getElementsByTagName('body')[0].appendChild(this.oldScript);
 	this.upload = function (theparams, nocash)
 	{
+
 		var newScript = document.createElement("SCRIPT");
 		newScript.type = "text/javascript";
 		newScript.src  = theparams || "";
@@ -557,11 +559,11 @@ function getOpacityProperty()
 */
 function fadeOpacity(sElemId, sRuleName, bBackward)
 {
-	var elem = document.getElementById(sElemId);
-	elem.style.display = "";
-	elem.style.visibility = "visible";
+	var obj = document.getElementById(sElemId);
+        _setProperty(obj, "display", "block", "important");
+        _setProperty(obj, "visibility", "visible", "important");
 
-	if (!elem || !getOpacityProperty() || !fadeOpacity.aRules[sRuleName]) return;
+	if (!obj || !getOpacityProperty() || !fadeOpacity.aRules[sRuleName]) return;
 
 	var rule = fadeOpacity.aRules[sRuleName];
 	var nOpacity = rule.nStartOpacity;
@@ -586,7 +588,7 @@ fadeOpacity.run = function(sElemId)
 	proc.nOpacity = Math.round(( proc.nOpacity + .1*rule.nDSign*(proc.bBackward?-1:1) )*10)/10;
 	setElementOpacity(obj, proc.nOpacity);
 
-	if (proc.nOpacity <= 0.3 && proc.nOpacity==rule.nFinishOpacity) {obj.style.visibility = "hidden"; obj.style.display = "none";}
+	if (proc.nOpacity <= 0.3 && proc.nOpacity==rule.nFinishOpacity) {_setProperty(obj, "visibility", "hidden", "important"); _setProperty(obj, "display", "none", "important"); setElementOpacity(obj, rule.nStartOpacity);}
 
 	if (proc.nOpacity==rule.nStartOpacity || proc.nOpacity==rule.nFinishOpacity) clearInterval(fadeOpacity.aProc[sElemId].tId);
 }
@@ -596,3 +598,26 @@ fadeOpacity.addRule('out', 1, 0, 30);
 fadeOpacity.addRule('in', 0, 1, 30);
 
 //=========================================================================================================================================================================================================
+
+function _setProperty(obj, prop, val, add)
+{
+    try {
+	obj.style.setProperty(prop, val, "");//, add);
+    }
+    catch(e)
+    {
+	switch (prop)
+	{
+	    case "display": obj.style.display = val; break;
+	    case "visibility": obj.style.visibility = val; break;
+	}
+    }
+}
+
+function highlight(Name, off)
+{
+    ts = document.getElementsByName(Name);
+    for (i in ts) ts[i].className = off ? "":"tr_hover";
+
+    //setTimeout(highlight, 1000, Name, 1);
+}

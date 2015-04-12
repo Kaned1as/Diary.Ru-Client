@@ -345,15 +345,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         break;
                     }
 
-                    final CookieManager cookieManager = CookieManager.getInstance();
-                    // cookieManager.removeSessionCookie();
-
-                    for (Cookie cookie : cookies) {
-                        String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
-                        cookieManager.setCookie("diary.ru", cookieString);
-                    }
-                    CookieSyncManager.getInstance().sync();
-                    //cookieManager.flush();
                     mUser.setAuthorized(true);
 
                     if (message.obj != null) // возвращаемся к загрузке
@@ -394,7 +385,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
                 case Utils.HANDLE_OPEN_FOLDER: {
-                    final String uFolder = mNetworkClient.getPageAsString((String) message.obj);
+                    String url = (String) message.obj;
+                    mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
+                    final String uFolder = mNetworkClient.getPageAsString(url);
                     if (uFolder == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
@@ -405,7 +398,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
                 case Utils.HANDLE_OPEN_MAIL: {
-                    final String uMail = mNetworkClient.getPageAsString((String) message.obj);
+                    String url = (String) message.obj;
+                    mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
+                    final String uMail = mNetworkClient.getPageAsString(url);
                     if (uMail == null) {
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
                         break;
@@ -454,7 +449,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_DELETE_COMMENT: {
                     final String id = (String) message.obj;
                     mNetworkClient.getPageAsString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryUrl() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.getSignature());
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
+                    break;
+                }
+                case Utils.HANDLE_DELETE_TAG: {
+                    final String referer = (String) message.obj;
 
+                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
+                    nameValuePairs.add(new BasicNameValuePair("referer", referer));
+                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
+                    nameValuePairs.add(new BasicNameValuePair("confirm", "Да"));
+                    
+                    mNetworkClient.postPageToString(referer, new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
                     break;
                 }
@@ -701,7 +707,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         for (Element to : result) {
             resultPage.body().appendChild(to);
         }
-        parseContent(resultPage);
+        mutateContent(resultPage);
         scannedDiary.setContent(resultPage.html());
         scannedDiary.setTitle(resultPage.title());
 
@@ -731,7 +737,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         for (final Element to : result)
             resultPage.body().appendChild(to);
 
-        parseContent(resultPage);
+        mutateContent(resultPage);
         scannedSearch.setContent(resultPage.html());
         scannedSearch.setTitle(resultPage.title() + searchText);
 
@@ -782,7 +788,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             resultPage.body().appendChild(to);
         }
 
-        parseContent(resultPage);
+        mutateContent(resultPage);
 
         scannedPost.setContent(resultPage.html());
         scannedPost.setTitle(resultPage.title());
@@ -819,7 +825,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
         }
 
-        parseContent(resultPage);
+        mutateContent(resultPage);
 
         profilePage.setContent(resultPage.html());
         profilePage.setTitle(resultPage.title());
@@ -846,15 +852,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             return;
 
         Elements result = effectiveAreas.clone();
-        result.select("input[type=checkbox]").remove();
-
         Document resultPage = Document.createShell(mNetworkClient.getCurrentUrl());
         resultPage.title(rootNode.title());
         for (Element to : result) {
             resultPage.body().appendChild(to);
         }
 
-        resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/journal.css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
+        mutateContent(resultPage);
+        
         scannedTags.setContent(resultPage.html());
         scannedTags.setTitle(resultPage.title());
         mUser.setCurrentDiaryPage(scannedTags);
@@ -983,12 +988,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         for (Element to : result)
             resultPage.body().appendChild(to);
 
+        mutateContent(resultPage);
+
         scannedUmail.setContent(resultPage.html());
         scannedUmail.setTitle(resultPage.title());
         mUser.setCurrentUmailPage(scannedUmail);
     }
 
-    private void parseContent(Document resultPage) {
+    /**
+     * Функция для применения модификаций ко всем загружаемым страницам дневников
+     * Сюда вносятся правки страниц по просьбам пользователей
+     * @param resultPage страница, которую нужно модифицировать
+     */
+    private void mutateContent(Document resultPage) {
         // страница будет иметь наш стиль
         resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
         String theme = mPreferences.getString("app.theme", "red");
@@ -1006,6 +1018,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 repostLink.attr("href", diaryRepost.attr("href"));
         }
 
+        // текст вместо кнопок правки
         if(mUseTextInsteadOfImages) {
             Elements postActionImages = resultPage.select("ul.postActionLinks img");
             for (Element img : postActionImages) { // переделываем на текст
@@ -1016,11 +1029,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
         }
 
+        // правка JS
         Elements jsElems = resultPage.getElementsByAttribute("onclick");
-        for (Element js : jsElems)
-            if (!js.attr("href").contains("#more") && !js.attr("href").contains("subscribe") && !js.attr("href").contains("showresult") && !js.attr("href").contains("up&signature=") && !js.attr("href").contains("down&signature="))
+        for (Element js : jsElems) {
+            String link = js.attr("href");
+            if (!link.contains("#more") && !link.contains("subscribe") && !link.contains("showresult") &&
+                !link.contains("up&signature=") && !link.contains("down&signature=") &&
+                !link.contains("tag_showedit"))
                 js.removeAttr("onclick"); // Убиваем весь яваскрипт кроме MORE, поднятия/опускания постов, результатов голосования и подписки
+        }
 
+        // смена картинок, если автозагрузка выключена
         if (!mLoadImages) {
             Elements images = resultPage.select("img[src^=http], a:has(img)");
             for (Element current : images) {
@@ -1047,7 +1066,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
             }
         }
+        
+        // включаем джаваскрипт
         resultPage.body().append(Utils.javascriptContent);
+        // сигнатура должна быть видна методам JS
+        resultPage.body().append("<script>var signature = '" + mUser.getSignature() + "';</script>");
     }
 
     private void checkUrlAndHandle(String requestedUrl, boolean reload) {

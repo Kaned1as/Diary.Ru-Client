@@ -295,11 +295,46 @@ a:hover
     /*border: 1px dotted black;*/
 }
 
-.singlePost, .singleComment
+.singlePost, .singleComment, ul.tags_ul_all, table.box, table.box + div
 {
     margin-top: 20px;
-    background-color: #edc6e5; /* Фон поста/комментария */
+    background-color: #edc6e5; /* Фон поста/комментария/umail/тэгов */
     border-radius: 12px;
+}
+
+/* сдвинем тэги внутрь бокса */
+ul.tags_ul_all
+{
+    padding: 8pt;
+}
+
+/* чекбоксы внутри тэгов не нужны - в приложении нет кнопки "найти" */
+ul.tags_ul_all input[type=checkbox]
+{
+    display: none;
+}
+
+/* увеличим границы тэгов, для лучшего попадания пальцем */
+ul.tags_ul_all li.c0
+{
+    margin-bottom: 4pt;
+    margin-top: 4pt;
+}
+
+/* кнопки редактирования тем тоже будут дальше отстоять друг от друга */
+ul.tags_ul_all span.c1 a
+{
+    margin-left: 10pt;
+}
+
+table.box td
+{
+    padding: 5pt;
+}
+
+table.box + div
+{
+    padding: 8pt;
 }
 
 #contant
@@ -421,31 +456,6 @@ table
     padding: 3px 0 0 5px;
 }
 
-#TagsList
-{
-    padding: 5px 0 0 10px;
-    font-size: 90%;
-}
-
-#TagsList ul
-{
-    width: 95%;
-    overflow: hidden;
-}
-
-#TagsList ul li
-{
-    margin: 0 0 5px;
-    width: 100%;
-    overflow: hidden;
-}
-
-#TagsList ul li span
-{
-    display: block;
-    float: right;
-}
-
 .birthday
 {
     background: url("http://static.diary.ru/images/sharik.gif") no-repeat 0;
@@ -461,16 +471,6 @@ table
 {
     padding: 5px;
     overflow: auto;
-}
-
-.tags_ul_all
-{
-    float: left;
-    width: 25%;
-    margin-right: 3%;
-    margin-bottom: 20px;
-    padding-left: 15px;
-    margin-left: 5px;
 }
 
 .tags_header

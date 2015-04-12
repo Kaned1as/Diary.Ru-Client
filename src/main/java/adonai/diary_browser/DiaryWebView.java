@@ -19,6 +19,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 import adonai.diary_browser.entities.Umail;
 
@@ -63,10 +64,11 @@ public class DiaryWebView extends WebView {
 
     public void setDefaultSettings() {
         WebSettings settings = getSettings();
+        settings.setBuiltInZoomControls(true);
+        settings.setDisplayZoomControls(false);
         settings.setJavaScriptEnabled(true);
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        settings.setUseWideViewPort(false);
         setWebViewClient(new DiaryWebClient());
         setWebChromeClient(new WebChromeClient());
 
@@ -157,6 +159,21 @@ public class DiaryWebView extends WebView {
                     return true;
                 }
 
+                if(url.contains("?tag_delete")) { // удаление тэга
+                    final String confirmed = url;
+                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
+                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mActivity.handleBackground(Utils.HANDLE_DELETE_TAG, confirmed);
+                        }
+                    }).setNegativeButton(android.R.string.no, null);
+
+                    builder.create().show();
+                    return true;
+                }
+
                 if (url.contains("?editpost&postid=")) { // редактирование поста
                     mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
                     return true;
@@ -179,9 +196,10 @@ public class DiaryWebView extends WebView {
                     return true;
                 }
 
-
                 // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
-                if (url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || url.contains("up&signature=") || url.contains("down&signature=") || url.contains("?fav_add&userid=") || url.contains("?fav_del&userid=")) {
+                if (url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || 
+                        url.contains("up&signature=") || url.contains("down&signature=") || 
+                        url.contains("?fav_add&userid=") || url.contains("?fav_del&userid=")) {
                     mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
                     return true;
                 }

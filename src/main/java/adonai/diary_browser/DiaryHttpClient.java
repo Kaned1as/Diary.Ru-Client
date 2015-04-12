@@ -1,6 +1,7 @@
 package adonai.diary_browser;
 
 import android.support.annotation.NonNull;
+import android.webkit.CookieManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,6 +13,7 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.params.ClientPNames;
 import org.apache.http.client.params.CookiePolicy;
 import org.apache.http.client.protocol.ClientContext;
+import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.mime.content.FileBody;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -68,6 +70,7 @@ public class DiaryHttpClient {
             httpPost.setEntity(data);
         }
         HttpResponse response = httpClient.execute(httpPost, localContext);
+        syncCookiesWithWebViews();
         return EntityUtils.toString(response.getEntity());
     }
 
@@ -84,6 +87,7 @@ public class DiaryHttpClient {
         HttpGet httpGet = new HttpGet(current);
         runningRequests.add(httpGet);
         HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+        syncCookiesWithWebViews();
         if(response.getEntity() == null) {
             return null;
         }
@@ -100,6 +104,7 @@ public class DiaryHttpClient {
             HttpGet httpGet = new HttpGet(current);
             runningRequests.add(httpGet);
             HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+            syncCookiesWithWebViews();
 
             if(response.getEntity() == null) {
                 return null;
@@ -133,7 +138,9 @@ public class DiaryHttpClient {
             HttpGet httpGet = new HttpGet(url);
             runningRequests.add(httpGet);
     
-            return asyncRetriever.execute(httpGet, localContext);
+            HttpResponse result = asyncRetriever.execute(httpGet, localContext);
+            syncCookiesWithWebViews();
+            return result;
         } catch (SSLException e) {
             return null;
         }
@@ -181,6 +188,15 @@ public class DiaryHttpClient {
         @Override
         public void writeTo(OutputStream out) throws IOException {
             super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
+        }
+    }
+    
+    private void syncCookiesWithWebViews() {
+        List<Cookie> cookies = getCookieStore().getCookies();
+        CookieManager cookieManager = CookieManager.getInstance();
+        for (Cookie cookie : cookies) {
+            String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
+            cookieManager.setCookie("diary.ru", cookieString);
         }
     }
 
