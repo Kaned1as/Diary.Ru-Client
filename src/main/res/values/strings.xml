@@ -263,4 +263,5 @@
     <string name="unknown_page">Неизвестная страница</string>
     <string name="use_text_links_sum">Вместо кнопок редактирования/удаления поста будет отображаться текст (для больших экранов)</string>
     <string name="use_text_links">Текст вместо кнопок действий</string>
+    <string name="quote">Цитировать</string>
 </resources>

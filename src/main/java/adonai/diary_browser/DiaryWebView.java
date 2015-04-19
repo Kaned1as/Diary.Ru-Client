@@ -1,14 +1,21 @@
 package adonai.diary_browser;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
+import android.view.ActionMode;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -102,6 +109,89 @@ public class DiaryWebView extends WebView {
             mActivity.mPageBrowser.requestFocusNodeHref(msg);
 
             return super.onSingleTapConfirmed(e);
+        }
+    }
+
+    @Override
+    public ActionMode startActionMode(ActionMode.Callback callback) {
+        ActionMode.Callback wrapper = new ActionModeWrapper(callback);
+        return super.startActionMode(wrapper);
+    }
+
+    /**
+     * Враппер для добавления кнопки "цитировать"
+     */
+    private class ActionModeWrapper implements ActionMode.Callback {
+
+        private final ActionMode.Callback mOriginalCallback;
+        
+        public ActionModeWrapper(ActionMode.Callback cb) {
+            mOriginalCallback = cb;
+        }
+        
+        public MenuItem findByTitle(Menu menu, String regex) {
+            for(int i = 0; i < menu.size(); ++i) {
+                String title = menu.getItem(i).getTitle().toString();
+                if(title.matches(regex))
+                    return menu.getItem(i);
+            }
+            return null;
+        }
+
+        @Override
+        public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
+            boolean result = mOriginalCallback.onCreateActionMode(mode, menu);
+            final MenuItem copyButton = findByTitle(menu, "Копировать|Copy|Копіювати"); // ugly hack, no better way
+            if(copyButton == null) {
+                return result;
+            }
+            
+            copyButton.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
+            menu.add(copyButton.getGroupId(), copyButton.getItemId(), copyButton.getOrder(), R.string.quote) // будет в начале
+                .setIcon(copyButton.getIcon())
+                .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_ALWAYS)
+                .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        onActionItemClicked(mode, copyButton); // программное нажатие на кнопку "скопировать"
+                        // хак чтобы текст в клипборде точно попал к нам
+                        postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                ClipboardManager cm = (ClipboardManager) mActivity.getSystemService(Context.CLIPBOARD_SERVICE);
+                                if (!cm.hasPrimaryClip())
+                                    return;
+
+                                ClipData cd = cm.getPrimaryClip();
+                                if (cd.getItemCount() > 0) {
+                                    String copied = cd.getItemAt(0).getText().toString();
+                                    String quoted = "<span class='quote_text'>" + copied + "</span>";
+                                    if (mActivity instanceof DiaryListActivity) { // цитируем
+                                        ((DiaryListActivity) mActivity).handleMessagePaneAddText(quoted);
+                                    }
+                                }
+                            }
+                        }, 500);
+                        return true;
+                    }
+                });
+            
+            return result;
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            return mOriginalCallback.onPrepareActionMode(mode, menu);
+        }
+
+        @Override
+        public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+            return mOriginalCallback.onActionItemClicked(mode, item);
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode mode) {
+            mOriginalCallback.onDestroyActionMode(mode);
         }
     }
 

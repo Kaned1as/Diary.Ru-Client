@@ -251,13 +251,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if (mService.mPreloadThemes)
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
                 else
-                    newPostPost();
+                    newPost();
                 return true;
             case R.id.menu_show_online_list:
                 handleBackground(Utils.HANDLE_QUERY_ONLINE, null);
                 return true;
             case R.id.menu_new_comment:
-                newCommentPost();
+                newComment();
                 return true;
             case R.id.menu_purchase:
                 purchaseGift();
@@ -318,7 +318,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     @Override
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "deprecation"})
     public boolean handleMessage(Message message) {
         switch (message.what) {
             case Utils.HANDLE_START:
@@ -439,11 +439,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_NAME_CLICK: {
                 String href = message.getData().getString("url");
-                if (href != null && href.contains("#form") && slider.isDouble()) {
-                    slider.openPane();
+                if (href != null && href.contains("#form")) {
                     String name = message.getData().getString("title");
-                    if (name != null)
-                        messagePane.contentText.setText(messagePane.contentText.getText() + "[L]" + name + "[/L], ");
+                    String toPaste = "[L]" + name + "[/L], ";
+                    handleMessagePaneAddText(toPaste);
                 }
                 return true;
             }
@@ -496,11 +495,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_REPOST:
                 Post repost = (Post) message.obj;
-                newPostPost(repost);
+                newPost(repost);
                 break;
             case Utils.HANDLE_PRELOAD_THEMES:
                 Post newPost = (Post) message.obj;
-                newPostPost(newPost);
+                newPost(newPost);
                 break;
             case Utils.HANDLE_QUERY_ONLINE:
                 HashMap<Integer, Spanned> onliners = (HashMap<Integer, Spanned>) message.obj;
@@ -528,6 +527,23 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         super.handleMessage(message);
         return true;
+    }
+
+    public void handleMessagePaneAddText(String toPaste) {
+        String toSet = messagePane.contentText.getText() + toPaste;
+        if(slider.isDouble()) { // слайдер уже открыт, просто добавляем текст
+            slider.openPane();
+            messagePane.contentText.setText(toSet);
+        } else { // слайдер закрыт, нужно начать пост/коммент
+            if(getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
+                newPost();
+                messagePane.contentText.setText(toSet);
+            } else if (getUser().getCurrentDiaryPage().getClass() == CommentsPage.class) {
+                newComment();
+                messagePane.contentText.setText(toSet);
+            }
+        }
+        messagePane.contentText.setSelection(messagePane.contentText.length());
     }
 
     @Override
@@ -829,7 +845,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         return super.onSearchRequested();
     }
 
-    public void newPostPost() {
+    public void newPost() {
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
@@ -843,7 +859,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         slider.openPane();
     }
 
-    public void newPostPost(Post post) {
+    public void newPost(Post post) {
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
@@ -854,7 +870,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         slider.openPane();
     }
 
-    public void newCommentPost() {
+    public void newComment() {
         if (!(getUser().getCurrentDiaryPage() instanceof CommentsPage))
             return;
 
