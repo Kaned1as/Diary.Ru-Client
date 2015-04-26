@@ -13,8 +13,8 @@ public class LaunchActivity extends ActionBarActivity {
 
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
 
-        if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").equals("") &&
-                !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").equals("") &&
+        if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").isEmpty() &&
+                !mSharedPrefs.getString(Utils.KEY_PASSWORD, "").isEmpty() &&
                 mSharedPrefs.getBoolean(Utils.KEY_KEEP_AUTH, true))
 
             startActivity(new Intent(this, DiaryListActivity.class));

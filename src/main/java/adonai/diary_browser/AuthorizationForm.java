@@ -67,7 +67,7 @@ public class AuthorizationForm extends ActionBarActivity implements OnClickListe
         }
 
         String[] logKeyPair = mPreferences.getString(Utils.KEY_USERPASS_CACHE, "").split("=pairSplitter=");
-        if (logKeyPair.length == 1 && logKeyPair[0].equals("")) // not found
+        if (logKeyPair.length == 1 && logKeyPair[0].isEmpty()) // not found
             return;
 
         mLoginPicker.setVisibility(View.VISIBLE);
@@ -87,7 +87,7 @@ public class AuthorizationForm extends ActionBarActivity implements OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.login_button:
-                if (mUsername.getText().toString().equals("") || mPassword.getText().toString().equals("")) {
+                if (mUsername.getText().toString().isEmpty() || mPassword.getText().toString().isEmpty()) {
                     Toast.makeText(this, R.string.details_missing, Toast.LENGTH_LONG).show();
                     return;
                 }

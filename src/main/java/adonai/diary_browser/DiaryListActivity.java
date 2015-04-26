@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -13,8 +14,10 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.text.TextUtilsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
@@ -239,9 +242,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     // старые телефоны тоже должны работать
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getGroupId() == DiaryListFragment.ITEM_PAGE_LINKS)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(((DiaryPage) getUser().getCurrentDiaryPage()).userLinks.get(item.getTitle()), false));
-
+        if (item.getGroupId() == DiaryListFragment.ITEM_PAGE_LINKS) {
+            String url = ((DiaryPage) getUser().getCurrentDiaryPage()).userLinks.get(item.getTitle().toString());
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, false));
+        }
 
         switch (item.getItemId()) {
             case android.R.id.home:
@@ -251,13 +255,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if (mService.mPreloadThemes)
                     handleBackground(Utils.HANDLE_PRELOAD_THEMES, null);
                 else
-                    newPost();
+                    newPost("");
                 return true;
             case R.id.menu_show_online_list:
                 handleBackground(Utils.HANDLE_QUERY_ONLINE, null);
                 return true;
             case R.id.menu_new_comment:
-                newComment();
+                newComment("");
                 return true;
             case R.id.menu_purchase:
                 purchaseGift();
@@ -536,11 +540,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             messagePane.contentText.setText(toSet);
         } else { // слайдер закрыт, нужно начать пост/коммент
             if(getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
-                newPost();
-                messagePane.contentText.setText(toSet);
+                newPost(toSet);
             } else if (getUser().getCurrentDiaryPage().getClass() == CommentsPage.class) {
-                newComment();
-                messagePane.contentText.setText(toSet);
+                newComment(toSet);
             }
         }
         messagePane.contentText.setSelection(messagePane.contentText.length());
@@ -602,11 +604,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
             builder.setTitle(R.string.really_exit);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                
+                @SuppressLint("CommitPrefEdits")
                 public void onClick(DialogInterface dialog, int item) {
-                    Editor lysosome = mService.mPreferences.edit();
-                    lysosome.remove(Utils.KEY_USERNAME);
-                    lysosome.remove(Utils.KEY_PASSWORD);
-                    lysosome.commit();
+                    mService.mPreferences.edit()
+                        .remove(Utils.KEY_USERNAME)
+                        .remove(Utils.KEY_PASSWORD)
+                        .commit();
 
                     CookieManager cookieManager = CookieManager.getInstance();
                     cookieManager.removeSessionCookie();
@@ -845,17 +849,18 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         return super.onSearchRequested();
     }
 
-    public void newPost() {
+    public void newPost(String text) {
         if (!(getUser().getCurrentDiaryPage() instanceof DiaryPage))
             return;
 
-        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId().equals(""))
+        if (((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId().isEmpty())
             return;
 
         Post post = new Post();
         post.diaryID = ((DiaryPage) getUser().getCurrentDiaryPage()).getDiaryId();
+        post.content = text;
 
-        messagePane.prepareFragment(getUser().getSignature(), post);
+        messagePane.prepareFragment(getUser().getSignature(), post, text.isEmpty());
         slider.openPane();
     }
 
@@ -870,7 +875,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         slider.openPane();
     }
 
-    public void newComment() {
+    public void newComment(String text) {
         if (!(getUser().getCurrentDiaryPage() instanceof CommentsPage))
             return;
 
@@ -879,18 +884,19 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         Comment comment = new Comment();
         comment.postID = ((CommentsPage) getUser().getCurrentDiaryPage()).getPostId();
+        comment.content = text;
 
-        messagePane.prepareFragment(getUser().getSignature(), comment);
+        messagePane.prepareFragment(getUser().getSignature(), comment, text.isEmpty());
         slider.openPane();
     }
 
     public void editPost(Post post) {
-        messagePane.prepareFragment(getUser().getSignature(), post);
+        messagePane.prepareFragment(getUser().getSignature(), post, false);
         slider.openPane();
     }
 
     public void editComment(Comment comment) {
-        messagePane.prepareFragment(getUser().getSignature(), comment);
+        messagePane.prepareFragment(getUser().getSignature(), comment, false);
         slider.openPane();
     }
 }

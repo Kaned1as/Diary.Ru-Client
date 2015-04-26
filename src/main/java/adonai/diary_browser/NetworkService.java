@@ -579,7 +579,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         result.music = rootNode.select("input#atMusic.text").val();
 
         result.pollTitle = rootNode.select("input#queti.text").val();
-        if (!result.pollTitle.equals("")) // если есть опрос
+        if (!result.pollTitle.isEmpty()) // если есть опрос
         {
             result.pollAnswer1 = rootNode.select("input#answer1i.text.poll_answer").val();
             result.pollAnswer2 = rootNode.select("input#answer2i.text.poll_answer").val();
@@ -594,7 +594,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
 
         result.closeAccessMode = rootNode.select("[id^=closeaccessmode]").select("[checked]").val();
-        if (!result.closeAccessMode.equals("")) {
+        if (!result.closeAccessMode.isEmpty()) {
             result.closeText = rootNode.select("textarea#close_text").text();
             if (result.closeAccessMode.equals("3"))
                 result.closeAllowList = rootNode.select("textarea#access_list").text();
@@ -1082,8 +1082,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             URI toLoad = mNetworkClient.resolve(requestedUrl);
             boolean isNewPage = shouldReloadUrl(toLoad);
             // загружаем из кэша, если это не новый коммент и не запрос на перезагрузку
-            if (mCache.hasPage(requestedUrl) && !reload && !isNewPage) { 
-                cachedPage = mCache.loadPageFromCache(requestedUrl);
+            if (mCache.hasPage(toLoad) && !reload && !isNewPage) { 
+                cachedPage = mCache.loadPageFromCache(toLoad);
                 handled = cachedPage.getClass();
             } else {
                 final HttpResponse page = mNetworkClient.getPage(toLoad);
@@ -1113,7 +1113,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 dataPage = EntityUtils.toString(page.getEntity());
-                if(requestedUrl.contains("diary.ru")) { // можем загружать только странички дайри
+                if(toLoad.getHost().contains("diary.ru")) { // можем загружать только странички дайри
                     handled = Utils.checkDiaryUrl(dataPage);
                 }
             }
@@ -1138,31 +1138,31 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 } else { // если нет такого кэша
                     if (handled == DiaryPage.class) {
                         serializeDiaryPage(dataPage);
-                        mCache.putPageToCache(mNetworkClient.getCurrentUrl(), mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == CommentsPage.class) {
                         serializeCommentsPage(dataPage);
-                        mCache.putPageToCache(mNetworkClient.getCurrentUrl(), mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == TagsPage.class) {
                         serializeTagsPage(dataPage);
-                        mCache.putPageToCache(mNetworkClient.getCurrentUrl(), mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryProfilePage.class) {
                         serializeProfilePage(dataPage);
-                        mCache.putPageToCache(mNetworkClient.getCurrentUrl(), mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     } else if (handled == DiaryListPage.class) {
                         serializeDiaryListPage(dataPage);
-                        mCache.putPageToCache(requestedUrl, mUser.getCurrentDiaries());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaries());
                         notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                     } else if (handled == DiscListPage.class) {
                         serializeDiscussionsPage(dataPage);
-                        mCache.putPageToCache(mUser.getDiscussionsUrl(), mUser.getDiscussions());
+                        mCache.putPageToCache(toLoad, mUser.getDiscussions());
                         notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                     } else if (handled == SearchPage.class) {
                         serializeSearchPage(dataPage);
-                        mCache.putPageToCache(mNetworkClient.getCurrentUrl(), mUser.getCurrentDiaryPage());
+                        mCache.putPageToCache(toLoad, mUser.getCurrentDiaryPage());
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA);
                     }
                 }

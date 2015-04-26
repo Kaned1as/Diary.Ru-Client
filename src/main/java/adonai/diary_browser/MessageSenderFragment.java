@@ -255,7 +255,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     mSmilieButtons.removeAllViews();
                     for (Element link : smileLinks) {
-                        if (link.text().equals(""))
+                        if (link.text().isEmpty())
                             continue;
 
                         Button current = new Button(getActivity());
@@ -712,6 +712,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     }
 
     public <T extends Comment> void prepareFragment(String signature, T contents) {
+        prepareFragment(signature, contents, true);
+    }
+    
+    public <T extends Comment> void prepareFragment(String signature, T contents, boolean checkSame) {
         mService = NetworkService.getInstance(getActivity());
         assert (mService != null);
         mDHCL = mService.mNetworkClient;
@@ -724,7 +728,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         if (mPost.getClass() == Post.class) {
             // Если это новый пост
-            if (mPost.postID.equals("")) {
+            if (mPost.postID.isEmpty()) {
                 mTitle.setText(R.string.new_post);
                 mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
 
@@ -757,7 +761,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
         } else if (mPost.getClass() == Comment.class) {
             // если это новый комментарий
-            if (mPost.commentID.equals("")) {
+            if (mPost.commentID.isEmpty()) {
                 mTitle.setText(R.string.new_comment);
                 mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getSubtitle());
 
@@ -765,7 +769,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                 for (View v : commentElements)
                     v.setVisibility(View.VISIBLE);
 
-                if (oldpost.getClass() == Comment.class && oldpost.postID.equals(mPost.postID)) {
+                if (checkSame && oldpost.getClass() == Comment.class && oldpost.postID.equals(mPost.postID)) {
                     AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
                     builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
                     builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
@@ -803,7 +807,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private void prepareUi(Comment comment) {
         contentText.setText(comment.content);
         mSubscribe.setChecked(true);
-        if (comment.commentID.equals("")) // новый коммент
+        if (comment.commentID.isEmpty()) // новый коммент
             mSecureOptions.setVisibility(View.VISIBLE);
         else
             mSecureOptions.setVisibility(View.GONE);
@@ -846,7 +850,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         moodText.setText(post.mood);
         themesText.setText(post.themes);
 
-        if (!post.pollTitle.equals(""))
+        if (!post.pollTitle.isEmpty())
             mShowPoll.setChecked(true);
         else
             mShowPoll.setChecked(false);
@@ -863,7 +867,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mPollChoice9.setText(post.pollAnswer9);
         mPollChoice10.setText(post.pollAnswer10);
 
-        if (!post.closeAccessMode.equals(""))
+        if (!post.closeAccessMode.isEmpty())
             mShowCloseOptions.setChecked(true);
         else
             mShowCloseOptions.setChecked(false);
@@ -1012,7 +1016,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
                     }
 
-                    if (mPost.postID.equals("")) { // новый пост
+                    if (mPost.postID.isEmpty()) { // новый пост
                         postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mService.mPreferences.getString("post.signature", "")));
                         postParams.add(new BasicNameValuePair("act", "new_post_post"));
                         postParams.add(new BasicNameValuePair("post_id", ""));
@@ -1026,7 +1030,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
                     if (mShowOptionals.isChecked()) {
-                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + (mPost.postID.equals("") ? mService.mPreferences.getString("post.tags", "") : "")));
+                        postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + (mPost.postID.isEmpty() ? mService.mPreferences.getString("post.tags", "") : "")));
                         for (int i = 0; i < mPredefinedThemes.getChildCount(); ++i) {
                             LinearLayout horizontal = (LinearLayout) mPredefinedThemes.getChildAt(i);
                             for (int j = 0; j < horizontal.getChildCount(); ++j) {
@@ -1071,7 +1075,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                     if (mShowCloseOptions.isChecked()) {
                         postParams.add(new BasicNameValuePair("private_post", "1"));
-                        if (!mCloseText.getText().toString().equals("")) {
+                        if (!mCloseText.getText().toString().isEmpty()) {
                             postParams.add(new BasicNameValuePair("check_close_text", "1"));
                             postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
                         }
@@ -1110,7 +1114,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
                     postParams.add(new BasicNameValuePair("module", "journal"));
                     postParams.add(new BasicNameValuePair("resulttype", "2"));
-                    if (mPost.commentID.equals("")) { // новый пост
+                    if (mPost.commentID.isEmpty()) { // новый пост
                         switch (mSecureOptions.getCheckedRadioButtonId()) {
                             case R.id.message_anonymous:
                                 postParams.add(new BasicNameValuePair("write_from", "1"));

@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public class CacheManager {
     public static long MAX_SIZE = 5 * 1048576L; // 5MB
     private static CacheManager mInstance;
     // загруженные странички
-    private Map<String, Object> browseCache = new HashMap<>();
+    private Map<URI, Object> browseCache = new HashMap<>();
 
     public static CacheManager getInstance() {
         if (mInstance == null)
@@ -83,16 +84,16 @@ public class CacheManager {
         return null;
     }
 
-    public Object loadPageFromCache(String URL) {
-        return browseCache.get(URL);
+    public Object loadPageFromCache(URI url) {
+        return browseCache.get(url);
     }
 
-    public boolean hasPage(String URL) {
-        return browseCache.containsKey(URL);
+    public boolean hasPage(URI url) {
+        return browseCache.containsKey(url);
     }
 
-    public void putPageToCache(String URL, Object page) {
-        browseCache.put(URL, page);
+    public void putPageToCache(URI url, Object page) {
+        browseCache.put(url, page);
     }
 
     public void clear() {
