@@ -326,6 +326,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     
                     if(loginScreen.contains("недоступен")) {
                         notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                        break;
+                    }
+                    
+                    if(loginScreen.contains("CAPTCHA")) {
+                        notifyListeners(Utils.HANDLE_CAPTCHA_REQUIRED);
+                        break;
                     }
 
                     boolean user = false, password = false;

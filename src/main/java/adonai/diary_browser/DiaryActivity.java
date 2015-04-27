@@ -217,6 +217,9 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
             case Utils.HANDLE_NOTFOUND_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.notfound_error), Toast.LENGTH_SHORT).show();
                 break;
+            case Utils.HANDLE_CAPTCHA_REQUIRED:
+                Toast.makeText(getApplicationContext(), getString(R.string.captcha_error), Toast.LENGTH_LONG).show();
+                break;
             case Utils.HANDLE_CANCELED_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.canceled), Toast.LENGTH_SHORT).show();
                 break;

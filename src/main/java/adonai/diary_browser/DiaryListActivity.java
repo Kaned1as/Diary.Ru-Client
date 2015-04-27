@@ -534,15 +534,15 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     }
 
     public void handleMessagePaneAddText(String toPaste) {
-        String toSet = messagePane.contentText.getText() + toPaste;
         if(slider.isDouble()) { // слайдер уже открыт, просто добавляем текст
+            String toSet = messagePane.contentText.getText() + toPaste;
             slider.openPane();
             messagePane.contentText.setText(toSet);
         } else { // слайдер закрыт, нужно начать пост/коммент
             if(getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
-                newPost(toSet);
+                newPost(toPaste);
             } else if (getUser().getCurrentDiaryPage().getClass() == CommentsPage.class) {
-                newComment(toSet);
+                newComment(toPaste);
             }
         }
         messagePane.contentText.setSelection(messagePane.contentText.length());

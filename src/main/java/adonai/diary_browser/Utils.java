@@ -73,6 +73,7 @@ public class Utils {
     static final int HANDLE_NOTFOUND_ERROR                          = 141 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_CANCELED_ERROR                          = 151 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
     static final int HANDLE_UNKNOWN_PAGE_ERROR                      = 160 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_CAPTCHA_REQUIRED                        = 170 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
 
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;
