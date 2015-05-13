@@ -341,6 +341,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if (pd != null)
                     pd.setContent(getString(R.string.sorting_data));
                 return true;
+            case Utils.HACKING_CLOUDFLARE:
+                if (pd != null)
+                    pd.setContent(getString(R.string.hacking_cloudflare));
+                return true;
             case Utils.HANDLE_UPDATE_HEADERS:
                 // обрабатываем обновление контента
                 mLogin.setText(getUser().getUserName());

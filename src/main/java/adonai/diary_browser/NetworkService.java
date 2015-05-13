@@ -270,7 +270,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 case Utils.HANDLE_QUERY_ONLINE: {
                     final String dataPage = mNetworkClient.getPageAsString("http://www.diary.ru");
                     if (dataPage == null) { // no connection
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
                     HashMap<Integer, Spanned> onlineUsers = new HashMap<>(2);
@@ -316,37 +316,34 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                     nameValuePairs.add(new BasicNameValuePair("save", "on"));
 
-                    final String loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
-                    final List<Cookie> cookies = mNetworkClient.getCookieStore().getCookies();
+                    String loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
 
                     if (loginScreen == null) { // no connection
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
                     
+                    if(mNetworkClient.hasCookie("__cfduid") && !mNetworkClient.hasCookie("cf_clearance")) {
+                        notifyListeners(Utils.HACKING_CLOUDFLARE);
+                        if(mNetworkClient.cloudFlareSolve(loginScreen)) {
+                            loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
+                        } else { // couldn't solve
+                            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
+                            break;
+                        }
+                    }
+
                     if(loginScreen.contains("недоступен")) {
-                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
                         break;
                     }
                     
                     if(loginScreen.contains("CAPTCHA")) {
-                        notifyListeners(Utils.HANDLE_CAPTCHA_REQUIRED);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
                         break;
                     }
 
-                    boolean user = false, password = false;
-                    for (Cookie cookie : cookies) {
-                        switch (cookie.getName()) {
-                            case "user_login":
-                                user = true;
-                                break;
-                            case "user_pass":
-                                password = true;
-                                break;
-                        }
-                    }
-
-                    if (!(user && password)) { // not authorized
+                    if (!mNetworkClient.hasCookie("user_login") || !mNetworkClient.hasCookie("user_pass")) { // not authorized
                         notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                         break;
                     }
@@ -371,7 +368,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                     final String dataPage = mNetworkClient.getPageAsString(jsURL);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
                     serializeDiscussions(dataPage, dList.getDiscussions());
@@ -395,7 +392,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
                     final String uFolder = mNetworkClient.getPageAsString(url);
                     if (uFolder == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
                     serializeUmailListPage(uFolder);
@@ -408,7 +405,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
                     final String uMail = mNetworkClient.getPageAsString(url);
                     if (uMail == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
                     serializeUmailPage(uMail);
@@ -438,7 +435,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = (String) message.obj;
                     final String dataPage = mNetworkClient.getPageAsString(URL);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
@@ -448,7 +445,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_REPOST, sendPost);
                         break;
                     } catch (NullPointerException ex) {
-                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
                         break;
                     }
                 }
@@ -474,7 +471,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String url = (String) message.obj;
                     final String dataPage = mNetworkClient.getPageAsString(url);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
@@ -486,7 +483,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
                         break;
                     } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
                         break;
                     }
                 }
@@ -499,18 +496,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = diaryUrl + "?newpost";
                     final String dataPage = mNetworkClient.getPageAsString(URL);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
                     if (dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике")) {
-                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error);
                         break;
                     }
 
                     final Post sendPost = serializePostEditPage(dataPage);
                     if (sendPost == null) { // additional check due to nullptrs
-                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
@@ -525,13 +522,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
                     final String dataPage = mNetworkClient.getPageAsString(URL);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
                     final Umail sendMail = serializeUmailEditPage(dataPage, type);
                     if (sendMail == null) { // additional check due to nullptrs
-                        notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
@@ -542,7 +539,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final String URL = (String) message.obj;
                     final String dataPage = mNetworkClient.getPageAsString(URL);
                     if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                         break;
                     }
 
@@ -553,7 +550,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
                         break;
                     } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
                         break;
                     }
                 }
@@ -561,7 +558,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return false;
             }
         } catch (IOException ignored) {
-            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
         }
 
         return true;
@@ -1099,7 +1096,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
                 
                 if (page.getEntity() == null) {
-                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     return;
                 }
 
@@ -1175,20 +1172,20 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             } else { // неопознанная страничка
                 assert (cachedPage == null);
                 if (dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
-                    notifyListeners(Utils.HANDLE_CLOSED_ERROR);
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error);
                 else { // страница с другого ресурса
                     createChooserForUrl(requestedUrl);
                 }
             }
         } catch (NullPointerException | IllegalArgumentException e) {
-            notifyListeners(Utils.HANDLE_SERVICE_UNAVAILABLE);
+            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
         } catch (InterruptedIOException e) {
-            notifyListeners(Utils.HANDLE_CANCELED_ERROR);
+            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.canceled);
         } catch (IOException e) {
             if(e.getMessage() != null && e.getMessage().contains("closed")) {
-                notifyListeners(Utils.HANDLE_CANCELED_ERROR);
+                notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.canceled);
             } else {
-                notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR);
+                notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
             }
         }
     }
@@ -1219,7 +1216,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
         // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
         startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-        notifyListeners(Utils.HANDLE_UNKNOWN_PAGE_ERROR);
+        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.unknown_page);
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {

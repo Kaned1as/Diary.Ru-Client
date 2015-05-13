@@ -203,25 +203,10 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
                 Toast.makeText(getApplicationContext(), getString(R.string.service_not_running), Toast.LENGTH_SHORT).show();
                 break;
             case Utils.HANDLE_CONNECTIVITY_ERROR:
-                Toast.makeText(getApplicationContext(), getString(R.string.connection_error), Toast.LENGTH_SHORT).show();
-                break;
-            case Utils.HANDLE_UNKNOWN_PAGE_ERROR:
-                Toast.makeText(getApplicationContext(), getString(R.string.unknown_page), Toast.LENGTH_SHORT).show();
-                break;
-            case Utils.HANDLE_SERVICE_UNAVAILABLE:
-                Toast.makeText(getApplicationContext(), getString(R.string.page_incorrect), Toast.LENGTH_SHORT).show();
-                break;
-            case Utils.HANDLE_CLOSED_ERROR:
-                Toast.makeText(getApplicationContext(), getString(R.string.closed_error), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), getString((Integer) msg.obj), Toast.LENGTH_SHORT).show();
                 break;
             case Utils.HANDLE_NOTFOUND_ERROR:
                 Toast.makeText(getApplicationContext(), getString(R.string.notfound_error), Toast.LENGTH_SHORT).show();
-                break;
-            case Utils.HANDLE_CAPTCHA_REQUIRED:
-                Toast.makeText(getApplicationContext(), getString(R.string.captcha_error), Toast.LENGTH_LONG).show();
-                break;
-            case Utils.HANDLE_CANCELED_ERROR:
-                Toast.makeText(getApplicationContext(), getString(R.string.canceled), Toast.LENGTH_SHORT).show();
                 break;
             case Utils.HANDLE_JUST_DO_GET:
                 Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
