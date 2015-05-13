@@ -74,6 +74,7 @@ public class DiaryWebView extends WebView {
         settings.setBuiltInZoomControls(true);
         settings.setDisplayZoomControls(false);
         settings.setJavaScriptEnabled(true);
+        settings.setUserAgentString(DiaryHttpClient.FIXED_USER_AGENT);
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
         setWebViewClient(new DiaryWebClient());

@@ -46,6 +46,8 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLException;
 
 public class DiaryHttpClient {
+    public final static String FIXED_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36";
+    
     private final static Pattern OPERATION_PATTERN = Pattern.compile("setTimeout\\(function\\(\\)\\{\\s+(var t,r,a,f.+?\\r?\\n[\\s\\S]+?a\\.value =.+?)\\r?\\n");
     private final static Pattern PASS_PATTERN = Pattern.compile("name=\"pass\" value=\"(.+?)\"");
     private final static Pattern CHALLENGE_PATTERN = Pattern.compile("name=\"jschl_vc\" value=\"(\\w+)\"");
@@ -59,7 +61,7 @@ public class DiaryHttpClient {
 
     public DiaryHttpClient() {
         httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
-        httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36");
+        httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
         localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
     }
 
@@ -108,6 +110,7 @@ public class DiaryHttpClient {
             return null; // Не загружать локальные
 
         DefaultHttpClient asyncRetriever = new DefaultHttpClient();
+        asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
         String current = resolve(url).toString();
         HttpGet httpGet = new HttpGet(current);
         runningRequests.add(httpGet);
@@ -125,6 +128,7 @@ public class DiaryHttpClient {
 
         try {
             DefaultHttpClient asyncRetriever = new DefaultHttpClient();
+            asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
             String current = resolve(url).toString();
             HttpGet httpGet = new HttpGet(current);
             runningRequests.add(httpGet);
