@@ -265,4 +265,5 @@
     <string name="use_text_links">Текст вместо кнопок действий</string>
     <string name="quote">Цитировать</string>
     <string name="captcha_error">Сервер @Дневников недоступен. Вы заходите с недоверенного IP-адреса, попробуйте сменить сеть.</string>
+    <string name="hacking_cloudflare">Взлом защиты CloudFlare</string>
 </resources>
