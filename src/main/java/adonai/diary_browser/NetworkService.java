@@ -323,7 +323,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                         break;
                     }
                     
-                    if(mNetworkClient.hasCookie("__cfduid") && !mNetworkClient.hasCookie("cf_clearance")) {
+                    if(loginScreen.contains(DiaryHttpClient.CLOUDFLARE_ANCHOR) && !mNetworkClient.hasCookie("cf_clearance")) {
                         notifyListeners(Utils.HACKING_CLOUDFLARE);
                         if(mNetworkClient.cloudFlareSolve(loginScreen)) {
                             loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));

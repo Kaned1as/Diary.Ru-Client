@@ -5,6 +5,7 @@ import android.webkit.CookieManager;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
@@ -46,6 +47,7 @@ import java.util.regex.Pattern;
 import javax.net.ssl.SSLException;
 
 public class DiaryHttpClient {
+    public final static String CLOUDFLARE_ANCHOR = "a = document.getElementById('jschl-answer');";
     public final static String FIXED_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36";
     
     private final static Pattern OPERATION_PATTERN = Pattern.compile("setTimeout\\(function\\(\\)\\{\\s+(var t,r,a,f.+?\\r?\\n[\\s\\S]+?a\\.value =.+?)\\r?\\n");
@@ -242,7 +244,7 @@ public class DiaryHttpClient {
             String url = "http://www.diary.ru/cdn-cgi/l/chk_jschl?" + URLEncodedUtils.format(params, "windows-1251");
             
             HttpResponse response = getPage(URI.create(url), headers);
-            if(response.getStatusLine().getStatusCode() == 200) {
+            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 response.getEntity().consumeContent();
                 return true;
             }
