@@ -1083,6 +1083,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         try {
             URI toLoad = mNetworkClient.resolve(requestedUrl);
+            boolean isDiaryUrl = toLoad.getHost().contains("diary.ru");
             boolean isNewPage = shouldReloadUrl(toLoad);
             // загружаем из кэша, если это не новый коммент и не запрос на перезагрузку
             if (mCache.hasPage(toLoad) && !reload && !isNewPage) { 
@@ -1115,8 +1116,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     return;
                 }
 
-                dataPage = EntityUtils.toString(page.getEntity());
-                if(toLoad.getHost().contains("diary.ru")) { // можем загружать только странички дайри
+                if(isDiaryUrl) { // можем загружать только странички дайри
+                    dataPage = EntityUtils.toString(page.getEntity());
                     handled = Utils.checkDiaryUrl(dataPage);
                 }
             }
@@ -1171,8 +1172,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
             } else { // неопознанная страничка
                 assert (cachedPage == null);
-                if (dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")) // если наткнулись на ошибку дневника
-                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error);
+                if (isDiaryUrl && (dataPage.contains("закрыт") || dataPage.contains("попробовать что-нибудь еще")))
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error); // если наткнулись на ошибку дневника
                 else { // страница с другого ресурса
                     createChooserForUrl(requestedUrl);
                 }
