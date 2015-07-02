@@ -1005,7 +1005,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
      */
     private void mutateContent(Document resultPage) {
         // страница будет иметь наш стиль
-        resultPage.outputSettings().prettyPrint(false).escapeMode(Entities.EscapeMode.none);
         String theme = mPreferences.getString("app.theme", "red");
         resultPage.head().append("<link rel=\"stylesheet\" href=\"file:///android_asset/css/" + theme + ".css\" type=\"text/css\" media=\"all\" title=\"Стандарт\"/>");
 
