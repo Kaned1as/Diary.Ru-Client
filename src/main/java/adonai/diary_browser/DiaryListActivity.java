@@ -9,15 +9,12 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.text.TextUtilsCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Spanned;
-import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
@@ -316,9 +313,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         } else if (getIntent().getData() != null) {
             pageToLoad = getIntent().getDataString();
             getIntent().setData(null);
-            if (mService != null) // if ativity is already running, just redirect to needed page
-                mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
         }
+        if (mService != null) // if ativity is already running, just redirect to needed page
+            mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
     }
 
     @Override
@@ -366,7 +363,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mUmailNum.setVisibility(View.GONE);
                 }
                 return true;
-            case Utils.HANDLE_SET_HTTP_COOKIE: // успешно авторизовались
+            case Utils.HANDLE_AUTHORIZE: // успешно авторизовались
                 pd.setContent(getString(R.string.getting_user_info));
                 return true;
             case Utils.HANDLE_GET_LIST_PAGE_DATA:

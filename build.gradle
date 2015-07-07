@@ -16,18 +16,18 @@ dependencies {
     compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'               // animated gif drawables
     compile 'com.android.support:appcompat-v7:22.2.0'                       // support library (material design)
     compile 'com.afollestad:material-dialogs:0.6.4.1'                       // material design for dialogs
-    compile 'org.jsoup:jsoup:1.8.2'
+    //compile 'org.jsoup:jsoup:1.8.3'
     compile 'org.mozilla:rhino:1.7.6'                                       // JS for cloudflare solving
     compile fileTree(dir: 'libs', include: '*.jar')                         // apache html entity + custom jsoup
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion '22.0.1'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 213
         versionName "2.1.3"
     }

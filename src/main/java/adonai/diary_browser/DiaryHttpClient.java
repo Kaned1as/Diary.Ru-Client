@@ -9,6 +9,7 @@ import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.AbortableHttpRequest;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -46,6 +47,7 @@ import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLException;
 
+@SuppressWarnings("deprecation")
 public class DiaryHttpClient {
     public final static String CLOUDFLARE_ANCHOR = "a = document.getElementById('jschl-answer');";
     public final static String FIXED_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36";
@@ -91,37 +93,70 @@ public class DiaryHttpClient {
         return false;
     }
 
-    public String postPageToString(String url, HttpEntity data) throws IOException {
+    public String postPageToString(String url, HttpEntity data) {
         String current = resolve(url).toString();
         HttpPost httpPost = new HttpPost(current);
         runningRequests.add(httpPost);
-        if(data != null) {
-            httpPost.setEntity(data);
+        httpPost.setEntity(data);
+        try {
+            HttpResponse response = httpClient.execute(httpPost, localContext);
+            syncCookiesWithWebViews();
+            return EntityUtils.toString(response.getEntity());
+        } catch (IOException e) {
+            return null;
         }
-        HttpResponse response = httpClient.execute(httpPost, localContext);
-        syncCookiesWithWebViews();
-        return EntityUtils.toString(response.getEntity());
+    }
+    
+    public String postPageToString(String url, List<NameValuePair> nameValuePairs) {
+        String current = resolve(url).toString();
+        HttpPost httpPost = new HttpPost(current);
+        runningRequests.add(httpPost);
+
+        try {
+            HttpEntity data = new UrlEncodedFormEntity(nameValuePairs, "windows-1251");
+            httpPost.setEntity(data);
+
+            HttpResponse response = httpClient.execute(httpPost, localContext);
+            syncCookiesWithWebViews();
+            return EntityUtils.toString(response.getEntity());
+        } catch (IOException e) {
+            return null;
+        }
     }
 
-    public String postPageToString(HttpEntity data) throws IOException {
+    public String postPageToString(HttpEntity data) {
         return postPageToString("http://www.diary.ru/diary.php", data);
     }
 
-    public String getPageAsString(String url) throws IOException {
-        if (url.startsWith("file"))
-            return null; // Не загружать локальные
+    public String postPageToString(List<NameValuePair> nameValuePairs) {
+        return postPageToString("http://www.diary.ru/diary.php", nameValuePairs);
+    }
 
-        DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-        asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
-        String current = resolve(url).toString();
-        HttpGet httpGet = new HttpGet(current);
-        runningRequests.add(httpGet);
-        HttpResponse response = asyncRetriever.execute(httpGet, localContext);
-        syncCookiesWithWebViews();
-        if(response.getEntity() == null) {
+    /**
+     * Return page as string or null if failed
+     * @param url
+     * @return
+     * @throws IOException
+     */
+    public String getPageAsString(String url) {
+        try {
+            if (url.startsWith("file"))
+                return null; // Не загружать локальные
+
+            DefaultHttpClient asyncRetriever = new DefaultHttpClient();
+            asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
+            String current = resolve(url).toString();
+            HttpGet httpGet = new HttpGet(current);
+            runningRequests.add(httpGet);
+            HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+            syncCookiesWithWebViews();
+            if(response.getEntity() == null) {
+                return null;
+            }
+            return EntityUtils.toString(response.getEntity());
+        } catch (IOException e) {
             return null;
         }
-        return EntityUtils.toString(response.getEntity());
     }
 
     public byte[] getPageAsByteArray(String url) {

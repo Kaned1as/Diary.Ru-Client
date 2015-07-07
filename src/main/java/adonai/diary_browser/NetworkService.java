@@ -25,22 +25,17 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.util.Pair;
-import android.webkit.CookieManager;
-import android.webkit.CookieSyncManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.Entities;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
@@ -214,351 +209,345 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     @SuppressWarnings("unchecked")
     @Override
     public boolean handleMessage(Message message) {
-        try {
-            switch (message.what) {
-                case Utils.HANDLE_SERVICE_UPDATE: { // уведомления о новых комментариях раз в 5 минут
-                    mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
+        switch (message.what) {
+            case Utils.HANDLE_SERVICE_UPDATE: { // уведомления о новых комментариях раз в 5 минут
+                mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000); // убедимся, что будем уведомлять и дальше
 
-                    final String dataPage = mNetworkClient.getPageAsString(mUser.getFavoritesUrl()); // подойдет любая ссылка с дневников
-                    if (dataPage == null)
-                        break;
+                final String dataPage = mNetworkClient.getPageAsString(mUser.getFavoritesUrl()); // подойдет любая ссылка с дневников
+                if (dataPage == null)
+                    break;
 
-                    final Document rootNode = Jsoup.parse(dataPage);
+                final Document rootNode = Jsoup.parse(dataPage);
+                mUser.parseData(rootNode);
+                notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
+
+                final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                if (mUser.hasNotifications() && mCurrentLinkSet.shouldNotify(mUser)) { // старые данные или нет?
+                    mCurrentLinkSet.lastDiaryLink = mUser.getNewDiaryLink(); // устанавливаем линки на новые значения
+                    mCurrentLinkSet.lastDiscussionLink = mUser.getNewDiscussLink();
+                    mCurrentLinkSet.lastUmailLink = mUser.getNewUmailLink();
+
+                    NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
+                    nBuilder.setContentTitle(getString(R.string.new_comments));
+                    nBuilder.setContentText(
+                            getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
+                            getString(R.string.discussions) + ": " + mUser.getNewDiscussNum() + " | " +
+                            getString(R.string.umail_activity_title) + ": " + mUser.getNewUmailNum());
+                    nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
+                    nBuilder.setLargeIcon(mNotificationIcon);
+                    nBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+                    nBuilder.setTicker(getString(R.string.new_comments) + ": " +
+                            Integer.toString(mUser.getNewDiaryCommentsNum() +
+                                            mUser.getNewDiscussNum() +
+                                            mUser.getNewUmailNum()));
+                    nBuilder.setOnlyAlertOnce(true);
+                    nBuilder.setAutoCancel(true);
+
+                    final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
+                    intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    String newUrl = mUser.getMostRecentNotification();
+                    if(newUrl != null) { // we don't support U-Mails for now
+                        intent.putExtra("url", newUrl);
+                    }
+                    nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
+                    mNotificationManager.notify(NEWS_NOTIFICATION_ID, nBuilder.build()); // запускаем уведомление
+                } else if (!mUser.hasNotifications()) {
+                    mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
+                }
+                break;
+            }
+            case Utils.HANDLE_JUST_DO_GET: {
+                if (mNetworkClient.getPageAsString(message.obj.toString()) != null)
+                    notifyListeners(Utils.HANDLE_JUST_DO_GET);
+                break;
+            }
+            case Utils.HANDLE_QUERY_ONLINE: {
+                final String dataPage = mNetworkClient.getPageAsString("http://www.diary.ru");
+                if (dataPage == null) { // no connection
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                HashMap<Integer, Spanned> onlineUsers = new HashMap<>(2);
+                try {
+                    Document rootNode = Jsoup.parse(dataPage);
                     mUser.parseData(rootNode);
                     notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
+                    Element content = rootNode.getElementById("container");
 
-                    final NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-                    if (mUser.hasNotifications() && mCurrentLinkSet.shouldNotify(mUser)) { // старые данные или нет?
-                        mCurrentLinkSet.lastDiaryLink = mUser.getNewDiaryLink(); // устанавливаем линки на новые значения
-                        mCurrentLinkSet.lastDiscussionLink = mUser.getNewDiscussLink();
-                        mCurrentLinkSet.lastUmailLink = mUser.getNewUmailLink();
+                    Element favoritesOnline = content.select("span.sel:containsOwn(в том числе мои избранные) + div.sp").first();
+                    onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "http://www.diary.ru/member/")));
 
-                        NotificationCompat.Builder nBuilder = new NotificationCompat.Builder(this);
-                        nBuilder.setContentTitle(getString(R.string.new_comments));
-                        nBuilder.setContentText(
-                                getString(R.string.my_diary) + ": " + mUser.getNewDiaryCommentsNum() + " | " +
-                                getString(R.string.discussions) + ": " + mUser.getNewDiscussNum() + " | " +
-                                getString(R.string.umail_activity_title) + ": " + mUser.getNewUmailNum());
-                        nBuilder.setSmallIcon(R.drawable.ic_launcher_status_icon);
-                        nBuilder.setLargeIcon(mNotificationIcon);
-                        nBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-                        nBuilder.setTicker(getString(R.string.new_comments) + ": " +
-                                Integer.toString(mUser.getNewDiaryCommentsNum() +
-                                                mUser.getNewDiscussNum() +
-                                                mUser.getNewUmailNum()));
-                        nBuilder.setOnlyAlertOnce(true);
-                        nBuilder.setAutoCancel(true);
+                    Element subscribersOnline = content.select("span.sel:containsOwn(и мои постоянные читатели) + div.sp").first();
+                    onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "http://www.diary.ru/member/")));
+                } catch (Exception ignored) {
 
-                        final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
-                        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        String newUrl = mUser.getMostRecentNotification();
-                        if(newUrl != null) { // we don't support U-Mails for now
-                            intent.putExtra("url", newUrl);
-                        }
-                        nBuilder.setContentIntent(PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT));
-                        mNotificationManager.notify(NEWS_NOTIFICATION_ID, nBuilder.build()); // запускаем уведомление
-                    } else if (!mUser.hasNotifications()) {
-                        mNotificationManager.cancel(NEWS_NOTIFICATION_ID);
-                    }
+                }
+                notifyListeners(Utils.HANDLE_QUERY_ONLINE, onlineUsers);
+                break;
+            }
+            case Utils.HANDLE_DELETE_UMAILS: {
+                final Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
+                final long[] ids = ((Pair<long[], Integer>) message.obj).first;
+
+                final List<NameValuePair> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
+                nameValuePairs.add(new BasicNameValuePair("module", "umail"));
+                nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
+                nameValuePairs.add(new BasicNameValuePair("move_to_folder", "0"));
+                nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
+                nameValuePairs.add(new BasicNameValuePair("delm", "Удалить отмеченные"));
+                for (long id : ids)
+                    nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
+
+                mNetworkClient.postPageToString(nameValuePairs);
+                notifyListeners(Utils.HANDLE_DELETE_UMAILS);
+                break;
+            }
+            case Utils.HANDLE_AUTHORIZE: {
+                final List<NameValuePair> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
+                nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
+                nameValuePairs.add(new BasicNameValuePair("save", "on"));
+
+                String loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", nameValuePairs);
+
+                if (loginScreen == null) { // no connection
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     break;
                 }
-                case Utils.HANDLE_JUST_DO_GET: {
-                    if (mNetworkClient.getPageAsString(message.obj.toString()) != null)
-                        notifyListeners(Utils.HANDLE_JUST_DO_GET);
-                    break;
-                }
-                case Utils.HANDLE_QUERY_ONLINE: {
-                    final String dataPage = mNetworkClient.getPageAsString("http://www.diary.ru");
-                    if (dataPage == null) { // no connection
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-                    HashMap<Integer, Spanned> onlineUsers = new HashMap<>(2);
-                    try {
-                        Document rootNode = Jsoup.parse(dataPage);
-                        mUser.parseData(rootNode);
-                        notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
-                        Element content = rootNode.getElementById("container");
-
-                        Element favoritesOnline = content.select("span.sel:containsOwn(в том числе мои избранные) + div.sp").first();
-                        onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "http://www.diary.ru/member/")));
-
-                        Element subscribersOnline = content.select("span.sel:containsOwn(и мои постоянные читатели) + div.sp").first();
-                        onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "http://www.diary.ru/member/")));
-                    } catch (Exception ignored) {
-
-                    }
-                    notifyListeners(Utils.HANDLE_QUERY_ONLINE, onlineUsers);
-                    break;
-                }
-                case Utils.HANDLE_DELETE_UMAILS: {
-                    final Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
-                    final long[] ids = ((Pair<long[], Integer>) message.obj).first;
-
-                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                    nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
-                    nameValuePairs.add(new BasicNameValuePair("module", "umail"));
-                    nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
-                    nameValuePairs.add(new BasicNameValuePair("move_to_folder", "0"));
-                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
-                    nameValuePairs.add(new BasicNameValuePair("delm", "Удалить отмеченные"));
-                    for (long id : ids)
-                        nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
-
-                    mNetworkClient.postPageToString(new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
-
-                    notifyListeners(Utils.HANDLE_DELETE_UMAILS);
-                    break;
-                }
-                case Utils.HANDLE_SET_HTTP_COOKIE: {
-                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                    nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
-                    nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
-                    nameValuePairs.add(new BasicNameValuePair("save", "on"));
-
-                    String loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
-
-                    if (loginScreen == null) { // no connection
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-                    
-                    if(loginScreen.contains(DiaryHttpClient.CLOUDFLARE_ANCHOR) && !mNetworkClient.hasCookie("cf_clearance")) {
-                        notifyListeners(Utils.HACKING_CLOUDFLARE);
-                        if(mNetworkClient.cloudFlareSolve(loginScreen)) {
-                            loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
-                        } else { // couldn't solve
-                            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
-                            break;
-                        }
-                    }
-
-                    if(loginScreen.contains("недоступен")) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
-                        break;
-                    }
-                    
-                    if(loginScreen.contains("CAPTCHA")) {
+                
+                if(loginScreen.contains(DiaryHttpClient.CLOUDFLARE_ANCHOR) && !mNetworkClient.hasCookie("cf_clearance")) {
+                    notifyListeners(Utils.HACKING_CLOUDFLARE);
+                    if(mNetworkClient.cloudFlareSolve(loginScreen)) {
+                        loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", nameValuePairs);
+                    } else { // couldn't solve
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
                         break;
                     }
+                }
 
-                    if (!mNetworkClient.hasCookie("user_login") || !mNetworkClient.hasCookie("user_pass")) { // not authorized
-                        notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
-                        break;
-                    }
-
-                    mUser.setAuthorized(true);
-
-                    if (message.obj != null) // возвращаемся к загрузке
-                        handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
-
-                    notifyListeners(Utils.HANDLE_SET_HTTP_COOKIE);
+                if(loginScreen.contains("недоступен")) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
                     break;
                 }
-                case Utils.HANDLE_GET_DISCUSSION_LIST_DATA: {
-
-                    final int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
-                    final DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
-                    final boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
-
-                    String jsURL = dList.getURL();
-                    if (onlyNew)
-                        jsURL = jsURL + "&new";
-
-                    final String dataPage = mNetworkClient.getPageAsString(jsURL);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-                    serializeDiscussions(dataPage, dList.getDiscussions());
-
-                    notifyListeners(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, pos);
+                
+                if(loginScreen.contains("CAPTCHA")) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
                     break;
                 }
-                case Utils.HANDLE_PICK_URL: {
-                    final String URL = ((Pair<String, Boolean>) message.obj).first;
-                    boolean reload = ((Pair<String, Boolean>) message.obj).second;
 
-                    if (!mUser.isAuthorized())
-                        handleRequest(Utils.HANDLE_SET_HTTP_COOKIE, URL);
-                    else
-                        checkUrlAndHandle(URL, reload);
-
+                if (!mNetworkClient.hasCookie("user_login") || !mNetworkClient.hasCookie("user_pass")) { // not authorized
+                    notifyListeners(Utils.HANDLE_AUTHORIZATION_ERROR);
                     break;
                 }
-                case Utils.HANDLE_OPEN_FOLDER: {
-                    String url = (String) message.obj;
-                    mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
-                    final String uFolder = mNetworkClient.getPageAsString(url);
-                    if (uFolder == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-                    serializeUmailListPage(uFolder);
 
-                    notifyListeners(Utils.HANDLE_OPEN_FOLDER);
-                    break;
-                }
-                case Utils.HANDLE_OPEN_MAIL: {
-                    String url = (String) message.obj;
-                    mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
-                    final String uMail = mNetworkClient.getPageAsString(url);
-                    if (uMail == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-                    serializeUmailPage(uMail);
+                mUser.setAuthorized(true);
 
-                    notifyListeners(Utils.HANDLE_OPEN_MAIL);
-                    break;
-                }
-                case Utils.HANDLE_DELETE_POST_DRAFT:
-                case Utils.HANDLE_DELETE_POST: {
-                    final String id = (String) message.obj;
-                    final List<NameValuePair> postParams = new ArrayList<>();
-                    postParams.add(new BasicNameValuePair("module", "journal"));
-                    postParams.add(new BasicNameValuePair("act", "del_post_post"));
-                    postParams.add(new BasicNameValuePair("post_id", id));
-                    postParams.add(new BasicNameValuePair("yes", "Да"));
+                if (message.obj != null) // возвращаемся к загрузке
+                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
 
-                    if(message.what == Utils.HANDLE_DELETE_POST_DRAFT) { // удаляем черновик
-                        postParams.add(new BasicNameValuePair("draft", ""));
-                    }
-
-                    mNetworkClient.postPageToString(new UrlEncodedFormEntity(postParams, "windows-1251"));
-
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
-                    break;
-                }
-                case Utils.HANDLE_REPOST: {
-                    final String URL = (String) message.obj;
-                    final String dataPage = mNetworkClient.getPageAsString(URL);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    try {
-                        final Post sendPost = serializePostEditPage(dataPage);
-                        sendPost.diaryID = mUser.getOwnProfileId();
-                        notifyListeners(Utils.HANDLE_REPOST, sendPost);
-                        break;
-                    } catch (NullPointerException ex) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
-                        break;
-                    }
-                }
-                case Utils.HANDLE_DELETE_COMMENT: {
-                    final String id = (String) message.obj;
-                    mNetworkClient.getPageAsString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryUrl() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.getSignature());
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
-                    break;
-                }
-                case Utils.HANDLE_DELETE_TAG: {
-                    final String referer = (String) message.obj;
-
-                    final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                    nameValuePairs.add(new BasicNameValuePair("referer", referer));
-                    nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
-                    nameValuePairs.add(new BasicNameValuePair("confirm", "Да"));
-                    
-                    mNetworkClient.postPageToString(referer, new UrlEncodedFormEntity(nameValuePairs, "windows-1251"));
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
-                    break;
-                }
-                case Utils.HANDLE_EDIT_POST: {
-                    final String url = (String) message.obj;
-                    final String dataPage = mNetworkClient.getPageAsString(url);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    try {
-                        final Post sendPost = serializePostEditPage(dataPage);
-                        sendPost.postID = url.substring(url.lastIndexOf("=") + 1);
-                        sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryId();
-                        sendPost.postType = url.endsWith("draft") ? "draft" : "";
-                        notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
-                        break;
-                    } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
-                        break;
-                    }
-                }
-                case Utils.HANDLE_PRELOAD_THEMES: {
-                    // handle 'favorite' page case
-                    String currentUrl = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryUrl();
-                    String diaryUrl = currentUrl.contains("/")
-                            ? currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1)
-                            : currentUrl;
-                    final String URL = diaryUrl + "?newpost";
-                    final String dataPage = mNetworkClient.getPageAsString(URL);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    if (dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике")) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error);
-                        break;
-                    }
-
-                    final Post sendPost = serializePostEditPage(dataPage);
-                    if (sendPost == null) { // additional check due to nullptrs
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryId();
-
-                    notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
-                    break;
-                }
-                case Utils.HANDLE_PRELOAD_UMAIL: {
-                    final int type = (int) message.obj;
-                    final String umailId = mUser.getCurrentUmailPage().getUmailID();
-                    final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
-                    final String dataPage = mNetworkClient.getPageAsString(URL);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    final Umail sendMail = serializeUmailEditPage(dataPage, type);
-                    if (sendMail == null) { // additional check due to nullptrs
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    notifyListeners(Utils.HANDLE_PRELOAD_UMAIL, sendMail);
-                    break;
-                }
-                case Utils.HANDLE_EDIT_COMMENT: {
-                    final String URL = (String) message.obj;
-                    final String dataPage = mNetworkClient.getPageAsString(URL);
-                    if (dataPage == null) {
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
-                        break;
-                    }
-
-                    try {
-                        Comment sendComment = serializeCommentEditPage(dataPage);
-                        sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
-                        sendComment.postID = ((CommentsPage) mUser.getCurrentDiaryPage()).getPostId();
-                        notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
-                        break;
-                    } catch (NullPointerException ex) { // cannot serialize
-                        notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
-                        break;
-                    }
-                }
-                default:
-                    return false;
+                notifyListeners(Utils.HANDLE_AUTHORIZE);
+                break;
             }
-        } catch (IOException ignored) {
-            notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
+            case Utils.HANDLE_GET_DISCUSSION_LIST_DATA: {
+
+                final int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
+                final DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
+                final boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
+
+                String jsURL = dList.getURL();
+                if (onlyNew)
+                    jsURL = jsURL + "&new";
+
+                final String dataPage = mNetworkClient.getPageAsString(jsURL);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                serializeDiscussions(dataPage, dList.getDiscussions());
+
+                notifyListeners(Utils.HANDLE_GET_DISCUSSION_LIST_DATA, pos);
+                break;
+            }
+            case Utils.HANDLE_PICK_URL: {
+                final String URL = ((Pair<String, Boolean>) message.obj).first;
+                boolean reload = ((Pair<String, Boolean>) message.obj).second;
+
+                if (!mUser.isAuthorized())
+                    handleRequest(Utils.HANDLE_AUTHORIZE, URL);
+                else
+                    checkUrlAndHandle(URL, reload);
+
+                break;
+            }
+            case Utils.HANDLE_OPEN_FOLDER: {
+                String url = (String) message.obj;
+                mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
+                final String uFolder = mNetworkClient.getPageAsString(url);
+                if (uFolder == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                serializeUmailListPage(uFolder);
+
+                notifyListeners(Utils.HANDLE_OPEN_FOLDER);
+                break;
+            }
+            case Utils.HANDLE_OPEN_MAIL: {
+                String url = (String) message.obj;
+                mNetworkClient.setCurrentUrl(mNetworkClient.resolve(url));
+                final String uMail = mNetworkClient.getPageAsString(url);
+                if (uMail == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                serializeUmailPage(uMail);
+
+                notifyListeners(Utils.HANDLE_OPEN_MAIL);
+                break;
+            }
+            case Utils.HANDLE_DELETE_POST_DRAFT:
+            case Utils.HANDLE_DELETE_POST: {
+                final String id = (String) message.obj;
+                final List<NameValuePair> postParams = new ArrayList<>();
+                postParams.add(new BasicNameValuePair("module", "journal"));
+                postParams.add(new BasicNameValuePair("act", "del_post_post"));
+                postParams.add(new BasicNameValuePair("post_id", id));
+                postParams.add(new BasicNameValuePair("yes", "Да"));
+
+                if(message.what == Utils.HANDLE_DELETE_POST_DRAFT) { // удаляем черновик
+                    postParams.add(new BasicNameValuePair("draft", ""));
+                }
+
+                mNetworkClient.postPageToString(postParams);
+                handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
+                break;
+            }
+            case Utils.HANDLE_REPOST: {
+                final String URL = (String) message.obj;
+                final String dataPage = mNetworkClient.getPageAsString(URL);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                try {
+                    final Post sendPost = serializePostEditPage(dataPage);
+                    sendPost.diaryID = mUser.getOwnProfileId();
+                    notifyListeners(Utils.HANDLE_REPOST, sendPost);
+                    break;
+                } catch (NullPointerException ex) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
+                    break;
+                }
+            }
+            case Utils.HANDLE_DELETE_COMMENT: {
+                final String id = (String) message.obj;
+                mNetworkClient.getPageAsString(((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryUrl() + "?delcomment&commentid=" + id + "&js&signature=" + mUser.getSignature());
+                handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
+                break;
+            }
+            case Utils.HANDLE_DELETE_TAG: {
+                final String referer = (String) message.obj;
+
+                final List<NameValuePair> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(new BasicNameValuePair("referer", referer));
+                nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
+                nameValuePairs.add(new BasicNameValuePair("confirm", "Да"));
+                
+                mNetworkClient.postPageToString(referer, nameValuePairs);
+                handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
+                break;
+            }
+            case Utils.HANDLE_EDIT_POST: {
+                final String url = (String) message.obj;
+                final String dataPage = mNetworkClient.getPageAsString(url);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                try {
+                    final Post sendPost = serializePostEditPage(dataPage);
+                    sendPost.postID = url.substring(url.lastIndexOf("=") + 1);
+                    sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryId();
+                    sendPost.postType = url.endsWith("draft") ? "draft" : "";
+                    notifyListeners(Utils.HANDLE_EDIT_POST, sendPost);
+                    break;
+                } catch (NullPointerException ex) { // cannot serialize
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
+                    break;
+                }
+            }
+            case Utils.HANDLE_PRELOAD_THEMES: {
+                // handle 'favorite' page case
+                String currentUrl = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryUrl();
+                String diaryUrl = currentUrl.contains("/")
+                        ? currentUrl.substring(0, currentUrl.lastIndexOf('/') + 1)
+                        : currentUrl;
+                final String URL = diaryUrl + "?newpost";
+                final String dataPage = mNetworkClient.getPageAsString(URL);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                if (dataPage.contains("Нельзя опубликовать свою запись в чужом дневнике")) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.closed_error);
+                    break;
+                }
+
+                final Post sendPost = serializePostEditPage(dataPage);
+                if (sendPost == null) { // additional check due to nullptrs
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                sendPost.diaryID = ((DiaryPage) mUser.getCurrentDiaryPage()).getDiaryId();
+
+                notifyListeners(Utils.HANDLE_PRELOAD_THEMES, sendPost);
+                break;
+            }
+            case Utils.HANDLE_PRELOAD_UMAIL: {
+                final int type = (int) message.obj;
+                final String umailId = mUser.getCurrentUmailPage().getUmailID();
+                final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
+                final String dataPage = mNetworkClient.getPageAsString(URL);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                final Umail sendMail = serializeUmailEditPage(dataPage, type);
+                if (sendMail == null) { // additional check due to nullptrs
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                notifyListeners(Utils.HANDLE_PRELOAD_UMAIL, sendMail);
+                break;
+            }
+            case Utils.HANDLE_EDIT_COMMENT: {
+                final String URL = (String) message.obj;
+                final String dataPage = mNetworkClient.getPageAsString(URL);
+                if (dataPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+
+                try {
+                    Comment sendComment = serializeCommentEditPage(dataPage);
+                    sendComment.commentID = URL.substring(URL.lastIndexOf("=") + 1);
+                    sendComment.postID = ((CommentsPage) mUser.getCurrentDiaryPage()).getPostId();
+                    notifyListeners(Utils.HANDLE_EDIT_COMMENT, sendComment);
+                    break;
+                } catch (NullPointerException ex) { // cannot serialize
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.page_incorrect);
+                    break;
+                }
+            }
+            default:
+                return false;
         }
 
         return true;
@@ -920,7 +909,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         mUser.setCurrentUmails(new DiaryListPage(mNetworkClient.getCurrentUrl()));
 
-        Element table = rootNode.getElementsByAttributeValue("class", "table l").first();
+        Element table = rootNode.select("table.table.l").first();
         if (table == null) // Нет вообще никаких сообщений, заканчиваем
             return;
 
@@ -961,7 +950,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 
-    private void serializeUmailPage(String dataPage) throws IOException {
+    private void serializeUmailPage(String dataPage) {
         UmailPage scannedUmail = new UmailPage();
         notifyListeners(Utils.HANDLE_PROGRESS);
 

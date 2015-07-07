@@ -13,6 +13,7 @@ import android.os.Message;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.TypedValue;
@@ -32,8 +33,8 @@ import com.android.vending.util.Purchase;
 
 import adonai.diary_browser.database.DatabaseHandler;
 
-public abstract class DiaryActivity extends ActionBarActivity implements Callback {
-    private static final int HANDLE_APP_START = 0;
+public abstract class DiaryActivity extends AppCompatActivity implements Callback {
+    private static final int HANDLE_APP_START = -100;
     private static final String SKU_DONATE = "small";
 
     protected IabHelper mHelper;
@@ -156,47 +157,8 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
 
                     if (getPackageName().contains("pro"))
                         break;
-
-                    // Показываем страничку изменений
-                    try {
-                        final String current = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-                        final String stored = mService.mPreferences.getString("stored.version", "");
-                        boolean show = mService.mPreferences.getBoolean("show.version", true);
-                        if (show && !current.equals(stored)) {
-                            mUiHandler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (isFinishing()) // бывает при неверной авторизации
-                                        return;
-
-                                    // TODO: move to XML
-                                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
-                                    TextView message = new TextView(DiaryActivity.this);
-                                    message.setMovementMethod(LinkMovementMethod.getInstance());
-                                    message.setGravity(Gravity.CENTER_HORIZONTAL);
-                                    message.setText(Html.fromHtml(getString(R.string.ad_text)));
-                                    TypedValue color = new TypedValue();
-                                    getTheme().resolveAttribute(R.attr.text_color_main, color, true);
-                                    message.setTextColor(color.data);
-                                    builder.setTitle(R.string.ad_title).setView(message);
-                                    builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            purchaseGift();
-                                        }
-                                    });
-                                    builder.setNegativeButton(R.string.later, null);
-                                    builder.create().show();
-                                }
-                            }, 5000);
-
-                            SharedPreferences.Editor updater = mService.mPreferences.edit();
-                            updater.putString("stored.version", current);
-                            updater.apply();
-                        }
-                    } catch (PackageManager.NameNotFoundException ignored) {
-                        // не сработало - и ладно
-                    }
+                    
+                    showChangesPage();
                 }
                 break;
             case Utils.HANDLE_SERVICE_ERROR:
@@ -219,6 +181,49 @@ public abstract class DiaryActivity extends ActionBarActivity implements Callbac
         }
 
         return true;
+    }
+
+    private void showChangesPage() {
+        // Показываем страничку изменений
+        try {
+            final String current = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            final String stored = mService.mPreferences.getString("stored.version", "");
+            boolean show = mService.mPreferences.getBoolean("show.version", true);
+            if (show && !current.equals(stored)) {
+                mUiHandler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isFinishing()) // бывает при неверной авторизации
+                            return;
+
+                        // TODO: move to XML
+                        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
+                        TextView message = new TextView(DiaryActivity.this);
+                        message.setMovementMethod(LinkMovementMethod.getInstance());
+                        message.setGravity(Gravity.CENTER_HORIZONTAL);
+                        message.setText(Html.fromHtml(getString(R.string.ad_text)));
+                        TypedValue color = new TypedValue();
+                        getTheme().resolveAttribute(R.attr.text_color_main, color, true);
+                        message.setTextColor(color.data);
+                        builder.setTitle(R.string.ad_title).setView(message);
+                        builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                purchaseGift();
+                            }
+                        });
+                        builder.setNegativeButton(R.string.later, null);
+                        builder.create().show();
+                    }
+                }, 5000);
+
+                SharedPreferences.Editor updater = mService.mPreferences.edit();
+                updater.putString("stored.version", current);
+                updater.apply();
+            }
+        } catch (PackageManager.NameNotFoundException ignored) {
+            // не сработало - и ладно
+        }
     }
 
     protected void purchaseGift() {

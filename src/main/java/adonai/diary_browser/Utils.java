@@ -30,46 +30,46 @@ public class Utils {
     static final int VIEW_SCROLL_DOWN = 2;
 
     // Команды хэндлерам
-    static final int DIARY_HANDLERS_MASK                            = 0x10000000;
-    static final int HANDLE_AUTHORIZATION_ERROR                     = 100 | DIARY_HANDLERS_MASK;
-    static final int HANDLE_SET_HTTP_COOKIE                         = 2   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_LIST_PAGE_DATA                      = 3   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_WEB_PAGE_DATA                       = 4   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_PICK_URL                                = 5   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DISCUSSIONS_DATA                    = 6   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_GET_DISCUSSION_LIST_DATA                = 7   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_JUST_DO_GET                             = 8   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_DELETE_POST                             = 9   | DIARY_HANDLERS_MASK;
-    static final int HANDLE_EDIT_POST                               = 10  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_DELETE_COMMENT                          = 11  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_EDIT_COMMENT                            = 12  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_UPLOAD_FILE                             = 13  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_PRELOAD_THEMES                          = 14  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_REPOST                                  = 15  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_QUERY_ONLINE                            = 16  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_DELETE_POST_DRAFT                       = 17  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_DELETE_TAG                              = 18  | DIARY_HANDLERS_MASK;
+    static final int HANDLE_AUTHORIZATION_ERROR                     = 1;
+    static final int HANDLE_AUTHORIZE                               = 2;
+    static final int HANDLE_GET_LIST_PAGE_DATA                      = 3;
+    static final int HANDLE_GET_WEB_PAGE_DATA                       = 4;
+    static final int HANDLE_PICK_URL                                = 5;
+    static final int HANDLE_GET_DISCUSSIONS_DATA                    = 6;
+    static final int HANDLE_GET_DISCUSSION_LIST_DATA                = 7;
+    static final int HANDLE_JUST_DO_GET                             = 8;
+    static final int HANDLE_DELETE_POST                             = 9;
+    static final int HANDLE_EDIT_POST                               = 10;
+    static final int HANDLE_DELETE_COMMENT                          = 11;
+    static final int HANDLE_EDIT_COMMENT                            = 12;
+    static final int HANDLE_UPLOAD_FILE                             = 13;
+    static final int HANDLE_PRELOAD_THEMES                          = 14;
+    static final int HANDLE_REPOST                                  = 15;
+    static final int HANDLE_QUERY_ONLINE                            = 16;
+    static final int HANDLE_DELETE_POST_DRAFT                       = 17;
+    static final int HANDLE_DELETE_TAG                              = 18;
 
     // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK                             = 20  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_UPDATE_HEADERS                          = 21  | DIARY_HANDLERS_MASK;
-    static final int HANDLE_NAME_CLICK                              = 22  | DIARY_HANDLERS_MASK;
+    static final int HANDLE_IMAGE_CLICK                             = 20;
+    static final int HANDLE_UPDATE_HEADERS                          = 21;
+    static final int HANDLE_NAME_CLICK                              = 22;
 
 
-    static final int UMAIL_HANDLERS_MASK                            = 0x20000000;
-    static final int HANDLE_OPEN_FOLDER                             = 2   | UMAIL_HANDLERS_MASK;
-    static final int HANDLE_OPEN_MAIL                               = 3   | UMAIL_HANDLERS_MASK;
-    static final int HANDLE_DELETE_UMAILS                           = 4   | UMAIL_HANDLERS_MASK;
-    static final int HANDLE_PRELOAD_UMAIL                           = 5   | UMAIL_HANDLERS_MASK;
+    // команды U-mail
+    static final int HANDLE_OPEN_FOLDER                             = 23;
+    static final int HANDLE_OPEN_MAIL                               = 24;
+    static final int HANDLE_DELETE_UMAILS                           = 25;
+    static final int HANDLE_PRELOAD_UMAIL                           = 26;
 
-    static final int HANDLE_START                                   = 1 | DIARY_HANDLERS_MASK | UMAIL_HANDLERS_MASK;
-    static final int HANDLE_SERVICE_UPDATE                          = 2 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HANDLE_PROGRESS                                = 3 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HANDLE_PROGRESS_2                              = 4 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HANDLE_CONNECTIVITY_ERROR                      = 5 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HANDLE_SERVICE_ERROR                           = 6 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HANDLE_NOTFOUND_ERROR                          = 7 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
-    static final int HACKING_CLOUDFLARE                             = 8 | UMAIL_HANDLERS_MASK | DIARY_HANDLERS_MASK;
+    static final int HANDLE_START                                   = 101;
+    static final int HANDLE_SERVICE_UPDATE                          = 102;
+    static final int HANDLE_PROGRESS                                = 103;
+    static final int HANDLE_PROGRESS_2                              = 104;
+    static final int HANDLE_CONNECTIVITY_ERROR                      = 105;
+    static final int HANDLE_SERVICE_ERROR                           = 106;
+    static final int HANDLE_NOTFOUND_ERROR                          = 107;
+    static final int HACKING_CLOUDFLARE                             = 108;
+    static final int HANDLE_STEP_SEQUENCE                           = 109;
 
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;
