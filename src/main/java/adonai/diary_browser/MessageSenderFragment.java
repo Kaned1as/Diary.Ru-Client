@@ -10,6 +10,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -228,13 +230,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     DisplayMetrics dm = new DisplayMetrics();
                     getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
 
-                    // detect max gif height
-                    int maxHeight = 0;
-                    for (Map.Entry<String, Object> smile : smileMap.entrySet()) {
-                        GifDrawable gif = (GifDrawable) smile.getValue();
-                        maxHeight = Math.max(maxHeight, gif.getIntrinsicHeight());
-                    }
-
                     mSmilies.removeAllViews();
                     for (Map.Entry<String, Object> smile : smileMap.entrySet()) {
                         GifDrawable gif = (GifDrawable) smile.getValue();
@@ -242,15 +237,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                         GifImageButton current = new GifImageButton(getActivity());
                         current.setTag(R.integer.smile_key, smile.getKey());
+                        
+                        int maxImageHeight = (int) (gif.getIntrinsicHeight() * dm.density);
+                        int maxImageWidth = (int) (gif.getIntrinsicWidth() * dm.density);
 
-                        current.setScaleType(ImageView.ScaleType.FIT_XY);
-                        current.setMinimumHeight((int) (maxHeight * dm.density));
-                        // for scale with same aspect ration
-                        current.setMinimumWidth((int) (gif.getIntrinsicWidth() * dm.density * maxHeight / gif.getIntrinsicHeight()));
-                        //current.setAdjustViewBounds(true);
+                        current.setScaleType(ImageView.ScaleType.MATRIX);
+                        Matrix matrix = new Matrix();
+                        matrix.setScale(dm.density, dm.density); // увеличим размеры смайликов
+                        current.setImageMatrix(matrix);
                         current.setImageDrawable(gif);
+                        current.setMinimumHeight(maxImageHeight + current.getPaddingTop() + current.getPaddingBottom());
+                        current.setMinimumWidth(maxImageWidth + current.getPaddingLeft() + current.getPaddingRight());
                         current.setOnClickListener(MessageSenderFragment.this);
-                        current.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
                         mSmilies.addView(current);
                     }
 

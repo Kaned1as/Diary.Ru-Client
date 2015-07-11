@@ -1,4 +1,7 @@
 buildscript {
+    repositories {
+        jcenter()
+    }
     dependencies {
         classpath 'com.android.tools.build:gradle:1.2.3'
     }
@@ -13,23 +16,23 @@ repositories {
 
 dependencies {
     compile 'com.android.support:support-v4:22.2.0'                         // support library (Drawers)
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.2'               // animated gif drawables
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.7'               // animated gif drawables
     compile 'com.android.support:appcompat-v7:22.2.0'                       // support library (material design)
-    compile 'com.afollestad:material-dialogs:0.6.4.1'                       // material design for dialogs
+    compile 'com.afollestad:material-dialogs:0.7.6.0'                       // material design for dialogs
     //compile 'org.jsoup:jsoup:1.8.3'
     compile 'org.mozilla:rhino:1.7.6'                                       // JS for cloudflare solving
     compile fileTree(dir: 'libs', include: '*.jar')                         // apache html entity + custom jsoup
 }
 
 android {
-    compileSdkVersion 21
+    compileSdkVersion 22
     buildToolsVersion '22.0.1'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 21
-        versionCode 213
-        versionName "2.1.3"
+        targetSdkVersion 22
+        versionCode 220
+        versionName "2.2.0"
     }
     
     try {
