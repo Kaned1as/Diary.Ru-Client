@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
@@ -65,7 +66,7 @@ import adonai.diary_browser.preferences.PreferencesScreen;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
     // вкладки приложения
-    public static final int TAB_FAVOURITES = 0;
+    public static final int TAB_FAV_LIST = 0;
     public static final int TAB_FAV_POSTS = 1;
     public static final int TAB_MY_DIARY = 2;
     public static final int TAB_DISCUSSIONS = 3;
@@ -307,15 +308,28 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     protected void onResume() {
         super.onResume();
-        if (getIntent().hasExtra("url")) {
-            pageToLoad = getIntent().getStringExtra("url");
-            getIntent().removeExtra("url");
-        } else if (getIntent().getData() != null) {
+        Intent incoming = getIntent();
+        
+        // обработка открытия странички дайри в самих дайри
+        if (incoming.hasExtra("url")) {
+            pageToLoad = incoming.getStringExtra("url");
+            incoming.removeExtra("url");
+        } else if (incoming.getData() != null) {
             pageToLoad = getIntent().getDataString();
-            getIntent().setData(null);
+            incoming.setData(null);
         }
-        if (mService != null) // if ativity is already running, just redirect to needed page
-            mUiHandler.sendEmptyMessage(Utils.HANDLE_START);
+        
+        // обработка передачи изображения/текста в дайри
+        String action = incoming.getAction();
+        String type = incoming.getType();
+        if (TextUtils.equals(action, Intent.ACTION_SEND) && type != null) {
+            if (TextUtils.equals(type, "text/plain")) {
+                textToWrite = incoming.getStringExtra(Intent.EXTRA_TEXT);
+            } else if (type.startsWith("image/")) {
+                imageToUpload = incoming.getParcelableExtra(Intent.EXTRA_STREAM); // Handle single image being sent
+            }
+            incoming.setType(null);
+        }
     }
 
     @Override
@@ -360,7 +374,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 return true;
             case Utils.HANDLE_AUTHORIZE: // успешно авторизовались
-                if (pageToLoad != null) {
+                if(textToWrite != null || imageToUpload != null) { // если действие - "поделиться"
+                    setCurrentTab(TAB_MY_DIARY, false);
+                } else if (pageToLoad != null) { // если действие - "открыть с помощью"
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
                     pageToLoad = null;
                 } else if (browserHistory.isEmpty()) { // запускаем в первый раз
@@ -573,21 +589,32 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             getSupportActionBar().setTitle(R.string.title_activity_diary_list);
             getSupportActionBar().setSubtitle("");
             mTabs.getChildAt(mCurrentTab).setSelected(false);
-            mCurrentTab = 0;
+            mCurrentTab = TAB_FAV_LIST;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         } else if (url.equals(getUser().getOwnDiaryUrl() + "?favorite")) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
-            mCurrentTab = 1;
+            mCurrentTab = TAB_FAV_POSTS;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         } else if (url.equals(getUser().getOwnDiaryUrl()) || getUser().getNewDiaryLink().startsWith(url)) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
-            mCurrentTab = 2;
+            mCurrentTab = TAB_MY_DIARY;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
+            
+            // обработка текста, который был прислан интентом
+            if(textToWrite != null) {
+                String fullText = "<span class='quote_text'><blockquote>" + textToWrite + "</blockquote></span>";
+                handleMessagePaneAddText(fullText);
+                textToWrite = null;
+            } else if(imageToUpload != null) { // обработка изображения, которое было прислано интентом
+                handleMessagePaneAddText("");
+                messagePane.requestFileUpload(imageToUpload);
+                imageToUpload = null;
+            }
         } else if (url.equals(getUser().getDiscussionsUrl()) || getUser().getNewDiscussLink().startsWith(url)) {
             getSupportActionBar().setTitle(R.string.discussions);
             getSupportActionBar().setSubtitle("");
             mTabs.getChildAt(mCurrentTab).setSelected(false);
-            mCurrentTab = 3;
+            mCurrentTab = TAB_DISCUSSIONS;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
         }
         mTabs.getChildAt(mCurrentTab).getBackground().setAlpha(150);
@@ -725,7 +752,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
      */
     private void setCurrentTab(int index, boolean force) {
         switch (index) {
-            case TAB_FAVOURITES:
+            case TAB_FAV_LIST:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getFavoritesUrl(), false));
                 break;
             case TAB_FAV_POSTS:

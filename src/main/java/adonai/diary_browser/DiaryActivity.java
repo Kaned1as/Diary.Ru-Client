@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
@@ -54,7 +55,8 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected SharedPreferences mSharedPrefs;
     
     protected String pageToLoad;
-    protected String objectToShare;
+    protected String textToWrite;
+    protected Uri imageToUpload;
     
     protected DatabaseHandler mDatabase;
     

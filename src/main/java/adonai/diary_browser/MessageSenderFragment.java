@@ -1284,57 +1284,61 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             case Utils.ACTIVITY_ACTION_REQUEST_IMAGE:
                 if (resultCode == Activity.RESULT_OK) {
                     Uri uri = data.getData();
-                    File file = null;
-                    if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
-                        file = FileUtils.getFile(getActivity(), uri);
-                    } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
-                        file = new File(uri.getPath());
-
-                    try {
-                        if (file != null) {
-                            final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
-                            msg.arg1 = 3;
-                            AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
-                            DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    switch (which) {
-                                        case DialogInterface.BUTTON_NEGATIVE:
-                                            msg.arg1 = 1;
-                                            break;
-                                        case DialogInterface.BUTTON_NEUTRAL:
-                                            msg.arg1 = 2;
-                                            break;
-                                        case DialogInterface.BUTTON_POSITIVE:
-                                        default:
-                                            msg.arg1 = 3;
-                                            break;
-                                    }
-
-                                    pd = new MaterialDialog.Builder(getActivity())
-                                            .title(R.string.loading)
-                                            .content(R.string.sending_data)
-                                            .progress(false, 100)
-                                            .build();
-                                    pd.show();
-                                    mHandler.sendMessage(msg);
-                                }
-                            };
-                            origOrMoreOrLink.setTitle(R.string.howto_send_img);
-                            origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
-                            origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
-                            origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
-                            origOrMoreOrLink.create().show();
-                        } else
-                            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
-                    }
+                    requestFileUpload(uri);
                 }
                 break;
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    public void requestFileUpload(Uri uri) {
+        File file = null;
+        if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
+            file = FileUtils.getFile(getActivity(), uri);
+        } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
+            file = new File(uri.getPath());
+
+        try {
+            if (file != null) {
+                final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
+                msg.arg1 = 3;
+                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
+                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                msg.arg1 = 1;
+                                break;
+                            case DialogInterface.BUTTON_NEUTRAL:
+                                msg.arg1 = 2;
+                                break;
+                            case DialogInterface.BUTTON_POSITIVE:
+                            default:
+                                msg.arg1 = 3;
+                                break;
+                        }
+
+                        pd = new MaterialDialog.Builder(getActivity())
+                                .title(R.string.loading)
+                                .content(R.string.sending_data)
+                                .progress(false, 100)
+                                .build();
+                        pd.show();
+                        mHandler.sendMessage(msg);
+                    }
+                };
+                origOrMoreOrLink.setTitle(R.string.howto_send_img);
+                origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
+                origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
+                origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
+                origOrMoreOrLink.create().show();
+            } else
+                Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void closeMe(boolean reload) {
