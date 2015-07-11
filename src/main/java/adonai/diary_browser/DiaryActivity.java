@@ -54,6 +54,8 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected SharedPreferences mSharedPrefs;
     
     protected String pageToLoad;
+    protected String objectToShare;
+    
     protected DatabaseHandler mDatabase;
     
     SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener() {
@@ -269,12 +271,17 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     }
 
     public void handleBackground(int opCode, Object body) {
-        pd = new MaterialDialog.Builder(this)
-                .title(R.string.loading)
-                .content(R.string.loading_data)
-                .progress(true, 0)
-                .build();
-        pd.show();
+        if(pd != null && pd.isShowing()) {
+            pd.setTitle(R.string.loading);
+            pd.setContent(getString(R.string.loading_data));
+        } else {
+            pd = new MaterialDialog.Builder(this)
+                    .title(R.string.loading)
+                    .content(R.string.loading_data)
+                    .progress(true, 0)
+                    .build();
+            pd.show();
+        }
 
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface dialog) {

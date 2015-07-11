@@ -66,13 +66,24 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
-    
+
     private static final String MAIN_PAGE = "http://www.diary.ru";
     private static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
     
     private static final int NOTIFICATION_ID = 3; // i swear it's random
     private static final int NEWS_NOTIFICATION_ID = 4;
     
+    public static final String SHARED_PROP_IMAGES_AUTOLOAD = "images.autoload";
+    public static final String SHARED_PROP_SERVICE_ALWAYS_RUNNING = "service.always.running";
+    public static final String SHARED_PROP_SERVICE_NOTIFY_UPDATES = "service.notify.updates";
+    public static final String SHARED_PROP_SERVICE_KEEP_DEVICE_ON = "service.keep.device.on";
+    public static final String SHARED_PROP_PRELOAD_THEMES = "preload.themes";
+    public static final String SHARED_PROP_PRELOAD_UMAIL_QUOTING = "preload.umail.quoting";
+    public static final String SHARED_PROP_USE_TEXT_LINKS = "use.text.links";
+    public static final String SHARED_PROP_SCREEN_ORIENTATION = "screen.orientation";
+    public static final String SHARED_PROP_WEBVIEW_FONT_SIZE = "webview.font.size";
+    public static final String SHARED_PROP_DEFAULT_TAB = "default.list.tab";
+
     // self state
     private static NetworkService mInstance = null;
     private static boolean mIsStarting = false;
@@ -128,14 +139,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         PowerManager mPowerManager = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = mPowerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "diary.client");
 
-        mLoadImages = mPreferences.getBoolean("images.autoload", false);
-        mIsStickyService = mPreferences.getBoolean("service.always.running", false);
-        mNotifyOnUpdates = mPreferences.getBoolean("service.notify.updates", false);
-        mKeepDeviceOn = mPreferences.getBoolean("service.keep.device.on", false);
-        mPreloadThemes = mPreferences.getBoolean("preload.themes", true);
-        mPreloadUmails = mPreferences.getBoolean("preload.umail.quoting", true);
-        mUseTextInsteadOfImages = mPreferences.getBoolean("use.text.links", false);
-        mOrientation = Integer.parseInt(mPreferences.getString("screen.orientation", "-1")); // default to UNSPECIFIED
+        mLoadImages = mPreferences.getBoolean(SHARED_PROP_IMAGES_AUTOLOAD, false);
+        mIsStickyService = mPreferences.getBoolean(SHARED_PROP_SERVICE_ALWAYS_RUNNING, false);
+        mNotifyOnUpdates = mPreferences.getBoolean(SHARED_PROP_SERVICE_NOTIFY_UPDATES, false);
+        mKeepDeviceOn = mPreferences.getBoolean(SHARED_PROP_SERVICE_KEEP_DEVICE_ON, false);
+        mPreloadThemes = mPreferences.getBoolean(SHARED_PROP_PRELOAD_THEMES, true);
+        mPreloadUmails = mPreferences.getBoolean(SHARED_PROP_PRELOAD_UMAIL_QUOTING, true);
+        mUseTextInsteadOfImages = mPreferences.getBoolean(SHARED_PROP_USE_TEXT_LINKS, false);
+        mOrientation = Integer.parseInt(mPreferences.getString(SHARED_PROP_SCREEN_ORIENTATION, "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
         thr.start();
@@ -192,7 +203,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public void addListener(DiaryActivity listener) {
         if (!mListeners.contains(listener)) {
             mListeners.add(listener);
-            listener.handleFontChange(mPreferences.getString("webview.font.size", "12"));
+            listener.handleFontChange(mPreferences.getString(SHARED_PROP_WEBVIEW_FONT_SIZE, "12"));
         }
     }
 
@@ -350,16 +361,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     break;
                 }
-                mUser.parseData(serializeMainPage(mainPage));
-
-                if (message.obj != null) // возвращаемся к загрузке
-                    handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
+                mUser.parseData(serializeMainPage(mainPage)); // get initial links
 
                 notifyListeners(Utils.HANDLE_AUTHORIZE);
                 break;
             }
             case Utils.HANDLE_GET_DISCUSSION_LIST_DATA: {
-
                 final int pos = (Integer) ((ArrayList<?>) message.obj).get(0);
                 final DiscPage dList = (DiscPage) ((ArrayList<?>) message.obj).get(1);
                 final boolean onlyNew = (Boolean) ((ArrayList<?>) message.obj).get(2);
@@ -381,12 +388,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             case Utils.HANDLE_PICK_URL: {
                 final String URL = ((Pair<String, Boolean>) message.obj).first;
                 boolean reload = ((Pair<String, Boolean>) message.obj).second;
-
-                if (!mUser.isAuthorized())
-                    handleRequest(Utils.HANDLE_AUTHORIZE, URL);
-                else
-                    checkUrlAndHandle(URL, reload);
-
+                checkUrlAndHandle(URL, reload);
                 break;
             }
             case Utils.HANDLE_OPEN_FOLDER: {
@@ -1224,16 +1226,16 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         switch (key) {
-            case "images.autoload":
+            case SHARED_PROP_IMAGES_AUTOLOAD:
                 mLoadImages = sharedPreferences.getBoolean(key, false);
                 break;
-            case "service.notify.updates":
+            case SHARED_PROP_SERVICE_NOTIFY_UPDATES:
                 mHandler.removeMessages(Utils.HANDLE_SERVICE_UPDATE);
                 mNotifyOnUpdates = sharedPreferences.getBoolean(key, false);
                 if (mNotifyOnUpdates)
                     mHandler.sendMessageDelayed(mHandler.obtainMessage(Utils.HANDLE_SERVICE_UPDATE), 300000);
                 break;
-            case "service.keep.device.on":
+            case SHARED_PROP_SERVICE_KEEP_DEVICE_ON:
                 if (mWakeLock.isHeld())
                     mWakeLock.release();
 
@@ -1241,27 +1243,27 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if (mKeepDeviceOn)
                     mWakeLock.acquire();
                 break;
-            case "service.always.running":
+            case SHARED_PROP_SERVICE_ALWAYS_RUNNING:
                 mIsStickyService = sharedPreferences.getBoolean(key, false);
                 if (mIsStickyService)
                     startForeground(NOTIFICATION_ID, createNotification(mUser.getCurrentDiaryPage()));
                 else
                     stopForeground(true);
                 break;
-            case "webview.font.size":
+            case SHARED_PROP_WEBVIEW_FONT_SIZE:
                 for (DiaryActivity current : mListeners)
-                    current.handleFontChange(sharedPreferences.getString("webview.font.size", "12"));
+                    current.handleFontChange(sharedPreferences.getString(SHARED_PROP_WEBVIEW_FONT_SIZE, "12"));
                 break;
-            case "preload.themes":
+            case SHARED_PROP_PRELOAD_THEMES:
                 mPreloadThemes = sharedPreferences.getBoolean("preload.themes", true);
                 break;
-            case "preload.umail.quoting":
+            case SHARED_PROP_PRELOAD_UMAIL_QUOTING:
                 mPreloadUmails = sharedPreferences.getBoolean("preload.umail.quoting", true);
                 break;
-            case "use.text.links":
-                mUseTextInsteadOfImages = sharedPreferences.getBoolean("use.text.links", false);
+            case SHARED_PROP_USE_TEXT_LINKS:
+                mUseTextInsteadOfImages = sharedPreferences.getBoolean(SHARED_PROP_USE_TEXT_LINKS, false);
                 break;
-            case "screen.orientation":
+            case SHARED_PROP_SCREEN_ORIENTATION:
                 mOrientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
                 break;
         }

@@ -10,6 +10,20 @@
         <item>0</item>
         <item>1</item>
     </string-array>
+    
+    <string-array name="tabs_items">
+        <item>Список избранных</item>
+        <item>Избранное</item>
+        <item>Мой дневник</item>
+        <item>Дискуссии</item>
+    </string-array>
+
+    <string-array name="tabs_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 
     <string name="app_name">Дневники</string>
     <string name="menu_settings">Настройки</string>
@@ -266,4 +280,6 @@
     <string name="quote">Цитировать</string>
     <string name="captcha_error">Сервер @Дневников недоступен. Вы заходите с недоверенного IP-адреса, попробуйте сменить сеть.</string>
     <string name="hacking_cloudflare">Взлом защиты CloudFlare</string>
+    <string name="default_list_tab">Вкладка по-умолчанию</string>
+    <string name="default_list_tab_sum">Вкладка, загружаемая при запуске приложения</string>
 </resources>

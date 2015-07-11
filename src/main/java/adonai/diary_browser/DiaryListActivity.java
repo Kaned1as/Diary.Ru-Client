@@ -324,11 +324,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         switch (message.what) {
             case Utils.HANDLE_START:
                 mService.addListener(this);
-                if (pageToLoad != null) {
-                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
-                    pageToLoad = null;
-                } else if (browserHistory.isEmpty()) // запускаем в первый раз
-                    setCurrentTab(TAB_FAVOURITES, false);
+                handleAuthorize();
                 return true;
             case Utils.HANDLE_PROGRESS:
                 if (pd != null)
@@ -364,7 +360,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 }
                 return true;
             case Utils.HANDLE_AUTHORIZE: // успешно авторизовались
-                pd.setContent(getString(R.string.getting_user_info));
+                if (pageToLoad != null) {
+                    handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(pageToLoad, false));
+                    pageToLoad = null;
+                } else if (browserHistory.isEmpty()) { // запускаем в первый раз
+                    int defaultTab = Integer.parseInt(mSharedPrefs.getString(NetworkService.SHARED_PROP_DEFAULT_TAB, "0"));
+                    setCurrentTab(defaultTab, false);
+                }
                 return true;
             case Utils.HANDLE_GET_LIST_PAGE_DATA:
                 setCurrentVisibleComponent(PART_LIST);
@@ -532,6 +534,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         super.handleMessage(message);
         return true;
+    }
+
+    private void handleAuthorize() {
+        if(getUser().isAuthorized()) { // уже авторизовывались, высылаем положительный ответ
+            mUiHandler.sendEmptyMessage(Utils.HANDLE_AUTHORIZE);
+        } else { // надо авторизоваться через сервис, посылаем запрос
+            handleBackground(Utils.HANDLE_AUTHORIZE, null);
+        }
     }
 
     public void handleMessagePaneAddText(String toPaste) {

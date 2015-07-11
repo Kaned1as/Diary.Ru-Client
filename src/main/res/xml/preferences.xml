@@ -82,4 +82,11 @@
         android:summary="@string/screen_orientation_sum"
         android:title="@string/screen_orientation"/>
 
+    <ListPreference
+        android:entries="@array/tabs_items"
+        android:entryValues="@array/tabs_values"
+        android:key="default.list.tab"
+        android:summary="@string/default_list_tab_sum"
+        android:title="@string/default_list_tab"/>
+
 </PreferenceScreen>
