@@ -12,7 +12,6 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
@@ -43,16 +42,20 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected SwipeRefreshLayout swipeList;
     protected SwipeRefreshLayout swipeBrowser;
 
-    DiarySlidePane slider;
-    DiaryFragment mainPane;
-    MessageSenderFragment messagePane;
-    Handler mUiHandler;
-    NetworkService mService;
-    MaterialDialog pd;
-    DiaryHttpClient mDHCL;
-    String pageToLoad;
-    DatabaseHandler mDatabase;
-    DiaryWebView mPageBrowser;
+    protected DiarySlidePane slider;
+    protected DiaryFragment mainPane;
+    protected DiaryWebView mPageBrowser;
+    protected MessageSenderFragment messagePane;
+    protected MaterialDialog pd;
+     
+    protected Handler mUiHandler;
+    protected NetworkService mService;
+    protected DiaryHttpClient mHttpClient;
+    protected SharedPreferences mSharedPrefs;
+    
+    protected String pageToLoad;
+    protected DatabaseHandler mDatabase;
+    
     SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener() {
         @Override
         public void onPanelSlide(View view, float v) {
@@ -77,6 +80,8 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected void onCreate(Bundle savedInstanceState) {
         Utils.setupTheme(this);
         super.onCreate(savedInstanceState);
+
+        mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
         mDatabase = new DatabaseHandler(this);
         mUiHandler = new Handler(this);
 
@@ -152,7 +157,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                     mUiHandler.sendEmptyMessageDelayed(HANDLE_APP_START, 50);
                 else {
                     setRequestedOrientation(mService.mOrientation);
-                    mDHCL = mService.mNetworkClient;
+                    mHttpClient = mService.mNetworkClient;
                     mUiHandler.sendEmptyMessage(Utils.HANDLE_START); // выполняем стартовые действия для всех остальных
 
                     if (getPackageName().contains("pro"))
@@ -187,8 +192,8 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
         // Показываем страничку изменений
         try {
             final String current = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
-            final String stored = mService.mPreferences.getString("stored.version", "");
-            boolean show = mService.mPreferences.getBoolean("show.version", true);
+            final String stored = mSharedPrefs.getString("stored.version", "");
+            boolean show = mSharedPrefs.getBoolean("show.version", true);
             if (show && !current.equals(stored)) {
                 mUiHandler.postDelayed(new Runnable() {
                     @Override
@@ -217,9 +222,9 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                     }
                 }, 5000);
 
-                SharedPreferences.Editor updater = mService.mPreferences.edit();
-                updater.putString("stored.version", current);
-                updater.apply();
+                mSharedPrefs.edit()
+                    .putString("stored.version", current)
+                    .apply();
             }
         } catch (PackageManager.NameNotFoundException ignored) {
             // не сработало - и ладно
@@ -273,7 +278,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
         pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
             public void onCancel(DialogInterface dialog) {
-                mDHCL.abort();
+                mHttpClient.abort();
             }
         });
         mService.handleRequest(opCode, body);

@@ -153,7 +153,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentUrl(), true));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mHttpClient.getCurrentUrl(), true));
                 swipeBrowser.setRefreshing(false);
             }
         });
@@ -394,7 +394,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mDiaryBrowser.addFooterView(LL);
                 }
                 browserHistory.add(getUser().getCurrentDiaries().getURL());
-                handleTabChange(mDHCL.getCurrentUrl());
+                handleTabChange(mHttpClient.getCurrentUrl());
 
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
@@ -405,7 +405,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
 
                     browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
-                    handleTabChange(mDHCL.getCurrentUrl());
+                    handleTabChange(mHttpClient.getCurrentUrl());
 
                     // меняем заголовок приложения и подзаголовок, если есть
                     WebPage page = getUser().getCurrentDiaryPage();
@@ -428,7 +428,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
                 browserHistory.add(getUser().getDiscussions().getURL());
-                handleTabChange(mDHCL.getCurrentUrl());
+                handleTabChange(mHttpClient.getCurrentUrl());
 
                 swipeDiscussions.setRefreshing(false);
                 supportInvalidateOptionsMenu(); // PART_DISC_LIST
@@ -536,9 +536,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void handleMessagePaneAddText(String toPaste) {
         if(slider.isDouble()) { // слайдер уже открыт, просто добавляем текст
-            String toSet = messagePane.contentText.getText() + toPaste;
+            String toSet = messagePane.getContentText() + toPaste;
             slider.openPane();
-            messagePane.contentText.setText(toSet);
+            messagePane.setContentText(toSet);
         } else { // слайдер закрыт, нужно начать пост/коммент
             if(getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
                 newPost(toPaste);
@@ -546,7 +546,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 newComment(toPaste);
             }
         }
-        messagePane.contentText.setSelection(messagePane.contentText.length());
+        messagePane.setSelection(messagePane.getContentText().length());
     }
 
     @Override
@@ -608,7 +608,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 
                 @SuppressLint("CommitPrefEdits")
                 public void onClick(DialogInterface dialog, int item) {
-                    mService.mPreferences.edit()
+                    mSharedPrefs.edit()
                         .remove(Utils.KEY_USERNAME)
                         .remove(Utils.KEY_PASSWORD)
                         .commit();
@@ -750,7 +750,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     private void reloadContent() {
         if (mainPane.mCurrentComponent == PART_WEB)
-            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mDHCL.getCurrentUrl(), true));
+            handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(mHttpClient.getCurrentUrl(), true));
         else if (mainPane.mCurrentComponent == PART_LIST)
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getFavoritesUrl(), true));
     }

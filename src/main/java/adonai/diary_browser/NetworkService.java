@@ -67,6 +67,9 @@ import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
     
+    private static final String MAIN_PAGE = "http://www.diary.ru";
+    private static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
+    
     private static final int NOTIFICATION_ID = 3; // i swear it's random
     private static final int NEWS_NOTIFICATION_ID = 4;
     
@@ -78,7 +81,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public UserData mUser = new UserData();
     public DiaryHttpClient mNetworkClient = new DiaryHttpClient();
     private List<DiaryActivity> mListeners = new ArrayList<>(2);
-    public SharedPreferences mPreferences;
+    private SharedPreferences mPreferences;
     
     // settings
     private boolean mLoadImages;
@@ -309,7 +312,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                 nameValuePairs.add(new BasicNameValuePair("save", "on"));
 
-                String loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", nameValuePairs);
+                String loginScreen = mNetworkClient.postPageToString(LOGIN_PAGE, nameValuePairs);
 
                 if (loginScreen == null) { // no connection
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
@@ -319,7 +322,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if(loginScreen.contains(DiaryHttpClient.CLOUDFLARE_ANCHOR) && !mNetworkClient.hasCookie("cf_clearance")) {
                     notifyListeners(Utils.HACKING_CLOUDFLARE);
                     if(mNetworkClient.cloudFlareSolve(loginScreen)) {
-                        loginScreen = mNetworkClient.postPageToString("http://www.diary.ru/login.php", nameValuePairs);
+                        loginScreen = mNetworkClient.postPageToString(LOGIN_PAGE, nameValuePairs);
                     } else { // couldn't solve
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
                         break;
@@ -342,6 +345,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 mUser.setAuthorized(true);
+                String mainPage = mNetworkClient.getPageAsString(MAIN_PAGE);
+                if(mainPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                mUser.parseData(serializeMainPage(mainPage));
 
                 if (message.obj != null) // возвращаемся к загрузке
                     handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(message.obj, false));
@@ -615,6 +624,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
+    private Element serializeMainPage(String dataPage) {
+        Element rootNode = Jsoup.parse(dataPage).select("div#top").first(); // выбираем окошко с текстом
+        return rootNode;
+    }
+    
     private Comment serializeCommentEditPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Element rootNode = Jsoup.parse(dataPage).select("textarea#message").first(); // выбираем окошко с текстом
