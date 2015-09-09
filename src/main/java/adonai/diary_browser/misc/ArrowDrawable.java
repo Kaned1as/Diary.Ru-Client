@@ -2,7 +2,7 @@ package adonai.diary_browser.misc;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.view.ViewCompat;
+import android.support.v7.graphics.drawable.DrawerArrowDrawable;
 
 /**
  * Скопировано почти полностью с support lib 22
@@ -23,12 +23,6 @@ public class ArrowDrawable extends DrawerArrowDrawable {
             setVerticalMirror(false);
         }
         super.setProgress(position);
-    }
-
-    @Override
-    boolean isLayoutRtl() {
-        return ViewCompat.getLayoutDirection(mActivity.getWindow().getDecorView())
-                == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     public float getPosition() {

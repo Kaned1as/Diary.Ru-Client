@@ -11,7 +11,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -26,6 +25,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Pair;
 import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -50,13 +50,13 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.MultipartBuilder;
+import com.squareup.okhttp.RequestBody;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.StringBody;
-import org.apache.http.message.BasicNameValuePair;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -64,6 +64,7 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -323,7 +324,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private List<View> postElements = new ArrayList<>();
     private List<View> commentElements = new ArrayList<>();
     private List<View> umailElements = new ArrayList<>();
-    private List<NameValuePair> postParams;
+    private List<Pair<String, String>> postParams;
     private String mSignature;
     private NetworkService mService;
     private SparseArray<Object> avatarMap;
@@ -522,14 +523,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 }
                             };
 
-                            MultipartEntity mpEntity = new MultipartEntity();
-                            ContentBody cbFile = new DiaryHttpClient.CountingFileBody(file, "image/*", listener);
-                            mpEntity.addPart("module", new StringBody("photolib"));
-                            mpEntity.addPart("signature", new StringBody(mSignature));
-                            mpEntity.addPart("resulttype1", new StringBody(String.valueOf(message.arg1)));
-                            mpEntity.addPart("attachment1", cbFile);
+                            MultipartBuilder mpEntityBuilder = new MultipartBuilder();
+                            mpEntityBuilder.type(MultipartBuilder.FORM)
+                                .addFormDataPart("module", "photolib")
+                                .addFormDataPart("signature", mSignature)
+                                .addFormDataPart("resulttype1", String.valueOf(message.arg1))
+                                .addFormDataPart("attachment1",
+                                        URLEncoder.encode(file.getName(), "windows-1251"), 
+                                        new DiaryHttpClient.CountingFileRequestBody(file, listener));
 
-                            String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntity);
+                            String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntityBuilder.build());
                             if (result != null) {
                                 if (result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
                                     Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();
@@ -968,9 +971,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         // обработка кнопок аватаров
         if (view instanceof ImageButton && view.getTag(R.integer.avatar_id) != null && view.getParent() == mAvatars) {
             postParams.clear();
-            postParams.add(new BasicNameValuePair("use_avatar_id", view.getTag(R.integer.avatar_id).toString()));
-            postParams.add(new BasicNameValuePair("avatar_url", ""));
-            postParams.add(new BasicNameValuePair("signature", mSignature));
+            postParams.add(Pair.create("use_avatar_id", view.getTag(R.integer.avatar_id).toString()));
+            postParams.add(Pair.create("avatar_url", ""));
+            postParams.add(Pair.create("signature", mSignature));
             mHandler.sendEmptyMessage(HANDLE_SET_AVATAR);
         }
 
@@ -1022,8 +1025,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postParams.clear();
 
         // Добавляем параметры из настроек
-        postParams.add(new BasicNameValuePair("signature", mSignature));
-        postParams.add(new BasicNameValuePair("action", "dosend"));
+        postParams.add(Pair.create("signature", mSignature));
+        postParams.add(Pair.create("action", "dosend"));
         pd = new MaterialDialog.Builder(getActivity())
                 .title(R.string.loading)
                 .content(R.string.sending_data)
@@ -1040,165 +1043,165 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         // Если пост
         if (mPost.getClass() == Post.class) {
-            postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
-            postParams.add(new BasicNameValuePair("module", "journal"));
-            postParams.add(new BasicNameValuePair("resulttype", "2"));
-            postParams.add(new BasicNameValuePair("save_type", "js2"));
+            postParams.add(Pair.create("avatar", "1")); // Показываем аватарку
+            postParams.add(Pair.create("module", "journal"));
+            postParams.add(Pair.create("resulttype", "2"));
+            postParams.add(Pair.create("save_type", "js2"));
 
-            postParams.add(new BasicNameValuePair("journal_id", ((Post) mPost).diaryID));
-            postParams.add(new BasicNameValuePair("referer", mHttpClient.getCurrentUrl()));
-            postParams.add(new BasicNameValuePair("attachment", ""));
+            postParams.add(Pair.create("journal_id", ((Post) mPost).diaryID));
+            postParams.add(Pair.create("referer", mHttpClient.getCurrentUrl()));
+            postParams.add(Pair.create("attachment", ""));
 
             // draft or publish
             if(view.getId() == R.id.message_save_draft) {
-                postParams.add(new BasicNameValuePair("draft_save", "draft_save"));
+                postParams.add(Pair.create("draft_save", "draft_save"));
             } else {
-                postParams.add(new BasicNameValuePair("rewrite", "rewrite"));
+                postParams.add(Pair.create("rewrite", "rewrite"));
             }
 
             if (mPost.postID.isEmpty()) { // новый пост
-                postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
-                postParams.add(new BasicNameValuePair("act", "new_post_post"));
-                postParams.add(new BasicNameValuePair("post_id", ""));
-                postParams.add(new BasicNameValuePair("post_type", ""));
+                postParams.add(Pair.create("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
+                postParams.add(Pair.create("act", "new_post_post"));
+                postParams.add(Pair.create("post_id", ""));
+                postParams.add(Pair.create("post_type", ""));
             } else { // редактируем пост
-                postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
-                postParams.add(new BasicNameValuePair("act", "edit_post_post"));
-                postParams.add(new BasicNameValuePair("post_id", mPost.postID));
-                postParams.add(new BasicNameValuePair("post_type", ((Post) mPost).postType));
+                postParams.add(Pair.create("message", contentText.getText().toString()));
+                postParams.add(Pair.create("act", "edit_post_post"));
+                postParams.add(Pair.create("post_id", mPost.postID));
+                postParams.add(Pair.create("post_type", ((Post) mPost).postType));
             }
 
-            postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
+            postParams.add(Pair.create("title", titleText.getText().toString()));
             if (mShowOptionals.isChecked()) {
-                postParams.add(new BasicNameValuePair("themes", themesText.getText().toString() + (mPost.postID.isEmpty() ? mSharedPrefs.getString("post.tags", "") : "")));
+                postParams.add(Pair.create("themes", themesText.getText().toString() + (mPost.postID.isEmpty() ? mSharedPrefs.getString("post.tags", "") : "")));
                 for (int i = 0; i < mPredefinedThemes.getChildCount(); ++i) {
                     LinearLayout horizontal = (LinearLayout) mPredefinedThemes.getChildAt(i);
                     for (int j = 0; j < horizontal.getChildCount(); ++j) {
                         CheckBox check = (CheckBox) horizontal.getChildAt(j);
                         if (check.isChecked())
-                            postParams.add(new BasicNameValuePair("fvtags[]", check.getText().toString()));
+                            postParams.add(Pair.create("fvtags[]", check.getText().toString()));
                     }
                 }
-                postParams.add(new BasicNameValuePair("current_music", musicText.getText().toString()));
-                postParams.add(new BasicNameValuePair("current_mood", moodText.getText().toString()));
+                postParams.add(Pair.create("current_music", musicText.getText().toString()));
+                postParams.add(Pair.create("current_mood", moodText.getText().toString()));
             } else {
-                postParams.add(new BasicNameValuePair("themes", ""));
-                postParams.add(new BasicNameValuePair("current_music", ""));
-                postParams.add(new BasicNameValuePair("current_mood", ""));
+                postParams.add(Pair.create("themes", ""));
+                postParams.add(Pair.create("current_music", ""));
+                postParams.add(Pair.create("current_mood", ""));
             }
 
             if (mShowPoll.isChecked()) {
-                postParams.add(new BasicNameValuePair("poll_title", mPollTitle.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_1", mPollChoice1.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_2", mPollChoice2.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_3", mPollChoice3.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_4", mPollChoice4.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_5", mPollChoice5.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_6", mPollChoice6.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_7", mPollChoice7.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_8", mPollChoice8.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_9", mPollChoice9.getText().toString()));
-                postParams.add(new BasicNameValuePair("poll_answer_10", mPollChoice10.getText().toString()));
+                postParams.add(Pair.create("poll_title", mPollTitle.getText().toString()));
+                postParams.add(Pair.create("poll_answer_1", mPollChoice1.getText().toString()));
+                postParams.add(Pair.create("poll_answer_2", mPollChoice2.getText().toString()));
+                postParams.add(Pair.create("poll_answer_3", mPollChoice3.getText().toString()));
+                postParams.add(Pair.create("poll_answer_4", mPollChoice4.getText().toString()));
+                postParams.add(Pair.create("poll_answer_5", mPollChoice5.getText().toString()));
+                postParams.add(Pair.create("poll_answer_6", mPollChoice6.getText().toString()));
+                postParams.add(Pair.create("poll_answer_7", mPollChoice7.getText().toString()));
+                postParams.add(Pair.create("poll_answer_8", mPollChoice8.getText().toString()));
+                postParams.add(Pair.create("poll_answer_9", mPollChoice9.getText().toString()));
+                postParams.add(Pair.create("poll_answer_10", mPollChoice10.getText().toString()));
             } else {
-                postParams.add(new BasicNameValuePair("poll_title", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_1", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_2", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_3", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_4", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_5", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_6", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_7", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_8", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_9", ""));
-                postParams.add(new BasicNameValuePair("poll_answer_10", ""));
+                postParams.add(Pair.create("poll_title", ""));
+                postParams.add(Pair.create("poll_answer_1", ""));
+                postParams.add(Pair.create("poll_answer_2", ""));
+                postParams.add(Pair.create("poll_answer_3", ""));
+                postParams.add(Pair.create("poll_answer_4", ""));
+                postParams.add(Pair.create("poll_answer_5", ""));
+                postParams.add(Pair.create("poll_answer_6", ""));
+                postParams.add(Pair.create("poll_answer_7", ""));
+                postParams.add(Pair.create("poll_answer_8", ""));
+                postParams.add(Pair.create("poll_answer_9", ""));
+                postParams.add(Pair.create("poll_answer_10", ""));
             }
 
             if (mShowCloseOptions.isChecked()) {
-                postParams.add(new BasicNameValuePair("private_post", "1"));
+                postParams.add(Pair.create("private_post", "1"));
                 if (!mCloseText.getText().toString().isEmpty()) {
-                    postParams.add(new BasicNameValuePair("check_close_text", "1"));
-                    postParams.add(new BasicNameValuePair("close_text", mCloseText.getText().toString()));
+                    postParams.add(Pair.create("check_close_text", "1"));
+                    postParams.add(Pair.create("close_text", mCloseText.getText().toString()));
                 }
 
                 switch (mCloseOpts.getCheckedRadioButtonId()) {
                     case R.id.close_only_reg:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "6"));
+                        postParams.add(Pair.create("close_access_mode", "6"));
                         break;
                     case R.id.close_only_fav:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "1"));
+                        postParams.add(Pair.create("close_access_mode", "1"));
                         break;
                     case R.id.close_only_sub:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "5"));
+                        postParams.add(Pair.create("close_access_mode", "5"));
                         break;
                     case R.id.close_only_white:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "4"));
+                        postParams.add(Pair.create("close_access_mode", "4"));
                         break;
                     case R.id.close_for_list:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "2"));
-                        postParams.add(new BasicNameValuePair("access_list", mCloseDenyList.getText().toString()));
+                        postParams.add(Pair.create("close_access_mode", "2"));
+                        postParams.add(Pair.create("access_list", mCloseDenyList.getText().toString()));
                         break;
                     case R.id.close_only_list:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "3"));
-                        postParams.add(new BasicNameValuePair("access_list", mCloseAllowList.getText().toString()));
+                        postParams.add(Pair.create("close_access_mode", "3"));
+                        postParams.add(Pair.create("access_list", mCloseAllowList.getText().toString()));
                         break;
                     case R.id.close_for_all:
-                        postParams.add(new BasicNameValuePair("close_access_mode", "7"));
+                        postParams.add(Pair.create("close_access_mode", "7"));
                         break;
                 }
             }
             if (mNoComments.isChecked())
-                postParams.add(new BasicNameValuePair("no_comments", "1"));
+                postParams.add(Pair.create("no_comments", "1"));
 
             mHandler.sendEmptyMessage(HANDLE_DO_POST);
         } else if (mPost.getClass() == Comment.class) {  // если коммент
-            postParams.add(new BasicNameValuePair("avatar", "1")); // Показываем аватарку
-            postParams.add(new BasicNameValuePair("module", "journal"));
-            postParams.add(new BasicNameValuePair("resulttype", "2"));
+            postParams.add(Pair.create("avatar", "1")); // Показываем аватарку
+            postParams.add(Pair.create("module", "journal"));
+            postParams.add(Pair.create("resulttype", "2"));
             if (mPost.commentID.isEmpty()) { // новый пост
                 switch (mSecureOptions.getCheckedRadioButtonId()) {
                     case R.id.message_anonymous:
-                        postParams.add(new BasicNameValuePair("write_from", "1"));
+                        postParams.add(Pair.create("write_from", "1"));
                         break;
                     case R.id.message_as_user:
-                        postParams.add(new BasicNameValuePair("write_from", "2"));
-                        postParams.add(new BasicNameValuePair("write_from_name", mUserLogin.getText().toString()));
-                        postParams.add(new BasicNameValuePair("write_from_pass", mUserPassword.getText().toString()));
+                        postParams.add(Pair.create("write_from", "2"));
+                        postParams.add(Pair.create("write_from_name", mUserLogin.getText().toString()));
+                        postParams.add(Pair.create("write_from_pass", mUserPassword.getText().toString()));
                         break;
                     default:
-                        postParams.add(new BasicNameValuePair("write_from", "0"));
+                        postParams.add(Pair.create("write_from", "0"));
                         break;
                 }
-                postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
-                postParams.add(new BasicNameValuePair("act", "new_comment_post"));
-                postParams.add(new BasicNameValuePair("commentid", ""));
+                postParams.add(Pair.create("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
+                postParams.add(Pair.create("act", "new_comment_post"));
+                postParams.add(Pair.create("commentid", ""));
             } else { // редактируем пост
-                postParams.add(new BasicNameValuePair("message", contentText.getText().toString()));
-                postParams.add(new BasicNameValuePair("act", "edit_comment_post"));
-                postParams.add(new BasicNameValuePair("commentid", mPost.commentID));
+                postParams.add(Pair.create("message", contentText.getText().toString()));
+                postParams.add(Pair.create("act", "edit_comment_post"));
+                postParams.add(Pair.create("commentid", mPost.commentID));
             }
 
-            postParams.add(new BasicNameValuePair("post_id", mPost.postID));
+            postParams.add(Pair.create("post_id", mPost.postID));
 
-            postParams.add(new BasicNameValuePair("referer", ""));
-            postParams.add(new BasicNameValuePair("page", "last"));
-            postParams.add(new BasicNameValuePair("open_uri", ""));
+            postParams.add(Pair.create("referer", ""));
+            postParams.add(Pair.create("page", "last"));
+            postParams.add(Pair.create("open_uri", ""));
 
-            postParams.add(new BasicNameValuePair("subscribe", mSubscribe.isChecked() ? "1/" : ""));
-            postParams.add(new BasicNameValuePair("attachment1", ""));
+            postParams.add(Pair.create("subscribe", mSubscribe.isChecked() ? "1/" : ""));
+            postParams.add(Pair.create("attachment1", ""));
 
             mHandler.sendEmptyMessage(HANDLE_DO_COMMENT);
         } else if (mPost.getClass() == Umail.class) { // если почта
-            postParams.add(new BasicNameValuePair("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
-            postParams.add(new BasicNameValuePair("module", "umail"));
-            postParams.add(new BasicNameValuePair("act", "umail_send"));
-            postParams.add(new BasicNameValuePair("from_folder", ""));
-            postParams.add(new BasicNameValuePair("to_user", toText.getText().toString()));
-            postParams.add(new BasicNameValuePair("title", titleText.getText().toString()));
-            postParams.add(new BasicNameValuePair("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
-            postParams.add(new BasicNameValuePair("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
+            postParams.add(Pair.create("message", contentText.getText().toString() + mSharedPrefs.getString("post.signature", "")));
+            postParams.add(Pair.create("module", "umail"));
+            postParams.add(Pair.create("act", "umail_send"));
+            postParams.add(Pair.create("from_folder", ""));
+            postParams.add(Pair.create("to_user", toText.getText().toString()));
+            postParams.add(Pair.create("title", titleText.getText().toString()));
+            postParams.add(Pair.create("save_copy", mCopyMessage.isChecked() ? "yes" : ""));
+            postParams.add(Pair.create("need_receipt", mGetReceipt.isChecked() ? "yes" : ""));
             if (mRequote.isChecked()) {
-                postParams.add(new BasicNameValuePair("requote", "yes"));
-                postParams.add(new BasicNameValuePair("remessage", "\n\n" + requoteText.getText().toString()));
+                postParams.add(Pair.create("requote", "yes"));
+                postParams.add(Pair.create("remessage", "\n\n" + requoteText.getText().toString()));
             }
 
             mHandler.sendEmptyMessage(HANDLE_DO_UMAIL);

@@ -28,11 +28,9 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
-import org.apache.http.Header;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.internal.framed.Header;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -303,25 +301,25 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 final Integer folderFrom = ((Pair<long[], Integer>) message.obj).second;
                 final long[] ids = ((Pair<long[], Integer>) message.obj).first;
 
-                final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(new BasicNameValuePair("act", "umail_move"));
-                nameValuePairs.add(new BasicNameValuePair("module", "umail"));
-                nameValuePairs.add(new BasicNameValuePair("move_from_folder", folderFrom.toString()));
-                nameValuePairs.add(new BasicNameValuePair("move_to_folder", "0"));
-                nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
-                nameValuePairs.add(new BasicNameValuePair("delm", "Удалить отмеченные"));
+                final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(Pair.create("act", "umail_move"));
+                nameValuePairs.add(Pair.create("module", "umail"));
+                nameValuePairs.add(Pair.create("move_from_folder", folderFrom.toString()));
+                nameValuePairs.add(Pair.create("move_to_folder", "0"));
+                nameValuePairs.add(Pair.create("signature", mUser.getSignature()));
+                nameValuePairs.add(Pair.create("delm", "Удалить отмеченные"));
                 for (long id : ids)
-                    nameValuePairs.add(new BasicNameValuePair("umail_check[]", Long.toString(id)));
+                    nameValuePairs.add(Pair.create("umail_check[]", Long.toString(id)));
 
                 mNetworkClient.postPageToString(nameValuePairs);
                 notifyListeners(Utils.HANDLE_DELETE_UMAILS);
                 break;
             }
             case Utils.HANDLE_AUTHORIZE: {
-                final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(new BasicNameValuePair("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
-                nameValuePairs.add(new BasicNameValuePair("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
-                nameValuePairs.add(new BasicNameValuePair("save", "on"));
+                final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(Pair.create("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
+                nameValuePairs.add(Pair.create("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
+                nameValuePairs.add(Pair.create("save", "on"));
 
                 String loginScreen = mNetworkClient.postPageToString(LOGIN_PAGE, nameValuePairs);
 
@@ -420,14 +418,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             case Utils.HANDLE_DELETE_POST_DRAFT:
             case Utils.HANDLE_DELETE_POST: {
                 final String id = (String) message.obj;
-                final List<NameValuePair> postParams = new ArrayList<>();
-                postParams.add(new BasicNameValuePair("module", "journal"));
-                postParams.add(new BasicNameValuePair("act", "del_post_post"));
-                postParams.add(new BasicNameValuePair("post_id", id));
-                postParams.add(new BasicNameValuePair("yes", "Да"));
+                final List<Pair<String, String>> postParams = new ArrayList<>();
+                postParams.add(Pair.create("module", "journal"));
+                postParams.add(Pair.create("act", "del_post_post"));
+                postParams.add(Pair.create("post_id", id));
+                postParams.add(Pair.create("yes", "Да"));
 
                 if(message.what == Utils.HANDLE_DELETE_POST_DRAFT) { // удаляем черновик
-                    postParams.add(new BasicNameValuePair("draft", ""));
+                    postParams.add(Pair.create("draft", ""));
                 }
 
                 mNetworkClient.postPageToString(postParams);
@@ -461,10 +459,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             case Utils.HANDLE_DELETE_TAG: {
                 final String referer = (String) message.obj;
 
-                final List<NameValuePair> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(new BasicNameValuePair("referer", referer));
-                nameValuePairs.add(new BasicNameValuePair("signature", mUser.getSignature()));
-                nameValuePairs.add(new BasicNameValuePair("confirm", "Да"));
+                final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(Pair.create("referer", referer));
+                nameValuePairs.add(Pair.create("signature", mUser.getSignature()));
+                nameValuePairs.add(Pair.create("confirm", "Да"));
                 
                 mNetworkClient.postPageToString(referer, nameValuePairs);
                 handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(mNetworkClient.getCurrentUrl(), true));
@@ -1094,34 +1092,30 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 cachedPage = mCache.loadPageFromCache(toLoad);
                 handled = cachedPage.getClass();
             } else {
-                final HttpResponse page = mNetworkClient.getPage(toLoad);
+                final Response page = mNetworkClient.getPage(toLoad);
                 if(page == null) { // no response, may be ssl error
                     createChooserForUrl(requestedUrl);
                     return;
                 }
                 
-                if (page.getEntity() == null) {
+                if (!page.isSuccessful()) {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     return;
                 }
 
                 // проверим, не картинка ли это
-                if (page.getEntity().getContentType() != null && page.getEntity().getContentType().getValue().contains("image")) { // Just load image, no further processing
+                if (page.body().contentType().type().equals("image")) { // Just load image, no further processing
                     if (reload) { // reload - save
-                        Header contentDisposition = page.getFirstHeader("Content-Disposition");
-                        String srcName = null;
-                        if(contentDisposition != null) {
-                            srcName = contentDisposition.getValue();
-                        }
+                        String srcName = page.header("Content-Disposition");
                         final String realName = URLUtil.guessFileName(requestedUrl, srcName, MimeTypeMap.getFileExtensionFromUrl(requestedUrl));
-                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.getEntity().getContent());
+                        CacheManager.saveDataToSD(getApplicationContext(), realName, page.body().bytes());
                     } else // no reload - open
                         notifyListeners(Utils.HANDLE_GET_WEB_PAGE_DATA, requestedUrl);
                     return;
                 }
 
                 if(isDiaryUrl) { // можем загружать только странички дайри
-                    dataPage = EntityUtils.toString(page.getEntity());
+                    dataPage = page.body().string();
                     handled = Utils.checkDiaryUrl(dataPage);
                 }
             }
@@ -1286,7 +1280,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
     public void newSession() {
         mUser = new UserData();
-        mNetworkClient.getCookieStore().clear();
+        mNetworkClient.getCookieStore().removeAll();
         mCache.clear();
     }
     

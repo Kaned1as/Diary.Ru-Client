@@ -1,51 +1,42 @@
 package adonai.diary_browser;
 
-import android.support.annotation.NonNull;
+import android.util.Pair;
 import android.webkit.CookieManager;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.CookieStore;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.AbortableHttpRequest;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.params.CookiePolicy;
-import org.apache.http.client.protocol.ClientContext;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.entity.mime.content.FileBody;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.CoreProtocolPNames;
-import org.apache.http.params.HttpParams;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.apache.http.util.EntityUtils;
+import com.squareup.okhttp.Call;
+import com.squareup.okhttp.FormEncodingBuilder;
+import com.squareup.okhttp.Headers;
+import com.squareup.okhttp.HttpUrl;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.internal.Util;
+
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.net.ssl.SSLException;
+
+import adonai.diary_browser.misc.FileUtils;
+import okio.BufferedSink;
+import okio.Okio;
+import okio.Source;
 
 @SuppressWarnings("deprecation")
 public class DiaryHttpClient {
@@ -58,23 +49,35 @@ public class DiaryHttpClient {
     
     private URI currentUrl = URI.create("");
 
-    HttpClient httpClient = new DefaultHttpClient();
-    HttpContext localContext = new BasicHttpContext();
-    CookieStore cookieStore = new BasicCookieStore();
-    List<AbortableHttpRequest> runningRequests = new ArrayList<>();
+    OkHttpClient httpClient = new OkHttpClient();
+    java.net.CookieManager cookieManager = new java.net.CookieManager();
+    List<Call> runningRequests = new ArrayList<>();
 
     public DiaryHttpClient() {
-        httpClient.getParams().setParameter(ClientPNames.COOKIE_POLICY, CookiePolicy.BROWSER_COMPATIBILITY);
-        httpClient.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
-        localContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        httpClient.setCookieHandler(cookieManager);
+        httpClient.interceptors().add(new UserAgentInterceptor());
+    }
+
+    public class UserAgentInterceptor implements Interceptor {
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+            Request originalRequest = chain.request();
+            Request requestWithUserAgent = originalRequest.newBuilder()
+                    .removeHeader("User-Agent")
+                    .addHeader("User-Agent", FIXED_USER_AGENT)
+                    .build();
+            return chain.proceed(requestWithUserAgent);
+        }
     }
 
     public void abort() {
         new Thread() {
             @Override
             public void run() {
-                for(AbortableHttpRequest request : runningRequests) {
-                    request.abort();
+                for(Call request : runningRequests) {
+                    request.cancel();
                 }
                 runningRequests.clear();
             }
@@ -82,53 +85,65 @@ public class DiaryHttpClient {
     }
 
     public CookieStore getCookieStore() {
-        return cookieStore;
+        return cookieManager.getCookieStore();
     }
     
     public boolean hasCookie(String name) {
-        for(Cookie cookie : cookieStore.getCookies()) {
+        for(HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
             if(cookie.getName().equals(name))
                 return true;
         }
         return false;
     }
-
-    public String postPageToString(String url, HttpEntity data) {
-        String current = resolve(url).toString();
-        HttpPost httpPost = new HttpPost(current);
-        runningRequests.add(httpPost);
-        httpPost.setEntity(data);
+    
+    public String postPageToString(String url, RequestBody data) {
+        URI current = resolve(url);
+        Request httpPost = new Request.Builder()
+                .url(HttpUrl.get(current))
+                .post(data)
+                .build();
+        Call call = httpClient.newCall(httpPost);
+        runningRequests.add(call);
         try {
-            HttpResponse response = httpClient.execute(httpPost, localContext);
+            Response answer = call.execute();
             syncCookiesWithWebViews();
-            return EntityUtils.toString(response.getEntity());
+            return answer.body().string();
         } catch (IOException e) {
             return null;
         }
     }
     
-    public String postPageToString(String url, List<NameValuePair> nameValuePairs) {
-        String current = resolve(url).toString();
-        HttpPost httpPost = new HttpPost(current);
-        runningRequests.add(httpPost);
+    public String postPageToString(String url, List<Pair<String, String>> nameValuePairs) {
+        URI current = resolve(url);
+        FormEncodingBuilder rb = new FormEncodingBuilder();
+        for(Pair<String, String> param : nameValuePairs) {
+            try {
+                rb.addEncoded(param.first, URLEncoder.encode(param.second, "windows-1251"));
+            } catch (UnsupportedEncodingException ignored) {
+            }
+        }
+        
+        Request httpPost = new Request.Builder()
+                .url(HttpUrl.get(current))
+                .post(rb.build())
+                .build();
+        Call call = httpClient.newCall(httpPost);
+        runningRequests.add(call);
 
         try {
-            HttpEntity data = new UrlEncodedFormEntity(nameValuePairs, "windows-1251");
-            httpPost.setEntity(data);
-
-            HttpResponse response = httpClient.execute(httpPost, localContext);
+            Response answer = call.execute();
             syncCookiesWithWebViews();
-            return EntityUtils.toString(response.getEntity());
+            return answer.body().string();
         } catch (IOException e) {
             return null;
         }
     }
 
-    public String postPageToString(HttpEntity data) {
+    public String postPageToString(RequestBody data) {
         return postPageToString("http://www.diary.ru/diary.php", data);
     }
 
-    public String postPageToString(List<NameValuePair> nameValuePairs) {
+    public String postPageToString(List<Pair<String, String>> nameValuePairs) {
         return postPageToString("http://www.diary.ru/diary.php", nameValuePairs);
     }
 
@@ -143,17 +158,11 @@ public class DiaryHttpClient {
             if (url.startsWith("file"))
                 return null; // Не загружать локальные
 
-            DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
-            String current = resolve(url).toString();
-            HttpGet httpGet = new HttpGet(current);
-            runningRequests.add(httpGet);
-            HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+            Call call = httpClient.newCall(new Request.Builder().url(HttpUrl.get(resolve(url))).get().build());
+            runningRequests.add(call);
+            Response answer = call.execute();
             syncCookiesWithWebViews();
-            if(response.getEntity() == null) {
-                return null;
-            }
-            return EntityUtils.toString(response.getEntity());
+            return answer.body().string();
         } catch (IOException e) {
             return null;
         }
@@ -164,31 +173,14 @@ public class DiaryHttpClient {
             return null; // Не загружать локальные
 
         try {
-            DefaultHttpClient asyncRetriever = new DefaultHttpClient();
-            asyncRetriever.getParams().setParameter(CoreProtocolPNames.USER_AGENT, FIXED_USER_AGENT);
-            String current = resolve(url).toString();
-            HttpGet httpGet = new HttpGet(current);
-            runningRequests.add(httpGet);
-            HttpResponse response = asyncRetriever.execute(httpGet, localContext);
+            Call call = httpClient.newCall(new Request.Builder().url(HttpUrl.get(resolve(url))).get().build());
+            runningRequests.add(call);
+            Response answer = call.execute();
             syncCookiesWithWebViews();
-
-            if(response.getEntity() == null) {
-                return null;
-            }
-            // getting bytes of image
-            final InputStream is = response.getEntity().getContent();
-            final byte[] buffer = new byte[8192];
-            int bytesRead;
-            final ByteArrayOutputStream output = new ByteArrayOutputStream();
-            while ((bytesRead = is.read(buffer)) != -1)
-                output.write(buffer, 0, bytesRead);
-            is.close();
-
-            return output.toByteArray();
+            return answer.body().bytes();
         } catch (Exception ignored) {
+            return null;
         } // stream close / timeout
-
-        return null;
     }
 
     /**
@@ -198,12 +190,12 @@ public class DiaryHttpClient {
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public HttpResponse getPage(URI url) throws IOException {
+    public Response getPage(URI url) throws IOException {
         try {
-            HttpGet httpGet = new HttpGet(url);
-            runningRequests.add(httpGet);
+            Call call = httpClient.newCall(new Request.Builder().url(HttpUrl.get(url)).get().build());
+            runningRequests.add(call);
     
-            HttpResponse result = httpClient.execute(httpGet, localContext);
+            Response result = call.execute();
             syncCookiesWithWebViews();
             return result;
         } catch (SSLException e) {
@@ -218,15 +210,16 @@ public class DiaryHttpClient {
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public HttpResponse getPage(URI url, HashMap<String, String> headers) throws IOException {
+    public Response getPage(URI url, Headers headers) throws IOException {
         try {
-            HttpGet httpGet = new HttpGet(url);
-            for(Map.Entry<String, String> key : headers.entrySet()) {
-                httpGet.addHeader(key.getKey(), key.getValue());
-            }
-            runningRequests.add(httpGet);
+            Request.Builder builder = new Request.Builder()
+                    .url(HttpUrl.get(url))
+                    .headers(headers)
+                    .get();
+            Call call = httpClient.newCall(builder.build());
+            runningRequests.add(call);
 
-            HttpResponse result = httpClient.execute(httpGet, localContext);
+            Response result = call.execute();
             syncCookiesWithWebViews();
             return result;
         } catch (SSLException e) {
@@ -239,7 +232,7 @@ public class DiaryHttpClient {
         Context rhino = Context.enter();
         try {
             String domain = "www.diary.ru";
-            getPage(URI.create("http://" + domain), new HashMap<String, String>());
+            getPage(URI.create("http://" + domain));
             
             // CF should wait
             Thread.sleep(5000);
@@ -255,12 +248,10 @@ public class DiaryHttpClient {
             String challengePass = passSearch.group(1);
             String challenge = challengeSearch.group(1);
             
-            
             String operation = rawOperation
                     .replaceAll("a\\.value =(.+?) \\+ .+?;", "$1")
                     .replaceAll("\\s{3,}[a-z](?: = |\\.).+", "");
             String js = operation.replace("\n", "");
-            
             
             rhino.setOptimizationLevel(-1);
             Scriptable scope = rhino.initStandardObjects();
@@ -268,19 +259,22 @@ public class DiaryHttpClient {
             
             String answer = String.valueOf(result + domain.length());
 
-            final List<NameValuePair> params = new ArrayList<>(3);
-            params.add(new BasicNameValuePair("jschl_vc", challenge));
-            params.add(new BasicNameValuePair("pass", challengePass));
-            params.add(new BasicNameValuePair("jschl_answer", answer));
+            Headers headers = new Headers.Builder()
+                    .add("Referer", "http://www.diary.ru/")
+                    .build();
+
+            String url = new HttpUrl.Builder()
+                    .scheme("http")
+                    .host("www.diary.ru")
+                    .addPathSegment("cdn-cgi").addPathSegment("l").addPathSegment("chk_jschl")
+                    .addEncodedQueryParameter("jschl_vc", URLEncoder.encode(challenge, "windows-1251"))
+                    .addEncodedQueryParameter("pass", URLEncoder.encode(challengePass, "windows-1251"))
+                    .addEncodedQueryParameter("jschl_answer", URLEncoder.encode(answer, "windows-1251"))
+                    .build().toString();
             
-            HashMap<String, String> headers = new HashMap<>(1);
-            headers.put("Referer", "http://www.diary.ru/");
-            
-            String url = "http://www.diary.ru/cdn-cgi/l/chk_jschl?" + URLEncodedUtils.format(params, "windows-1251");
-            
-            HttpResponse response = getPage(URI.create(url), headers);
-            if(response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                response.getEntity().consumeContent();
+            Response response = getPage(URI.create(url), headers);
+            if(response.isSuccessful()) {
+                response.request();
                 return true;
             }
         } catch (Exception e) {
@@ -295,51 +289,54 @@ public class DiaryHttpClient {
         void transferred(long transferredBytes);
     }
 
-    static class CountingOutputStream extends FilterOutputStream {
+    public static class CountingFileRequestBody extends RequestBody {
 
+        private static final int SEGMENT_SIZE = 2048; // okio.Segment.SIZE
+
+        private final File file;
         private final ProgressListener listener;
-        private long transferred;
+        private final MediaType contentType;
 
-        CountingOutputStream(final OutputStream out, final ProgressListener listener)  {
-            super(out);
+        public CountingFileRequestBody(File file, ProgressListener listener) {
+            this.file = file;
+            this.contentType = MediaType.parse(FileUtils.getMimeType(file));
             this.listener = listener;
-            this.transferred = 0;
         }
 
         @Override
-        public void write(@NonNull final byte[] b, final int off, final int len) throws IOException {
-            //// NO, double-counting, as super.write(byte[], int, int) delegates to write(int).
-            //super.write(b, off, len);
-            out.write(b, off, len);
-            this.transferred += len;
-            this.listener.transferred(this.transferred);
+        public long contentLength() {
+            return file.length();
         }
 
         @Override
-        public void write(final int b) throws IOException {
-            out.write(b);
-            this.transferred++;
-            this.listener.transferred(this.transferred);
-        }
-    }
-
-    static public class CountingFileBody extends FileBody {
-        ProgressListener listener;
-        CountingFileBody(File f, String str, ProgressListener progressListener) {
-            super(f, str);
-            listener = progressListener;
+        public MediaType contentType() {
+            return contentType;
         }
 
         @Override
-        public void writeTo(OutputStream out) throws IOException {
-            super.writeTo(out instanceof CountingOutputStream ? out : new CountingOutputStream(out, listener));
+        public void writeTo(BufferedSink sink) throws IOException {
+            Source source = null;
+            try {
+                source = Okio.source(file);
+                long total = 0;
+                long read;
+
+                while ((read = source.read(sink.buffer(), SEGMENT_SIZE)) != -1) {
+                    total += read;
+                    sink.flush();
+                    this.listener.transferred(total);
+
+                }
+            } finally {
+                Util.closeQuietly(source);
+            }
         }
     }
     
     private void syncCookiesWithWebViews() {
-        List<Cookie> cookies = getCookieStore().getCookies();
+        List<HttpCookie> cookies = getCookieStore().getCookies();
         CookieManager cookieManager = CookieManager.getInstance();
-        for (Cookie cookie : cookies) {
+        for (HttpCookie cookie : cookies) {
             String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
             cookieManager.setCookie("diary.ru", cookieString);
         }
