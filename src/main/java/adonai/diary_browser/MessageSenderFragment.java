@@ -534,12 +534,13 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         
                         String progressId = ""; 
                         for (int i = 0; i < 8; ++i) {
-                            progressId += Math.ceil(Math.random() * 100000);
+                            progressId += (int) Math.ceil(Math.random() * 100000);
                         }
                         String str = mHttpClient.postPageToString("http://pleer.com/upload/send?X-Progress-ID=" + progressId,
                                 mpEntityBuilder.build());
                         if(str == null) {
                             Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
                             break;
                         }
 
@@ -551,10 +552,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         PleerUploadAnswer uploadAnswer = pleerGson.fromJson(str, PleerUploadAnswer.class);
                         if(!uploadAnswer.isCorrectFile()) {
                             Toast.makeText(getActivity(), getString(R.string.pp_wrong_file), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
                             break;
                         }
                         if(!uploadAnswer.isCorrectName()) {
                             Toast.makeText(getActivity(), getString(R.string.pp_wrong_name), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
                             break;
                         }
 
@@ -565,18 +568,20 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 embedBody.build());
                         if(embedStr == null) {
                             Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
                             break;
                         }
                         PleerEmbedAnswer embedAnswer = pleerGson.fromJson(embedStr, PleerEmbedAnswer.class);
                         if(!embedAnswer.isSuccess()) {
                             Toast.makeText(getActivity(), getString(R.string.embed_error), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
                             break;
                         }
                         
                         InputStream is = getResources().getAssets().open("plaintext/prostopleer_embed.html");
                         String htmlToEmbed = String.format(Utils.getStringFromInputStream(is),
-                                embedAnswer.getEmbedId(),
-                                embedAnswer.getEmbedId(),
+                                embedAnswer.getEmbedId(), message.arg1 == 2 ? "grey" : "black",
+                                embedAnswer.getEmbedId(), message.arg1 == 2 ? "grey" : "black",
                                 uploadAnswer.getLink(),
                                 embedAnswer.getName());
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, htmlToEmbed));
@@ -1375,14 +1380,34 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         try {
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, file.getCanonicalPath());
+                msg.arg1 = 2;
+                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
+                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                msg.arg1 = 1;
+                                break;
+                            case DialogInterface.BUTTON_POSITIVE:
+                            default:
+                                msg.arg1 = 2;
+                                break;
+                        }
 
-                pd = new MaterialDialog.Builder(getActivity())
-                        .title(R.string.loading)
-                        .content(R.string.sending_data)
-                        .progress(false, 100)
-                        .build();
-                pd.show();
-                mHandler.sendMessage(msg);
+                        pd = new MaterialDialog.Builder(getActivity())
+                                .title(R.string.loading)
+                                .content(R.string.sending_data)
+                                .progress(false, 100)
+                                .build();
+                        pd.show();
+                        mHandler.sendMessage(msg);
+                    }
+                };
+                origOrMoreOrLink.setTitle(R.string.select_pleer_color);
+                origOrMoreOrLink.setNegativeButton(R.string.black, selector);
+                origOrMoreOrLink.setPositiveButton(R.string.grey, selector);
+                origOrMoreOrLink.create().show();
             } else
                 Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
