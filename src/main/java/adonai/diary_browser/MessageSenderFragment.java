@@ -613,7 +613,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             break;
                         }
                         int width = message.arg1 * 100; // 100 / 200 / 300
-                        double rate = width / response.data.width;
+                        double rate = width / (float) response.data.width;
                         int height = (int) (response.data.height * rate);
                         String toPaste = String.format("<img width='%d' height='%d' src='%s' />", 
                                 width, 
