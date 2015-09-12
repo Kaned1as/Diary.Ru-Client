@@ -1,5 +1,7 @@
 package adonai.diary_browser;
 
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.webkit.CookieManager;
 
@@ -88,21 +90,30 @@ public class DiaryHttpClient {
         return cookieManager.getCookieStore();
     }
     
-    public boolean hasCookie(String name) {
+    public boolean hasCookie(@NonNull String name) {
         for(HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
             if(cookie.getName().equals(name))
                 return true;
         }
         return false;
     }
+
+    public String postPageToString(@NonNull String url, @NonNull RequestBody data) {
+        return postPageToString(url, data, null);
+    }
     
-    public String postPageToString(String url, RequestBody data) {
+    public String postPageToString(@NonNull String url, @NonNull RequestBody data, @Nullable Headers headers) {
         URI current = resolve(url);
-        Request httpPost = new Request.Builder()
+        
+        Request.Builder httpPost = new Request.Builder()
                 .url(HttpUrl.get(current))
-                .post(data)
-                .build();
-        Call call = httpClient.newCall(httpPost);
+                .post(data);
+        
+        if(headers != null) {
+            httpPost.headers(headers);
+        }
+        
+        Call call = httpClient.newCall(httpPost.build());
         runningRequests.add(call);
         try {
             Response answer = call.execute();
@@ -113,7 +124,7 @@ public class DiaryHttpClient {
         }
     }
     
-    public String postPageToString(String url, List<Pair<String, String>> nameValuePairs) {
+    public String postPageToString(@NonNull String url, @NonNull List<Pair<String, String>> nameValuePairs) {
         URI current = resolve(url);
         FormEncodingBuilder rb = new FormEncodingBuilder();
         for(Pair<String, String> param : nameValuePairs) {
@@ -139,11 +150,11 @@ public class DiaryHttpClient {
         }
     }
 
-    public String postPageToString(RequestBody data) {
+    public String postPageToString(@NonNull RequestBody data) {
         return postPageToString("http://www.diary.ru/diary.php", data);
     }
 
-    public String postPageToString(List<Pair<String, String>> nameValuePairs) {
+    public String postPageToString(@NonNull List<Pair<String, String>> nameValuePairs) {
         return postPageToString("http://www.diary.ru/diary.php", nameValuePairs);
     }
 
@@ -153,7 +164,7 @@ public class DiaryHttpClient {
      * @return
      * @throws IOException
      */
-    public String getPageAsString(String url) {
+    public String getPageAsString(@NonNull String url) {
         try {
             if (url.startsWith("file"))
                 return null; // Не загружать локальные
@@ -168,7 +179,7 @@ public class DiaryHttpClient {
         }
     }
 
-    public byte[] getPageAsByteArray(String url) {
+    public byte[] getPageAsByteArray(@NonNull String url) {
         if (url.startsWith("file"))
             return null; // Не загружать локальные
 
@@ -190,7 +201,7 @@ public class DiaryHttpClient {
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public Response getPage(URI url) throws IOException {
+    public Response getPage(@NonNull URI url) throws IOException {
         try {
             Call call = httpClient.newCall(new Request.Builder().url(HttpUrl.get(url)).get().build());
             runningRequests.add(call);
@@ -210,7 +221,7 @@ public class DiaryHttpClient {
      * @param url url to fetch
      * @return connection for manual usage
      */
-    public Response getPage(URI url, Headers headers) throws IOException {
+    public Response getPage(@NonNull URI url, @NonNull Headers headers) throws IOException {
         try {
             Request.Builder builder = new Request.Builder()
                     .url(HttpUrl.get(url))
@@ -227,7 +238,7 @@ public class DiaryHttpClient {
         }
     }
 
-    public boolean cloudFlareSolve(String responseString) {
+    public boolean cloudFlareSolve(@NonNull String responseString) {
         // initialize Rhino
         Context rhino = Context.enter();
         try {

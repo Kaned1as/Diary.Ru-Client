@@ -1,98 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:compat="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:compat="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
-    android:focusableInTouchMode="false"
-    android:id="@+id/selector_layout"
-    android:paddingLeft="5dp"
-    android:paddingRight="5dp"
-    android:focusable="false"
-    android:baselineAligned="false">
-
-    <android.support.v7.widget.Toolbar
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
-
-        <android.support.v7.widget.SwitchCompat
+    android:layout_width="match_parent">
+    
+    <LinearLayout 
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:focusableInTouchMode="false"
+        android:id="@+id/selector_layout"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp"
+        android:focusable="false"
+        android:baselineAligned="false">
+    
+        <android.support.v7.widget.Toolbar
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+    
+            <android.support.v7.widget.SwitchCompat
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:id="@+id/checkbox_paste_clip"
+                android:text="@string/paste_clipboard" />
+    
+        </android.support.v7.widget.Toolbar>
+    
+        <Button
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:id="@+id/checkbox_paste_clip"
-            android:text="@string/paste_clipboard" />
+            android:text="@string/italic"
+            android:id="@+id/button_italic"
+            android:drawableLeft="@drawable/italic" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/bold"
+            android:id="@+id/button_bold"
+            android:drawableLeft="@drawable/bold" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/underlined"
+            android:id="@+id/button_underlined"
+            android:drawableLeft="@drawable/underlined" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/nick"
+            android:id="@+id/button_nick"
+            android:drawableLeft="@drawable/nick" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/link"
+            android:id="@+id/button_link"
+            android:drawableLeft="@drawable/link" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/image"
+            android:id="@+id/button_image"
+            android:drawableLeft="@drawable/image" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/music"
+            android:id="@+id/button_mp3"
+            android:drawableLeft="@drawable/music" />
 
-    </android.support.v7.widget.Toolbar>
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/italic"
-        android:id="@+id/button_italic"
-        android:drawableLeft="@drawable/italic" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/bold"
-        android:id="@+id/button_bold"
-        android:drawableLeft="@drawable/bold" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/underlined"
-        android:id="@+id/button_underlined"
-        android:drawableLeft="@drawable/underlined" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/nick"
-        android:id="@+id/button_nick"
-        android:drawableLeft="@drawable/nick" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/link"
-        android:id="@+id/button_link"
-        android:drawableLeft="@drawable/link" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/image"
-        android:id="@+id/button_image"
-        android:drawableLeft="@drawable/image" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/music"
-        android:id="@+id/button_mp3"
-        android:drawableLeft="@drawable/image" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/more"
-        android:id="@+id/button_more"
-        android:drawableLeft="@drawable/more" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/offtopic"
-        android:id="@+id/button_offtopic"
-        android:drawableLeft="@drawable/offtopic" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/stroked"
-        android:id="@+id/button_stroked"
-        android:drawableLeft="@drawable/stroked" />
-
-</LinearLayout>
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/gif_animation"
+            android:id="@+id/button_gif"
+            android:drawableLeft="@drawable/gif" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/more"
+            android:id="@+id/button_more"
+            android:drawableLeft="@drawable/more" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/offtopic"
+            android:id="@+id/button_offtopic"
+            android:drawableLeft="@drawable/offtopic" />
+    
+        <Button
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/stroked"
+            android:id="@+id/button_stroked"
+            android:drawableLeft="@drawable/stroked" />
+    
+    </LinearLayout>
+</ScrollView>

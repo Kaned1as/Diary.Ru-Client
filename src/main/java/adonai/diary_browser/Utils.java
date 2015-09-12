@@ -49,23 +49,24 @@ public class Utils {
     static final int HANDLE_EDIT_COMMENT                            = 12;
     static final int HANDLE_UPLOAD_FILE                             = 13;
     static final int HANDLE_UPLOAD_MUSIC                            = 14;
-    static final int HANDLE_PRELOAD_THEMES                          = 15;
-    static final int HANDLE_REPOST                                  = 16;
-    static final int HANDLE_QUERY_ONLINE                            = 17;
-    static final int HANDLE_DELETE_POST_DRAFT                       = 18;
-    static final int HANDLE_DELETE_TAG                              = 19;
+    static final int HANDLE_UPLOAD_GIF                              = 15;
+    static final int HANDLE_PRELOAD_THEMES                          = 16;
+    static final int HANDLE_REPOST                                  = 17;
+    static final int HANDLE_QUERY_ONLINE                            = 18;
+    static final int HANDLE_DELETE_POST_DRAFT                       = 19;
+    static final int HANDLE_DELETE_TAG                              = 20;
 
     // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK                             = 20;
-    static final int HANDLE_UPDATE_HEADERS                          = 21;
-    static final int HANDLE_NAME_CLICK                              = 22;
+    static final int HANDLE_IMAGE_CLICK                             = 21;
+    static final int HANDLE_UPDATE_HEADERS                          = 22;
+    static final int HANDLE_NAME_CLICK                              = 23;
 
 
     // команды U-mail
-    static final int HANDLE_OPEN_FOLDER                             = 23;
-    static final int HANDLE_OPEN_MAIL                               = 24;
-    static final int HANDLE_DELETE_UMAILS                           = 25;
-    static final int HANDLE_PRELOAD_UMAIL                           = 26;
+    static final int HANDLE_OPEN_FOLDER                             = 24;
+    static final int HANDLE_OPEN_MAIL                               = 25;
+    static final int HANDLE_DELETE_UMAILS                           = 26;
+    static final int HANDLE_PRELOAD_UMAIL                           = 27;
 
     static final int HANDLE_START                                   = 101;
     static final int HANDLE_SERVICE_UPDATE                          = 102;
@@ -82,12 +83,16 @@ public class Utils {
 
     static final int ACTIVITY_ACTION_REQUEST_IMAGE              = 0;
     static final int ACTIVITY_ACTION_REQUEST_MUSIC              = 1;
+    static final int ACTIVITY_ACTION_REQUEST_GIF                = 2;
 
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/from_pages.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
+    
+    static final String IMGUR_CLIENT_AUTH = "Client-ID 860dc14aa7caf25";
+    static final String IMGUR_API_ENDPOINT = "https://api.imgur.com/3/";
 
     static Class<?> checkDiaryUrl(String response) {
         if (response.contains("class=\"tags_ul_all\""))

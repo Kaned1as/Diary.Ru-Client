@@ -289,4 +289,9 @@
     <string name="select_pleer_color">Выберите цвет плеера</string>
     <string name="black">Чёрный</string>
     <string name="grey">Серый</string>
+    <string name="gif_animation">gif-анимация</string>
+    <string name="select_gif_width">Выберите ширину изображения</string>
+    <string name="s100">100</string>
+    <string name="s200">200</string>
+    <string name="s300">300</string>
 </resources>

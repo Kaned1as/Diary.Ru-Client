@@ -20,6 +20,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -53,13 +54,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MultipartBuilder;
-import com.squareup.okhttp.RequestBody;
 
-import org.apache.http.entity.mime.MultipartEntity;
-import org.apache.http.entity.mime.content.ContentBody;
-import org.apache.http.entity.mime.content.StringBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -83,6 +80,7 @@ import java.util.regex.Pattern;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.DraftListArrayAdapter;
+import adonai.diary_browser.entities.ImgurImageResponse;
 import adonai.diary_browser.entities.PleerEmbedAnswer;
 import adonai.diary_browser.entities.PleerUploadAnswer;
 import adonai.diary_browser.entities.Post;
@@ -224,7 +222,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     break;
                 }
                 case Utils.HANDLE_UPLOAD_FILE:
-                case Utils.HANDLE_UPLOAD_MUSIC: {
+                case Utils.HANDLE_UPLOAD_MUSIC:
+                case Utils.HANDLE_UPLOAD_GIF: {
                     int cursorPos = contentText.getSelectionStart();
                     contentText.setText(contentText.getText().toString().substring(0, cursorPos) + message.obj + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
                     contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
@@ -585,6 +584,43 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 uploadAnswer.getLink(),
                                 embedAnswer.getName());
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, htmlToEmbed));
+                        pd.dismiss();
+                        break;
+                    }
+                    case Utils.HANDLE_UPLOAD_GIF: {
+                        File gifImage = new File((String) message.obj);
+                        long length = gifImage.length();
+                        final DiaryHttpClient.ProgressListener listener = new SendProgressListener(length);
+
+                        Headers authHeaders = new Headers.Builder()
+                                .add("Authorization", Utils.IMGUR_CLIENT_AUTH)
+                                .build();
+                        
+                        MultipartBuilder mpEntityBuilder = new MultipartBuilder();
+                        mpEntityBuilder.type(MultipartBuilder.FORM)
+                                .addFormDataPart("title", gifImage.getName())
+                                .addFormDataPart("type", "file")
+                                .addFormDataPart("image", gifImage.getName(),
+                                        new DiaryHttpClient.CountingFileRequestBody(gifImage, listener));
+
+                        String result = mHttpClient.postPageToString(Utils.IMGUR_API_ENDPOINT + "image",
+                                mpEntityBuilder.build(), authHeaders);
+                        
+                        ImgurImageResponse response = new Gson().fromJson(result, ImgurImageResponse.class);
+                        if(!response.success) {
+                            Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                            pd.dismiss();
+                            break;
+                        }
+                        int width = message.arg1 * 100; // 100 / 200 / 300
+                        double rate = width / response.data.width;
+                        int height = (int) (response.data.height * rate);
+                        String toPaste = String.format("<img width='%d' height='%d' src='%s' />", 
+                                width, 
+                                height, 
+                                response.data.link);
+
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_GIF, toPaste));
                         pd.dismiss();
                         break;
                     }
@@ -1365,23 +1401,78 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     requestMusicUpload(uri);
                 }
                 break;
+            case Utils.ACTIVITY_ACTION_REQUEST_GIF:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri = data.getData();
+                    requestGifUpload(uri);
+                }
+                break;
         }
 
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private void requestMusicUpload(Uri uri) {
+    private void requestGifUpload(Uri uri) {
+        File file = getFileFromUri(uri);
+        try {
+            if (file != null) {
+                final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_GIF, file.getCanonicalPath());
+                msg.arg1 = 3;
+                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
+                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        switch (which) {
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                msg.arg1 = 1;
+                                break;
+                            case DialogInterface.BUTTON_NEUTRAL:
+                                msg.arg1 = 2;
+                                break;
+                            case DialogInterface.BUTTON_POSITIVE:
+                            default:
+                                msg.arg1 = 3;
+                                break;
+                        }
+
+                        pd = new MaterialDialog.Builder(getActivity())
+                                .title(R.string.loading)
+                                .content(R.string.sending_data)
+                                .progress(false, 100)
+                                .build();
+                        pd.show();
+                        mHandler.sendMessage(msg);
+                    }
+                };
+                origOrMoreOrLink.setTitle(R.string.select_gif_width);
+                origOrMoreOrLink.setNegativeButton(R.string.s100, selector);
+                origOrMoreOrLink.setNeutralButton(R.string.s200, selector);
+                origOrMoreOrLink.setPositiveButton(R.string.s300, selector);
+                origOrMoreOrLink.create().show();
+            } else
+                Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Nullable
+    private File getFileFromUri(Uri uri) {
         File file = null;
         if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
             file = FileUtils.getFile(getActivity(), uri);
         } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
             file = new File(uri.getPath());
+        return file;
+    }
 
+    private void requestMusicUpload(Uri uri) {
+        File file = getFileFromUri(uri);
         try {
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, file.getCanonicalPath());
                 msg.arg1 = 2;
-                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
+                AlertDialogWrapper.Builder pleerType = new AlertDialogWrapper.Builder(getActivity());
                 DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1404,10 +1495,10 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         mHandler.sendMessage(msg);
                     }
                 };
-                origOrMoreOrLink.setTitle(R.string.select_pleer_color);
-                origOrMoreOrLink.setNegativeButton(R.string.black, selector);
-                origOrMoreOrLink.setPositiveButton(R.string.grey, selector);
-                origOrMoreOrLink.create().show();
+                pleerType.setTitle(R.string.select_pleer_color);
+                pleerType.setNegativeButton(R.string.black, selector);
+                pleerType.setPositiveButton(R.string.grey, selector);
+                pleerType.create().show();
             } else
                 Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
         } catch (IOException e) {
@@ -1416,12 +1507,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     }
 
     public void requestFileUpload(Uri uri) {
-        File file = null;
-        if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
-            file = FileUtils.getFile(getActivity(), uri);
-        } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
-            file = new File(uri.getPath());
-
+        File file = getFileFromUri(uri);
         try {
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
