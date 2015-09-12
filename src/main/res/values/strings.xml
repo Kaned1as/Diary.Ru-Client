@@ -282,4 +282,8 @@
     <string name="hacking_cloudflare">Взлом защиты CloudFlare</string>
     <string name="default_list_tab">Вкладка по-умолчанию</string>
     <string name="default_list_tab_sum">Вкладка, загружаемая при запуске приложения</string>
+    <string name="music">Музыка</string>
+    <string name="pp_wrong_file">Некорректный тип файла для ProstoPleer, попробуйте другой</string>
+    <string name="pp_wrong_name">Некорректное имя файла для ProstoPleer, попробуйте переименовать</string>
+    <string name="embed_error">Некорректный запрос к ProstoPleer для встраивания</string>
 </resources>

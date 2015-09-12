@@ -47,7 +47,7 @@ public class DiaryHttpClient {
     private final static Pattern PASS_PATTERN = Pattern.compile("name=\"pass\" value=\"(.+?)\"");
     private final static Pattern CHALLENGE_PATTERN = Pattern.compile("name=\"jschl_vc\" value=\"(\\w+)\"");
     
-    private URI currentUrl = URI.create("");
+    private URI currentUrl = URI.create("http://www.diary.ru");
 
     OkHttpClient httpClient = new OkHttpClient();
     java.net.CookieManager cookieManager = new java.net.CookieManager();

@@ -109,6 +109,16 @@ public class PasteSelector extends DialogFragment {
                         Toast.makeText(getActivity(), getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
                     }
                 break;
+            case R.id.button_mp3:
+                try {
+                    Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                    intent.setType("audio/*");
+                    intent.addCategory(Intent.CATEGORY_OPENABLE);
+                    msf.startActivityForResult(Intent.createChooser(intent, getString(R.string.select_file)), Utils.ACTIVITY_ACTION_REQUEST_MUSIC);
+                } catch (android.content.ActivityNotFoundException ex) {
+                    Toast.makeText(getActivity(), getString(R.string.no_file_manager_found), Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
     }
 }

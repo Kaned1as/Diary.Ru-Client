@@ -8,6 +8,11 @@ import android.util.DisplayMetrics;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
+
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListPage;
 import adonai.diary_browser.entities.DiaryPage;
@@ -43,11 +48,12 @@ public class Utils {
     static final int HANDLE_DELETE_COMMENT                          = 11;
     static final int HANDLE_EDIT_COMMENT                            = 12;
     static final int HANDLE_UPLOAD_FILE                             = 13;
-    static final int HANDLE_PRELOAD_THEMES                          = 14;
-    static final int HANDLE_REPOST                                  = 15;
-    static final int HANDLE_QUERY_ONLINE                            = 16;
-    static final int HANDLE_DELETE_POST_DRAFT                       = 17;
-    static final int HANDLE_DELETE_TAG                              = 18;
+    static final int HANDLE_UPLOAD_MUSIC                            = 14;
+    static final int HANDLE_PRELOAD_THEMES                          = 15;
+    static final int HANDLE_REPOST                                  = 16;
+    static final int HANDLE_QUERY_ONLINE                            = 17;
+    static final int HANDLE_DELETE_POST_DRAFT                       = 18;
+    static final int HANDLE_DELETE_TAG                              = 19;
 
     // Команды хэндлеру вида
     static final int HANDLE_IMAGE_CLICK                             = 20;
@@ -75,6 +81,7 @@ public class Utils {
     static final int UMAIL_FORWARD                              = 1;
 
     static final int ACTIVITY_ACTION_REQUEST_IMAGE              = 0;
+    static final int ACTIVITY_ACTION_REQUEST_MUSIC              = 1;
 
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
@@ -170,5 +177,16 @@ public class Utils {
                 activity.setTheme(R.style.DiaryThemeGreenyBrown);
                 break;
         }
+    }
+
+    public static String getStringFromInputStream(InputStream stream) throws IOException {
+        int n = 0;
+        char[] buffer = new char[1024 * 4];
+        InputStreamReader reader = new InputStreamReader(stream, "UTF-8");
+        StringWriter writer = new StringWriter();
+        while ((n = reader.read(buffer)) != -1) {
+            writer.write(buffer, 0, n);
+        }
+        return writer.toString();
     }
 }

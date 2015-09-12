@@ -50,6 +50,9 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.MultipartBuilder;
 import com.squareup.okhttp.RequestBody;
@@ -64,6 +67,8 @@ import org.jsoup.select.Elements;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -78,6 +83,8 @@ import java.util.regex.Pattern;
 
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.DraftListArrayAdapter;
+import adonai.diary_browser.entities.PleerEmbedAnswer;
+import adonai.diary_browser.entities.PleerUploadAnswer;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.misc.FileUtils;
@@ -216,7 +223,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     pd.dismiss();
                     break;
                 }
-                case Utils.HANDLE_UPLOAD_FILE: {
+                case Utils.HANDLE_UPLOAD_FILE:
+                case Utils.HANDLE_UPLOAD_MUSIC: {
                     int cursorPos = contentText.getSelectionStart();
                     contentText.setText(contentText.getText().toString().substring(0, cursorPos) + message.obj + contentText.getText().toString().substring(cursorPos, contentText.getText().length()));
                     contentText.setSelection(contentText.getText().toString().indexOf("/>", cursorPos));
@@ -510,18 +518,76 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         Toast.makeText(getActivity(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
                     }
+                    case Utils.HANDLE_UPLOAD_MUSIC: {
+                        File file = new File((String) message.obj);
+                        mHttpClient.getPage(URI.create("http://pleer.com/upload"));
+                        long length = file.length();
+                        final DiaryHttpClient.ProgressListener listener = new SendProgressListener(length);
+
+                        MultipartBuilder mpEntityBuilder = new MultipartBuilder();
+                        mpEntityBuilder.type(MultipartBuilder.FORM)
+                                .addFormDataPart("module", "photolib")
+                                .addFormDataPart("signature", mSignature)
+                                .addFormDataPart("resulttype1", String.valueOf(message.arg1))
+                                .addFormDataPart("file", file.getName(),
+                                        new DiaryHttpClient.CountingFileRequestBody(file, listener));
+                        
+                        String progressId = ""; 
+                        for (int i = 0; i < 8; ++i) {
+                            progressId += Math.ceil(Math.random() * 100000);
+                        }
+                        String str = mHttpClient.postPageToString("http://pleer.com/upload/send?X-Progress-ID=" + progressId,
+                                mpEntityBuilder.build());
+                        if(str == null) {
+                            Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                            break;
+                        }
+
+                        Gson pleerGson = new GsonBuilder()
+                                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                                .create();
+
+                        // check if upload was success
+                        PleerUploadAnswer uploadAnswer = pleerGson.fromJson(str, PleerUploadAnswer.class);
+                        if(!uploadAnswer.isCorrectFile()) {
+                            Toast.makeText(getActivity(), getString(R.string.pp_wrong_file), Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        if(!uploadAnswer.isCorrectName()) {
+                            Toast.makeText(getActivity(), getString(R.string.pp_wrong_name), Toast.LENGTH_LONG).show();
+                            break;
+                        }
+
+                        MultipartBuilder embedBody = new MultipartBuilder()
+                                .type(MultipartBuilder.FORM)
+                                .addFormDataPart("id", uploadAnswer.getLink());
+                        String embedStr = mHttpClient.postPageToString("http://pleer.com/site_api/embed/track",
+                                embedBody.build());
+                        if(embedStr == null) {
+                            Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        PleerEmbedAnswer embedAnswer = pleerGson.fromJson(embedStr, PleerEmbedAnswer.class);
+                        if(!embedAnswer.isSuccess()) {
+                            Toast.makeText(getActivity(), getString(R.string.embed_error), Toast.LENGTH_LONG).show();
+                            break;
+                        }
+                        
+                        InputStream is = getResources().getAssets().open("plaintext/prostopleer_embed.html");
+                        String htmlToEmbed = String.format(Utils.getStringFromInputStream(is),
+                                embedAnswer.getEmbedId(),
+                                embedAnswer.getEmbedId(),
+                                uploadAnswer.getLink(),
+                                embedAnswer.getName());
+                        mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, htmlToEmbed));
+                        pd.dismiss();
+                        break;
+                    }
                     case Utils.HANDLE_UPLOAD_FILE: {
                         try {
                             File file = new File((String) message.obj);
-                            final long length = file.length();
-
-                            final DiaryHttpClient.ProgressListener listener = new DiaryHttpClient.ProgressListener() {
-                                @Override
-                                public void transferred(long transferredBytes) {
-                                    long percent = (transferredBytes * 100) / length;
-                                    mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_PROGRESS, (int) percent));
-                                }
-                            };
+                            long length = file.length();
+                            final DiaryHttpClient.ProgressListener listener = new SendProgressListener(length);
 
                             MultipartBuilder mpEntityBuilder = new MultipartBuilder();
                             mpEntityBuilder.type(MultipartBuilder.FORM)
@@ -529,7 +595,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 .addFormDataPart("signature", mSignature)
                                 .addFormDataPart("resulttype1", String.valueOf(message.arg1))
                                 .addFormDataPart("attachment1",
-                                        URLEncoder.encode(file.getName(), "windows-1251"), 
+                                        URLEncoder.encode(file.getName(), "windows-1251"),
                                         new DiaryHttpClient.CountingFileRequestBody(file, listener));
 
                             String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntityBuilder.build());
@@ -1288,9 +1354,40 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     requestFileUpload(uri);
                 }
                 break;
+            case Utils.ACTIVITY_ACTION_REQUEST_MUSIC:
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri uri = data.getData();
+                    requestMusicUpload(uri);
+                }
+                break;
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private void requestMusicUpload(Uri uri) {
+        File file = null;
+        if (ContentResolver.SCHEME_CONTENT.equalsIgnoreCase(uri.getScheme())) {
+            file = FileUtils.getFile(getActivity(), uri);
+        } else if (ContentResolver.SCHEME_FILE.equalsIgnoreCase(uri.getScheme()))
+            file = new File(uri.getPath());
+
+        try {
+            if (file != null) {
+                final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, file.getCanonicalPath());
+
+                pd = new MaterialDialog.Builder(getActivity())
+                        .title(R.string.loading)
+                        .content(R.string.sending_data)
+                        .progress(false, 100)
+                        .build();
+                pd.show();
+                mHandler.sendMessage(msg);
+            } else
+                Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        } catch (IOException e) {
+            Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+        }
     }
 
     public void requestFileUpload(Uri uri) {
@@ -1373,5 +1470,19 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         // TODO: переделать обработку с использованием ViewGroup
         mSaveDraft.setVisibility(View.GONE);
         mLoadDraft.setVisibility(View.GONE);
+    }
+
+    private class SendProgressListener implements DiaryHttpClient.ProgressListener {
+        private final long length;
+
+        public SendProgressListener(long length) {
+            this.length = length;
+        }
+
+        @Override
+        public void transferred(long transferredBytes) {
+            long percent = (transferredBytes * 100) / length;
+            mUiHandler.sendMessage(mUiHandler.obtainMessage(HANDLE_PROGRESS, (int) percent));
+        }
     }
 }
