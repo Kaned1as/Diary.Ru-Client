@@ -47,7 +47,7 @@
     <string name="file_not_found">Файл не найден</string>
     <string name="saved_to">Сохранено:</string>
     <string name="image_save">Сохранить</string>
-    <string name="image_open">Открыть</string>
+    <string name="image_open_here">Открыть здесь</string>
     <string name="really_exit">Правда выйти?</string>
     <string name="image_copy_url">Скопировать ссылку</string>
     <string name="image_fullsize">И так все видно!</string>
@@ -294,4 +294,5 @@
     <string name="s100">100</string>
     <string name="s200">200</string>
     <string name="s300">300</string>
+    <string name="image_open">Открыть</string>
 </resources>

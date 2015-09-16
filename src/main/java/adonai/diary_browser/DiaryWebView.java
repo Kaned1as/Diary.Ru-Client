@@ -35,9 +35,10 @@ public class DiaryWebView extends WebView {
     public static final int MILLIS_TO_FAST_SCROLL = 200;
 
     // текущий контекст
-    public static final int IMAGE_SAVE = 0;
-    public static final int IMAGE_COPY_URL = 1;
-    public static final int IMAGE_OPEN = 2;
+    public static final int IMAGE_SAVE          = 0;
+    public static final int IMAGE_COPY_URL      = 1;
+    public static final int IMAGE_OPEN_HERE     = 2;
+    public static final int IMAGE_OPEN_EXTERNAL = 3;
 
     DiaryActivity mActivity;
     int scrolling = 0;

@@ -30,6 +30,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,6 +58,7 @@ public class DiaryHttpClient {
 
     public DiaryHttpClient() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+        httpClient.setReadTimeout(30, TimeUnit.SECONDS);
         httpClient.setCookieHandler(cookieManager);
         httpClient.interceptors().add(new UserAgentInterceptor());
     }

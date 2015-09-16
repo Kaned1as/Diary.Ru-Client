@@ -10,6 +10,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -477,6 +478,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 ArrayList<String> itemsBuilder = new ArrayList<>();
                 itemsBuilder.add(getString(R.string.image_save));
                 itemsBuilder.add(getString(R.string.image_copy_url));
+                itemsBuilder.add(getString(R.string.image_open_here));
                 itemsBuilder.add(getString(R.string.image_open));
 
                 final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
@@ -497,9 +499,14 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                                 clipboard.setText(src);
                             }
                             break;
-                            case DiaryWebView.IMAGE_OPEN:  {
+                            case DiaryWebView.IMAGE_OPEN_HERE:  {
                                 Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
                                 mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, false));
+                            }
+                            break;
+                            case DiaryWebView.IMAGE_OPEN_EXTERNAL:  {
+                                final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(src));
+                                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
                             }
                             break;
                         }
