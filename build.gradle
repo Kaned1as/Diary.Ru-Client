@@ -16,14 +16,22 @@ repositories {
 
 dependencies {
     //compile 'com.android.support:support-v4:23.0.1'                       // support library (Drawers) // pulled by MDDialogs
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.7'               // animated gif drawables
-    //compile 'com.android.support:appcompat-v7:23.0.1'                     // support library (material design)  // pulled by MDDialogs
-    compile 'com.afollestad:material-dialogs:0.7.9.1'                       // material design for dialogs
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.7'
+    // animated gif drawables
+    //compile 'com.android.support:appcompat-v7:23.0.1'
+    // support library (material design)  // pulled by MDDialogs
+    compile 'com.afollestad:material-dialogs:0.7.9.1'
+    // material design for dialogs
     //compile 'org.jsoup:jsoup:1.8.3'
-    compile 'org.mozilla:rhino:1.7.6'                                       // JS for CloudFlare solving
-    compile 'com.squareup.okhttp:okhttp:2.5.0'                              // HTTP client
-    compile 'com.google.code.gson:gson:2.3.1'                               // For Prostopleer Json (de)serializing
-    compile fileTree(dir: 'libs', include: '*.jar')                         // apache html entity + custom JSoup
+    compile 'org.mozilla:rhino:1.7.6'
+    // JS for CloudFlare solving
+    compile 'com.squareup.okhttp:okhttp:2.5.0'
+    // HTTP client
+    compile 'com.google.code.gson:gson:2.3.1'
+    // For Prostopleer Json (de)serializing
+    compile 'com.android.support:design:23.0.1'
+    compile fileTree(include: '*.jar', dir: 'libs')
+    // apache html entity + custom JSoup
 }
 
 android {
