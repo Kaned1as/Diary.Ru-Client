@@ -295,4 +295,13 @@
     <string name="s200">200</string>
     <string name="s300">300</string>
     <string name="image_open">Открыть</string>
+
+    <string name="pref_header_client_view">Клиент</string>
+    <string name="pref_header_diary">Дайри</string>
+    <string name="pref_header_app_settings">Система</string>
+
+    <string name="pref_title_client_view">Настройки клиента</string>
+    <string name="pref_title_diary">Настройки дневников</string>
+    <string name="pref_title_app_settings">Настройки системы</string>
+
 </resources>

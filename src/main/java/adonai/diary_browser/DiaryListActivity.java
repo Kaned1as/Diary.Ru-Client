@@ -63,7 +63,7 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.WebPage;
 import adonai.diary_browser.misc.ArrowDrawable;
-import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.preferences.SettingsActivity;
 
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
     // вкладки приложения
@@ -266,7 +266,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 purchaseGift();
                 return true;
             case R.id.menu_settings:
-                startActivity(new Intent(this, PreferencesScreen.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             case R.id.menu_share:
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);

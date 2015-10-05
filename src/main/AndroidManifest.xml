@@ -1,71 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="adonai.diary_browser"
     android:installLocation="auto">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
+        android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@style/DiaryThemeRed" android:allowBackup="true">
-
+        android:theme="@style/DiaryThemeRed">
         <activity
-            android:name="adonai.diary_browser.AuthorizationForm"
+            android:name=".AuthorizationForm"
             android:label="@string/title_activity_authorization_form" />
-        
         <activity
-            android:name="adonai.diary_browser.DiaryListActivity"
-            android:windowSoftInputMode="stateHidden"
-            android:label="@string/title_activity_diary_list" android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:launchMode="singleTask">
-
+            android:name=".DiaryListActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
+            android:label="@string/title_activity_diary_list"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="http" android:host="*diary.ru"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="*diary.ru"
+                    android:scheme="http" />
+
                 <action android:name="android.intent.action.VIEW" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="text/plain" />
             </intent-filter>
-
             <intent-filter>
                 <action android:name="android.intent.action.SEND" />
+
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:mimeType="image/*" />
             </intent-filter>
-
         </activity>
-
         <activity
-            android:name="adonai.diary_browser.UmailListActivity"
-            android:label="@string/umail_activity_title"
+            android:name=".UmailListActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize"
-            android:windowSoftInputMode="stateHidden"
-            android:launchMode="singleTask"/>
-
+            android:label="@string/umail_activity_title"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name="adonai.diary_browser.LaunchActivity"
+            android:name=".LaunchActivity"
             android:label="@string/title_activity_launch">
             <intent-filter>
                 <category android:name="android.intent.category.LAUNCHER" />
+
                 <action android:name="android.intent.action.MAIN" />
             </intent-filter>
         </activity>
 
-        <activity android:name="adonai.diary_browser.preferences.PreferencesScreen" />
-
         <service
-            android:name="adonai.diary_browser.NetworkService"
+            android:name=".NetworkService"
             android:enabled="true" />
 
+        <activity
+            android:name=".preferences.SettingsActivity"
+            android:label="@string/menu_settings"></activity>
     </application>
 
 </manifest>
