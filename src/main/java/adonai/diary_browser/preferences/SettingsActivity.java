@@ -192,10 +192,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            if (findPreference("post.signature").toString().length() > 0) {
-                bindPreferenceSummaryToValue(findPreference("post.signature"));
-            }
-            bindPreferenceSummaryToValue(findPreference("post.tags"));
+            //if (findPreference("post.signature").toString().length() > 0) {
+            //    bindPreferenceSummaryToValue(findPreference("post.signature"));
+            //}
+            //bindPreferenceSummaryToValue(findPreference("post.tags"));
         }
 
         @Override
@@ -228,7 +228,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            //bindPreferenceSummaryToValue(findPreference("sync_frequency"));
+            //bindPreferenceSummaryToValue(findPreference("default.list.tab"));
         }
 
         @Override
