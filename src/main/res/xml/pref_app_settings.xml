@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:entries="@array/tabs_items"
+        android:entryValues="@array/tabs_values"
+        android:key="default.list.tab"
+        android:summary="@string/default_list_tab_sum"
+        android:title="@string/default_list_tab"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
+    <ListPreference
+        android:defaultValue="1"
+        android:entries="@array/orientation_items"
+        android:entryValues="@array/orientation_values"
+        android:key="screen.orientation"
+        android:summary="@string/screen_orientation_sum"
+        android:title="@string/screen_orientation"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="service.notify.updates"
+        android:summary="@string/notify_updates_sum"
+        android:title="@string/notify_updates" />
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="show.version"
+        android:summary="@string/show_version_sum"
+        android:title="@string/show_version" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="preload.themes"
+        android:summary="@string/preload_themes_sum"
+        android:title="@string/preload_themes" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="preload.umail.quoting"
+        android:summary="@string/preload_umail_sum"
+        android:title="@string/preload_umail" />
+
+    <SwitchPreference
+        android:defaultValue="false"
+        android:key="service.always.running"
+        android:summary="@string/sticky_service_sum"
+        android:title="@string/sticky_service" />
+    <SwitchPreference
+        android:defaultValue="false"
+        android:dependency="service.notify.updates"
+        android:key="service.keep.device.on"
+        android:summary="@string/keep_device_on_sum"
+        android:title="@string/keep_device_on" />
+</PreferenceScreen>

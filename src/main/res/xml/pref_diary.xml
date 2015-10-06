@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:defaultValue=""
+        android:key="post.signature"
+        android:summary="@string/post_signature_summary"
+        android:title="@string/post_signature" />
+
+    <EditTextPreference
+        android:defaultValue="@string/posted_via_client"
+        android:key="post.tags"
+        android:summary="@string/post_tags_summary"
+        android:title="@string/post_tags" />
+
+</PreferenceScreen>
