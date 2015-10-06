@@ -29,7 +29,7 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
-import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.preferences.SettingsActivity;
 
 public class UmailListActivity extends DiaryActivity implements OnClickListener {
     static final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
@@ -281,7 +281,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     newUmail(getUser().getCurrentUmailPage());
                 return true;
             case R.id.menu_settings:
-                startActivity(new Intent(this, PreferencesScreen.class));
+                startActivity(new Intent(this, SettingsActivity.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
