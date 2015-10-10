@@ -281,7 +281,7 @@
     <string name="captcha_error">Сервер @Дневников недоступен. Вы заходите с недоверенного IP-адреса, попробуйте сменить сеть.</string>
     <string name="hacking_cloudflare">Взлом защиты CloudFlare</string>
     <string name="default_list_tab">Вкладка по-умолчанию</string>
-    <string name="default_list_tab_sum">Вкладка, загружаемая при запуске приложения</string>
+    <string name="default_list_tab_sum">Открывается при запуске приложения</string>
     <string name="music">Музыка</string>
     <string name="pp_wrong_file">Некорректный тип файла для ProstoPleer, попробуйте другой</string>
     <string name="pp_wrong_name">Некорректное имя файла для ProstoPleer, попробуйте переименовать</string>
@@ -295,4 +295,7 @@
     <string name="s200">200</string>
     <string name="s300">300</string>
     <string name="image_open">Открыть</string>
+    <string name="pref_default_post_signature"><![CDATA[ <br><br><span class="offtop">Отправлено из приложения <a class="offtop" href=https://play.google.com/store/apps/details?id=adonai.diary_browser.pro>Diary.ru для Android</a></span> ]]></string>
+    <string name="pref_view_settings">Внешний вид</string>
+    <string name="pref_other_settings">Прочие настройки</string>
 </resources>
