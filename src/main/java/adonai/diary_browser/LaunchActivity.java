@@ -9,6 +9,7 @@ public class LaunchActivity extends ActionBarActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Utils.setupTheme(this);
         super.onCreate(savedInstanceState);
 
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);

@@ -84,6 +84,10 @@ public class Utils {
     static final int ACTIVITY_ACTION_REQUEST_IMAGE              = 0;
     static final int ACTIVITY_ACTION_REQUEST_MUSIC              = 1;
     static final int ACTIVITY_ACTION_REQUEST_GIF                = 2;
+    
+    public static final String MAIN_PAGE = "http://www.diary.ru";
+    public static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
+    public static final String REGISTER_PAGE = "http://www.diary.ru/registration/";
 
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +
