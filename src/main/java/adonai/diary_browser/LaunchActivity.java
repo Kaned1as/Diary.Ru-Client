@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 
 public class LaunchActivity extends ActionBarActivity {
@@ -11,7 +12,7 @@ public class LaunchActivity extends ActionBarActivity {
     public void onCreate(Bundle savedInstanceState) {
         Utils.setupTheme(this);
         super.onCreate(savedInstanceState);
-
+        PreferenceManager.setDefaultValues(getApplicationContext(), Utils.mPrefsFile, MODE_PRIVATE, R.xml.preferences, true);
         SharedPreferences mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
 
         if (!mSharedPrefs.getString(Utils.KEY_USERNAME, "").isEmpty() &&
