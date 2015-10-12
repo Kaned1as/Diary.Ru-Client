@@ -1,5 +1,6 @@
 package adonai.diary_browser;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Pair;
@@ -349,9 +350,32 @@ public class DiaryHttpClient {
     private void syncCookiesWithWebViews() {
         List<HttpCookie> cookies = getCookieStore().getCookies();
         CookieManager cookieManager = CookieManager.getInstance();
+        
+        // to webviews
         for (HttpCookie cookie : cookies) {
             String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
             cookieManager.setCookie("diary.ru", cookieString);
+        }
+    }
+
+    public void syncCookiesWithClient() {
+        CookieStore store = getCookieStore();
+        CookieManager cookieManager = CookieManager.getInstance();
+
+        String cookies = cookieManager.getCookie("diary.ru");
+        String[] cookieValues = cookies.split(";");
+
+        HttpCookie cookie;
+        URI diary = URI.create("http://diary.ru");
+        for (String cookieValue : cookieValues) {
+            String[] split = cookieValue.split("=");
+            if (split.length == 2)
+                cookie = new HttpCookie(split[0], split[1]);
+            else
+                cookie = new HttpCookie(split[0], null);
+
+            cookie.setDomain("diary.ru");
+            store.add(diary, cookie);
         }
     }
 

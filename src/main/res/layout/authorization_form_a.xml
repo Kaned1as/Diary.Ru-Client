@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/LinearLayout1"
+<ViewSwitcher xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/login_register_switcher"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:tag="">
+    android:inAnimation="@android:anim/slide_in_left"
+    android:outAnimation="@android:anim/slide_out_right">
 
     <ScrollView
         android:layout_width="fill_parent"
@@ -45,7 +46,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/username"
-                    android:inputType="textPersonName" />
+                    android:inputType="textNoSuggestions|textPersonName" />
 
             </android.support.design.widget.TextInputLayout>
 
@@ -74,7 +75,111 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/login" />
+            
+            <Button
+                android:id="@+id/request_reg_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/request_register" />
 
         </LinearLayout>
     </ScrollView>
-</LinearLayout>
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="5dp"
+            android:gravity="top|center">
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/register_desired_login"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/desired_login"
+                    android:inputType="textNoSuggestions|textPersonName" />
+
+            </android.support.design.widget.TextInputLayout>
+            
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/register_desired_page"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/desired_page"
+                    android:inputType="textNoSuggestions|textPersonName" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/register_desired_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/desired_password"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+            
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/register_desired_password_again"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/desired_password_again"
+                    android:inputType="textPassword" />
+            </android.support.design.widget.TextInputLayout>
+            
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+                <EditText
+                    android:id="@+id/register_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/email"
+                    android:inputType="textEmailAddress" />
+            </android.support.design.widget.TextInputLayout>
+
+            <Button
+                android:id="@+id/register_button"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:enabled="false"
+                android:text="@string/register" />
+
+        </LinearLayout>
+    </ScrollView>
+    
+    
+</ViewSwitcher>

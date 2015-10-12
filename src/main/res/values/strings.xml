@@ -298,4 +298,22 @@
     <string name="pref_default_post_signature"><![CDATA[ <br><br><span class="offtop">Отправлено из приложения <a class="offtop" href=https://play.google.com/store/apps/details?id=adonai.diary_browser.pro>Diary.ru для Android</a></span> ]]></string>
     <string name="pref_view_settings">Внешний вид</string>
     <string name="pref_other_settings">Прочие настройки</string>
+    <string name="desired_login">Желаемый логин</string>
+    <string name="desired_page">Домашняя страница: http://???.diary.ru</string>
+    <string name="desired_password">Желаемый пароль</string>
+    <string name="desired_password_again">Подтверждение пароля</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="request_register">Зарегистрироваться</string>
+    <string name="email">E-mail</string>
+    <string name="invalid_page_name">Некорректный адрес</string>
+    <string name="required_field">Обязательное поле</string>
+    <string name="invalid_email">Некорректный e-mail адрес</string>
+    <string name="passwords_dont_match">Пароли не совпадают</string>
+    <string name="invalid_password">Некорректный пароль</string>
+    <string name="requesting_registration">Запрашиваем регистрацию</string>
+    <string name="registration_error">Ошибка регистрации</string>
+    <string name="enter_captcha">Введите капчу</string>
+    <string name="captcha_request">Подтверждение капчи</string>
+    <string name="successfully_registered">Успешная регистрация</string>
+    <string name="congratulation_registered">Поздравляем! Письмо с инструкциями по окончанию регистрации выслано на ваш E-mail. Вы можете зайти на свой дневник уже сейчас.</string>
 </resources>

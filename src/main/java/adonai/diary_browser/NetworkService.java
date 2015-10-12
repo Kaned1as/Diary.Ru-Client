@@ -29,7 +29,6 @@ import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
 import com.squareup.okhttp.Response;
-import com.squareup.okhttp.internal.framed.Header;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -65,9 +64,6 @@ import adonai.diary_browser.entities.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
 
-    private static final String MAIN_PAGE = "http://www.diary.ru";
-    private static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
-    
     private static final int NOTIFICATION_ID = 3; // i swear it's random
     private static final int NEWS_NOTIFICATION_ID = 4;
     
@@ -321,7 +317,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 nameValuePairs.add(Pair.create("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
                 nameValuePairs.add(Pair.create("save", "on"));
 
-                String loginScreen = mNetworkClient.postPageToString(LOGIN_PAGE, nameValuePairs);
+                String loginScreen = mNetworkClient.postPageToString(Utils.LOGIN_PAGE, nameValuePairs);
 
                 if (loginScreen == null) { // no connection
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
@@ -331,7 +327,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 if(loginScreen.contains(DiaryHttpClient.CLOUDFLARE_ANCHOR) && !mNetworkClient.hasCookie("cf_clearance")) {
                     notifyListeners(Utils.HACKING_CLOUDFLARE);
                     if(mNetworkClient.cloudFlareSolve(loginScreen)) {
-                        loginScreen = mNetworkClient.postPageToString(LOGIN_PAGE, nameValuePairs);
+                        loginScreen = mNetworkClient.postPageToString(Utils.LOGIN_PAGE, nameValuePairs);
                     } else { // couldn't solve
                         notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.captcha_error);
                         break;
@@ -354,7 +350,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 }
 
                 mUser.setAuthorized(true);
-                String mainPage = mNetworkClient.getPageAsString(MAIN_PAGE);
+                String mainPage = mNetworkClient.getPageAsString(Utils.MAIN_PAGE);
                 if(mainPage == null) {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     break;
