@@ -15,8 +15,8 @@
             android:layout_margin="8dp">
 
             <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/ic_launcher" />
@@ -39,12 +39,10 @@
             android:layout_margin="8dp">
 
             <ImageView
-                android:id="@+id/imageView1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
                 android:layout_gravity="center"
                 android:contentDescription="@string/author_avatar"
-                android:fadingEdgeLength="15dp"
                 android:src="@drawable/adonai" />
 
             <TextView
