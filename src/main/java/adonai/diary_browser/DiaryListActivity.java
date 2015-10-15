@@ -33,6 +33,7 @@ import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
+import android.webkit.WebView;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
@@ -63,9 +64,26 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.WebPage;
 import adonai.diary_browser.misc.ArrowDrawable;
-import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.preferences.PreferencePage;
 
+import adonai.diary_browser.DiaryWebView;
+
+/**
+ * Основная активность дайри-клиента. Здесь происходит всё взаимодействие с интерактивной веб-частью сайта.
+ * <br/>
+ * Возможности:
+ * <ul>
+ *     <li>Просмотр списка избранных дневников/списков ПЧ (напр. {@link #TAB_FAV_LIST})</li>
+ *     <li>Просмотр ленты избранного ({@link #TAB_FAV_POSTS})</li>
+ *     <li>Просмотр дискуссий ({@link #TAB_DISCUSSIONS})</li>
+ *     <li>Просмотр дневников (напр. {@link #TAB_MY_DIARY})</li>
+ *     <li>Отправка ({@link MessageSenderFragment#prepareUi(Post)}) и удаление ({@link DiaryWebView.DiaryWebClient#shouldOverrideUrlLoading(WebView, String)}) постов/комментариев</li>
+ * </ul>
+ * 
+ * @author Адонай
+ */
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
+    
     // вкладки приложения
     public static final int TAB_FAV_LIST = 0;
     public static final int TAB_FAV_POSTS = 1;
@@ -76,6 +94,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     static final int PART_DISC_LIST = 2;
     public BrowseHistory browserHistory;
     int mCurrentTab = 0;
+    
     // Адаптеры типов
     DiaryListArrayAdapter mFavouritesAdapter;
     DiscListArrayAdapter mDiscussionsAdapter;
@@ -266,7 +285,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 purchaseGift();
                 return true;
             case R.id.menu_settings:
-                startActivity(new Intent(this, PreferencesScreen.class));
+                startActivity(new Intent(this, PreferencePage.class));
                 return true;
             case R.id.menu_share:
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
