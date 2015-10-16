@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +33,21 @@ import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
 import adonai.diary_browser.database.DatabaseHandler;
+import adonai.diary_browser.entities.Post;
 
+/**
+ * Родительская активность для всех остальных.
+ * <br/>
+ * Здесь хранятся:
+ * <ul>
+ *     <li>Обработка платёжек и MOTD</li>
+ *     <li>Обработка старта {@link NetworkService}</li>
+ *     <li>Обработка ошибок исполнения</li>
+ *     <li>Обработка посылок сообщений в {@link NetworkService}</li>
+ * </ul>
+ * 
+ * @author Адонай
+ */
 public abstract class DiaryActivity extends AppCompatActivity implements Callback {
     private static final int HANDLE_APP_START = -100;
     private static final String SKU_DONATE = "small";

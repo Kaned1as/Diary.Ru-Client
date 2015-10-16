@@ -10,27 +10,30 @@ import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
 public class UserData {
-    private final String discussionsUrl = "http://www.diary.ru/discussion/";
-    private final String favoritesUrl = "http://www.diary.ru/list/?act=show&fgroup_id=0";
-    private final String subscribersUrl = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
 
     private boolean isAuthorized;
+    
     // Динамические списки постов
     private DiaryListPage currentDiaries;
     private DiaryListPage currentUmails;
     private DiscListPage discussions;
     private WebPage currentDiaryPage;
     private UmailPage currentUmailPage;
+    
     // Личные данные
     private String ownDiaryUrl = "";
     private String ownProfileId = "";
     private String userName = "";
     private String signature = "";
+    
     // число новых постов в дискуссиях
     private Integer newDiscussNum = 0;
     private String newDiscussLink = "";
+
+    // число новых U-Mail
     private Integer newUmailNum = 0;
     private String newUmailLink = "";
+    
     // число новых постов в дневнике
     private Integer newDiaryCommentsNum = 0;
     private String newDiaryLink = "";
@@ -99,15 +102,15 @@ public class UserData {
     }
 
     String getDiscussionsUrl() {
-        return discussionsUrl;
+        return Utils.DISCUSSIONS_PAGE;
     }
 
     String getFavoritesUrl() {
-        return favoritesUrl;
+        return Utils.FAVORITES_PAGE;
     }
 
     String getSubscribersUrl() {
-        return subscribersUrl;
+        return Utils.SUBSCRIBERS_PAGE;
     }
 
     boolean isAuthorized() {

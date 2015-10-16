@@ -21,6 +21,14 @@ import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.SearchPage;
 import adonai.diary_browser.entities.TagsPage;
 
+/**
+ * Класс-свалка полезных функций и констант.
+ * Один большой антипаттерн
+ * 
+ * @author не кто иной как Адонай!
+ * 
+ * //@TODO разгрести тут всё!
+ */
 public class Utils {
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
@@ -88,6 +96,9 @@ public class Utils {
     public static final String MAIN_PAGE = "http://www.diary.ru";
     public static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
     public static final String REGISTER_PAGE = "http://www.diary.ru/registration/";
+    public static final String DISCUSSIONS_PAGE = "http://www.diary.ru/discussion/";
+    public static final String FAVORITES_PAGE = "http://www.diary.ru/list/?act=show&fgroup_id=0";
+    public static final String SUBSCRIBERS_PAGE = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
 
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +

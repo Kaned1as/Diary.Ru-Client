@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -23,9 +24,20 @@ import adonai.diary_browser.database.DatabaseHandler;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
 
+/**
+ * Фрагмент основной активности дайри, отвечающий за обработку пунктов меню и кнопок {@link ActionBar}'a
+ * <br/>
+ * По историческим причинам логика всего контента, который присутствует в этом фрагменте, обрабатывается в активности.
+ * 
+ * @see DiaryListActivity
+ * 
+ * @author Адонай
+ */
 public class DiaryListFragment extends DiaryFragment {
+    
     public final static int GROUP_PAGE_LINKS = 100;
     public final static int ITEM_PAGE_LINKS = 101;
+    
     private final URLAutocompleteQueryListener mUrlListener = new URLAutocompleteQueryListener();
     private final URLAutocompleteSuggestionListener mUrlSuggestionListener = new URLAutocompleteSuggestionListener();
     private URLAutocompleteAdapter mUrlAdapter; // created on attach to activity

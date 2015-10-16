@@ -40,6 +40,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -89,7 +90,21 @@ import adonai.diary_browser.misc.FileUtils;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageButton;
 
-public class MessageSenderFragment extends Fragment implements OnClickListener, android.widget.CompoundButton.OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener {
+/**
+ * Основной фрагмент посылки сообщения. Такой фрагмент присутствует в каждой {@link DiaryActivity}.
+ * Отвечает за посылку и редактирование постов/комментариев/U-Mail с произвольными параметрами, 
+ * а также вставку смайлов и других объектов.
+ * <p/>
+ * <i>Замечание: содержит в себе асинхронный обработчик для посылки/приёма сообщений с сайта и отслеживания статуса</i>
+ * 
+ * @see DiaryListActivity
+ * @see UmailListActivity
+ * 
+ * @author Адонай 
+ * 
+ * @// TODO: Добавить возможность отмены посылки поста/комментария 
+ */
+public class MessageSenderFragment extends Fragment implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener {
 
     private static final int HANDLE_DO_POST = 0;
     private static final int HANDLE_DO_COMMENT = 1;

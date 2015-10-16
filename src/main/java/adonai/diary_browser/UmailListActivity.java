@@ -29,8 +29,23 @@ import adonai.diary_browser.entities.ListPage;
 import adonai.diary_browser.entities.Umail;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
-import adonai.diary_browser.preferences.PreferencesScreen;
+import adonai.diary_browser.preferences.PreferencePage;
 
+/**
+ * Активность, отвечающая за работу с механизмом U-mail.
+ * <br/>
+ * Возможности:
+ * <ul>
+ *     <li>Чтение писем</li>
+ *     <li>Посылка писем</li>
+ *     <li>Ответ на письма с цитированием</li>
+ *     <li>Пересылка писем</li>
+ *     <li>Автоотслеживание счётчика Re[*] в переписке (см {@link MessageSenderFragment#prepareUi(Umail)})</li>
+ * </ul>
+ * 
+ * @author Адонай
+ * @see MessageSenderFragment#umailElements
+ */
 public class UmailListActivity extends DiaryActivity implements OnClickListener {
     static final String inFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=1";
     static final String outFolderAddress = "http://www.diary.ru/u-mail/folder/?f_id=2";
@@ -44,7 +59,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
     ListView mFolderBrowser;
     DiaryListArrayAdapter mFolderAdapter;
     TabWidget mTabs;
-    TextView mIncoming;
+    TextView mIncoming; // TODO: реализовать работу с другими папками U-mail ( добавленные вручную и т.д.)
     TextView mOutcoming;
 
     Handler mUiHandler;
@@ -281,7 +296,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                     newUmail(getUser().getCurrentUmailPage());
                 return true;
             case R.id.menu_settings:
-                startActivity(new Intent(this, PreferencesScreen.class));
+                startActivity(new Intent(this, PreferencePage.class));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

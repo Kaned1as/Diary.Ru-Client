@@ -11,8 +11,16 @@ import android.preference.PreferenceManager;
 import adonai.diary_browser.R;
 import adonai.diary_browser.Utils;
 
-
-public class PreferencesScreen extends PreferenceActivity {
+/**
+ * Окно с настройками для приложения. Настройки категоризированы и распределены по панелям.
+ * Подпись под настройкой отображает текущее значение в случаях, когда это применимо.
+ * 
+ * @author Адонай
+ * @author maniak26
+ * 
+ * @// TODO: Добавить возможность отмены посылки поста/комментария 
+ */
+public class PreferencePage extends PreferenceActivity {
 
     @Override
     @SuppressWarnings("deprecation")

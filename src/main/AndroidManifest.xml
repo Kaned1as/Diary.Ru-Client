@@ -60,7 +60,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="adonai.diary_browser.preferences.PreferencesScreen" />
+        <activity android:name=".preferences.PreferencePage" />
 
         <service
             android:name="adonai.diary_browser.NetworkService"
