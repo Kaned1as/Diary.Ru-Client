@@ -63,28 +63,29 @@ public class Utils {
     static final int HANDLE_QUERY_ONLINE                            = 18;
     static final int HANDLE_DELETE_POST_DRAFT                       = 19;
     static final int HANDLE_DELETE_TAG                              = 20;
+    static final int HANDLE_REQUEST_DIARY                           = 21;
 
     // Команды хэндлеру вида
-    static final int HANDLE_IMAGE_CLICK                             = 21;
-    static final int HANDLE_UPDATE_HEADERS                          = 22;
-    static final int HANDLE_NAME_CLICK                              = 23;
+    static final int HANDLE_IMAGE_CLICK                             = 101;
+    static final int HANDLE_UPDATE_HEADERS                          = 102;
+    static final int HANDLE_NAME_CLICK                              = 103;
 
 
     // команды U-mail
-    static final int HANDLE_OPEN_FOLDER                             = 24;
-    static final int HANDLE_OPEN_MAIL                               = 25;
-    static final int HANDLE_DELETE_UMAILS                           = 26;
-    static final int HANDLE_PRELOAD_UMAIL                           = 27;
+    static final int HANDLE_OPEN_FOLDER                             = 301;
+    static final int HANDLE_OPEN_MAIL                               = 302;
+    static final int HANDLE_DELETE_UMAILS                           = 303;
+    static final int HANDLE_PRELOAD_UMAIL                           = 304;
 
-    static final int HANDLE_START                                   = 101;
-    static final int HANDLE_SERVICE_UPDATE                          = 102;
-    static final int HANDLE_PROGRESS                                = 103;
-    static final int HANDLE_PROGRESS_2                              = 104;
-    static final int HANDLE_CONNECTIVITY_ERROR                      = 105;
-    static final int HANDLE_SERVICE_ERROR                           = 106;
-    static final int HANDLE_NOTFOUND_ERROR                          = 107;
-    static final int HACKING_CLOUDFLARE                             = 108;
-    static final int HANDLE_STEP_SEQUENCE                           = 109;
+    static final int HANDLE_START                                   = 401;
+    static final int HANDLE_SERVICE_UPDATE                          = 402;
+    static final int HANDLE_PROGRESS                                = 403;
+    static final int HANDLE_PROGRESS_2                              = 404;
+    static final int HANDLE_CONNECTIVITY_ERROR                      = 405;
+    static final int HANDLE_SERVICE_ERROR                           = 406;
+    static final int HANDLE_NOTFOUND_ERROR                          = 407;
+    static final int HACKING_CLOUDFLARE                             = 408;
+    static final int HANDLE_STEP_SEQUENCE                           = 409;
 
     static final int UMAIL_REPLY                                = 0;
     static final int UMAIL_FORWARD                              = 1;

@@ -11,24 +11,21 @@ apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
-    jcenter()
-    maven {                                                                         // for saripaar
-        url "https://jitpack.io"
-    }
+    maven { url "https://jitpack.io"  } // for saripaar and material-dialogs
 }
 
 dependencies {
-    //compile 'com.android.support:support-v4:23.0.1'                               // support library (Drawers) // pulled by MDDialogs
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.7'                       // animated gif drawables
-    //compile 'com.android.support:appcompat-v7:23.0.1'                             // support library (material design)  // pulled by MDDialogs
-    compile 'com.afollestad:material-dialogs:0.7.9.1'                               // material design for dialogs
-    compile 'com.android.support:design:23.0.1'							            // material design controls
+    compile fileTree(dir: 'libs', include: '*.jar')                                     // custom JSoup
+    //compile 'com.android.support:support-v4:23.0.1'                                   // support library (Drawers) // pulled by MDDialogs
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.10'                          // animated gif drawables
+    //compile 'com.android.support:appcompat-v7:23.0.1'                                 // support library (material design)  // pulled by MDDialogs
+    compile('com.afollestad.material-dialogs:core:0.8.4.0@aar') { transitive = true }   // material design for dialogs
+    compile 'com.android.support:design:23.1.0'							                // material design controls
     //compile 'org.jsoup:jsoup:1.8.3'
-    compile 'org.mozilla:rhino:1.7.6'                                               // JS for CloudFlare solving
-    compile 'com.squareup.okhttp:okhttp:2.5.0'                                      // HTTP client
-    compile 'com.google.code.gson:gson:2.3.1'                                       // For Prostopleer Json (de)serializing
-    compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3'    // text input validation with unreadable name
-    compile fileTree(dir: 'libs', include: '*.jar')                                 // apache html entity + custom JSoup
+    compile 'org.mozilla:rhino:1.7.6'                                                   // JS for CloudFlare solving
+    compile 'com.squareup.okhttp:okhttp:2.5.0'                                          // HTTP client
+    compile 'com.google.code.gson:gson:2.3.1'                                           // For Prostopleer Json (de)serializing
+    compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3'        // text input validation with unreadable name
 }
 
 android {

@@ -551,6 +551,33 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     break;
                 }
             }
+            case Utils.HANDLE_REQUEST_DIARY: {
+                String diaryName = (String) message.obj;
+
+                final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
+                nameValuePairs.add(Pair.create("module", "registration"));
+                nameValuePairs.add(Pair.create("act", "new_journal_post"));
+                nameValuePairs.add(Pair.create("journal_act", "1"));
+                nameValuePairs.add(Pair.create("diary_title", diaryName));
+                nameValuePairs.add(Pair.create("community_title", ""));
+                nameValuePairs.add(Pair.create("signature", mUser.getSignature()));
+
+                String response = mNetworkClient.postPageToString(nameValuePairs);
+                if(response == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                
+                String mainPage = mNetworkClient.getPageAsString(Utils.MAIN_PAGE);
+                if(mainPage == null) {
+                    notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
+                    break;
+                }
+                mUser.parseData(serializeMainPage(mainPage)); // get initial links
+                
+                notifyListeners(Utils.HANDLE_REQUEST_DIARY, true);
+                break;
+            }
             default:
                 return false;
         }
@@ -698,9 +725,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Elements postsArea = rootNode.select("[id~=post\\d+], div.pageBar");
-        if (postsArea.isEmpty()) { // Нет вообще никаких постов, заканчиваем
-            notifyListeners(Utils.HANDLE_NOTFOUND_ERROR);
-            return;
+        if (postsArea.isEmpty()) {
+            // notifyListeners(Utils.HANDLE_NOTFOUND_ERROR); // новый дневник?
         }
 
         Elements result = postsArea.clone();
