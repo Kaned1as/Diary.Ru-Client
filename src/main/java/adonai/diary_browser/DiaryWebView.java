@@ -140,6 +140,9 @@ public class DiaryWebView extends WebView {
             return null;
         }
 
+        /**
+         * Хак чтобы заставить работать систему перехвата копирования
+         */
         @Override
         public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
             boolean result = mOriginalCallback.onCreateActionMode(mode, menu);
@@ -148,9 +151,8 @@ public class DiaryWebView extends WebView {
                 return result;
             }
             
-            copyButton.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_NEVER);
             menu.add(copyButton.getGroupId(), copyButton.getItemId(), copyButton.getOrder(), R.string.quote) // будет в начале
-                .setIcon(copyButton.getIcon())
+                .setIcon(android.R.drawable.ic_menu_crop)
                 .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_WITH_TEXT | MenuItem.SHOW_AS_ACTION_ALWAYS)
                 .setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override

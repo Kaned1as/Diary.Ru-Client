@@ -2,6 +2,7 @@ package adonai.diary_browser;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -53,6 +54,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
 
     // общее
     private static final String AUTH_PAIR_DELIMITER = "=logPassSplitter=";
+    private static final String AUTHS_DELIMITER = "=pairSplitter=";
 
     private static final int VALIDATE         = 0;
     private static final int REGISTER         = 1;
@@ -179,7 +181,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
             mPassword.setText(mPreferences.getString(Utils.KEY_PASSWORD, ""));
         }
 
-        String[] logKeyPair = mPreferences.getString(Utils.KEY_USERPASS_CACHE, "").split(AUTH_PAIR_DELIMITER);
+        String[] logKeyPair = mPreferences.getString(Utils.KEY_USERPASS_CACHE, "").split(AUTHS_DELIMITER);
         if (logKeyPair.length == 1 && logKeyPair[0].isEmpty()) // not found
             return;
 
@@ -247,7 +249,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
 
                 StringBuilder logKeyPairString = new StringBuilder();
                 for (Map.Entry<String, String> pair : mLoginPasswordPairs.entrySet())
-                    logKeyPairString.append(pair.getKey()).append(AUTH_PAIR_DELIMITER).append(pair.getValue()).append(AUTH_PAIR_DELIMITER);
+                    logKeyPairString.append(pair.getKey()).append(AUTH_PAIR_DELIMITER).append(pair.getValue()).append(AUTHS_DELIMITER);
 
                 editor.putString(Utils.KEY_USERPASS_CACHE, logKeyPairString.toString());
                 editor.putString(Utils.KEY_USERNAME, mUsername.getText().toString());
@@ -360,9 +362,9 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
                     .title(R.string.successfully_registered)
                     .content(R.string.congratulation_registered)
                     .positiveText(android.R.string.ok)
-                    .callback(new MaterialDialog.ButtonCallback() {
+                    .dismissListener(new DialogInterface.OnDismissListener() {
                         @Override
-                        public void onPositive(MaterialDialog dialog) {
+                        public void onDismiss(DialogInterface dialog) {
                             onBackPressed();
                         }
                     });
@@ -406,10 +408,12 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
 
         @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"}) // мы верим в вежливость дайри
         private void handleCaptcha(final Document root) {
+            // убираем всё ненужное, показываем только враппер
+            root.head().select("link[rel=stylesheet]").remove();
+            root.head().append("<link href=\"file:///android_asset/css/registration.css\" rel=\"stylesheet\" type=\"text/css\">");
             root.body().select("p").remove();
             root.body().append("<script type=\"text/javascript\" src=\"file:///android_asset/javascript/registration.js\"> </script>");
-            
-            
+
             // показываем диалог
             runOnUiThread(new Runnable() {
                 @Override
@@ -421,7 +425,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
                     mCaptchaView = new MaterialDialog.Builder(AuthorizationForm.this)
                             .title(R.string.captcha_request)
                             .customView(view, false).build();
-                    
+
                     view.loadDataWithBaseURL(Utils.MAIN_PAGE, root.html(), null, "utf-8", null);
                     mCaptchaView.show();
                     mRegisterWait.hide();

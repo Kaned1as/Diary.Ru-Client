@@ -106,17 +106,18 @@ import pl.droidsonroids.gif.GifImageButton;
  */
 public class MessageSenderFragment extends Fragment implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener {
 
-    private static final int HANDLE_DO_POST = 0;
-    private static final int HANDLE_DO_COMMENT = 1;
-    private static final int HANDLE_DO_UMAIL = 2;
-    private static final int HANDLE_UMAIL_ACK = 3;
-    private static final int HANDLE_UMAIL_REJ = 4;
+    // команды внутренним хэндлерам
+    private static final int HANDLE_DO_POST         = 0;
+    private static final int HANDLE_DO_COMMENT      = 1;
+    private static final int HANDLE_DO_UMAIL        = 2;
+    private static final int HANDLE_UMAIL_ACK       = 3;
+    private static final int HANDLE_UMAIL_REJ       = 4;
     private static final int HANDLE_REQUEST_AVATARS = 5;
-    private static final int HANDLE_SET_AVATAR = 6;
-    private static final int HANDLE_PROGRESS = 8;
-    private static final int HANDLE_GET_SMILIES = 9;
-    private static final int HANDLE_GET_DRAFTS = 10;
-    private static final int HANDLE_CONN_ERROR = -1;
+    private static final int HANDLE_SET_AVATAR      = 6;
+    private static final int HANDLE_PROGRESS        = 8;
+    private static final int HANDLE_GET_SMILIES     = 9;
+    private static final int HANDLE_GET_DRAFTS      = 10;
+    private static final int HANDLE_CONN_ERROR      = -1;
 
     static Pattern EMAIL_ANSWER_REGEX = Pattern.compile("Re\\[(\\d+)\\]: (.*)");
 
