@@ -15,6 +15,7 @@
 
         <activity
             android:name="adonai.diary_browser.AuthorizationForm"
+            android:windowSoftInputMode="adjustResize"
             android:label="@string/title_activity_authorization_form" />
         
         <activity

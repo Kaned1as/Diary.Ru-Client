@@ -21,10 +21,13 @@ public class UserData {
     private UmailPage currentUmailPage;
     
     // Личные данные
-    private String ownDiaryUrl = "";
     private String ownProfileId = "";
     private String userName = "";
     private String signature = "";
+    
+    // Ссылки
+    private String ownDiaryUrl = "";
+    private String ownFavoritesPageUrl = "http://www.diary.ru/?favorite";
     
     // число новых постов в дискуссиях
     private Integer newDiscussNum = 0;
@@ -165,8 +168,17 @@ public class UserData {
         return ownDiaryUrl;
     }
 
+    public String getOwnFavoritesPageUrl() {
+        return ownFavoritesPageUrl;
+    }
+
+    /**
+     * Также устанавливает ссылку на избранное
+     * @param ownDiaryUrl ссылка на дневник владельца
+     */
     void setOwnDiaryUrl(String ownDiaryUrl) {
         this.ownDiaryUrl = ownDiaryUrl;
+        this.ownFavoritesPageUrl = ownDiaryUrl + "?favorite";
     }
 
     String getOwnProfileId() {

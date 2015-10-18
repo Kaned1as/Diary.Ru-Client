@@ -316,4 +316,10 @@
     <string name="captcha_request">Подтверждение капчи</string>
     <string name="successfully_registered">Успешная регистрация</string>
     <string name="congratulation_registered">Поздравляем! Письмо с инструкциями по окончанию регистрации выслано на ваш E-mail. Вы можете зайти на свой дневник уже сейчас.</string>
+    <string name="no_diary">У вас ещё нет дневника!</string>
+    <string name="diary_create_question">Желаете завести дневник?</string>
+    <string name="diary_title">Название дневника</string>
+    <string name="empty"/>
+    <string name="diary_created">Дневник создан!</string>
+    <string name="diary_created_congratulation">Поздравляем! Теперь вы обладатель собственного дневника. Нажмите ОК чтобы перейти.</string>
 </resources>

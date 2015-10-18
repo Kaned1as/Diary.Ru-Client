@@ -14,7 +14,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.InputType;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
@@ -49,6 +51,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,13 +89,15 @@ import adonai.diary_browser.DiaryWebView;
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
     
     // вкладки приложения
-    public static final int TAB_FAV_LIST = 0;
-    public static final int TAB_FAV_POSTS = 1;
-    public static final int TAB_MY_DIARY = 2;
-    public static final int TAB_DISCUSSIONS = 3;
-    static final int PART_LIST = 0;
-    static final int PART_WEB = 1;
-    static final int PART_DISC_LIST = 2;
+    public static final int TAB_FAV_LIST        = 0;
+    public static final int TAB_FAV_POSTS       = 1;
+    public static final int TAB_MY_DIARY        = 2;
+    public static final int TAB_DISCUSSIONS     = 3;
+    
+    static final int PART_LIST                  = 0;
+    static final int PART_WEB                   = 1;
+    static final int PART_DISC_LIST             = 2;
+    
     public BrowseHistory browserHistory;
     int mCurrentTab = 0;
     
@@ -572,6 +578,21 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 builder.setView(whosOnline);
                 builder.create().show();
                 break;
+            case Utils.HANDLE_REQUEST_DIARY:
+                Boolean result = (Boolean) message.obj;
+                if(result) {
+                    new MaterialDialog.Builder(this)
+                        .title(R.string.diary_created)
+                        .content(R.string.diary_created_congratulation)
+                        .positiveText(android.R.string.ok)
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                setCurrentTab(TAB_MY_DIARY, true);
+                            }
+                        }).show();
+                }
+                break;
         }
 
         super.handleMessage(message);
@@ -617,7 +638,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = TAB_FAV_LIST;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
-        } else if (url.equals(getUser().getOwnDiaryUrl() + "?favorite")) {
+        } else if (url.equals(getUser().getOwnFavoritesPageUrl())) {
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = TAB_FAV_POSTS;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
@@ -782,9 +803,15 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getFavoritesUrl(), false));
                 break;
             case TAB_FAV_POSTS:
-                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getOwnDiaryUrl() + "?favorite", false));
+                handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getOwnFavoritesPageUrl(), false));
                 break;
             case TAB_MY_DIARY:
+                // нет дневника, нужно завести!
+                if(getUser().getOwnDiaryUrl().isEmpty()) {
+                    showDiaryCreateRequest();
+                    break;
+                }
+                
                 if (getUser().getNewDiaryCommentsNum() != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getNewDiaryLink(), true));
                 else
@@ -800,6 +827,20 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 Utils.showDevelSorry(this);
                 break;
         }
+    }
+
+    private void showDiaryCreateRequest() {
+        new MaterialDialog.Builder(this)
+            .title(R.string.no_diary)
+            .content(R.string.diary_create_question)
+            .positiveText(android.R.string.ok)
+            .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS)
+            .input(R.string.diary_title, R.string.empty, false, new MaterialDialog.InputCallback() {
+                @Override
+                public void onInput(@NonNull MaterialDialog materialDialog, CharSequence diaryName) {
+                    handleBackground(Utils.HANDLE_REQUEST_DIARY, diaryName.toString());
+                }
+            }).show();
     }
 
     private void setCurrentVisibleComponent(int needed) {

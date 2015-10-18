@@ -1,0 +1,20 @@
+/* переделанный джаваскрипт из формы регистрации */
+
+body {
+	color: #333333;
+	font : normal normal 70% Tahoma;
+	margin: 0;/* перекрыть journal */
+	padding: 0;/* перекрыть journal */
+	background-color: #ffffff;
+}
+
+input.submit {
+    margin: 10px;
+	border: 1px solid #928477;
+	background: #ffffff url(http://static.diary.ru/images/2007/but_bg.gif) repeat bottom left;
+	color: #786f66;
+	font-weight: bold;
+	font-size: 50%;
+	padding: 1px 2px 1px 2px;
+	font-family: Tahoma;
+}
