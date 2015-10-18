@@ -1,5 +1,8 @@
 package adonai.diary_browser.entities;
 
+/**
+ * Элемент списка U-mail'ов
+ */
 public class UmailListPage extends ListPage {
     private boolean isRead;
 

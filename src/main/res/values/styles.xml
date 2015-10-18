@@ -5,6 +5,7 @@
     <attr name="text_color_main" format="color" /> <!-- заголовки списков и кнопки табов -->
     <attr name="text_color_secondary" format="color" /> <!-- Подписи списков -->
     <attr name="button_tint" format="color" /> <!-- значки цитатника и U-Mail -->
+    <attr name="quote_menu_drawable" format="reference" /> <!-- значок цитирования в Action-меню -->
 
     <style name="DiaryThemeRed" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">#800000</item>
@@ -16,6 +17,7 @@
         <item name="horizontal_divider_color">#400000</item>
         <item name="panel_background">#edd8bd</item>
         <item name="button_tint">#600000</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -36,6 +38,7 @@
         <item name="horizontal_divider_color">#000000</item>
         <item name="panel_background">#eeeeee</item>
         <item name="button_tint">#000000</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_black</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -52,6 +55,7 @@
         <item name="horizontal_divider_color">#ffffff</item>
         <item name="panel_background">#111111</item>
         <item name="button_tint">#ffffff</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -73,6 +77,7 @@
         <item name="horizontal_divider_color">#0043b0</item>
         <item name="panel_background">#a595d5</item>
         <item name="button_tint">#000a80</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -93,6 +98,7 @@
         <item name="horizontal_divider_color">#4f0c3f</item>
         <item name="panel_background">#d4beed</item>
         <item name="button_tint">#ff382f4a</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -113,6 +119,7 @@
         <item name="horizontal_divider_color">#007c11</item>
         <item name="panel_background">#e6ffb6</item>
         <item name="button_tint">#0f5c00</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -133,6 +140,7 @@
         <item name="horizontal_divider_color">#ff8f3376</item>
         <item name="panel_background">#edc6e5</item>
         <item name="button_tint">#ff633155</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/text_color_main</item>
@@ -153,6 +161,7 @@
         <item name="horizontal_divider_color">#ff33ac13</item>
         <item name="panel_background">#1e4611</item>
         <item name="button_tint">#ffffff</item>
+        <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
         <item name="md_title_color">?attr/button_tint</item>
