@@ -765,6 +765,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         return true;
     }
 
+    @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         if (parent == mDiscussionBrowser) {
             ExpandableListView elv = (ExpandableListView) parent;

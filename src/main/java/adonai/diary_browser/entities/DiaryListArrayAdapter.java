@@ -15,22 +15,9 @@ import java.util.List;
 import adonai.diary_browser.R;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
-    ArrayList<Long> checkedIds = new ArrayList<Long>();
 
     public DiaryListArrayAdapter(Context context, int textViewResourceId, List<ListPage> objects) {
         super(context, textViewResourceId, objects);
-    }
-
-    public void addSelection(Long id) {
-        checkedIds.add(id);
-    }
-
-    public void removeSelection(Long id) {
-        checkedIds.remove(id);
-    }
-
-    public void clearSelections() {
-        checkedIds.clear();
     }
 
     @Override
@@ -40,11 +27,6 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
             return ((UmailListPage) page).getId();
         else
             return position;
-    }
-
-    @Override
-    public boolean hasStableIds() {
-        return true;
     }
 
     @Override
@@ -62,11 +44,6 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
         author.setText(diary.getAuthor());
         TextView last_post = (TextView) view.findViewById(R.id.last_post);
         last_post.setText(diary.getLastPost());
-
-        if (diary instanceof UmailListPage && !((UmailListPage) diary).isRead()) {
-            title.setTypeface(null, Typeface.BOLD);
-        } else
-            title.setTypeface(null, Typeface.NORMAL);
 
         return view;
     }

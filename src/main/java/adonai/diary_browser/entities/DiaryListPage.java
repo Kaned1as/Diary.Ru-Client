@@ -4,8 +4,11 @@ import android.text.Spanned;
 
 import java.util.ArrayList;
 
-
-public class DiaryListPage extends ArrayList<ListPage> {
+/**
+ * Страница любого открываемого в дайри списка
+ * @param <T> тип списка
+ */
+public class DiaryListPage<T extends ListPage> extends ArrayList<T> {
     private static final long serialVersionUID = 1L;
     private Spanned pageLinks = null;
     private String pageURL = "";

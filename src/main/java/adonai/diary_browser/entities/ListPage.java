@@ -1,5 +1,8 @@
 package adonai.diary_browser.entities;
 
+/**
+ * Элемент списка дневников
+ */
 public class ListPage {
     private String pageTitle = "", pageUrl = "";
     private String pageAuthor = "", pageAuthorURL = "";

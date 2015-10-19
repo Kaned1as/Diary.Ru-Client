@@ -197,7 +197,7 @@
     <string name="upload_progress">Загружено:</string>
     <string name="closed_error">Эта страница закрыта её автором</string>
     <string name="delete_umails">Удалить отмеченные</string>
-    <string name="select_items">Выберите письма</string>
+    <string name="select_umails">Выберите письма</string>
     <string name="selected">Выбрано:</string>
     <string name="more">Тэг MORE</string>
     <string name="read_more">читать дальше</string>
@@ -207,7 +207,7 @@
     <string name="ad_text">
         <![CDATA[
             Помните, что Diary.Ru Клиент - это маленький некоммерческий проект с открытым исходным кодом, который 
-            преимущественно разрабатываю я один. 
+            преимущественно разрабатывают два программиста. 
             <br/>
             <br/>
             Если желаете поддержать развитие проекта, можете это сделать сейчас.
@@ -322,4 +322,6 @@
     <string name="empty"/>
     <string name="diary_created">Дневник создан!</string>
     <string name="diary_created_congratulation">Поздравляем! Теперь вы обладатель собственного дневника. Нажмите ОК чтобы перейти.</string>
+    <string name="umail_batch_delete">Пакетное удаление U-mail</string>
+    <string name="preview">Превью</string>
 </resources>
