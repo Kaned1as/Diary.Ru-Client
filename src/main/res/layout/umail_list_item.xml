@@ -26,8 +26,6 @@
         android:layout_height="wrap_content"
         android:gravity="end"
         android:src="@android:drawable/ic_menu_info_details"
-        android:scaleX="0.5"
-        android:scaleY="0.5"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:contentDescription="@string/preview"/>

@@ -5,7 +5,9 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -221,89 +223,97 @@ public class DiaryWebView extends WebView {
 
         @Override
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
-            if (url.contains("diary")) {
-                if (url.contains("?delpost&postid=")) { // удаление поста
-                    final String id = url.substring(url.lastIndexOf("=") + 1);
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
-                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mActivity.handleBackground(Utils.HANDLE_DELETE_POST, id);
-                        }
-                    }).setNegativeButton(android.R.string.no, null);
+            if (!url.contains("diary.ru") || !(mActivity instanceof DiaryListActivity)) {
+                // не обрабатываем никакие ссылки кроме дневниковых, остальные отправляем в селектор
+                // не открываем ссылки из активности U-Mail, посылаем обратно
+                final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                // createChooser создает новый Intent из предыдущего, флаги нужно присоединять уже к нему!
+                mActivity.startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
 
-                    builder.create().show();
-                    return true;
-                }
-
-                if (url.contains("newpost&quote_")) { // кнопка репоста
-                    mActivity.handleBackground(Utils.HANDLE_REPOST, url);
-                    return true;
-                }
-
-                if (url.contains("?delcomment&commentid=")) { // удаление коммента
-                    final String id = url.substring(url.lastIndexOf("=") + 1);
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
-                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mActivity.handleBackground(Utils.HANDLE_DELETE_COMMENT, id);
-                        }
-                    }).setNegativeButton(android.R.string.no, null);
-
-                    builder.create().show();
-                    return true;
-                }
-
-                if(url.contains("?tag_delete")) { // удаление тэга
-                    final String confirmed = url;
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
-                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mActivity.handleBackground(Utils.HANDLE_DELETE_TAG, confirmed);
-                        }
-                    }).setNegativeButton(android.R.string.no, null);
-
-                    builder.create().show();
-                    return true;
-                }
-
-                if (url.contains("?editpost&postid=")) { // редактирование поста
-                    mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
-                    return true;
-                }
-
-                if (url.contains("?editcomment&commentid=")) { // редактирование комментария
-                    mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
-                    return true;
-                }
-
-                if (url.contains("u-mail/?new&username=")) { // послать кому-то U-Mail
-                    try {
-                        Umail withAddress = new Umail();
-                        withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
-                        mActivity.messagePane.prepareFragment(mActivity.getUser().getSignature(), withAddress);
-                        mActivity.slider.openPane();
-                    } catch (UnsupportedEncodingException e) {
-                        Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();
-                    }
-                    return true;
-                }
-
-                // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
-                if (url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || 
-                        url.contains("up&signature=") || url.contains("down&signature=") || 
-                        url.contains("?fav_add&userid=") || url.contains("?fav_del&userid=")) {
-                    mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
-                    return true;
-                }
+                return true;
             }
-            if (mActivity instanceof DiaryListActivity)
-                ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
+
+            ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
+            
+            if (url.contains("?delpost&postid=")) { // удаление поста
+                final String id = url.substring(url.lastIndexOf("=") + 1);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
+                builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mActivity.handleBackground(Utils.HANDLE_DELETE_POST, id);
+                    }
+                }).setNegativeButton(android.R.string.no, null);
+
+                builder.create().show();
+                return true;
+            }
+
+            if (url.contains("newpost&quote_")) { // кнопка репоста
+                mActivity.handleBackground(Utils.HANDLE_REPOST, url);
+                return true;
+            }
+
+            if (url.contains("?delcomment&commentid=")) { // удаление коммента
+                final String id = url.substring(url.lastIndexOf("=") + 1);
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
+                builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mActivity.handleBackground(Utils.HANDLE_DELETE_COMMENT, id);
+                    }
+                }).setNegativeButton(android.R.string.no, null);
+
+                builder.create().show();
+                return true;
+            }
+
+            if(url.contains("?tag_delete")) { // удаление тэга
+                final String confirmed = url;
+                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(view.getContext());
+                builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mActivity.handleBackground(Utils.HANDLE_DELETE_TAG, confirmed);
+                    }
+                }).setNegativeButton(android.R.string.no, null);
+
+                builder.create().show();
+                return true;
+            }
+
+            if (url.contains("?editpost&postid=")) { // редактирование поста
+                mActivity.handleBackground(Utils.HANDLE_EDIT_POST, url);
+                return true;
+            }
+
+            if (url.contains("?editcomment&commentid=")) { // редактирование комментария
+                mActivity.handleBackground(Utils.HANDLE_EDIT_COMMENT, url);
+                return true;
+            }
+
+            if (url.contains("u-mail/?new&username=")) { // послать кому-то U-Mail
+                try {
+                    Umail withAddress = new Umail();
+                    withAddress.receiver = URLDecoder.decode(url.substring(url.lastIndexOf("username=") + "username=".length()), "windows-1251");
+                    mActivity.messagePane.prepareFragment(mActivity.getUser().getSignature(), withAddress);
+                    mActivity.slider.openPane();
+                } catch (UnsupportedEncodingException e) {
+                    Toast.makeText(getContext(), getContext().getString(R.string.codepage_missing), Toast.LENGTH_SHORT).show();
+                }
+                return true;
+            }
+
+            // а вот здесь будет обработчик того, что не смог сделать AJAX в яваскрипте дневников
+            if (url.contains("?newquote&postid=") || url.contains("?delquote&postid=") || 
+                    url.contains("up&signature=") || url.contains("down&signature=") || 
+                    url.contains("?fav_add&userid=") || url.contains("?fav_del&userid=")) {
+                mActivity.mService.handleRequest(Utils.HANDLE_JUST_DO_GET, url);
+                return true;
+            }
 
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
             return true;

@@ -14,7 +14,7 @@ import java.io.InputStreamReader;
 import java.io.StringWriter;
 
 import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.DiaryLinkList;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryProfilePage;
 import adonai.diary_browser.entities.DiscListPage;
@@ -121,7 +121,7 @@ public class Utils {
             return DiaryPage.class;
 
         if (response.contains("class=\"table r\""))
-            return DiaryListPage.class;
+            return DiaryLinkList.class;
 
         if (response.contains("name=\"membershiplist\"") || response.contains("Профиль пользователя"))
             return DiaryProfilePage.class;

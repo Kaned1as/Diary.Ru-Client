@@ -334,10 +334,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     }
 
     protected UserData getUser() {
-        if (mService == null)
-            return null;
-
-        return mService.mUser;
+        return UserData.getInstance();
     }
 
     protected void onMessagePaneRemove(boolean reload) {
