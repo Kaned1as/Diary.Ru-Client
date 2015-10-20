@@ -8,15 +8,15 @@ import java.util.ArrayList;
  * Страница любого открываемого в дайри списка
  * @param <T> тип списка
  */
-public class DiaryListPage<T extends ListPage> extends ArrayList<T> {
-    private static final long serialVersionUID = 1L;
+public class DiaryLinkList<T extends ListPage> extends ArrayList<T> {
+    
     private Spanned pageLinks = null;
     private String pageURL = "";
 
-    public DiaryListPage() {
+    public DiaryLinkList() {
     }
 
-    public DiaryListPage(String pageURL) {
+    public DiaryLinkList(String pageURL) {
         this.pageURL = pageURL;
     }
 

@@ -3,7 +3,7 @@ package adonai.diary_browser;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import adonai.diary_browser.entities.DiaryListPage;
+import adonai.diary_browser.entities.DiaryLinkList;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiscListPage;
 import adonai.diary_browser.entities.ListPage;
@@ -11,16 +11,24 @@ import adonai.diary_browser.entities.UmailListPage;
 import adonai.diary_browser.entities.UmailPage;
 import adonai.diary_browser.entities.WebPage;
 
+/**
+ * Синглетон данных пользователя в текущем сеансе.
+ * Все записи и чтения отсюда, хоть и разнесены по разным потокам, но не выполняются одновременно.
+ * 
+ * Обновляются эти данные в потоке NetworkService'a, запрашиваются - в UI-потоках различных активностей
+ */
 public class UserData {
+
+    private static UserData user = new UserData();
 
     private boolean isAuthorized;
     
     // Динамические списки постов
-    private DiaryListPage<ListPage> currentDiaries;
-    private DiaryListPage<UmailListPage> currentUmails;
-    private DiscListPage discussions;
-    private WebPage currentDiaryPage;
-    private UmailPage currentUmailPage;
+    private DiaryLinkList<ListPage> currentDiaries = new DiaryLinkList<>();
+    private DiaryLinkList<UmailListPage> currentUmails = new DiaryLinkList<>();
+    private DiscListPage discussions = new DiscListPage();
+    private WebPage currentDiaryPage = new DiaryPage();
+    private UmailPage currentUmailPage = new UmailPage();
     
     // Личные данные
     private String ownProfileId = "";
@@ -32,27 +40,32 @@ public class UserData {
     private String ownFavoritesPageUrl = "http://www.diary.ru/?favorite";
     
     // число новых постов в дискуссиях
-    private Integer newDiscussNum = 0;
+    private int newDiscussNum;
     private String newDiscussLink = "";
 
     // число новых U-Mail
-    private Integer newUmailNum = 0;
+    private int newUmailNum;
     private String newUmailLink = "";
     
     // число новых постов в дневнике
-    private Integer newDiaryCommentsNum = 0;
+    private int newDiaryCommentsNum;
     private String newDiaryLink = "";
 
-    UserData() {
-        setCurrentDiaries(new DiaryListPage<>());
-        setCurrentUmails(new DiaryListPage<UmailListPage>());
-        setCurrentDiaryPage(new DiaryPage());
-        setCurrentUmailPage(new UmailPage());
-        setDiscussions(new DiscListPage());
+
+    public static UserData getInstance() {
+        return user;
+    }
+
+    public static void clear() {
+        user = new UserData();
+    }
+
+    private UserData()
+    {
     }
 
     // обновляем контент
-    public void parseData(Element tag) {
+    public void updateData(Element tag) {
         // цифровая подпись
         Element sigNode = tag.getElementsByAttributeValue("name", "signature").first();
         if (sigNode != null)
@@ -126,19 +139,19 @@ public class UserData {
         this.isAuthorized = isAuthorised;
     }
 
-    DiaryListPage<ListPage> getCurrentDiaries() {
+    DiaryLinkList<ListPage> getCurrentDiaries() {
         return currentDiaries;
     }
 
-    void setCurrentDiaries(DiaryListPage<ListPage> currentDiaries) {
+    void setCurrentDiaries(DiaryLinkList<ListPage> currentDiaries) {
         this.currentDiaries = currentDiaries;
     }
 
-    DiaryListPage<UmailListPage> getCurrentUmails() {
+    DiaryLinkList<UmailListPage> getCurrentUmails() {
         return currentUmails;
     }
 
-    void setCurrentUmails(DiaryListPage<UmailListPage> currentUmails) {
+    void setCurrentUmails(DiaryLinkList<UmailListPage> currentUmails) {
         this.currentUmails = currentUmails;
     }
 

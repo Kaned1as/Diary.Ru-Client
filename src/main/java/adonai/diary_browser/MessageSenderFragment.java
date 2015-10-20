@@ -871,7 +871,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             // Если это новый пост
             if (mPost.postID.isEmpty()) {
                 mTitle.setText(R.string.new_post);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
+                mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getTitle());
 
                 purgeContents();
                 for (View v : postElements)
@@ -892,7 +892,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     prepareUi((Post) mPost);
             } else { // если редактирование поста
                 mTitle.setText(R.string.edit_post);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getTitle());
+                mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getTitle());
 
                 purgeContents();
                 for (View v : postElements)
@@ -904,7 +904,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             // если это новый комментарий
             if (mPost.commentID.isEmpty()) {
                 mTitle.setText(R.string.new_comment);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getSubtitle());
+                mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getSubtitle());
 
                 purgeContents();
                 for (View v : commentElements)
@@ -925,7 +925,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     prepareUi(mPost);
             } else { // редактирование комментария
                 mTitle.setText(R.string.edit_comment);
-                mCurrentPage.setText(mService.mUser.getCurrentDiaryPage().getSubtitle());
+                mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getSubtitle());
 
                 purgeContents();
                 for (View v : commentElements)
