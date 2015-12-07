@@ -113,35 +113,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     ImageButton mExitButton;
     ImageButton mQuotesButton;
     ImageButton mUmailButton;
-    ImageButton mScrollButton;
     LinearLayout mTabs;
     Handler mUiHandler;
 
     SwipeRefreshLayout swipeDiscussions;
     ArrowDrawable mActionBarToggle;
-
-    // Часть кода относится к кнопке быстрой промотки
-    private Runnable fadeAnimation = new Runnable() {
-        @Override
-        public void run() {
-            Animation animation = AnimationUtils.loadAnimation(mScrollButton.getContext(), android.R.anim.fade_out);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
-
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    mScrollButton.setVisibility(View.INVISIBLE);
-                }
-
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            mScrollButton.startAnimation(animation);
-        }
-    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -206,8 +182,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mQuotesButton.setOnClickListener(this);
         mUmailButton = (ImageButton) main.findViewById(R.id.umail_button);
         mUmailButton.setOnClickListener(this);
-        mScrollButton = (ImageButton) main.findViewById(R.id.updown_button);
-        mScrollButton.setOnClickListener(this);
 
         mDiaryBrowser = (ListView) main.findViewById(R.id.diary_browser);
         mDiaryBrowser.setOnItemLongClickListener(this);
@@ -318,16 +292,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-        super.onCreateContextMenu(menu, v, menuInfo);
-
-        if (v.getId() == R.id.page_browser) {
-            Message msg = Message.obtain(mUiHandler, Utils.HANDLE_IMAGE_CLICK);
-            mPageBrowser.requestImageRef(msg);
         }
     }
 
@@ -667,23 +631,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mTabs.getChildAt(mCurrentTab).getBackground().setAlpha(150);
     }
 
-    // Часть кода относится к кнопке быстрой промотки
-    void handleScroll(int direction) {
-        mScrollButton.setVisibility(View.VISIBLE);
-        mScrollButton.removeCallbacks(fadeAnimation);
-        mScrollButton.clearAnimation();
-        mScrollButton.postDelayed(fadeAnimation, 2000);
-        switch (direction) {
-            case Utils.VIEW_SCROLL_DOWN:
-                mScrollButton.setImageResource(R.drawable.overscroll_button_down);
-                break;
-            case Utils.VIEW_SCROLL_UP:
-                mScrollButton.setImageResource(R.drawable.overscroll_button_up);
-                break;
-        }
-
-    }
-
     public void onClick(View view) {
         if (view == mExitButton) {
             AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
@@ -714,13 +661,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         } else if (view == mUmailButton) {
             Intent postIntent = new Intent(getApplicationContext(), UmailListActivity.class);
             startActivity(postIntent);
-        } else if (view == mScrollButton) {
-            // Офигительная штука, документации по которой нет.
-            // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
-            if (mPageBrowser.scrolling == Utils.VIEW_SCROLL_DOWN)
-                mPageBrowser.flingScroll(0, 100000);
-            else
-                mPageBrowser.flingScroll(0, -100000);
         } else if (view == mUmailNum) {
             Intent postIntent = new Intent(getApplicationContext(), UmailListActivity.class);
             postIntent.putExtra("url", getUser().getNewUmailLink());

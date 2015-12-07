@@ -39,9 +39,6 @@ public class Utils {
     public static final String CLOSING_PANE_BROADCAST = "CLOSING_PANE";
     public static final String OPENING_PANE_BROADCAST = "OPENING_PANE";
 
-    static final int VIEW_SCROLL_UP = 1;
-    static final int VIEW_SCROLL_DOWN = 2;
-
     // Команды хэндлерам
     static final int HANDLE_AUTHORIZATION_ERROR                     = 1;
     static final int HANDLE_AUTHORIZE                               = 2;

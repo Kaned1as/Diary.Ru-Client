@@ -6,7 +6,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
@@ -15,38 +14,54 @@ import android.util.Pair;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 
 import adonai.diary_browser.entities.Umail;
 
 @SuppressLint("SetJavaScriptEnabled")
-public class DiaryWebView extends WebView {
-    public static final int MILLIS_TO_FAST_SCROLL = 200;
+public class DiaryWebView extends FrameLayout implements View.OnClickListener {
+
+    private static final int VIEW_SCROLL_DOWN       = 2;
+    private static final int VIEW_SCROLL_UP         = 1;
+    private static final int MIN_TRIGGER_DISTANCE   = 90;
+    private static final int MILLIS_TO_FAST_SCROLL  = 200;
 
     // текущий контекст
-    public static final int IMAGE_SAVE          = 0;
-    public static final int IMAGE_COPY_URL      = 1;
-    public static final int IMAGE_OPEN_HERE     = 2;
-    public static final int IMAGE_OPEN_EXTERNAL = 3;
+    public static final int IMAGE_SAVE              = 0;
+    public static final int IMAGE_COPY_URL          = 1;
+    public static final int IMAGE_OPEN_HERE         = 2;
+    public static final int IMAGE_OPEN_EXTERNAL     = 3;
 
-    DiaryActivity mActivity;
-    int scrolling = 0;
-    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new webGestureDetector());
+    private DiaryActivity mActivity;
+    private WebView mWebContent;
+    private ImageButton mScrollButton;
 
+    private int mScrollDirection = 0;
+    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new ClickScrollDetector());
+
+
+    /**
+     * Стандартные конструкторы
+     */
+    
     public DiaryWebView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
@@ -62,27 +77,56 @@ public class DiaryWebView extends WebView {
         init();
     }
 
-    public void init() {
-        if (getContext() instanceof DiaryActivity)
-            mActivity = (DiaryActivity) getContext();
+    /**
+     * Делегируем наверх методы WebView
+     */
+    
+    public void loadUrl(String url) {
+        mWebContent.loadUrl(url);
+    }
+
+    public void loadDataWithBaseURL(String baseUrl, String data, String mimeType, String encoding, String historyUrl) {
+        mWebContent.loadDataWithBaseURL(baseUrl, data, mimeType, encoding, historyUrl);
+    }
+
+    public WebSettings getSettings() {
+        return mWebContent.getSettings();
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        mGestureDetector.onTouchEvent(event);
-        return super.onTouchEvent(event);
+    public boolean canScrollVertically(int direction) {
+        return mWebContent.canScrollVertically(direction);
+    }
+
+    /**
+     * Далее наша логика
+     */
+
+    public void init() {
+        final View layout = LayoutInflater.from(getContext()).inflate(R.layout.diary_web_view, this, true);
+        mWebContent = (WebView) layout.findViewById(R.id.web_content);
+        mScrollButton = (ImageButton) layout.findViewById(R.id.updown_button);
+        mActivity = (DiaryActivity) getContext();
+        
+        mWebContent.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return mGestureDetector.onTouchEvent(event);
+            }
+        });
+        mScrollButton.setOnClickListener(this);
     }
 
     public void setDefaultSettings() {
-        WebSettings settings = getSettings();
+        WebSettings settings = mWebContent.getSettings();
         settings.setBuiltInZoomControls(true);
         settings.setDisplayZoomControls(false);
         settings.setJavaScriptEnabled(true);
         settings.setUserAgentString(DiaryHttpClient.FIXED_USER_AGENT);
         settings.setDefaultTextEncodingName("windows-1251");
         settings.setJavaScriptCanOpenWindowsAutomatically(false);
-        setWebViewClient(new DiaryWebClient());
-        setWebChromeClient(new WebChromeClient());
+        mWebContent.setWebViewClient(new DiaryWebClient());
+        mWebContent.setWebChromeClient(new WebChromeClient());
 
         // Lollipop blocks mixed content but we should load CSS from filesystem
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -90,20 +134,31 @@ public class DiaryWebView extends WebView {
         }
     }
 
-    private class webGestureDetector extends GestureDetector.SimpleOnGestureListener {
+    @Override
+    public void onClick(View v) {
+        if (v == mScrollButton) {
+            // Офигительная штука, документации по которой нет.
+            // Устанавливает начальную скорость скролла даже если в данный момент уже происходит скроллинг
+            if (mScrollDirection == VIEW_SCROLL_DOWN)
+                mWebContent.flingScroll(0, 100000);
+            else
+                mWebContent.flingScroll(0, -100000);
+        }
+    }
+
+    private class ClickScrollDetector extends GestureDetector.SimpleOnGestureListener {
+        
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (mActivity instanceof DiaryListActivity)
-                if (e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL) {
-                    if (distanceY > 90) {
-                        scrolling = Utils.VIEW_SCROLL_DOWN;
-                        ((DiaryListActivity) mActivity).handleScroll(Utils.VIEW_SCROLL_DOWN);
-                    } else if (distanceY < -90) {
-                        scrolling = Utils.VIEW_SCROLL_UP;
-                        ((DiaryListActivity) mActivity).handleScroll(Utils.VIEW_SCROLL_UP);
-                    }
+            if (e1 != null && e2 != null && e2.getEventTime() - e1.getEventTime() < MILLIS_TO_FAST_SCROLL) {
+                if (distanceY > MIN_TRIGGER_DISTANCE) {
+                    mScrollDirection = VIEW_SCROLL_DOWN;
+                    handleScroll();
+                } else if (distanceY < -MIN_TRIGGER_DISTANCE) {
+                    mScrollDirection = VIEW_SCROLL_UP;
+                    handleScroll();
                 }
-
+            }
 
             return false;
         }
@@ -111,9 +166,15 @@ public class DiaryWebView extends WebView {
         @Override
         public boolean onSingleTapConfirmed(MotionEvent e) {
             Message msg = Message.obtain(mActivity.mUiHandler, Utils.HANDLE_NAME_CLICK);
-            mActivity.mPageBrowser.requestFocusNodeHref(msg);
+            mWebContent.requestFocusNodeHref(msg);
 
             return super.onSingleTapConfirmed(e);
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            Message msg = Message.obtain(mActivity.mUiHandler, Utils.HANDLE_IMAGE_CLICK);
+            mWebContent.requestImageRef(msg);
         }
     }
 
@@ -319,4 +380,44 @@ public class DiaryWebView extends WebView {
             return true;
         }
     }
+
+    // Часть кода относится к кнопке быстрой промотки
+    private void handleScroll() {
+        mScrollButton.setVisibility(View.VISIBLE);
+        mScrollButton.removeCallbacks(fadeAnimation);
+        mScrollButton.clearAnimation();
+        mScrollButton.postDelayed(fadeAnimation, 2000);
+        switch (mScrollDirection) {
+            case VIEW_SCROLL_DOWN:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_down);
+                break;
+            case VIEW_SCROLL_UP:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_up);
+                break;
+        }
+
+    }
+
+    // Часть кода относится к кнопке быстрой промотки
+    private Runnable fadeAnimation = new Runnable() {
+        @Override
+        public void run() {
+            Animation animation = AnimationUtils.loadAnimation(mScrollButton.getContext(), android.R.anim.fade_out);
+            animation.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    mScrollButton.setVisibility(View.INVISIBLE);
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+            mScrollButton.startAnimation(animation);
+        }
+    };
 }
