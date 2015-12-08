@@ -181,18 +181,6 @@
 
         </android.support.v4.widget.SwipeRefreshLayout>
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/updown_button"
-            android:layout_gravity="right|center_vertical"
-            android:background="@android:color/transparent"
-            android:src="@drawable/overscroll_button_down"
-            android:visibility="invisible"
-            android:scaleType="fitXY"
-            android:contentDescription="@string/overscroll_button"
-            android:padding="5dp" />
-
     </FrameLayout>
 
 </LinearLayout>
