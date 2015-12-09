@@ -21,6 +21,7 @@ dependencies {
     //compile 'com.android.support:appcompat-v7:23.0.1'                                 // support library (material design)  // pulled by MDDialogs
     compile('com.afollestad.material-dialogs:core:0.8.4.0@aar') { transitive = true }   // material design for dialogs
     compile 'com.android.support:design:23.1.1'							                // material design controls
+    compile 'com.j256.ormlite:ormlite-android:4.48'                                     // ORM
     //compile 'org.jsoup:jsoup:1.8.3'
     compile 'org.mozilla:rhino:1.7.6'                                                   // JS for CloudFlare solving
     compile 'com.squareup.okhttp:okhttp:2.5.0'                                          // HTTP client

@@ -1085,7 +1085,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     String src = current.getElementsByTag("img").attr("src");
                     if (!src.contains("diary.ru") && !current.parent().className().equals("avatar") && !src.startsWith("/")) {
                         // все неподходящие под критерии изображения на странице будут заменены на кнопки, по клику на которые и будут открываться
-                        String jsButton = "<input type='image' src='file:///android_res/drawable/load_image.png' onclick='return handleADown(this, \"" + current.attr("href") + "\", \"" + src + "\")' />";
+                        String jsButton = "<input type='image' src='file:///android_asset/images/load_image.png' onclick='return handleADown(this, \"" + current.attr("href") + "\", \"" + src + "\")' />";
 
                         current.after(jsButton);
                         current.remove();
