@@ -28,10 +28,10 @@ public class AutocompleteItem {
     private AutocompleteType type;
     
     @DatabaseField(columnName = "TEXT", uniqueIndex = true)
-    private AutocompleteType text;
+    private String text;
     
     @DatabaseField(columnName = "TITLE")
-    private AutocompleteType title;
+    private String title;
 
 
     public Long getId() {
@@ -50,19 +50,19 @@ public class AutocompleteItem {
         this.type = type;
     }
 
-    public AutocompleteType getText() {
+    public String getText() {
         return text;
     }
 
-    public void setText(AutocompleteType text) {
+    public void setText(String text) {
         this.text = text;
     }
 
-    public AutocompleteType getTitle() {
+    public String getTitle() {
         return title;
     }
 
-    public void setTitle(AutocompleteType title) {
+    public void setTitle(String title) {
         this.title = title;
     }
 }

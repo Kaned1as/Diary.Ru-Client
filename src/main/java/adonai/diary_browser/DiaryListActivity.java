@@ -23,15 +23,11 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
 import android.util.Pair;
 import android.util.TypedValue;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
@@ -53,11 +49,14 @@ import android.widget.Toast;
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import adonai.diary_browser.database.DatabaseHandler;
+import adonai.diary_browser.database.DbProvider;
+import adonai.diary_browser.entities.AutocompleteItem;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryListArrayAdapter;
@@ -69,8 +68,6 @@ import adonai.diary_browser.entities.Post;
 import adonai.diary_browser.entities.WebPage;
 import adonai.diary_browser.misc.ArrowDrawable;
 import adonai.diary_browser.preferences.PreferencePage;
-
-import adonai.diary_browser.DiaryWebView;
 
 /**
  * Основная активность дайри-клиента. Здесь происходит всё взаимодействие с интерактивной веб-частью сайта.
@@ -407,7 +404,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 // На Андроиде > 2.3.3 нужно обновлять меню для верного отображения нужных для страниц кнопок
                 supportInvalidateOptionsMenu(); // PART_LIST
                 break;
-            case Utils.HANDLE_GET_WEB_PAGE_DATA: // the most important part!
+            case Utils.HANDLE_GET_WEB_PAGE_DATA: // самое важное
                 setCurrentVisibleComponent(PART_WEB);
                 if (message.obj == null) { // это страница
                     mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
@@ -420,8 +417,9 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     getSupportActionBar().setTitle(page.getTitle());
                     getSupportActionBar().setSubtitle(page.getSubtitle());
                     
-                    if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class)
-                        mDatabase.addAutocompleteText(DatabaseHandler.AutocompleteType.URL, getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getTitle());
+                    if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
+                        persistAutocompleteInfo();
+                    }
                 } else { // это картинка
                     String src = (String) message.obj;
                     mPageBrowser.loadUrl(src);
@@ -561,6 +559,20 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
         super.handleMessage(message);
         return true;
+    }
+
+    // К сожалению, в OrmLite отсутствует ON CONFLICT REPLACE
+    private void persistAutocompleteInfo() {
+        RuntimeExceptionDao<AutocompleteItem, Long> dao = DbProvider.getHelper().getAutocompleteDao();
+        String url = getUser().getCurrentDiaryPage().getPageURL();
+        String title = getUser().getCurrentDiaryPage().getTitle();
+
+        List<AutocompleteItem> found = dao.queryForEq("text", url);
+        AutocompleteItem ai = found.isEmpty() ? new AutocompleteItem() : found.get(0);
+        ai.setType(AutocompleteItem.AutocompleteType.URL);
+        ai.setText(url);
+        ai.setTitle(title);
+        DbProvider.getHelper().getAutocompleteDao().createOrUpdate(ai);
     }
 
     private void handleAuthorize() {
@@ -813,6 +825,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     @Override
     public boolean onSearchRequested() {
+        View main = mainPane.getView();
+        if(main == null) { // ещё не создано
+            return false;
+        }
+        
         final RelativeLayout upperDeck = (RelativeLayout) mainPane.getView().findViewById(R.id.upper_deck);
         final LinearLayout.LayoutParams lp = (LayoutParams) upperDeck.getLayoutParams();
         final int height = upperDeck.getHeight();
