@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -46,7 +48,7 @@ import adonai.diary_browser.database.DbProvider;
  * 
  * @author Адонай
  */
-public abstract class DiaryActivity extends AppCompatActivity implements Callback {
+public abstract class DiaryActivity extends AppCompatActivity implements Callback, ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int HANDLE_APP_START = -100;
     private static final String SKU_DONATE = "small";
 
@@ -331,6 +333,16 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
     protected void onMessagePaneRemove(boolean reload) {
         slider.closePane();
+    }
+
+    public void onRequestPermissionsResult(int requestCode, 
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) 
+    {
+        for (int result : grantResults) {
+            if(result == PackageManager.PERMISSION_DENIED)
+                Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

@@ -324,4 +324,5 @@
     <string name="diary_created_congratulation">Поздравляем! Теперь вы обладатель собственного дневника. Нажмите ОК чтобы перейти.</string>
     <string name="umail_batch_delete">Пакетное удаление U-mail</string>
     <string name="preview">Превью</string>
+    <string name="not_permitted">Не разрешено</string>
 </resources>
