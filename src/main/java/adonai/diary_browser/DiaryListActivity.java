@@ -219,9 +219,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     @Override
     protected void onDestroy() {
         mService.removeListener(this);
-
         super.onDestroy();
-
     }
 
     @Override

@@ -76,6 +76,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     public static final String SHARED_PROP_SCREEN_ORIENTATION = "screen.orientation";
     public static final String SHARED_PROP_WEBVIEW_FONT_SIZE = "webview.font.size";
     public static final String SHARED_PROP_DEFAULT_TAB = "default.list.tab";
+    public static final String SHARED_PROP_NEW_ON_NOTIFICATION_CLICK = "new.on.notification.click";
 
     // self state
     private static NetworkService mInstance = null;
@@ -94,6 +95,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
     boolean mPreloadThemes;
     boolean mPreloadUmails;
     boolean mUseTextInsteadOfImages;
+    boolean mOpenNewLinkOnNotificationClick;
     int mOrientation;
     
     // service data
@@ -138,6 +140,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         mPreloadThemes = mPreferences.getBoolean(SHARED_PROP_PRELOAD_THEMES, true);
         mPreloadUmails = mPreferences.getBoolean(SHARED_PROP_PRELOAD_UMAIL_QUOTING, true);
         mUseTextInsteadOfImages = mPreferences.getBoolean(SHARED_PROP_USE_TEXT_LINKS, false);
+        mOpenNewLinkOnNotificationClick = mPreferences.getBoolean(SHARED_PROP_NEW_ON_NOTIFICATION_CLICK, true);
         mOrientation = Integer.parseInt(mPreferences.getString(SHARED_PROP_SCREEN_ORIENTATION, "-1")); // default to UNSPECIFIED
 
         final HandlerThread thr = new HandlerThread("ServiceThread");
@@ -252,7 +255,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     final Intent intent = new Intent(this, DiaryListActivity.class); // при клике на уведомление открываем приложение
                     intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     String newUrl = UserData.getInstance().getMostRecentNotification();
-                    if(newUrl != null) { // we don't support U-Mails for now
+                    if(mOpenNewLinkOnNotificationClick && newUrl != null) { // we don't support U-Mails for now
                         intent.putExtra("url", newUrl);
                     }
                     
@@ -1273,6 +1276,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             case SHARED_PROP_SCREEN_ORIENTATION:
                 mOrientation = Integer.parseInt(sharedPreferences.getString("screen.orientation", "-1"));
+                break;
+            case SHARED_PROP_NEW_ON_NOTIFICATION_CLICK:
+                mOpenNewLinkOnNotificationClick = sharedPreferences.getBoolean(SHARED_PROP_NEW_ON_NOTIFICATION_CLICK, true);
                 break;
         }
     }
