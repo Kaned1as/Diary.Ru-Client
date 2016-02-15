@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Handler.Callback;
 import android.os.Message;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.widget.SlidingPaneLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +23,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,8 +33,7 @@ import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
 
-import adonai.diary_browser.database.DatabaseHandler;
-import adonai.diary_browser.entities.Post;
+import adonai.diary_browser.database.DbProvider;
 
 /**
  * Родительская активность для всех остальных.
@@ -48,7 +48,7 @@ import adonai.diary_browser.entities.Post;
  * 
  * @author Адонай
  */
-public abstract class DiaryActivity extends AppCompatActivity implements Callback {
+public abstract class DiaryActivity extends AppCompatActivity implements Callback, ActivityCompat.OnRequestPermissionsResultCallback {
     private static final int HANDLE_APP_START = -100;
     private static final String SKU_DONATE = "small";
 
@@ -73,8 +73,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected String textToWrite;
     protected Uri imageToUpload;
     
-    protected DatabaseHandler mDatabase;
-    
     SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener() {
         @Override
         public void onPanelSlide(View view, float v) {
@@ -98,10 +96,10 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Utils.setupTheme(this);
+        DbProvider.setHelper(this);
         super.onCreate(savedInstanceState);
 
         mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
-        mDatabase = new DatabaseHandler(this);
         mUiHandler = new Handler(this);
 
         String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjuleYDZj7oG7JeX8+bwJWQrf+DYgqGOSiIA6frTZJ+/C7Jt/+PMbWjd/rOelshuYy5HWqywFjvOPoK18zIRMavS1QtlxIMbA/eaVlk+QKEaqOY0EIuBUEIog9e2H7HMq9BVE7o1j8NFuG0skj2jDYfO2R0OfZS2xetqQcXtEtQLp0osS9GQK20oVfNM+LQyyG5ROcab3TmXXjiR0J43XdD8txhSLRB7gzFflMy9C1zYE7736i/R7NAHdmX6KRWmK+YsbI78Wnoy6xa63npdUTIcTUlUwV9zg6VWxQjSLsWnhkgqqJltmKGXk/d3DGYVlwZBu7XnwU0ufGvC1wBC09wIDAQAB";
@@ -321,13 +319,9 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
         }
     }
 
-    public DatabaseHandler getDatabase() {
-        return mDatabase;
-    }
-
     @Override
     protected void onDestroy() {
-        mDatabase.close();
+        DbProvider.releaseHelper();
         if (mCanBuy)
             mHelper.dispose();
         super.onDestroy();
@@ -339,6 +333,16 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
     protected void onMessagePaneRemove(boolean reload) {
         slider.closePane();
+    }
+
+    public void onRequestPermissionsResult(int requestCode, 
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) 
+    {
+        for (int result : grantResults) {
+            if(result == PackageManager.PERMISSION_DENIED)
+                Toast.makeText(this, R.string.not_permitted, Toast.LENGTH_SHORT).show();
+        }
     }
 
 }

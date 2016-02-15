@@ -3,21 +3,22 @@ package adonai.diary_browser;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
+
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 
 public class PasteSelector extends DialogFragment {
@@ -27,9 +28,9 @@ public class PasteSelector extends DialogFragment {
     private View.OnClickListener selectorHandler = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            acceptDialogClick(v, mShouldPaste.isChecked());
-
-            dismiss();
+            if(acceptDialogClick(v, mShouldPaste.isChecked())) {
+                dismiss();
+            }
         }
     };
 
@@ -60,11 +61,11 @@ public class PasteSelector extends DialogFragment {
     }
 
     @SuppressWarnings("deprecation")
-    public void acceptDialogClick(View view, boolean pasteClipboard) {
+    public boolean acceptDialogClick(View view, boolean pasteClipboard) {
         FragmentManager fm = getActivity().getSupportFragmentManager();
         MessageSenderFragment msf = (MessageSenderFragment) fm.findFragmentById(R.id.message_pane);
         if(msf == null)
-            return;
+            return true;
 
         android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getActivity().getSystemService(Context.CLIPBOARD_SERVICE);
         CharSequence paste = clipboard.getText();
@@ -97,6 +98,9 @@ public class PasteSelector extends DialogFragment {
                 msf.insertInCursorPosition("<s>", paste.toString(), "</s>");
                 break;
             case R.id.button_image:
+                if(!checkAndRequestPermissions())
+                    return false;
+                
                 if (pasteClipboard) {
                     msf.insertInCursorPosition("<img src=\"", paste.toString(), "\" />");
                 } else
@@ -110,6 +114,9 @@ public class PasteSelector extends DialogFragment {
                     }
                 break;
             case R.id.button_mp3:
+                if(!checkAndRequestPermissions())
+                    return false;
+                
                 try {
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("audio/*");
@@ -120,6 +127,9 @@ public class PasteSelector extends DialogFragment {
                 }
                 break;
             case R.id.button_gif:
+                if(!checkAndRequestPermissions())
+                    return false;
+                
                 try {
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/gif");
@@ -130,5 +140,17 @@ public class PasteSelector extends DialogFragment {
                 }
                 break;
         }
+        return true;
+    }
+    
+    private boolean checkAndRequestPermissions() {
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE);
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{WRITE_EXTERNAL_STORAGE},
+                    Utils.FROM_MESSAGE_SENDER);
+            return false;
+        }
+        return true;
     }
 }

@@ -101,6 +101,12 @@
             android:key="preload.umail.quoting"
             android:summary="@string/preload_umail_sum"
             android:title="@string/preload_umail"/>
+        
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="new.on.notification.click"
+            android:summary="@string/new_link_on_notification_sum"
+            android:title="@string/new_link_on_notification"/>
     </PreferenceScreen>
 
 </PreferenceScreen>

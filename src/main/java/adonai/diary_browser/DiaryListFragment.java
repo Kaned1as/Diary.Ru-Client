@@ -3,6 +3,7 @@ package adonai.diary_browser;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
@@ -14,15 +15,25 @@ import android.view.MenuInflater;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.j256.ormlite.android.AndroidDatabaseResults;
+import com.j256.ormlite.dao.CloseableIterator;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.sql.SQLException;
+import java.util.List;
 
-import adonai.diary_browser.database.DatabaseHandler;
+import adonai.diary_browser.database.DbProvider;
+import adonai.diary_browser.entities.AutocompleteItem;
+import adonai.diary_browser.entities.AutocompleteItem.AutocompleteType;
 import adonai.diary_browser.entities.CommentsPage;
 import adonai.diary_browser.entities.DiaryPage;
+import adonai.diary_browser.entities.ListPage;
 
 /**
  * Фрагмент основной активности дайри, отвечающий за обработку пунктов меню и кнопок {@link ActionBar}'a
@@ -45,7 +56,7 @@ public class DiaryListFragment extends DiaryFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        mUrlAdapter = new URLAutocompleteAdapter(getActivity(), getDiaryActivity().mDatabase.getAutocompleteCursor(DatabaseHandler.AutocompleteType.URL, ""));
+        mUrlAdapter = new URLAutocompleteAdapter(getActivity(), getPersistedUrlCompletions(""));
 
 
         setHasOptionsMenu(true);
@@ -157,12 +168,15 @@ public class DiaryListFragment extends DiaryFragment {
             TypedValue typedValue = new TypedValue();
             getActivity().getTheme().resolveAttribute(R.attr.panel_background, typedValue, true);
             view.setBackgroundColor(typedValue.data);
-            final TextView urlText = (TextView) view.findViewById(android.R.id.text1);
-            final TextView caption = (TextView) view.findViewById(android.R.id.text2);
+            TextView urlText = (TextView) view.findViewById(android.R.id.text1);
+            TextView caption = (TextView) view.findViewById(android.R.id.text2);
 
-            urlText.setText(cursor.getString(1));
-            if (!cursor.isNull(2))
-                caption.setText(cursor.getString(2));
+            RuntimeExceptionDao<AutocompleteItem, Long> acDao = DbProvider.getHelper().getAutocompleteDao();
+            AndroidDatabaseResults res = new AndroidDatabaseResults(cursor, acDao.getObjectCache());
+            AutocompleteItem item = acDao.mapSelectStarRow(res);
+            urlText.setText(item.getText());
+            if (item.getTitle() != null)
+                caption.setText(item.getTitle());
         }
     }
 
@@ -177,8 +191,25 @@ public class DiaryListFragment extends DiaryFragment {
         @Override
         public boolean onQueryTextChange(String newText) {
             if (newText.length() > 0)
-                mUrlAdapter.changeCursor(getDiaryActivity().mDatabase.getAutocompleteCursor(DatabaseHandler.AutocompleteType.URL, newText));
+                mUrlAdapter.changeCursor(getPersistedUrlCompletions(newText));
             return true;
+        }
+    }
+    
+    @NonNull
+    private Cursor getPersistedUrlCompletions(@NonNull String containingText) {
+        try {
+            RuntimeExceptionDao<AutocompleteItem, Long> dao = DbProvider.getHelper().getAutocompleteDao();
+            CloseableIterator<AutocompleteItem> iterator = dao.queryBuilder()
+                    .where()
+                    .eq("type", AutocompleteType.URL)
+                    .and()
+                    .like("text", '%' + containingText + '%')
+                    .iterator();
+            AndroidDatabaseResults narrowed = (AndroidDatabaseResults) iterator.getRawResults();
+            return narrowed.getRawCursor();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 

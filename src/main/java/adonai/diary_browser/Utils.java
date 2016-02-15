@@ -30,6 +30,8 @@ import adonai.diary_browser.entities.TagsPage;
  * //@TODO разгрести тут всё!
  */
 public class Utils {
+    public static final int FROM_MESSAGE_SENDER = 0;
+    
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
     public static final String KEY_KEEP_AUTH = "diary.keep.auth";
