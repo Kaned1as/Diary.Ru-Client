@@ -14,6 +14,11 @@
         <include layout="@layout/authorization_form_auth"/>
     </ScrollView>
 
-    <include layout="@layout/authorization_form_register"/>
-    
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="adonai.diary_browser.RegisterFragment"
+        android:id="@+id/register_fragment"/>
+
+
 </ViewSwitcher>
