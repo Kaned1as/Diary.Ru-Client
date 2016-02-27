@@ -29,7 +29,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
 
     //Dao fast access links
     private RuntimeExceptionDao<AutocompleteItem, Long> mAutocompleteDao;
-    private RuntimeExceptionDao<CredentialsItem, Long> mCredentialsDao;
+    private RuntimeExceptionDao<CredentialsItem, String> mCredentialsDao;
 
     public PersistManager(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -63,7 +63,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
     }
 
     @NonNull
-    public RuntimeExceptionDao<CredentialsItem, Long> getCredentialsDao() {
+    public RuntimeExceptionDao<CredentialsItem, String> getCredentialsDao() {
         if (mCredentialsDao == null) {
             mCredentialsDao = getRuntimeExceptionDao(CredentialsItem.class);
         }

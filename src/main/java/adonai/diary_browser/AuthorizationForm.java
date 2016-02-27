@@ -1,6 +1,5 @@
 package adonai.diary_browser;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,16 +10,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
+import adonai.diary_browser.database.DbProvider;
+import adonai.diary_browser.database.PersistManager;
+import adonai.diary_browser.entities.CredentialsItem;
 import adonai.diary_browser.preferences.PreferencePage;
 
 public class AuthorizationForm extends AppCompatActivity implements OnClickListener {
@@ -34,13 +40,13 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
     
     private ViewSwitcher mSwitcher;
     private SharedPreferences mPreferences;
+    private PersistManager mEntityManager;
     
     // авторизация
     private Button mLogin, mRequestRegistration;
-    private EditText mUsername, mPassword;
-    private Spinner mLoginPicker;
+    private AutoCompleteTextView mUsername;
+    private EditText mPassword;
     private CheckBox mKeepAuth;
-    private Map<String, String> mLoginPasswordPairs = new HashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -49,53 +55,113 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
         setContentView(R.layout.authorization_form_a);
         getSupportActionBar().setHomeButtonEnabled(true);
         
-        mSwitcher = (ViewSwitcher) findViewById(R.id.login_register_switcher);
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
+        mEntityManager = DbProvider.getTempHelper(this);
+
+        mSwitcher = (ViewSwitcher) findViewById(R.id.login_register_switcher);
                 
         mLogin = (Button) findViewById(R.id.login_button);
         mLogin.setOnClickListener(this);
         mRequestRegistration = (Button) findViewById(R.id.request_reg_button);
         mRequestRegistration.setOnClickListener(this);
         
-        mLoginPicker = (Spinner) findViewById(R.id.login_spinner);
-        mLoginPicker.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String login = (String) mLoginPasswordPairs.keySet().toArray()[position];
-                mUsername.setText(login);
-                mPassword.setText(mLoginPasswordPairs.get(login));
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
-
-        mUsername = (EditText) findViewById(R.id.login_text);
+        mUsername = (AutoCompleteTextView) findViewById(R.id.login_text);
+        
         mPassword = (EditText) findViewById(R.id.password_text);
         mKeepAuth = (CheckBox) findViewById(R.id.keep_auth_check);
     }
-    
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        DbProvider.releaseTempHelper();
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        mKeepAuth.setChecked(mPreferences.getBoolean(Utils.KEY_KEEP_AUTH, true));
-        if (mKeepAuth.isChecked()) {
-            mUsername.setText(mPreferences.getString(Utils.KEY_USERNAME, ""));
-            mPassword.setText(mPreferences.getString(Utils.KEY_PASSWORD, ""));
+        if(mPreferences.contains(Utils.KEY_USERPASS_CACHE)) {
+            migrateAuthToDb();
         }
+        loadAuthFromDb();
+    }
 
+    private void loadAuthFromDb() {
+        RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+        List<CredentialsItem> saved = credDao.queryForAll();
+        ArrayAdapter<CredentialsItem> credAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, saved);
+        mUsername.setAdapter(credAdapter);
+        mUsername.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                CredentialsItem creds = (CredentialsItem) parent.getItemAtPosition(position);
+                mUsername.setText(creds.getUsername());
+                mPassword.setText(creds.getPassword());
+            }
+        });
+        mUsername.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                
+            }
+        });
+        
+        List<CredentialsItem> autoloadSingle = credDao.queryForEq("autologin", true);
+        if(autoloadSingle.isEmpty()) { // ещё нет аккаунта, в который производился вход
+            return;
+        }
+        
+        CredentialsItem autoload = autoloadSingle.get(0);
+        mUsername.setText(autoload.getUsername());
+        mPassword.setText(autoload.getPassword());
+    }
+
+    private void migrateAuthToDb() {
+        // последний раз загрузим по-старому
         String[] logKeyPair = mPreferences.getString(Utils.KEY_USERPASS_CACHE, "").split(AUTHS_DELIMITER);
         if (logKeyPair.length == 1 && logKeyPair[0].isEmpty()) // not found
             return;
 
-        mLoginPicker.setVisibility(View.VISIBLE);
+        final Map<String, CredentialsItem> oldCreds = new HashMap<>();
         for (String logKey : logKeyPair) {
             String[] curr = logKey.split(AUTH_PAIR_DELIMITER);
-            mLoginPasswordPairs.put(curr[0], curr[1]);
+            CredentialsItem credItem = new CredentialsItem();
+            credItem.setUsername(curr[0]);
+            credItem.setPassword(curr[1]);
+            oldCreds.put(curr[0], credItem);
         }
-        mLoginPicker.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, mLoginPasswordPairs.keySet().toArray()));
+
+        // запомним активный по умолчанию логин (если имеется)
+        mKeepAuth.setChecked(mPreferences.getBoolean(Utils.KEY_KEEP_AUTH, true));
+        if (mKeepAuth.isChecked()) {
+            String activeLogin = mPreferences.getString(Utils.KEY_USERNAME, "");
+            mUsername.setText(activeLogin);
+            String activePassword = mPreferences.getString(Utils.KEY_PASSWORD, "");
+            mPassword.setText(activePassword);
+
+            CredentialsItem activeCredentials = new CredentialsItem();
+            activeCredentials.setUsername(activeLogin);
+            activeCredentials.setPassword(activePassword);
+            oldCreds.put(activeLogin, activeCredentials);
+        }
+        
+        // загружаем данные в БД
+        final RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+        credDao.callBatchTasks(new Callable<Void>() {
+            public Void call() throws Exception {
+                for (CredentialsItem account : oldCreds.values()) {
+                    credDao.create(account);
+                }
+                return null;
+            }
+        });
+
+        mPreferences.edit()
+                .remove(Utils.KEY_USERPASS_CACHE)
+                .remove(Utils.KEY_KEEP_AUTH)
+                .remove(Utils.KEY_USERNAME)
+                .remove(Utils.KEY_PASSWORD)
+                .apply();
     }
 
     @Override
@@ -128,7 +194,6 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
         }
     }
 
-    @SuppressLint("CommitPrefEdits") // must apply synchronously
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.login_button:
@@ -137,24 +202,27 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
                     return;
                 }
 
-                SharedPreferences.Editor editor = mPreferences.edit();
-                editor.putBoolean(Utils.KEY_KEEP_AUTH, mKeepAuth.isChecked());
-                if (mKeepAuth.isChecked())
-                    // сохраняем в списке часто используемых
-                    mLoginPasswordPairs.put(mUsername.getText().toString(), mPassword.getText().toString());
-                else
-                    // удаляем из списка часто используемых
-                    mLoginPasswordPairs.remove(mUsername.getText().toString());
+                // убираем автологин у всех аккаунтов
+                // по идее, будет всего один
+                RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+                for (CredentialsItem item : credDao.queryForEq("autologin", true)) {
+                    item.setAutologin(false);
+                    credDao.update(item);
+                }
 
-                StringBuilder logKeyPairString = new StringBuilder();
-                for (Map.Entry<String, String> pair : mLoginPasswordPairs.entrySet())
-                    logKeyPairString.append(pair.getKey()).append(AUTH_PAIR_DELIMITER).append(pair.getValue()).append(AUTHS_DELIMITER);
+                CredentialsItem entered = new CredentialsItem();
+                entered.setUsername(mUsername.getText().toString());
+                entered.setPassword(mPassword.getText().toString());
+                if (mKeepAuth.isChecked()) {
+                    // сохраняем автологин у выбранного
+                    entered.setAutologin(true);
+                }
+                credDao.createOrUpdate(entered);
 
-                editor.putString(Utils.KEY_USERPASS_CACHE, logKeyPairString.toString());
-                editor.putString(Utils.KEY_USERNAME, mUsername.getText().toString());
-                editor.putString(Utils.KEY_PASSWORD, mPassword.getText().toString());
-                editor.commit();
-
+                // сохраняем последний логин в настройки, чтобы понять позже в NetworkService, под кем заходить
+                mPreferences.edit().putString(Utils.KEY_USERNAME, entered.getUsername()).apply();
+                
+                // переходим в основную активность
                 startActivity(new Intent(this, DiaryListActivity.class));
                 finish();
                 break;

@@ -1,73 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="5dp"
+    android:gravity="top|center">
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/diary_logo"
+        android:src="@drawable/diary_logo" />
+
+    <android.support.design.widget.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:paddingTop="5dp"
-        android:gravity="top|center">
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp">
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:contentDescription="@string/diary_logo"
-            android:src="@drawable/diary_logo" />
-
-        <Spinner
-            android:id="@+id/login_spinner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp"
-            android:visibility="gone" />
-
-        <android.support.design.widget.TextInputLayout
+        <AutoCompleteTextView
+            android:id="@+id/login_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp">
+            android:completionThreshold="1"
+            android:hint="@string/username"
+            android:inputType="textNoSuggestions|textPersonName" />
 
-            <EditText
-                android:id="@+id/login_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/username"
-                android:inputType="textNoSuggestions|textPersonName" />
+    </android.support.design.widget.TextInputLayout>
 
-        </android.support.design.widget.TextInputLayout>
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:layout_marginTop="8dp">
 
-        <android.support.design.widget.TextInputLayout
+        <EditText
+            android:id="@+id/password_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="8dp">
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+    </android.support.design.widget.TextInputLayout>
 
-            <EditText
-                android:id="@+id/password_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/password"
-                android:inputType="textPassword" />
-        </android.support.design.widget.TextInputLayout>
+    <CheckBox
+        android:id="@+id/keep_auth_check"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/keep_auth" />
 
-        <CheckBox
-            android:id="@+id/keep_auth_check"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/keep_auth" />
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login" />
 
-        <Button
-            android:id="@+id/login_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/login" />
+    <Button
+        android:id="@+id/request_reg_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/request_register" />
 
-        <Button
-            android:id="@+id/request_reg_button"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/request_register" />
-
-    </LinearLayout>
+</LinearLayout>

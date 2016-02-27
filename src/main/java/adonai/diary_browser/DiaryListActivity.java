@@ -647,19 +647,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             builder.setTitle(R.string.really_exit);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 
-                @SuppressLint("CommitPrefEdits")
                 public void onClick(DialogInterface dialog, int item) {
-                    mSharedPrefs.edit()
-                        .remove(Utils.KEY_USERNAME)
-                        .remove(Utils.KEY_PASSWORD)
-                        .commit();
-
                     CookieManager cookieManager = CookieManager.getInstance();
                     cookieManager.removeSessionCookie();
                     CookieSyncManager.getInstance().sync();
                     mService.newSession();
 
-                    //TODO: просмотр без логина тоже еще не введен
                     startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                     finish();
                 }

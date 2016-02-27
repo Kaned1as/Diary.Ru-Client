@@ -27,6 +27,7 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.squareup.okhttp.Response;
 
 import org.jsoup.Jsoup;
@@ -45,8 +46,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import adonai.diary_browser.database.DbProvider;
 import adonai.diary_browser.entities.Comment;
 import adonai.diary_browser.entities.CommentsPage;
+import adonai.diary_browser.entities.CredentialsItem;
 import adonai.diary_browser.entities.DiaryLinkList;
 import adonai.diary_browser.entities.DiaryPage;
 import adonai.diary_browser.entities.DiaryProfilePage;
@@ -314,9 +317,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             }
             case Utils.HANDLE_AUTHORIZE: {
+                // вытаскиваем последний сохранённый логин
+                String requested = mPreferences.getString(Utils.KEY_USERNAME, "");
+                RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
+                CredentialsItem credentials = credDao.queryForId(requested);
+                
                 final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(Pair.create("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
-                nameValuePairs.add(Pair.create("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
+                nameValuePairs.add(Pair.create("user_login", credentials.getUsername()));
+                nameValuePairs.add(Pair.create("user_pass", credentials.getPassword()));
                 nameValuePairs.add(Pair.create("save", "on"));
 
                 String loginScreen = mNetworkClient.postPageToString(Utils.LOGIN_PAGE, nameValuePairs);

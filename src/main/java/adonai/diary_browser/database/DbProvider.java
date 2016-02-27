@@ -12,7 +12,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 public class DbProvider {
     private static PersistManager databaseHelper;
 
-    public static PersistManager getHelper(){
+    public static PersistManager getHelper() {
         return databaseHelper;
     }
 
