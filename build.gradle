@@ -22,7 +22,7 @@ dependencies {
     compile('com.github.afollestad.material-dialogs:core:0.8.5.4@aar') {         // material design for dialogs
         transitive = true
     }
-    compile 'com.android.support:design:23.1.1'							         // material design controls
+    compile 'com.android.support:design:23.2.1'							         // material design controls
     compile 'com.j256.ormlite:ormlite-android:4.48'                              // ORM
     //compile 'org.jsoup:jsoup:1.8.3'
     compile 'org.mozilla:rhino:1.7.6'                                            // JS for CloudFlare solving
