@@ -17,16 +17,16 @@ allprojects {
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')                              // custom JSoup
     //compile 'com.android.support:support-v4:23.0.1'                            // support library (Drawers) // pulled by MDDialogs
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.10'                   // animated gif drawables
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.13'                   // animated gif drawables
     //compile 'com.android.support:appcompat-v7:23.0.1'                          // support library (material design)  // pulled by MDDialogs
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.4@aar') {         // material design for dialogs
+    compile('com.github.afollestad.material-dialogs:core:0.8.5.6@aar') {         // material design for dialogs
         transitive = true
     }
-    compile 'com.android.support:design:23.1.1'							         // material design controls
+    compile 'com.android.support:design:23.2.0'							         // material design controls
     compile 'com.j256.ormlite:ormlite-android:4.48'                              // ORM
     //compile 'org.jsoup:jsoup:1.8.3'
-    compile 'org.mozilla:rhino:1.7.6'                                            // JS for CloudFlare solving
-    compile 'com.squareup.okhttp:okhttp:2.5.0'                                   // HTTP client
+    compile 'org.mozilla:rhino:1.7.7.1'                                            // JS for CloudFlare solving
+    compile 'com.squareup.okhttp:okhttp:2.7.5'                                   // HTTP client
     compile 'com.google.code.gson:gson:2.5'                                      // For Prostopleer Json (de)serializing
     compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3' // text input validation with unreadable name
 }
@@ -38,8 +38,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 250
-        versionName "2.5.0"
+        versionCode 251
+        versionName "2.5.1"
     }
 
     try {
