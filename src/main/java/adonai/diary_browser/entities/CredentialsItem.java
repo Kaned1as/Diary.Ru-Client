@@ -81,7 +81,7 @@ public class CredentialsItem {
     }
 
     /**
-     * Overridden for adapters to work properly
+     * Перегружено, чтобы работали адаптеры автоподсказок
      * @return username
      */
     @Override

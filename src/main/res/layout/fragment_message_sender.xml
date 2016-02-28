@@ -281,11 +281,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/message_themes" />
 
-            <EditText
+            <MultiAutoCompleteTextView
                 android:id="@+id/message_themes"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:completionThreshold="1"
                 android:hint="@string/message_themes"
                 android:maxLines="1"/>
 
@@ -307,11 +308,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/message_music"/>
 
-            <EditText
+            <MultiAutoCompleteTextView
                 android:id="@+id/message_music"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:completionThreshold="1"
                 android:hint="@string/message_music"
                 android:maxLines="1"/>
 
@@ -321,11 +323,12 @@
                 android:layout_height="wrap_content"
                 android:text="@string/message_mood"/>
 
-            <EditText
+            <MultiAutoCompleteTextView
                 android:id="@+id/message_mood"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:ems="10"
+                android:completionThreshold="1"
                 android:hint="@string/message_mood"
                 android:maxLines="1"/>
         </LinearLayout>

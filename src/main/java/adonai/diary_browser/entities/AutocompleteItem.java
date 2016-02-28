@@ -65,4 +65,13 @@ public class AutocompleteItem {
     public void setTitle(String title) {
         this.title = title;
     }
+
+    /**
+     * Перегружено, чтобы работали адаптеры автоподсказок
+     * @return text
+     */
+    @Override
+    public String toString() {
+        return text;
+    }
 }

@@ -25,7 +25,7 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME ="diaryDB";
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     //Dao fast access links
     private RuntimeExceptionDao<AutocompleteItem, Long> mAutocompleteDao;
@@ -49,16 +49,18 @@ public class PersistManager extends OrmLiteSqliteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, ConnectionSource connectionSource, int oldVer, int newVer) {
-        switch (oldVer) {
-            case 4:
-                try {
+        try {
+            switch (oldVer) {
+                case 4:
                     // У нас уже есть таблица автокомплита (non-ormlite)
                     TableUtils.createTable(connectionSource, CredentialsItem.class);
-                } catch (SQLException e) {
-                    Log.e(TAG, "error upgrading DB " + DATABASE_NAME);
-                    throw new RuntimeException(e);
-                }
-                break;
+                case 5:
+                    // структура изменена, пересоздаём таблицу
+                    TableUtils.dropTable(connectionSource, CredentialsItem.class, true);
+                    TableUtils.createTable(connectionSource, CredentialsItem.class);            }
+        } catch (SQLException e) {
+            Log.e(TAG, "error upgrading DB " + DATABASE_NAME);
+            throw new RuntimeException(e);
         }
     }
 
