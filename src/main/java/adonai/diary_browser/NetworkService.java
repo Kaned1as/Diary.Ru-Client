@@ -1160,6 +1160,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             if (cachedPage != null) { // если страничка была в кэше или из числа новых комментов
                 if (cachedPage instanceof DiaryLinkList) {
                     // umail-варианты сюда не попадают, их путь не идёт через checkDiaryUrl
+                    //noinspection unchecked
                     UserData.getInstance().setCurrentDiaries((DiaryLinkList<ListPage>) cachedPage);
                     notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                 }

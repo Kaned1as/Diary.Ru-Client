@@ -179,15 +179,16 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
     }
 
     private class DiaryWebClient extends WebViewClient {
+        
         @Override
-        public void onPageFinished(WebView view, String url) {
+        public void onPageFinished(final WebView view, String url) {
             if (mActivity instanceof DiaryListActivity) {
                 final Integer pos = ((DiaryListActivity) mActivity).browserHistory.getPosition();
                 if (pos > 0)
                     view.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            scrollTo(0, pos);
+                            view.scrollTo(0, pos);
                         }
                     }, 1000);
 
@@ -206,7 +207,7 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
                 return true;
             }
 
-            ((DiaryListActivity) mActivity).browserHistory.setPosition(getScrollY());
+            ((DiaryListActivity) mActivity).browserHistory.setPosition(view.getScrollY());
             
             if (url.contains("?delpost&postid=")) { // удаление поста
                 final String id = url.substring(url.lastIndexOf("=") + 1);
