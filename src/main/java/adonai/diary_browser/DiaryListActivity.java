@@ -169,6 +169,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         mPageBrowser.setOnClickListener(this);
+        mPageBrowser.setPositionTracker(browserHistory);
         registerForContextMenu(mPageBrowser);
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
@@ -405,9 +406,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // самое важное
                 setCurrentVisibleComponent(PART_WEB);
                 if (message.obj == null) { // это страница
-                    mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
+                    String url = getUser().getCurrentDiaryPage().getPageURL();
+                    mPageBrowser.loadDataWithBaseURL(url,  getUser().getCurrentDiaryPage().getContent(),  null, "utf-8", url);
 
-                    browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
+                    browserHistory.add(url);
                     handleTabChange(mHttpClient.getCurrentUrl());
 
                     // меняем заголовок приложения и подзаголовок, если есть

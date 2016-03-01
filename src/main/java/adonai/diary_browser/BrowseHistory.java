@@ -1,44 +1,67 @@
 package adonai.diary_browser;
 
-import android.util.Pair;
+import java.util.Deque;
+import java.util.LinkedList;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class BrowseHistory {
-    private List<Pair<String, Integer>> urls = new ArrayList<>();
+public class BrowseHistory implements DiaryWebView.PositionTracker {
+    
+    private Deque<SavedPageInfo> savedPages = new LinkedList<>();
     private boolean freeze;
 
     public void add(String url) {
-        if ((urls.isEmpty() || !urls.get(urls.size() - 1).first.equals(url)) && !freeze) // обновляем страницу, а не загружаем новую. Запись в историю не нужна.
-            urls.add(new Pair<>(url, 0));
+        // обновляем страницу, а не загружаем новую. Запись в историю не нужна
+        if ((savedPages.isEmpty() || !getUrl().equals(url)) && !freeze)
+            savedPages.push(new SavedPageInfo(url, 0));
 
         freeze = false;
     }
-
+    
     public void moveBack() {
         freeze = true;
 
-        urls.remove(urls.size() - 1);
+        savedPages.pop();
     }
 
     public boolean hasPrevious() {
-        return urls.size() > 1;
+        return savedPages.size() > 1;
     }
 
     public boolean isEmpty() {
-        return urls.isEmpty();
+        return savedPages.isEmpty();
     }
 
     public String getUrl() {
-        return urls.get(urls.size() - 1).first;
+        return savedPages.peek().url;
     }
 
-    public Integer getPosition() {
-        return urls.get(urls.size() - 1).second;
+    @Override
+    public void savePosition(String url, int position) {
+        for(SavedPageInfo pInfo : savedPages) {
+            if(pInfo.url.equals(url)) {
+                pInfo.position = position;
+                return;
+            }
+        }
     }
 
-    public void setPosition(Integer scroll) {
-        urls.set(urls.size() - 1, new Pair<>(urls.get(urls.size() - 1).first, scroll));
+    @Override
+    public int restorePosition(String url) {
+        for(SavedPageInfo pInfo : savedPages) {
+            if(pInfo.url.equals(url)) {
+                return pInfo.position;
+            }
+        }
+        return 0;
+    }
+
+    private class SavedPageInfo {
+        
+        private String url;
+        private Integer position;
+
+        public SavedPageInfo(String url, Integer position) {
+            this.url = url;
+            this.position = position;
+        }
     }
 }

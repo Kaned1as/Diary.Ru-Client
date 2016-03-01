@@ -50,12 +50,15 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
     public static final int IMAGE_OPEN_HERE         = 2;
     public static final int IMAGE_OPEN_EXTERNAL     = 3;
 
+    private final GestureDetector mGestureDetector = new GestureDetector(getContext(), new ClickScrollDetector());
+    
     private DiaryActivity mActivity;
     private WebView mWebContent;
     private ImageButton mScrollButton;
 
+    private PositionTracker mListener;
+    
     private int mScrollDirection = 0;
-    private GestureDetector mGestureDetector = new GestureDetector(getContext(), new ClickScrollDetector());
 
 
     /**
@@ -134,6 +137,10 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
         }
     }
 
+    public void setPositionTracker(PositionTracker listener) {
+        this.mListener = listener;
+    }
+
     @Override
     public void onClick(View v) {
         if (v == mScrollButton) {
@@ -144,6 +151,39 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
             else
                 mWebContent.flingScroll(0, -100000);
         }
+    }
+
+    // Часть кода относится к кнопке быстрой промотки
+    private void handleScroll() {
+        mScrollButton.setVisibility(View.VISIBLE);
+        mScrollButton.removeCallbacks(fadeAnimation);
+        mScrollButton.clearAnimation();
+        mScrollButton.postDelayed(fadeAnimation, 2000);
+        switch (mScrollDirection) {
+            case VIEW_SCROLL_DOWN:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_down);
+                break;
+            case VIEW_SCROLL_UP:
+                mScrollButton.setImageResource(R.drawable.overscroll_button_up);
+                break;
+        }
+
+    }
+
+    /**
+     * Трекер ответственен за хранение состояния и отслеживание страницы
+     */
+    public interface PositionTracker {
+
+        /**
+         * Сохраняет текущую позицию страницы
+         */
+        void savePosition(String url, int position);
+
+        /**
+         * Восстанавливает текущую позицию
+         */
+        int restorePosition(String url);
     }
 
     private class ClickScrollDetector extends GestureDetector.SimpleOnGestureListener {
@@ -182,17 +222,18 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
         
         @Override
         public void onPageFinished(final WebView view, String url) {
-            if (mActivity instanceof DiaryListActivity) {
-                final Integer pos = ((DiaryListActivity) mActivity).browserHistory.getPosition();
-                if (pos > 0)
-                    view.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            view.scrollTo(0, pos);
-                        }
-                    }, 1000);
+            if(mListener == null)
+                return;
+            
+            final Integer pos = mListener.restorePosition(url);
+            if (pos > 0)
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        view.scrollTo(0, pos);
+                    }
+                }, 1000);
 
-            }
         }
 
         @Override
@@ -207,7 +248,10 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
                 return true;
             }
 
-            ((DiaryListActivity) mActivity).browserHistory.setPosition(view.getScrollY());
+            if(mListener != null) {
+                // сохраним позицию перед загрузкой
+                mListener.savePosition(view.getUrl(), view.getScrollY());
+            }
             
             if (url.contains("?delpost&postid=")) { // удаление поста
                 final String id = url.substring(url.lastIndexOf("=") + 1);
@@ -292,23 +336,6 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
             mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
             return true;
         }
-    }
-
-    // Часть кода относится к кнопке быстрой промотки
-    private void handleScroll() {
-        mScrollButton.setVisibility(View.VISIBLE);
-        mScrollButton.removeCallbacks(fadeAnimation);
-        mScrollButton.clearAnimation();
-        mScrollButton.postDelayed(fadeAnimation, 2000);
-        switch (mScrollDirection) {
-            case VIEW_SCROLL_DOWN:
-                mScrollButton.setImageResource(R.drawable.overscroll_button_down);
-                break;
-            case VIEW_SCROLL_UP:
-                mScrollButton.setImageResource(R.drawable.overscroll_button_up);
-                break;
-        }
-
     }
 
     // Часть кода относится к кнопке быстрой промотки
