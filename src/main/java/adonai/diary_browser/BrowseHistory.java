@@ -9,11 +9,21 @@ public class BrowseHistory implements DiaryWebView.PositionTracker {
     private boolean freeze;
 
     public void add(String url) {
-        // обновляем страницу, а не загружаем новую. Запись в историю не нужна
-        if ((savedPages.isEmpty() || !getUrl().equals(url)) && !freeze)
-            savedPages.push(new SavedPageInfo(url, 0));
+        try {
+            // обновляем страницу, а не загружаем новую. Запись в историю не нужна
+            // позицию устанавливаем в 0, т.к. нам не нужно пролистывание при обновлении
+            if (!savedPages.isEmpty() && getUrl().equals(url)) {
+                savedPages.peek().position = 0;
+                return;
+            }
 
-        freeze = false;
+            // убеждаемся, что это не результат нажатия кнопки "назад"
+            if (!freeze) {
+                savedPages.push(new SavedPageInfo(url));
+            }
+        } finally {
+            freeze = false;
+        }
     }
     
     public void moveBack() {
@@ -57,11 +67,10 @@ public class BrowseHistory implements DiaryWebView.PositionTracker {
     private class SavedPageInfo {
         
         private String url;
-        private Integer position;
+        private Integer position = 0;
 
-        public SavedPageInfo(String url, Integer position) {
+        public SavedPageInfo(String url) {
             this.url = url;
-            this.position = position;
         }
     }
 }
