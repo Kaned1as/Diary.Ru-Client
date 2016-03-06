@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 /**
  * Элемент списка U-mail'ов

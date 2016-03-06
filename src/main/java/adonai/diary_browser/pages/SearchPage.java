@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 /**
  * Created by adonai on 27.05.14.

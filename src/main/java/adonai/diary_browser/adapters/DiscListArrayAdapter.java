@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.adapters;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,6 +9,8 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.pages.DiscListPage;
+import adonai.diary_browser.pages.DiscPage;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter {
     DiscListPage discussions;

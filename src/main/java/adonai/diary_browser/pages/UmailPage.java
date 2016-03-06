@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 public class UmailPage extends WebPage {
     private String umailID = "";

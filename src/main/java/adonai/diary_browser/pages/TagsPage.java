@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 public class TagsPage extends DiaryPage {
     public TagsPage(String diaryURL) {

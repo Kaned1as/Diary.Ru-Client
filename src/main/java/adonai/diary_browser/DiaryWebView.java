@@ -1,8 +1,6 @@
 package adonai.diary_browser;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,12 +9,8 @@ import android.os.Build;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Pair;
-import android.util.TypedValue;
-import android.view.ActionMode;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -34,7 +28,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
-import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.pages.Umail;
 
 @SuppressLint("SetJavaScriptEnabled")
 public class DiaryWebView extends FrameLayout implements View.OnClickListener {

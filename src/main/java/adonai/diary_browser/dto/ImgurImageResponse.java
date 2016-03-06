@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.dto;
 
 /**
  * Wrapper around Imgur answer for https://api.imgur.com/3/image POST

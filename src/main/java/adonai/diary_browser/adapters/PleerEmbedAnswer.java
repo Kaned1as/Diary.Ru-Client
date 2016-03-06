@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.adapters;
 
 /**
  * Wrapper around ProstoPleer answer for http://pleer.com/site_api/embed/track POST

@@ -13,13 +13,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryLinkList;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiaryProfilePage;
-import adonai.diary_browser.entities.DiscListPage;
-import adonai.diary_browser.entities.SearchPage;
-import adonai.diary_browser.entities.TagsPage;
+import adonai.diary_browser.pages.CommentsPage;
+import adonai.diary_browser.pages.DiaryLinkList;
+import adonai.diary_browser.pages.DiaryPage;
+import adonai.diary_browser.pages.DiaryProfilePage;
+import adonai.diary_browser.pages.DiscListPage;
+import adonai.diary_browser.pages.SearchPage;
+import adonai.diary_browser.pages.TagsPage;
 
 /**
  * Класс-свалка полезных функций и констант.

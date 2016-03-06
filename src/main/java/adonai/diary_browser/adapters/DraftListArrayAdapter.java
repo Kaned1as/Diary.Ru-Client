@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -10,6 +10,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.pages.Post;
 
 public class DraftListArrayAdapter extends ArrayAdapter<Post> {
 

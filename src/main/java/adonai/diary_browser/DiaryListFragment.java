@@ -15,7 +15,6 @@ import android.view.MenuInflater;
 import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,14 +25,12 @@ import com.j256.ormlite.dao.RuntimeExceptionDao;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.sql.SQLException;
-import java.util.List;
 
 import adonai.diary_browser.database.DbProvider;
 import adonai.diary_browser.entities.AutocompleteItem;
 import adonai.diary_browser.entities.AutocompleteItem.AutocompleteType;
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.ListPage;
+import adonai.diary_browser.pages.CommentsPage;
+import adonai.diary_browser.pages.DiaryPage;
 
 /**
  * Фрагмент основной активности дайри, отвечающий за обработку пунктов меню и кнопок {@link ActionBar}'a

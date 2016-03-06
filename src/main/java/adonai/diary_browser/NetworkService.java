@@ -47,22 +47,22 @@ import java.util.HashMap;
 import java.util.List;
 
 import adonai.diary_browser.database.DbProvider;
-import adonai.diary_browser.entities.Comment;
-import adonai.diary_browser.entities.CommentsPage;
+import adonai.diary_browser.pages.Comment;
+import adonai.diary_browser.pages.CommentsPage;
 import adonai.diary_browser.entities.CredentialsItem;
-import adonai.diary_browser.entities.DiaryLinkList;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiaryProfilePage;
-import adonai.diary_browser.entities.DiscListPage;
-import adonai.diary_browser.entities.DiscPage;
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.SearchPage;
-import adonai.diary_browser.entities.TagsPage;
-import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.entities.UmailListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pages.DiaryLinkList;
+import adonai.diary_browser.pages.DiaryPage;
+import adonai.diary_browser.pages.DiaryProfilePage;
+import adonai.diary_browser.pages.DiscListPage;
+import adonai.diary_browser.pages.DiscPage;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.Post;
+import adonai.diary_browser.pages.SearchPage;
+import adonai.diary_browser.pages.TagsPage;
+import adonai.diary_browser.pages.Umail;
+import adonai.diary_browser.pages.UmailListPage;
+import adonai.diary_browser.pages.UmailPage;
+import adonai.diary_browser.pages.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
 

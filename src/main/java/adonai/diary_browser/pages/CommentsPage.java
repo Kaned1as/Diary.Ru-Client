@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 public class CommentsPage extends DiaryPage {
     private String postId = "";

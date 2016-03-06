@@ -24,14 +24,11 @@ import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
-
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.entities.UmailListArrayAdapter;
-import adonai.diary_browser.entities.UmailListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.Umail;
+import adonai.diary_browser.adapters.UmailListArrayAdapter;
+import adonai.diary_browser.pages.UmailPage;
+import adonai.diary_browser.pages.WebPage;
 import adonai.diary_browser.preferences.PreferencePage;
 
 /**
