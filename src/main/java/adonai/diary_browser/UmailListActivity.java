@@ -94,7 +94,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
         swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
+                handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageUrl());
                 swipeBrowser.setRefreshing(false);
             }
         });
@@ -190,7 +190,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageURL(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageURL());
+                mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageUrl(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageUrl());
                 
                 // смена заголовка
                 WebPage page = getUser().getCurrentUmailPage();

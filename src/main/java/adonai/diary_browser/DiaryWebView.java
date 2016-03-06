@@ -327,7 +327,7 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
                 return true;
             }
 
-            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageURL())));
+            mActivity.handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, url.equals(mActivity.getUser().getCurrentDiaryPage().getPageUrl())));
             return true;
         }
     }

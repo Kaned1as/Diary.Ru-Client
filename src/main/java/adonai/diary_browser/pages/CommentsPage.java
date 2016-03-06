@@ -1,10 +1,19 @@
 package adonai.diary_browser.pages;
 
+/**
+ * Комменты имеют собственную страничку, которая всегда является дочерней 
+ */
 public class CommentsPage extends DiaryPage {
+    
     private String postId = "";
-    private String postUrl = "";
-    public CommentsPage(String diaryURL) {
-        setDiaryUrl(diaryURL);
+    
+    public CommentsPage(String url) {
+        super(url);
+    }
+
+    @Override
+    public String getDiaryUrl() {
+        return getPageUrl().substring(0, getPageUrl().lastIndexOf('/') + 1);
     }
 
     public String getPostId() {
@@ -13,19 +22,6 @@ public class CommentsPage extends DiaryPage {
 
     public void setPostId(String _ID) {
         this.postId = _ID;
-    }
-
-    public String getPostUrl() {
-        return postUrl;
-    }
-
-    public void setPostUrl(String _post_URL) {
-        this.postUrl = _post_URL;
-    }
-
-    @Override
-    public String getPageURL() {
-        return postUrl;
     }
 
     @Override

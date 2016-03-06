@@ -5,14 +5,7 @@ package adonai.diary_browser.pages;
  */
 public class SearchPage extends WebPage {
 
-    private String searchURL;
-
-    public SearchPage(String searchURL) {
-        this.searchURL = searchURL;
-    }
-
-    @Override
-    public String getPageURL() {
-        return searchURL;
+    public SearchPage(String url) {
+        super(url);
     }
 }

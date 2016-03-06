@@ -266,13 +266,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
                 sendIntent.putExtra(Intent.EXTRA_TITLE, getUser().getCurrentDiaryPage().getTitle());
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().getCurrentDiaryPage().getPageURL());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().getCurrentDiaryPage().getPageUrl());
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
             case R.id.copy_to_clipboard:
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageURL(), Toast.LENGTH_SHORT).show();
-                clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageURL()));
+                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageUrl(), Toast.LENGTH_SHORT).show();
+                clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageUrl()));
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getSubscribersUrl(), false));
@@ -405,7 +405,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // самое важное
                 setCurrentVisibleComponent(PART_WEB);
                 if (message.obj == null) { // это страница
-                    String url = getUser().getCurrentDiaryPage().getPageURL();
+                    String url = getUser().getCurrentDiaryPage().getPageUrl();
                     mPageBrowser.loadDataWithBaseURL(url,  getUser().getCurrentDiaryPage().getContent(),  null, "utf-8", url);
 
                     browserHistory.add(url);
@@ -563,7 +563,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     // К сожалению, в OrmLite отсутствует ON CONFLICT REPLACE
     private void persistAutocompleteInfo() {
         RuntimeExceptionDao<AutocompleteItem, Long> dao = DbProvider.getHelper().getAutocompleteDao();
-        String url = getUser().getCurrentDiaryPage().getPageURL();
+        String url = getUser().getCurrentDiaryPage().getPageUrl();
         String title = getUser().getCurrentDiaryPage().getTitle();
 
         List<AutocompleteItem> found = dao.queryForEq("text", url);
@@ -687,7 +687,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     // Загружаем дискуссии
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
+        String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).url;
         handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(link, false));
         return true;
     }

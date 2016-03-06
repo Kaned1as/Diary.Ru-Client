@@ -27,35 +27,37 @@ public class ImgurImageResponse {
         public String name;
         public String link;
 
-        @Override 
+        @Override
         public String toString() {
-            return "UploadedImage{" +
-                    "id='" + id + '\'' +
-                    ", title='" + title + '\'' +
-                    ", description='" + description + '\'' +
-                    ", type='" + type + '\'' +
-                    ", animated=" + animated +
-                    ", width=" + width +
-                    ", height=" + height +
-                    ", size=" + size +
-                    ", views=" + views +
-                    ", bandwidth=" + bandwidth +
-                    ", vote='" + vote + '\'' +
-                    ", favorite=" + favorite +
-                    ", account_url='" + account_url + '\'' +
-                    ", deletehash='" + deletehash + '\'' +
-                    ", name='" + name + '\'' +
-                    ", link='" + link + '\'' +
-                    '}';
+            final StringBuilder sb = new StringBuilder("UploadedImage{");
+            sb.append("id='").append(id).append('\'');
+            sb.append(", title='").append(title).append('\'');
+            sb.append(", description='").append(description).append('\'');
+            sb.append(", type='").append(type).append('\'');
+            sb.append(", animated=").append(animated);
+            sb.append(", width=").append(width);
+            sb.append(", height=").append(height);
+            sb.append(", size=").append(size);
+            sb.append(", views=").append(views);
+            sb.append(", bandwidth=").append(bandwidth);
+            sb.append(", vote='").append(vote).append('\'');
+            sb.append(", favorite=").append(favorite);
+            sb.append(", account_url='").append(account_url).append('\'');
+            sb.append(", deletehash='").append(deletehash).append('\'');
+            sb.append(", name='").append(name).append('\'');
+            sb.append(", link='").append(link).append('\'');
+            sb.append('}');
+            return sb.toString();
         }
     }
 
-    @Override 
+    @Override
     public String toString() {
-        return "ImageResponse{" +
-                "success=" + success +
-                ", status=" + status +
-                ", data=" + data.toString() +
-                '}';
+        final StringBuilder sb = new StringBuilder("ImgurImageResponse{");
+        sb.append("success=").append(success);
+        sb.append(", status=").append(status);
+        sb.append(", data=").append(data);
+        sb.append('}');
+        return sb.toString();
     }
 }

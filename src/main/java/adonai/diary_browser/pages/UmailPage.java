@@ -1,11 +1,13 @@
 package adonai.diary_browser.pages;
 
 public class UmailPage extends WebPage {
-    private String umailID = "";
-    private String umailURL = "";
     private String senderName = "";
     private String messageTheme = "";
     private String messageText = "";
+
+    public UmailPage(String url) {
+        super(url);
+    }
 
     public String getMessageTheme() {
         return messageTheme;
@@ -15,25 +17,8 @@ public class UmailPage extends WebPage {
         this.messageTheme = messageTheme;
     }
 
-    @Override
-    public String getPageURL() {
-        return umailURL;
-    }
-
-    public String getUmailID() {
-        return umailID;
-    }
-
-    public void setUmailID(String umailID) {
-        this.umailID = umailID;
-    }
-
-    public String getUmailURL() {
-        return umailURL;
-    }
-
-    public void setUmailURL(String umailURL) {
-        this.umailURL = umailURL;
+    public String getUmailId() {
+        return getPageUrl().substring(getPageUrl().lastIndexOf('=') + 1);
     }
 
     public String getSenderName() {

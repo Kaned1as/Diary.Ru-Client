@@ -6,24 +6,15 @@ import java.util.Map;
 public class DiaryPage extends WebPage {
     public Map<String, String> userLinks = new HashMap<>();
     // дневник, из которого просматривается пост. Если Избранное - то свой дневник.
-    private String diaryUrl = "";
     // идентификатор этого же дневника
     private String diaryId = "";
 
-    public DiaryPage() {
-
-    }
-
-    public DiaryPage(String diaryUrl) {
-        this.diaryUrl = diaryUrl;
+    public DiaryPage(String url) {
+        super(url);
     }
 
     public String getDiaryUrl() {
-        return diaryUrl;
-    }
-
-    public void setDiaryUrl(String diaryUrl) {
-        this.diaryUrl = diaryUrl;
+        return getPageUrl();
     }
 
     public String getDiaryId() {
@@ -34,7 +25,4 @@ public class DiaryPage extends WebPage {
         this.diaryId = diaryId;
     }
 
-    public String getPageURL() {
-        return diaryUrl;
-    }
 }

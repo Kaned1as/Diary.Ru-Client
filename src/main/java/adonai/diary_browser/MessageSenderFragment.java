@@ -183,7 +183,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // http://xxxx.diary.ru/?editpost&postid=#######&draft
-                                    String editUrl = clicked.URL.substring(0, clicked.URL.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
+                                    String editUrl = clicked.url.substring(0, clicked.url.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
                                     ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_EDIT_POST, editUrl);
                                 }
                             }).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() { // удалить
@@ -456,7 +456,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         if (dataPage == null)
                             return false;
 
-                        // собираем пары ID аватара - URL аватара
+                        // собираем пары ID аватара - url аватара
                         Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
                         avatarMap = new SparseArray<>();
                         for (Element avatarbit : avatardivs) {
@@ -527,7 +527,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             String fullContent = post.select(".postContent .postInner .paragraph").text();
                             draft.content = fullContent.substring(0, fullContent.length() > 100 ? 100 : fullContent.length());
                             draft.postID = post.id().substring(4); // после post#####
-                            draft.URL = post.select(".postLinksBackg .urlLink a").attr("href");
+                            draft.url = post.select(".postLinksBackg .urlLink a").attr("href");
                             drafts.add(draft);
                         }
 

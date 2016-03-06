@@ -1,15 +1,9 @@
 package adonai.diary_browser.pages;
 
 public class DiaryProfilePage extends WebPage {
-    private String profileURL;
 
-    public DiaryProfilePage(String profileURL) {
-        this.profileURL = profileURL;
-    }
-
-    @Override
-    public String getPageURL() {
-        return profileURL;
+    public DiaryProfilePage(String url) {
+        super(url);
     }
 
     @Override

@@ -5,8 +5,8 @@ package adonai.diary_browser.pages;
  */
 public class ListPage {
     private String pageTitle = "", pageUrl = "";
-    private String pageAuthor = "", pageAuthorURL = "";
-    private String lastUpdate = "", lastUpdateURL = "";
+    private String pageAuthor = "";
+    private String lastUpdate = "", lastUpdateUrl = "";
     private String authorDiaryID = "";
     private String pageHint = "";
 
@@ -37,14 +37,6 @@ public class ListPage {
         pageAuthor = author;
     }
 
-    public String getAuthorURL() {
-        return pageAuthorURL;
-    }
-
-    public void setAuthorURL(String author_url) {
-        pageAuthorURL = author_url;
-    }
-
     public void setLastUpdate(String last_update) {
         lastUpdate = last_update;
     }
@@ -53,12 +45,12 @@ public class ListPage {
         return lastUpdate;
     }
 
-    public void setLastUpdateURL(String last_update_url) {
-        lastUpdateURL = last_update_url;
+    public void setLastUpdateUrl(String last_update_url) {
+        lastUpdateUrl = last_update_url;
     }
 
     public String getLastPostURL() {
-        return lastUpdateURL;
+        return lastUpdateUrl;
     }
 
     public String getAuthorID() {

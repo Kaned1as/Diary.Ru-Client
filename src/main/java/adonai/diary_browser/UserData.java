@@ -27,8 +27,8 @@ public class UserData {
     private DiaryLinkList<ListPage> currentDiaries = new DiaryLinkList<>();
     private DiaryLinkList<UmailListPage> currentUmails = new DiaryLinkList<>();
     private DiscListPage discussions = new DiscListPage();
-    private WebPage currentDiaryPage = new DiaryPage();
-    private UmailPage currentUmailPage = new UmailPage();
+    private WebPage currentDiaryPage = new DiaryPage("");
+    private UmailPage currentUmailPage = new UmailPage("");
     
     // Личные данные
     private String ownProfileId = "";
