@@ -6,28 +6,29 @@ import java.util.LinkedList;
 public class BrowseHistory implements DiaryWebView.PositionTracker {
     
     private Deque<SavedPageInfo> savedPages = new LinkedList<>();
-    private boolean freeze;
+    private boolean backRequested;
 
     public void add(String url) {
         try {
+            
             // обновляем страницу, а не загружаем новую. Запись в историю не нужна
             // позицию устанавливаем в 0, т.к. нам не нужно пролистывание при обновлении
-            if (!savedPages.isEmpty() && getUrl().equals(url)) {
+            if (!isEmpty() && !backRequested && getUrl().equals(url)) {
                 savedPages.peek().position = 0;
                 return;
             }
 
             // убеждаемся, что это не результат нажатия кнопки "назад"
-            if (!freeze) {
+            if (!backRequested) {
                 savedPages.push(new SavedPageInfo(url));
             }
         } finally {
-            freeze = false;
+            backRequested = false;
         }
     }
     
     public void moveBack() {
-        freeze = true;
+        backRequested = true;
 
         savedPages.pop();
     }
