@@ -9,16 +9,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <ImageButton
+    <include layout="@layout/search_bar" />
+
+    <LinearLayout
+        android:id="@+id/page_button_panel"
+        android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/updown_button"
-        android:layout_gravity="end|center_vertical"
-        android:background="@android:color/transparent"
-        android:src="@drawable/overscroll_button_down"
-        android:visibility="invisible"
-        android:scaleType="fitXY"
-        android:contentDescription="@string/overscroll_button"
-        android:padding="5dp" />
-    
+        android:layout_gravity="center_vertical|end"
+        android:visibility="invisible">
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/page_updown_button"
+            android:background="@android:color/transparent"
+            android:src="@drawable/overscroll_button_down"
+            android:scaleType="fitXY"
+            android:contentDescription="@string/overscroll_button"
+            android:padding="5dp" />
+
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/page_search_button"
+            android:background="@android:color/transparent"
+            android:src="@drawable/search_button"
+            android:scaleType="fitXY"
+            android:contentDescription="@android:string/search_go"
+            android:padding="5dp"/>
+
+    </LinearLayout>
+
 </FrameLayout>

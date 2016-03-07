@@ -103,14 +103,13 @@ public class DiaryListFragment extends DiaryFragment {
             menu.findItem(R.id.menu_share).setVisible(false);
             menu.findItem(R.id.menu_subscr_list).setVisible(true);
             menu.findItem(R.id.menu_manual_input).setVisible(true);
-            final SearchView searchView = (SearchView) menu.findItem(R.id.menu_manual_input).getActionView();
+            
+            SearchView searchView = (SearchView) menu.findItem(R.id.menu_manual_input).getActionView();
             searchView.setQueryHint(getString(R.string.url_hint));
             searchView.setSuggestionsAdapter(mUrlAdapter);
             searchView.setOnQueryTextListener(mUrlListener);
             searchView.setOnSuggestionListener(mUrlSuggestionListener);
 
-
-            //final ImageView v = (ImageView) searchView.findViewById(Resources.getSystem().getIdentifier("search_button", "id", "android"));
             final ImageView v = (ImageView) searchView.findViewById(R.id.search_button);
             v.setImageResource(android.R.drawable.ic_menu_edit);
 

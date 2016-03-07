@@ -813,7 +813,6 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mShowPoll);
         postElements.add(mNoComments);
 
-        umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
         umailElements.add(titleText);
         umailElements.add(mGetReceipt);

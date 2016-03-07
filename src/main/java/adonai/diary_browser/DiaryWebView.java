@@ -7,10 +7,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Message;
+import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,8 +24,11 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
@@ -28,6 +36,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 
+import adonai.diary_browser.misc.SearchContainer;
 import adonai.diary_browser.pages.Umail;
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -45,10 +54,15 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
     public static final int IMAGE_OPEN_EXTERNAL     = 3;
 
     private final GestureDetector mGestureDetector = new GestureDetector(getContext(), new ClickScrollDetector());
+    private final Runnable fadeAnimation = new FadeAnimation();
     
     private DiaryActivity mActivity;
     private WebView mWebContent;
+    private SearchContainer mSearchBar;
+    
+    private LinearLayout mButtonPanel;
     private ImageButton mScrollButton;
+    private ImageButton mSearchButton;
 
     private PositionTracker mListener;
     
@@ -102,7 +116,13 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
     public void init() {
         final View layout = LayoutInflater.from(getContext()).inflate(R.layout.diary_web_view, this, true);
         mWebContent = (WebView) layout.findViewById(R.id.web_content);
-        mScrollButton = (ImageButton) layout.findViewById(R.id.updown_button);
+
+        mSearchBar = new SearchContainer((LinearLayout) layout.findViewById(R.id.search_bar_layout), mWebContent);
+        
+        mButtonPanel = (LinearLayout) layout.findViewById(R.id.page_button_panel);
+        mScrollButton = (ImageButton) mButtonPanel.findViewById(R.id.page_updown_button);
+        mSearchButton = (ImageButton) mButtonPanel.findViewById(R.id.page_search_button);
+        
         mActivity = (DiaryActivity) getContext();
         
         mWebContent.setOnTouchListener(new OnTouchListener() {
@@ -112,7 +132,9 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
             }
         });
         mScrollButton.setOnClickListener(this);
+        mSearchButton.setOnClickListener(this);
     }
+    
 
     public void setDefaultSettings() {
         WebSettings settings = mWebContent.getSettings();
@@ -145,14 +167,21 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
             else
                 mWebContent.flingScroll(0, -100000);
         }
+        
+        if(v == mSearchButton) {
+            boolean wasHidden = mSearchBar.getVisibility() == View.GONE;
+            mSearchBar.setVisibility(wasHidden ? View.VISIBLE : View.GONE);
+        }
     }
 
-    // Часть кода относится к кнопке быстрой промотки
+    // Часть кода относится к панели кнопок
     private void handleScroll() {
-        mScrollButton.setVisibility(View.VISIBLE);
-        mScrollButton.removeCallbacks(fadeAnimation);
-        mScrollButton.clearAnimation();
-        mScrollButton.postDelayed(fadeAnimation, 2000);
+        mButtonPanel.setVisibility(View.VISIBLE);
+        mButtonPanel.removeCallbacks(fadeAnimation);
+        mButtonPanel.clearAnimation();
+        mButtonPanel.postDelayed(fadeAnimation, 2000);
+        
+        // для кнопки быстрой промотки
         switch (mScrollDirection) {
             case VIEW_SCROLL_DOWN:
                 mScrollButton.setImageResource(R.drawable.overscroll_button_down);
@@ -333,10 +362,10 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
     }
 
     // Часть кода относится к кнопке быстрой промотки
-    private Runnable fadeAnimation = new Runnable() {
+    private class FadeAnimation implements Runnable {
         @Override
         public void run() {
-            Animation animation = AnimationUtils.loadAnimation(mScrollButton.getContext(), android.R.anim.fade_out);
+            Animation animation = AnimationUtils.loadAnimation(mButtonPanel.getContext(), android.R.anim.fade_out);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
                 public void onAnimationStart(Animation animation) {
@@ -344,14 +373,14 @@ public class DiaryWebView extends FrameLayout implements View.OnClickListener {
 
                 @Override
                 public void onAnimationEnd(Animation animation) {
-                    mScrollButton.setVisibility(View.INVISIBLE);
+                    mButtonPanel.setVisibility(View.INVISIBLE);
                 }
 
                 @Override
                 public void onAnimationRepeat(Animation animation) {
                 }
             });
-            mScrollButton.startAnimation(animation);
+            mButtonPanel.startAnimation(animation);
         }
-    };
+    }
 }

@@ -29,7 +29,7 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:text="@string/app_name"
-                android:textColor="?attr/text_color_main" />
+                android:textColor="?attr/textColorTitles" />
 
         </LinearLayout>
 
@@ -53,7 +53,7 @@
                 android:layout_marginLeft="10dp"
                 android:gravity="center"
                 android:text="@string/author"
-                android:textColor="?attr/text_color_main" />
+                android:textColor="?attr/textColorTitles" />
 
         </LinearLayout>
 
@@ -63,7 +63,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:text="@string/gpl_notice"
-            android:textColor="?attr/text_color_main"
+            android:textColor="?attr/textColorTitles"
             android:textSize="10sp"
             android:textStyle="italic" />
     </LinearLayout>

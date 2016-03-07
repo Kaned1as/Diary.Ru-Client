@@ -33,47 +33,43 @@
             android:gravity="center_horizontal"
             android:contentDescription="@string/persistent"/>
 
-        <TextView
-            android:id="@+id/message_to_hint"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/message_to"
-            android:visibility="gone" />
-
-        <EditText
-            android:id="@+id/message_to"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/message_to"
-            android:visibility="gone"
-            android:inputType="textNoSuggestions|textPersonName">
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp">
+            
+            <EditText
+                android:id="@+id/message_to"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/message_to"
+                android:visibility="gone"
+                android:inputType="textNoSuggestions|textPersonName">
+    
+                <requestFocus />
+                
+            </EditText>
+            
+        </android.support.design.widget.TextInputLayout>
 
-            <requestFocus />
-        </EditText>
-
-        <TextView
-            android:id="@+id/message_title_hint"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/message_title"/>
+            android:layout_marginTop="8dp">
 
-        <EditText
-            android:id="@+id/message_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/message_title"
-            android:imeOptions="actionNext"
-            android:inputType="textEmailSubject"
-            android:maxLines="1"/>
-
-        <TextView
-            android:id="@+id/message_content_hint"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/message_content"
-            android:contentDescription="@string/persistent"/>
+            <EditText
+                android:id="@+id/message_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:hint="@string/message_title"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailSubject"
+                android:maxLines="1"/>
+        
+        </android.support.design.widget.TextInputLayout>
 
         <LinearLayout
             android:alpha="0.5"
@@ -101,7 +97,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="«"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -111,7 +107,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="»"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -121,7 +117,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="©"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -131,7 +127,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="®"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -141,7 +137,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="½"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -151,7 +147,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="§"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -161,7 +157,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="—"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:textSize="20sp"
                         android:height="40dp"
                         android:width="40dp"/>
@@ -185,7 +181,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/smilies"
-                        android:textColor="?attr/text_color_main"
+                        android:textColor="?attr/textColorTitles"
                         android:id="@+id/message_show_smilies"/>
                 </LinearLayout>
 
@@ -210,15 +206,22 @@
 
         </LinearLayout>
 
-        <EditText
-            android:id="@+id/message_content"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/message_content"
-            android:imeOptions="actionSend"
-            android:inputType="text|textMultiLine|textCapSentences"
-            android:minLines="2"
-            android:contentDescription="@string/persistent"/>
+            android:layout_marginBottom="8dp"
+            android:contentDescription="@string/persistent">
+        
+            <EditText
+                android:id="@+id/message_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/message_content"
+                android:imeOptions="actionSend"
+                android:inputType="text|textMultiLine|textCapSentences"
+                android:minLines="2"/>
+        
+        </android.support.design.widget.TextInputLayout>
 
         <EditText
             android:id="@+id/message_requote_content"
@@ -275,20 +278,21 @@
             android:id="@+id/optionals_layout"
             android:visibility="gone">
 
-            <TextView
-                android:id="@+id/message_themes_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_themes" />
-
-            <MultiAutoCompleteTextView
-                android:id="@+id/message_themes"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:completionThreshold="1"
-                android:hint="@string/message_themes"
-                android:maxLines="1"/>
+                android:layout_marginTop="8dp">
+            
+                <MultiAutoCompleteTextView
+                    android:id="@+id/message_themes"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:completionThreshold="1"
+                    android:hint="@string/message_themes"
+                    android:maxLines="1"/>
+            
+            </android.support.design.widget.TextInputLayout>
 
             <HorizontalScrollView
                 android:layout_width="match_parent"
@@ -300,37 +304,42 @@
                     android:layout_width="wrap_content"
                     android:layout_height="fill_parent"
                     android:id="@+id/message_predef_themes" />
+                
             </HorizontalScrollView>
 
-            <TextView
-                android:id="@+id/message_music_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_music"/>
-
-            <MultiAutoCompleteTextView
-                android:id="@+id/message_music"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:completionThreshold="1"
-                android:hint="@string/message_music"
-                android:maxLines="1"/>
+                android:layout_marginTop="8dp">
+            
+                <MultiAutoCompleteTextView
+                    android:id="@+id/message_music"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:completionThreshold="1"
+                    android:hint="@string/message_music"
+                    android:maxLines="1"/>
+            
+            </android.support.design.widget.TextInputLayout>
 
-            <TextView
-                android:id="@+id/message_mood_hint"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/message_mood"/>
 
-            <MultiAutoCompleteTextView
-                android:id="@+id/message_mood"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
-                android:completionThreshold="1"
-                android:hint="@string/message_mood"
-                android:maxLines="1"/>
+                android:layout_marginTop="8dp">
+            
+                <MultiAutoCompleteTextView
+                    android:id="@+id/message_mood"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:completionThreshold="1"
+                    android:hint="@string/message_mood"
+                    android:maxLines="1"/>
+            
+            </android.support.design.widget.TextInputLayout>
+            
         </LinearLayout>
 
         <RadioGroup
@@ -546,6 +555,7 @@
                 android:layout_height="wrap_content"
                 android:hint="@string/message_poll_choice"
                 android:maxLines="1"/>
+            
         </LinearLayout>
 
         <CheckBox
@@ -572,9 +582,8 @@
                 android:orientation="horizontal"
                 android:id="@+id/message_avatars"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-            </LinearLayout>
+                android:layout_height="wrap_content"/>
+            
         </HorizontalScrollView>
 
         <LinearLayout
@@ -590,14 +599,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
                 android:text="⤴"
-                android:textColor="?attr/text_color_main"/>
+                android:textColor="?attr/textColorTitles"/>
 
             <Button
                 android:id="@+id/message_publish"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@string/message_publish"
-                android:textColor="?attr/text_color_main"
+                android:textColor="?attr/textColorTitles"
                 android:layout_weight="1"
                 android:contentDescription="@string/persistent"/>
 
@@ -607,10 +616,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="0.2"
                 android:text="⤵"
-                android:textColor="?attr/text_color_main"/>
-
+                android:textColor="?attr/textColorTitles"/>
 
         </LinearLayout>
 
     </LinearLayout>
+    
 </ScrollView>
