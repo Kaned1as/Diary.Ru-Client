@@ -96,7 +96,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Utils.setupTheme(this);
-        DbProvider.setHelper(this);
         super.onCreate(savedInstanceState);
 
         mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
@@ -321,7 +320,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
     @Override
     protected void onDestroy() {
-        DbProvider.releaseHelper();
         if (mCanBuy)
             mHelper.dispose();
         super.onDestroy();

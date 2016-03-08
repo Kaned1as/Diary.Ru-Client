@@ -40,7 +40,6 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
     
     private ViewSwitcher mSwitcher;
     private SharedPreferences mPreferences;
-    private PersistManager mEntityManager;
     
     // авторизация
     private Button mLogin, mRequestRegistration;
@@ -56,7 +55,6 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
         getSupportActionBar().setHomeButtonEnabled(true);
         
         mPreferences = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
-        mEntityManager = DbProvider.getTempHelper(this);
 
         mSwitcher = (ViewSwitcher) findViewById(R.id.login_register_switcher);
                 
@@ -74,7 +72,6 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        DbProvider.releaseTempHelper();
     }
 
     @Override
@@ -87,7 +84,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
     }
 
     private void loadAuthFromDb() {
-        RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+        RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
         List<CredentialsItem> saved = credDao.queryForAll();
         ArrayAdapter<CredentialsItem> credAdapter = new ArrayAdapter<>(this, android.R.layout.simple_dropdown_item_1line, saved);
         mUsername.setAdapter(credAdapter);
@@ -146,7 +143,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
         }
         
         // загружаем данные в БД
-        final RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+        final RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
         credDao.callBatchTasks(new Callable<Void>() {
             public Void call() throws Exception {
                 for (CredentialsItem account : oldCreds.values()) {
@@ -204,7 +201,7 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
 
                 // убираем автологин у всех аккаунтов
                 // по идее, будет всего один
-                RuntimeExceptionDao<CredentialsItem, String> credDao = mEntityManager.getCredentialsDao();
+                RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
                 for (CredentialsItem item : credDao.queryForEq("autologin", true)) {
                     item.setAutologin(false);
                     credDao.update(item);

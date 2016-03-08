@@ -21,11 +21,9 @@ public class LaunchActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         PreferenceManager.setDefaultValues(getApplicationContext(), Utils.mPrefsFile, MODE_PRIVATE, R.xml.preferences, true);
 
-        PersistManager tHelper = DbProvider.getTempHelper(this);
-        RuntimeExceptionDao<CredentialsItem, String> credDao = tHelper.getCredentialsDao();
+        RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
         List<CredentialsItem> autologinViable = credDao.queryForEq("autologin", true);
         startActivity(new Intent(this, autologinViable.isEmpty() ? AuthorizationForm.class : DiaryListActivity.class));
-        DbProvider.releaseTempHelper();
 
         finish();
     }
