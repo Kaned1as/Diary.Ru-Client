@@ -27,7 +27,10 @@
             android:layout_height="wrap_content"
             android:completionThreshold="1"
             android:hint="@string/username"
-            android:inputType="textNoSuggestions|textPersonName" />
+            android:inputType="textNoSuggestions|textPersonName"
+            android:imeOptions="actionNext"
+            android:nextFocusForward="@+id/password_text"
+            android:nextFocusDown="@+id/password_text"/>
 
     </android.support.design.widget.TextInputLayout>
 
@@ -42,13 +45,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/password"
-            android:inputType="textPassword" />
+            android:inputType="textPassword"/>
+        
     </android.support.design.widget.TextInputLayout>
 
     <CheckBox
         android:id="@+id/keep_auth_check"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:checked="true"
         android:text="@string/keep_auth" />
 
     <Button

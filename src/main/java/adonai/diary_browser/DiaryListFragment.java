@@ -7,6 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -217,10 +218,16 @@ public class DiaryListFragment extends DiaryFragment {
 
         @Override
         public boolean onSuggestionClick(int position) {
-            final Cursor cur = (Cursor) mUrlAdapter.getItem(position);
-            final String url = cur.getString(1);
-            getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(url, false));
-            return true;
+            try {
+                final Cursor cur = (Cursor) mUrlAdapter.getItem(position);
+                RuntimeExceptionDao<AutocompleteItem, Long> dao = DbProvider.getHelper().getAutocompleteDao();
+                AutocompleteItem ai = dao.getSelectStarRowMapper().mapRow(new AndroidDatabaseResults(cur, dao.getObjectCache()));
+                getDiaryActivity().handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(ai.getText(), false));
+                return true;
+            } catch (SQLException e) {
+                Log.e("DB", "Exception mapping row " + position, e);
+                return false;
+            }
         }
     }
 }

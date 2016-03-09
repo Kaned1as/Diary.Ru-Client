@@ -49,6 +49,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.SelectArg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -566,7 +567,8 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         String url = getUser().getCurrentDiaryPage().getPageUrl();
         String title = getUser().getCurrentDiaryPage().getTitle();
 
-        List<AutocompleteItem> found = dao.queryForEq("text", url);
+        SelectArg urlEscaped = new SelectArg(url);
+        List<AutocompleteItem> found = dao.queryForEq("text", urlEscaped);
         AutocompleteItem ai = found.isEmpty() ? new AutocompleteItem() : found.get(0);
         ai.setType(AutocompleteItem.AutocompleteType.URL);
         ai.setText(url);

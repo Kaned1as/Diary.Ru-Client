@@ -28,7 +28,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/desired_login"
-                    android:inputType="textNoSuggestions|textPersonName" />
+                    android:inputType="textNoSuggestions|textPersonName"
+                    android:nextFocusForward="@+id/register_desired_page"
+                    android:nextFocusDown="@+id/register_desired_page"/>
         
             </android.support.design.widget.TextInputLayout>
     
@@ -43,7 +45,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/desired_page"
-                    android:inputType="textNoSuggestions|textPersonName" />
+                    android:inputType="textNoSuggestions|textPersonName"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@+id/register_desired_password"
+                    android:nextFocusDown="@+id/register_desired_password"/>
         
             </android.support.design.widget.TextInputLayout>
     
@@ -58,7 +63,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/desired_password"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@+id/register_desired_password_again"
+                    android:nextFocusDown="@+id/register_desired_password_again"/>
                 
             </android.support.design.widget.TextInputLayout>
     
@@ -73,7 +81,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/desired_password_again"
-                    android:inputType="textPassword" />
+                    android:inputType="textPassword"
+                    android:imeOptions="actionNext"
+                    android:nextFocusForward="@+id/register_email"
+                    android:nextFocusDown="@+id/register_email"/>
                 
             </android.support.design.widget.TextInputLayout>
     
@@ -88,7 +99,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/email"
-                    android:inputType="textEmailAddress" />
+                    android:inputType="textEmailAddress"
+                    android:imeOptions="actionDone"/>
                 
             </android.support.design.widget.TextInputLayout>
             

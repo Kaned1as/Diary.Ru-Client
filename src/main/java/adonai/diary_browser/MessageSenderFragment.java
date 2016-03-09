@@ -59,6 +59,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.SelectArg;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MultipartBuilder;
 
@@ -1361,7 +1362,8 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     continue;
                 }
 
-                List<AutocompleteItem> found = acDao.queryForEq("text", testToken);
+                SelectArg textEscaped = new SelectArg(testToken);
+                List<AutocompleteItem> found = acDao.queryForEq("text", textEscaped);
                 AutocompleteItem item = found.isEmpty() ? new AutocompleteItem() : found.get(0);
                 item.setType(type);
                 item.setText(testToken);
