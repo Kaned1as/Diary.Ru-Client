@@ -96,12 +96,6 @@ public class AuthorizationForm extends AppCompatActivity implements OnClickListe
                 mPassword.setText(creds.getPassword());
             }
         });
-        mUsername.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                
-            }
-        });
         
         List<CredentialsItem> autoloadSingle = credDao.queryForEq("autologin", true);
         if(autoloadSingle.isEmpty()) { // ещё нет аккаунта, в который производился вход

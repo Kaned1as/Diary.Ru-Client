@@ -63,6 +63,7 @@ import adonai.diary_browser.adapters.DiaryListArrayAdapter;
 import adonai.diary_browser.pages.DiaryPage;
 import adonai.diary_browser.adapters.DiscListArrayAdapter;
 import adonai.diary_browser.pages.DiscPage;
+import adonai.diary_browser.pages.DiscussionList;
 import adonai.diary_browser.pages.ListPage;
 import adonai.diary_browser.pages.Post;
 import adonai.diary_browser.pages.WebPage;
@@ -430,10 +431,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 setCurrentVisibleComponent(PART_DISC_LIST);
-                mDiscussionsAdapter = new DiscListArrayAdapter(this, getUser().getDiscussions());
+                mDiscussionsAdapter = new DiscListArrayAdapter(this, (DiscussionList) getUser().getCurrentDiaryPage());
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
-                browserHistory.add(getUser().getDiscussions().getURL());
+                browserHistory.add(getUser().getCurrentDiaryPage().getPageUrl());
                 handleTabChange(mHttpClient.getCurrentUrl());
 
                 swipeDiscussions.setRefreshing(false);

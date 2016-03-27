@@ -52,7 +52,7 @@ public class UmailListArrayAdapter extends ArrayAdapter<UmailListPage> {
         View view;
         final UmailListPage diary = getItem(pos);
         if (convertView == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.umail_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.umail_list_item, parent, false);
         else
             view = convertView;
 

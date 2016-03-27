@@ -1,4 +1,4 @@
-package adonai.diary_browser.adapters;
+package adonai.diary_browser.dto;
 
 /**
  * Wrapper around ProstoPleer answer for pleer.com/upload POST

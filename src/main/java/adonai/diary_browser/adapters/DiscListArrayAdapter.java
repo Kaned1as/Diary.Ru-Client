@@ -8,16 +8,19 @@ import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.TextView;
 
+import java.util.List;
+
 import adonai.diary_browser.R;
-import adonai.diary_browser.pages.DiscListPage;
 import adonai.diary_browser.pages.DiscPage;
+import adonai.diary_browser.pages.DiscussionList;
 
 public class DiscListArrayAdapter extends BaseExpandableListAdapter {
-    DiscListPage discussions;
-    Context context;
+    
+    private final List<DiscPage> discussions;
+    private final Context context;
 
-    public DiscListArrayAdapter(Context ctx, DiscListPage discussions) {
-        this.discussions = discussions;
+    public DiscListArrayAdapter(Context ctx, DiscussionList discussions) {
+        this.discussions = discussions.getDiscussions();
         this.context = ctx;
     }
 
@@ -53,7 +56,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter {
         View view;
         DiscPage discussion = (DiscPage) getGroup(groupPosition);
         if (convertView == null)
-            view = LayoutInflater.from(context).inflate(R.layout.discussion_item, null);
+            view = LayoutInflater.from(context).inflate(R.layout.discussion_item, parent, false);
         else
             view = convertView;
 
@@ -73,7 +76,7 @@ public class DiscListArrayAdapter extends BaseExpandableListAdapter {
         View view;
         DiscPage.Discussion discussion = (DiscPage.Discussion) getChild(groupPosition, childPosition);
         if (convertView == null)
-            view = LayoutInflater.from(context).inflate(R.layout.discussion_expanded_group_item, null);
+            view = LayoutInflater.from(context).inflate(R.layout.discussion_expanded_group_item, parent, false);
         else
             view = convertView;
 

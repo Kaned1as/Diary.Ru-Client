@@ -23,7 +23,7 @@ public class DraftListArrayAdapter extends ArrayAdapter<Post> {
         View view;
         Post draft = getItem(pos);
         if (convertView == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.draft_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.draft_list_item, parent, false);
         else
             view = convertView;
 

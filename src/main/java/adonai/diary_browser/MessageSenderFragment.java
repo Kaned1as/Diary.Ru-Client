@@ -89,8 +89,8 @@ import adonai.diary_browser.entities.AutocompleteItem;
 import adonai.diary_browser.pages.Comment;
 import adonai.diary_browser.adapters.DraftListArrayAdapter;
 import adonai.diary_browser.dto.ImgurImageResponse;
-import adonai.diary_browser.adapters.PleerEmbedAnswer;
-import adonai.diary_browser.adapters.PleerUploadAnswer;
+import adonai.diary_browser.dto.PleerEmbedAnswer;
+import adonai.diary_browser.dto.PleerUploadAnswer;
 import adonai.diary_browser.pages.Post;
 import adonai.diary_browser.pages.Umail;
 import adonai.diary_browser.misc.FileUtils;
@@ -809,13 +809,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mSaveDraft);
         postElements.add(mLoadDraft);
         postElements.add(titleText);
+        postElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
         postElements.add(mShowOptionals);
         postElements.add(mShowCloseOptions);
         postElements.add(mShowPoll);
         postElements.add(mNoComments);
 
         umailElements.add(toText);
+        umailElements.add((View) toText.getParent()); // контейнер (TextInputLayout)
         umailElements.add(titleText);
+        umailElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
         umailElements.add(mCopyMessage);

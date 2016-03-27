@@ -17,7 +17,7 @@ import adonai.diary_browser.pages.CommentsPage;
 import adonai.diary_browser.pages.DiaryLinkList;
 import adonai.diary_browser.pages.DiaryPage;
 import adonai.diary_browser.pages.DiaryProfilePage;
-import adonai.diary_browser.pages.DiscListPage;
+import adonai.diary_browser.pages.DiscussionList;
 import adonai.diary_browser.pages.SearchPage;
 import adonai.diary_browser.pages.TagsPage;
 
@@ -126,7 +126,7 @@ public class Utils {
             return DiaryProfilePage.class;
 
         if (response.contains("id=\"all_bits\""))
-            return DiscListPage.class;
+            return DiscussionList.class;
 
         if (response.contains("Поиск по дневникам") && response.contains("Что искать:"))
             return SearchPage.class;

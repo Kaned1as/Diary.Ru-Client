@@ -53,7 +53,7 @@ import adonai.diary_browser.entities.CredentialsItem;
 import adonai.diary_browser.pages.DiaryLinkList;
 import adonai.diary_browser.pages.DiaryPage;
 import adonai.diary_browser.pages.DiaryProfilePage;
-import adonai.diary_browser.pages.DiscListPage;
+import adonai.diary_browser.pages.DiscussionList;
 import adonai.diary_browser.pages.DiscPage;
 import adonai.diary_browser.pages.ListPage;
 import adonai.diary_browser.pages.Post;
@@ -946,9 +946,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().updateData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        UserData.getInstance().getDiscussions().clear();
-        UserData.getInstance().getDiscussions().setURL(mNetworkClient.getCurrentUrl());
-
+        DiscussionList dList = new DiscussionList(mNetworkClient.getCurrentUrl());
+        List<DiscPage> pages = new ArrayList<>();
+        
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
         for (Element item : dIndex.getElementsByTag("h3")) {
@@ -962,8 +962,12 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             String title = item.text();
             currentList.setTitle(title);
 
-            UserData.getInstance().getDiscussions().add(currentList);
+            pages.add(currentList);
         }
+
+        dList.setTitle(rootNode.title());
+        dList.setDiscussions(pages);
+        UserData.getInstance().setCurrentDiaryPage(dList);
     }
 
     /**
@@ -1215,8 +1219,8 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                 }
 
-                if (cachedPage instanceof DiscListPage) {
-                    UserData.getInstance().setDiscussions((DiscListPage) cachedPage);
+                if (cachedPage instanceof DiscussionList) {
+                    UserData.getInstance().setCurrentDiaryPage((WebPage) cachedPage);
                     notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                 }
 
@@ -1249,9 +1253,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 serializeDiaryListPage(dataPage);
                 mCache.putPageToCache(toLoad, UserData.getInstance().getCurrentDiaries());
                 notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
-            } else if (handled == DiscListPage.class) {
+            } else if (handled == DiscussionList.class) {
                 serializeDiscussionsPage(dataPage);
-                mCache.putPageToCache(toLoad, UserData.getInstance().getDiscussions());
+                mCache.putPageToCache(toLoad, UserData.getInstance().getCurrentDiaryPage());
                 notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
             } else if (handled == SearchPage.class) {
                 serializeSearchPage(dataPage);

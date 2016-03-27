@@ -33,7 +33,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
         View view;
         ListPage diary = getItem(pos);
         if (convertView == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, parent, false);
         else
             view = convertView;
 

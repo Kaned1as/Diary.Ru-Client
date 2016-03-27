@@ -28,7 +28,7 @@
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
@@ -91,7 +91,7 @@
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeDarkLilac" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -113,7 +113,7 @@
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -157,7 +157,7 @@
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreenyBrown" parent="Theme.AppCompat.Light.DarkActionBar">
