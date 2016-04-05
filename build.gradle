@@ -2,7 +2,7 @@ buildscript {
     repositories {
         jcenter()
     }
-    
+
     dependencies {
         classpath 'com.android.tools.build:gradle:1.5.0'
     }
@@ -42,8 +42,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 256
-        versionName "2.5.6"
+        versionCode 257
+        versionName "2.5.7"
     }
 
     try {

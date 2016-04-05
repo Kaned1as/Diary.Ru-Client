@@ -26,6 +26,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -33,6 +34,8 @@ import android.webkit.MimeTypeMap;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.lang.reflect.Array;
+import java.lang.reflect.Method;
 import java.text.DecimalFormat;
 import java.util.Comparator;
 
@@ -269,21 +272,55 @@ public class FileUtils {
 
                 if ("primary".equalsIgnoreCase(type)) {
                     return Environment.getExternalStorageDirectory() + "/" + split[1];
-                }
+                }else {
+                    // hacky!
+                    // Below logic is how External Storage provider build URI for documents
+                    // Based on http://stackoverflow.com/questions/28605278/android-5-sd-card-label and https://gist.github.com/prasad321/9852037
+                    StorageManager mStorageManager = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
+                    try {
+                        Class<?> storageVolumeClazz = Class.forName("android.os.storage.StorageVolume");
+                        Method getVolumeList = mStorageManager.getClass().getMethod("getVolumeList");
+                        Method getUuid = storageVolumeClazz.getMethod("getUuid");
+                        Method getState = storageVolumeClazz.getMethod("getState");
+                        Method getPath = storageVolumeClazz.getMethod("getPath");
+                        Method isPrimary = storageVolumeClazz.getMethod("isPrimary");
+                        Method isEmulated = storageVolumeClazz.getMethod("isEmulated");
 
-                // TODO handle non-primary volumes
-            }
-            // DownloadsProvider
-            else if (isDownloadsDocument(uri)) {
+                        Object result = getVolumeList.invoke(mStorageManager);
+                        final int length = Array.getLength(result);
+                        for (int i = 0; i < length; i++) {
+                            Object storageVolumeElement = Array.get(result, i);
+
+                            boolean mounted = Environment.MEDIA_MOUNTED.equals(getState.invoke(storageVolumeElement))
+                                || Environment.MEDIA_MOUNTED_READ_ONLY.equals(getState.invoke(storageVolumeElement));
+
+                            //if the media is not mounted, we need not get the volume details
+                            if (!mounted)
+                                continue;
+
+                            //Primary storage is already handled.
+                            if ((Boolean)isPrimary.invoke(storageVolumeElement) && (Boolean)isEmulated.invoke(storageVolumeElement))
+                                continue;
+
+                            String uuid = (String) getUuid.invoke(storageVolumeElement);
+                            if (uuid != null && uuid.equals(type)) {
+                                return getPath.invoke(storageVolumeElement) + "/" +split[1];
+                            }
+                        }
+                    }
+                    catch (Exception ex) {
+                        Log.e(TAG, "Couldn't retrieve file from external storage", ex);
+                        return null;
+                    }
+                }
+            } else if (isDownloadsDocument(uri)) { // DownloadsProvider
 
                 final String id = DocumentsContract.getDocumentId(uri);
                 final Uri contentUri = ContentUris.withAppendedId(
                         Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
                 return getDataColumn(context, contentUri, null, null);
-            }
-            // MediaProvider
-            else if (isMediaDocument(uri)) {
+            } else if (isMediaDocument(uri)) { // MediaProvider
                 final String docId = DocumentsContract.getDocumentId(uri);
                 final String[] split = docId.split(":");
                 final String type = split[0];
