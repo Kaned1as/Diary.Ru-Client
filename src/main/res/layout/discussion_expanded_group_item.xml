@@ -17,7 +17,7 @@
         android:text="@string/title"
         android:textSize="12sp"
         android:gravity="center_vertical"
-        android:textColor="?attr/text_color_secondary"/>
+        android:textColor="?attr/textColorSubtitles"/>
 
     <TextView
         android:id="@+id/discussion_post_date"
@@ -26,6 +26,6 @@
         android:gravity="center_vertical"
         android:text="@string/last_post"
         android:textSize="10sp"
-        android:textColor="?attr/text_color_secondary"/>
+        android:textColor="?attr/textColorSubtitles"/>
 
 </LinearLayout>

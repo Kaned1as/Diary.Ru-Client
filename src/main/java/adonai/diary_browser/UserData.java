@@ -3,13 +3,12 @@ package adonai.diary_browser;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import adonai.diary_browser.entities.DiaryLinkList;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiscListPage;
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.UmailListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pages.DiaryLinkList;
+import adonai.diary_browser.pages.DiaryPage;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.UmailListPage;
+import adonai.diary_browser.pages.UmailPage;
+import adonai.diary_browser.pages.WebPage;
 
 /**
  * Синглетон данных пользователя в текущем сеансе.
@@ -26,9 +25,8 @@ public class UserData {
     // Динамические списки постов
     private DiaryLinkList<ListPage> currentDiaries = new DiaryLinkList<>();
     private DiaryLinkList<UmailListPage> currentUmails = new DiaryLinkList<>();
-    private DiscListPage discussions = new DiscListPage();
-    private WebPage currentDiaryPage = new DiaryPage();
-    private UmailPage currentUmailPage = new UmailPage();
+    private WebPage currentDiaryPage = new DiaryPage("");
+    private UmailPage currentUmailPage = new UmailPage("");
     
     // Личные данные
     private String ownProfileId = "";
@@ -153,14 +151,6 @@ public class UserData {
 
     void setCurrentUmails(DiaryLinkList<UmailListPage> currentUmails) {
         this.currentUmails = currentUmails;
-    }
-
-    DiscListPage getDiscussions() {
-        return discussions;
-    }
-
-    void setDiscussions(DiscListPage discussions) {
-        this.discussions = discussions;
     }
 
     WebPage getCurrentDiaryPage() {

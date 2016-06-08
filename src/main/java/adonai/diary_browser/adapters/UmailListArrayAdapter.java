@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.pages.UmailListPage;
 
 public class UmailListArrayAdapter extends ArrayAdapter<UmailListPage> {
     ArrayList<Long> checkedIds = new ArrayList<>();
@@ -51,7 +52,7 @@ public class UmailListArrayAdapter extends ArrayAdapter<UmailListPage> {
         View view;
         final UmailListPage diary = getItem(pos);
         if (convertView == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.umail_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.umail_list_item, parent, false);
         else
             view = convertView;
 

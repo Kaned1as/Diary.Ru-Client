@@ -327,4 +327,7 @@
     <string name="not_permitted">Не разрешено</string>
     <string name="new_link_on_notification">Открывать непрочитанное по клику на уведомление</string>
     <string name="new_link_on_notification_sum">Если выключено, клик на уведомление будет только открывать приложение</string>
+    <string name="close_search">Закрыть поиск</string>
+    <string name="find_next">Найти следующее</string>
+    <string name="find_previous">Найти предыдущее</string>
 </resources>

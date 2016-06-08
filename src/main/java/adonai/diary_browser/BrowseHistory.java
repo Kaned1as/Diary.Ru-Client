@@ -1,44 +1,77 @@
 package adonai.diary_browser;
 
-import android.util.Pair;
+import java.util.Deque;
+import java.util.LinkedList;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class BrowseHistory {
-    private List<Pair<String, Integer>> urls = new ArrayList<>();
-    private boolean freeze;
+public class BrowseHistory implements DiaryWebView.PositionTracker {
+    
+    private Deque<SavedPageInfo> savedPages = new LinkedList<>();
+    private boolean backRequested;
 
     public void add(String url) {
-        if ((urls.isEmpty() || !urls.get(urls.size() - 1).first.equals(url)) && !freeze) // обновляем страницу, а не загружаем новую. Запись в историю не нужна.
-            urls.add(new Pair<>(url, 0));
+        try {
+            
+            // обновляем страницу, а не загружаем новую. Запись в историю не нужна
+            // позицию устанавливаем в 0, т.к. нам не нужно пролистывание при обновлении
+            if (!isEmpty() && !backRequested && getUrl().equals(url)) {
+                savedPages.peek().position = 0;
+                return;
+            }
 
-        freeze = false;
+            // убеждаемся, что это не результат нажатия кнопки "назад"
+            if (!backRequested) {
+                savedPages.push(new SavedPageInfo(url));
+            }
+        } finally {
+            backRequested = false;
+        }
     }
-
+    
     public void moveBack() {
-        freeze = true;
+        backRequested = true;
 
-        urls.remove(urls.size() - 1);
+        savedPages.pop();
     }
 
     public boolean hasPrevious() {
-        return urls.size() > 1;
+        return savedPages.size() > 1;
     }
 
     public boolean isEmpty() {
-        return urls.isEmpty();
+        return savedPages.isEmpty();
     }
 
     public String getUrl() {
-        return urls.get(urls.size() - 1).first;
+        return savedPages.peek().url;
     }
 
-    public Integer getPosition() {
-        return urls.get(urls.size() - 1).second;
+    @Override
+    public void savePosition(String url, int position) {
+        for(SavedPageInfo pInfo : savedPages) {
+            if(pInfo.url.equals(url)) {
+                pInfo.position = position;
+                return;
+            }
+        }
     }
 
-    public void setPosition(Integer scroll) {
-        urls.set(urls.size() - 1, new Pair<>(urls.get(urls.size() - 1).first, scroll));
+    @Override
+    public int restorePosition(String url) {
+        for(SavedPageInfo pInfo : savedPages) {
+            if(pInfo.url.equals(url)) {
+                return pInfo.position;
+            }
+        }
+        return 0;
+    }
+
+    private class SavedPageInfo {
+        
+        private String url;
+        private Integer position = 0;
+
+        public SavedPageInfo(String url) {
+            this.url = url;
+        }
     }
 }

@@ -3,7 +3,6 @@ package adonai.diary_browser;
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
@@ -50,6 +49,7 @@ import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.SelectArg;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,15 +57,16 @@ import java.util.List;
 
 import adonai.diary_browser.database.DbProvider;
 import adonai.diary_browser.entities.AutocompleteItem;
-import adonai.diary_browser.entities.Comment;
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryListArrayAdapter;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiscListArrayAdapter;
-import adonai.diary_browser.entities.DiscPage;
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pages.Comment;
+import adonai.diary_browser.pages.CommentsPage;
+import adonai.diary_browser.adapters.DiaryListArrayAdapter;
+import adonai.diary_browser.pages.DiaryPage;
+import adonai.diary_browser.adapters.DiscListArrayAdapter;
+import adonai.diary_browser.pages.DiscPage;
+import adonai.diary_browser.pages.DiscussionList;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.Post;
+import adonai.diary_browser.pages.WebPage;
 import adonai.diary_browser.misc.ArrowDrawable;
 import adonai.diary_browser.preferences.PreferencePage;
 
@@ -169,6 +170,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         mPageBrowser = (DiaryWebView) main.findViewById(R.id.page_browser);
         mPageBrowser.setDefaultSettings();
         mPageBrowser.setOnClickListener(this);
+        mPageBrowser.setPositionTracker(browserHistory);
         registerForContextMenu(mPageBrowser);
 
         mLogin = (TextView) main.findViewById(R.id.login_name);
@@ -266,13 +268,13 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 Intent sendIntent = new Intent(Intent.ACTION_SEND);
                 sendIntent.setType("text/plain");
                 sendIntent.putExtra(Intent.EXTRA_TITLE, getUser().getCurrentDiaryPage().getTitle());
-                sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().getCurrentDiaryPage().getPageURL());
+                sendIntent.putExtra(Intent.EXTRA_TEXT, getUser().getCurrentDiaryPage().getPageUrl());
                 startActivity(Intent.createChooser(sendIntent, getString(R.string.menu_share)));
                 return true;
             case R.id.copy_to_clipboard:
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageURL(), Toast.LENGTH_SHORT).show();
-                clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageURL()));
+                Toast.makeText(getApplicationContext(), getString(R.string.copied) + " " + getUser().getCurrentDiaryPage().getPageUrl(), Toast.LENGTH_SHORT).show();
+                clipboard.setPrimaryClip(ClipData.newPlainText(getUser().getCurrentDiaryPage().getTitle(), getUser().getCurrentDiaryPage().getPageUrl()));
                 return true;
             case R.id.menu_subscr_list:
                 handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getSubscribersUrl(), false));
@@ -405,9 +407,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             case Utils.HANDLE_GET_WEB_PAGE_DATA: // самое важное
                 setCurrentVisibleComponent(PART_WEB);
                 if (message.obj == null) { // это страница
-                    mPageBrowser.loadDataWithBaseURL(getUser().getCurrentDiaryPage().getPageURL(), getUser().getCurrentDiaryPage().getContent(), null, "utf-8", getUser().getCurrentDiaryPage().getPageURL());
+                    String url = getUser().getCurrentDiaryPage().getPageUrl();
+                    mPageBrowser.loadDataWithBaseURL(url,  getUser().getCurrentDiaryPage().getContent(),  null, "utf-8", url);
 
-                    browserHistory.add(getUser().getCurrentDiaryPage().getPageURL());
+                    browserHistory.add(url);
                     handleTabChange(mHttpClient.getCurrentUrl());
 
                     // меняем заголовок приложения и подзаголовок, если есть
@@ -428,10 +431,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 break;
             case Utils.HANDLE_GET_DISCUSSIONS_DATA:
                 setCurrentVisibleComponent(PART_DISC_LIST);
-                mDiscussionsAdapter = new DiscListArrayAdapter(this, getUser().getDiscussions());
+                mDiscussionsAdapter = new DiscListArrayAdapter(this, (DiscussionList) getUser().getCurrentDiaryPage());
                 mDiscussionBrowser.setAdapter(mDiscussionsAdapter);
 
-                browserHistory.add(getUser().getDiscussions().getURL());
+                browserHistory.add(getUser().getCurrentDiaryPage().getPageUrl());
                 handleTabChange(mHttpClient.getCurrentUrl());
 
                 swipeDiscussions.setRefreshing(false);
@@ -562,10 +565,11 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     // К сожалению, в OrmLite отсутствует ON CONFLICT REPLACE
     private void persistAutocompleteInfo() {
         RuntimeExceptionDao<AutocompleteItem, Long> dao = DbProvider.getHelper().getAutocompleteDao();
-        String url = getUser().getCurrentDiaryPage().getPageURL();
+        String url = getUser().getCurrentDiaryPage().getPageUrl();
         String title = getUser().getCurrentDiaryPage().getTitle();
 
-        List<AutocompleteItem> found = dao.queryForEq("text", url);
+        SelectArg urlEscaped = new SelectArg(url);
+        List<AutocompleteItem> found = dao.queryForEq("text", urlEscaped);
         AutocompleteItem ai = found.isEmpty() ? new AutocompleteItem() : found.get(0);
         ai.setType(AutocompleteItem.AutocompleteType.URL);
         ai.setText(url);
@@ -647,19 +651,12 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             builder.setTitle(R.string.really_exit);
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 
-                @SuppressLint("CommitPrefEdits")
                 public void onClick(DialogInterface dialog, int item) {
-                    mSharedPrefs.edit()
-                        .remove(Utils.KEY_USERNAME)
-                        .remove(Utils.KEY_PASSWORD)
-                        .commit();
-
                     CookieManager cookieManager = CookieManager.getInstance();
                     cookieManager.removeSessionCookie();
                     CookieSyncManager.getInstance().sync();
                     mService.newSession();
 
-                    //TODO: просмотр без логина тоже еще не введен
                     startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
                     finish();
                 }
@@ -693,7 +690,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     // Загружаем дискуссии
     public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-        String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).URL;
+        String link = ((DiscPage.Discussion) parent.getExpandableListAdapter().getChild(groupPosition, childPosition)).url;
         handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(link, false));
         return true;
     }

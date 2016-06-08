@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/search_bar_layout"
+              android:layout_gravity="bottom"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:background="?attr/panel_background"
+              android:visibility="gone"
+              android:elevation="32dp"
+    >
+
+    <ImageView
+        android:contentDescription="@string/close_search"
+        android:id="@+id/close_search_bar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:padding="5dp"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+    
+    <EditText
+        android:id="@+id/search_edit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:inputType="text"
+        android:imeOptions="flagNavigateNext|flagNavigatePrevious"
+        android:hint="@android:string/search_go"/>
+
+</LinearLayout>

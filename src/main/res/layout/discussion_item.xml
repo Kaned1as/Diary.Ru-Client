@@ -16,7 +16,7 @@
         android:text="@string/title"
         android:textSize="14sp"
         android:textStyle="bold"
-        android:textColor="?attr/text_color_main"
+        android:textColor="?attr/textColorTitles"
         android:gravity="center_vertical" />
 
     <TextView
@@ -25,7 +25,7 @@
         android:layout_height="match_parent"
         android:gravity="center_vertical"
         android:text="@string/last_post"
-        android:textColor="?attr/text_color_main"
+        android:textColor="?attr/textColorTitles"
         android:textSize="12sp"/>
 
 </LinearLayout>

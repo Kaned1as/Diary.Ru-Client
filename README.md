@@ -7,6 +7,11 @@ Diary.Ru-Client
 
 ##Возможности:
 
+###Авторизация
+* Вход/выход из аккаунта
+* Регистрация
+* Сохранение списка логинов
+
 ###Просмотр
 * Просмотр списка избранных дневников / списка постоянных читателей
 * Просмотр ленты избранного
@@ -49,18 +54,27 @@ Diary.Ru-Client
 + Темы оформления (в меню)
 + Возможность отключения загрузки внешних изображений для экономии трафика
 + Запрос "Кто онлайн"
++ Возможность обхода CloudFlare-валидации (только без капчи)
 
-###Использованные компоненты
-1. `com.android.support:support-v4:22.0.0`  
-2. `com.android.support:appcompat-v7:22.0.0`  
+###Используемые компоненты
+1. `com.android.support:support-v4`
+2. `com.android.support:appcompat-v7`
+3. `com.android.support:design`  
 [Android Support Libraries (Apache 2.0)](http://developer.android.com/tools/support-library/index.html)
-
-3. `pl.droidsonroids.gif:android-gif-drawable:1.1.2`  
+4. `pl.droidsonroids.gif:android-gif-drawable`  
 [Android animated GIF library (MIT)](https://github.com/koral--/android-gif-drawable)
-
-4. `com.afollestad:material-dialogs:0.6.4.1`  
+5. `com.afollestad:material-dialogs`  
 [Android Material-style dialogs (MIT)](https://github.com/afollestad/material-dialogs)
-
+6. `com.github.ragunathjawahar:android-saripaar:android-saripaar`  
+[Android forms validation (Apache 2.0)](https://github.com/ragunathjawahar/android-saripaar)
+7. `com.j256.ormlite:ormlite-android`  
+[Java lightweight ORM (ISC)](https://github.com/j256/ormlite-android)
+8. `org.mozilla:rhino`  
+[Java JavaScript plugin (MPL 2.0)](https://github.com/mozilla/rhino)
+9. `com.squareup.okhttp:okhttp`  
+[HTTP+HTTP/2 client (Apache 2.0)](https://github.com/square/okhttp)
+10. `com.google.code.gson:gson`  
+[Java JSON (de)serialization (Apache 2.0)](https://github.com/google/gson)
 
 #Лицензия: GPLv3+
 Данная программа является свободным программным обеспечением. Вы вправе распространять ее и/или модифицировать в соответствии с условиями версии 3 либо, по вашему выбору, с условиями более поздней версии Стандартной Общественной Лицензии GNU, опубликованной Free Software Foundation.

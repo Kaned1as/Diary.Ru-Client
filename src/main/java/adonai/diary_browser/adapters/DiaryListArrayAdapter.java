@@ -1,18 +1,17 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.adapters;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import adonai.diary_browser.R;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.UmailListPage;
 
 public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
 
@@ -34,7 +33,7 @@ public class DiaryListArrayAdapter extends ArrayAdapter<ListPage> {
         View view;
         ListPage diary = getItem(pos);
         if (convertView == null)
-            view = LayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, null);
+            view = LayoutInflater.from(getContext()).inflate(R.layout.diary_list_item, parent, false);
         else
             view = convertView;
 

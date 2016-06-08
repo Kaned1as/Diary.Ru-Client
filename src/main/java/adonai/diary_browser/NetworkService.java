@@ -27,6 +27,7 @@ import android.util.Pair;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 
+import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.squareup.okhttp.Response;
 
 import org.jsoup.Jsoup;
@@ -45,21 +46,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import adonai.diary_browser.entities.Comment;
-import adonai.diary_browser.entities.CommentsPage;
-import adonai.diary_browser.entities.DiaryLinkList;
-import adonai.diary_browser.entities.DiaryPage;
-import adonai.diary_browser.entities.DiaryProfilePage;
-import adonai.diary_browser.entities.DiscListPage;
-import adonai.diary_browser.entities.DiscPage;
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.SearchPage;
-import adonai.diary_browser.entities.TagsPage;
-import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.entities.UmailListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.database.DbProvider;
+import adonai.diary_browser.pages.Comment;
+import adonai.diary_browser.pages.CommentsPage;
+import adonai.diary_browser.entities.CredentialsItem;
+import adonai.diary_browser.pages.DiaryLinkList;
+import adonai.diary_browser.pages.DiaryPage;
+import adonai.diary_browser.pages.DiaryProfilePage;
+import adonai.diary_browser.pages.DiscussionList;
+import adonai.diary_browser.pages.DiscPage;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.Post;
+import adonai.diary_browser.pages.SearchPage;
+import adonai.diary_browser.pages.TagsPage;
+import adonai.diary_browser.pages.Umail;
+import adonai.diary_browser.pages.UmailListPage;
+import adonai.diary_browser.pages.UmailPage;
+import adonai.diary_browser.pages.WebPage;
 
 public class NetworkService extends Service implements Callback, OnSharedPreferenceChangeListener {
 
@@ -314,9 +317,14 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             }
             case Utils.HANDLE_AUTHORIZE: {
+                // вытаскиваем последний сохранённый логин
+                String requested = mPreferences.getString(Utils.KEY_USERNAME, "");
+                RuntimeExceptionDao<CredentialsItem, String> credDao = DbProvider.getHelper().getCredentialsDao();
+                CredentialsItem credentials = credDao.queryForId(requested);
+                
                 final List<Pair<String, String>> nameValuePairs = new ArrayList<>();
-                nameValuePairs.add(Pair.create("user_login", mPreferences.getString(Utils.KEY_USERNAME, "")));
-                nameValuePairs.add(Pair.create("user_pass", mPreferences.getString(Utils.KEY_PASSWORD, "")));
+                nameValuePairs.add(Pair.create("user_login", credentials.getUsername()));
+                nameValuePairs.add(Pair.create("user_pass", credentials.getPassword()));
                 nameValuePairs.add(Pair.create("save", "on"));
 
                 String loginScreen = mNetworkClient.postPageToString(Utils.LOGIN_PAGE, nameValuePairs);
@@ -517,9 +525,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             }
             case Utils.HANDLE_PRELOAD_UMAIL: {
                 final int type = (int) message.obj;
-                final String umailId = UserData.getInstance().getCurrentUmailPage().getUmailID();
-                final String URL = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
-                final String dataPage = mNetworkClient.getPageAsString(URL);
+                final String umailId = UserData.getInstance().getCurrentUmailPage().getUmailId();
+                final String url = "http://www.diary.ru/u-mail/read/?" + (type == Utils.UMAIL_REPLY ? "reply" : "forward") + "&u_id=" + umailId;
+                final String dataPage = mNetworkClient.getPageAsString(url);
                 if (dataPage == null) {
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     break;
@@ -587,6 +595,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return true;
     }
 
+    /**
+     * Страничка редактирования поста, напр. http://dron01.diary.ru/?editpost&postid=207138980
+     * @param dataPage html-контент странички в виде строки
+     */
     private Post serializePostEditPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Element rootNode = Jsoup.parse(dataPage).select("div.section").first(); // выбираем окошко с текстом
@@ -633,6 +645,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
+    /**
+     * Страничка редактирования U-mail, напр. http://www.diary.ru/u-mail/read/?forward&u_id=320286777
+     * @param dataPage html-контент странички в виде строки
+     */
     private Umail serializeUmailEditPage(String dataPage, int type) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Element rootNode = Jsoup.parse(dataPage);
@@ -649,11 +665,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
+    /**
+     * Главная страница - http://www.diary.ru
+     * @param dataPage html-контент странички в виде строки
+     */
     private Element serializeMainPage(String dataPage) {
         Element rootNode = Jsoup.parse(dataPage).select("div#top").first(); // выбираем окошко с текстом
         return rootNode;
     }
-    
+
+    /**
+     * Страничка редактирования коммента, напр. http://dron01.diary.ru/?editcomment&commentid=698940371
+     * @param dataPage html-контент странички в виде строки
+     */
     private Comment serializeCommentEditPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Element rootNode = Jsoup.parse(dataPage).select("textarea#message").first(); // выбираем окошко с текстом
@@ -664,6 +688,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         return result;
     }
 
+    /**
+     * Страничка списка дневников, напр. http://www.diary.ru/list/?act=show&show=&l=&sort=&ord=&exact_match=&fgroup_id=0
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeDiaryListPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -690,17 +718,21 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
             diary.setAuthor(columns.get(2).text());
             String authorData = columns.get(2).children().attr("href");
-            diary.setAuthorURL(authorData);
+            //diary.setAuthorURL(authorData);
             diary.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
 
             diary.setLastUpdate(columns.get(5).text());
-            diary.setLastUpdateURL(columns.get(5).children().attr("href"));
+            diary.setLastUpdateUrl(columns.get(5).children().attr("href"));
 
             UserData.getInstance().getCurrentDiaries().add(diary);
         }
 
     }
 
+    /**
+     * Страничка какого-либо дневника, напр. http://dron01.diary.ru/
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeDiaryPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -716,7 +748,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             scannedDiary.userLinks.put(getString(R.string.author_diary), scannedDiary.getDiaryUrl());
             scannedDiary.userLinks.put(getString(R.string.author_profile), authorProfile);
         }
-
 
         // заполняем ссылки (пока что только какие можем обработать)
         // TODO: сделать generic-обработчик всех таких ссылок и вынести в новую процедуру (убрать tags)
@@ -741,6 +772,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().setCurrentDiaryPage(scannedDiary);
     }
 
+    /**
+     * Страничка поиска, напр. http://www.diary.ru/search/?q=nothing
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeSearchPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         final Document rootNode = Jsoup.parse(dataPage);
@@ -771,15 +806,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().setCurrentDiaryPage(scannedSearch);
     }
 
+    /**
+     * Страничка комментариев к к посту, напр. http://dron01.diary.ru/p207138980.htm
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeCommentsPage(String dataPage) throws IOException {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         UserData.getInstance().updateData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        String diaryUrl = mNetworkClient.getCurrentUrl().substring(0, mNetworkClient.getCurrentUrl().lastIndexOf('/') + 1);
-        CommentsPage scannedPost = new CommentsPage(diaryUrl);
-
+        CommentsPage scannedPost = new CommentsPage(mNetworkClient.getCurrentUrl());
         Element diaryTag = rootNode.select("#authorName").first();
         if (diaryTag != null) {
             String authorProfile = diaryTag.getElementsByTag("a").last().attr("href");
@@ -806,7 +843,6 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         Element urlNode = result.first().getElementsByClass("postLinksBackg").first();
         if (urlNode != null) {
             String postURL = urlNode.getElementsByTag("a").attr("href");
-            scannedPost.setPostUrl(postURL);
             scannedPost.setPostId(postURL.substring(postURL.lastIndexOf('p') + 1, postURL.lastIndexOf('.')));
         }
         Document resultPage = Document.createShell(mNetworkClient.getCurrentUrl());
@@ -822,6 +858,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().setCurrentDiaryPage(scannedPost);
     }
 
+    /**
+     * Страничка профиля, напр. http://www.diary.ru/member/?1594420
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeProfilePage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -859,13 +899,17 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().setCurrentDiaryPage(profilePage);
     }
 
+    /**
+     * Страничка тэгов дневника, напр. http://dron01.diary.ru/?tags
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeTagsPage(String dataPage) throws IOException {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         UserData.getInstance().updateData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        TagsPage scannedTags = new TagsPage(mNetworkClient.getCurrentUrl().substring(0, mNetworkClient.getCurrentUrl().lastIndexOf('/') + 1));
+        TagsPage scannedTags = new TagsPage(mNetworkClient.getCurrentUrl());
 
         Element diaryTag = rootNode.select("#authorName").first();
         if (diaryTag != null) {
@@ -892,15 +936,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         UserData.getInstance().setCurrentDiaryPage(scannedTags);
     }
 
+    /**
+     * Страничка дискуссий, напр. http://www.diary.ru/discussion/
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeDiscussionsPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
         UserData.getInstance().updateData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        UserData.getInstance().getDiscussions().clear();
-        UserData.getInstance().getDiscussions().setURL(mNetworkClient.getCurrentUrl());
-
+        DiscussionList dList = new DiscussionList(mNetworkClient.getCurrentUrl());
+        List<DiscPage> pages = new ArrayList<>();
+        
         notifyListeners(Utils.HANDLE_PROGRESS_2);
         Element dIndex = rootNode.getElementById("all_bits");
         for (Element item : dIndex.getElementsByTag("h3")) {
@@ -914,10 +962,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             String title = item.text();
             currentList.setTitle(title);
 
-            UserData.getInstance().getDiscussions().add(currentList);
+            pages.add(currentList);
         }
+
+        dList.setTitle(rootNode.title());
+        dList.setDiscussions(pages);
+        UserData.getInstance().setCurrentDiaryPage(dList);
     }
 
+    /**
+     * JS-ответ на запрос дискуссий
+     * @param dataPage html-контент ответа в виде строки
+     */
     private void serializeDiscussions(String dataPage, ArrayList<DiscPage.Discussion> destination) {
         destination.clear();
         dataPage = dataPage.replace("\\\"", "\"");
@@ -927,15 +983,18 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
         for (Element discussion : rootNode.getElementsByTag("a")) {
             DiscPage.Discussion currentDisc = new DiscPage.Discussion();
-            currentDisc.URL = discussion.attr("href");
+            currentDisc.url = discussion.attr("href");
             currentDisc.title = discussion.text();
             currentDisc.date = discussion.previousElementSibling().text();
-
 
             destination.add(currentDisc);
         }
     }
 
+    /**
+     * Страничка списка U-mail, напр. http://www.diary.ru/u-mail/folder/?f_id=1
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeUmailListPage(String dataPage) {
         notifyListeners(Utils.HANDLE_PROGRESS);
         Document rootNode = Jsoup.parse(dataPage);
@@ -971,11 +1030,11 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
 
                 mail.setAuthor(author.text());
                 String authorData = author.attr("href");
-                mail.setAuthorURL(authorData);
+                //mail.setAuthorURL(authorData);
                 mail.setAuthorID(authorData.substring(authorData.lastIndexOf("?") + 1));
 
                 mail.setLastUpdate(lastPost.text());
-                mail.setLastUpdateURL(lastPost.attr("href"));
+                mail.setLastUpdateUrl(lastPost.attr("href"));
                 
                 Element preview = row.select("span.flwin").first();
                 if(preview != null)
@@ -989,16 +1048,19 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
         }
     }
 
+    /**
+     * Страничка просмотра U-mail, напр. http://www.diary.ru/u-mail/read/?u_id=320286777
+     * @param dataPage html-контент странички в виде строки
+     */
     private void serializeUmailPage(String dataPage) {
-        UmailPage scannedUmail = new UmailPage();
+        
         notifyListeners(Utils.HANDLE_PROGRESS);
 
         Document rootNode = Jsoup.parse(dataPage);
         UserData.getInstance().updateData(rootNode);
         notifyListeners(Utils.HANDLE_UPDATE_HEADERS);
 
-        scannedUmail.setUmailURL(mNetworkClient.getCurrentUrl());
-        scannedUmail.setUmailID(scannedUmail.getUmailURL().substring(scannedUmail.getUmailURL().lastIndexOf('=') + 1));
+        UmailPage scannedUmail = new UmailPage(mNetworkClient.getCurrentUrl());
         notifyListeners(Utils.HANDLE_PROGRESS_2);
 
         Elements mailArea = rootNode.select("table.box, table.box + div");
@@ -1152,12 +1214,13 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
             if (cachedPage != null) { // если страничка была в кэше или из числа новых комментов
                 if (cachedPage instanceof DiaryLinkList) {
                     // umail-варианты сюда не попадают, их путь не идёт через checkDiaryUrl
+                    //noinspection unchecked
                     UserData.getInstance().setCurrentDiaries((DiaryLinkList<ListPage>) cachedPage);
                     notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
                 }
 
-                if (cachedPage instanceof DiscListPage) {
-                    UserData.getInstance().setDiscussions((DiscListPage) cachedPage);
+                if (cachedPage instanceof DiscussionList) {
+                    UserData.getInstance().setCurrentDiaryPage((WebPage) cachedPage);
                     notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
                 }
 
@@ -1190,9 +1253,9 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 serializeDiaryListPage(dataPage);
                 mCache.putPageToCache(toLoad, UserData.getInstance().getCurrentDiaries());
                 notifyListeners(Utils.HANDLE_GET_LIST_PAGE_DATA);
-            } else if (handled == DiscListPage.class) {
+            } else if (handled == DiscussionList.class) {
                 serializeDiscussionsPage(dataPage);
-                mCache.putPageToCache(toLoad, UserData.getInstance().getDiscussions());
+                mCache.putPageToCache(toLoad, UserData.getInstance().getCurrentDiaryPage());
                 notifyListeners(Utils.HANDLE_GET_DISCUSSIONS_DATA);
             } else if (handled == SearchPage.class) {
                 serializeSearchPage(dataPage);

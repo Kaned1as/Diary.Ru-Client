@@ -1,8 +1,14 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 public abstract class WebPage {
+    
     private String content = "";
     private String title = "";
+    private final String url;
+
+    public WebPage(String url) {
+        this.url = url;
+    }
 
     public String getContent() {
         return content;
@@ -24,5 +30,7 @@ public abstract class WebPage {
         return "";
     }
 
-    public abstract String getPageURL();
+    public final String getPageUrl() {
+        return url;
+    }
 }

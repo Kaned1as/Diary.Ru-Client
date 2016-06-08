@@ -1,4 +1,4 @@
-package adonai.diary_browser.entities;
+package adonai.diary_browser.pages;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ public class Post extends Comment {
     // Идентификатор дневника
     public String diaryID = "";
     // ссылка на пост
-    public String URL = "";
+    public String url = "";
     // Дата размещения поста
     public String date = "";
     // Заголовок поста

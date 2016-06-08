@@ -1,5 +1,6 @@
 package adonai.diary_browser;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -37,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -46,6 +48,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -55,6 +58,8 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.j256.ormlite.dao.RuntimeExceptionDao;
+import com.j256.ormlite.stmt.SelectArg;
 import com.squareup.okhttp.Headers;
 import com.squareup.okhttp.MultipartBuilder;
 
@@ -79,14 +84,17 @@ import java.util.concurrent.FutureTask;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import adonai.diary_browser.entities.Comment;
-import adonai.diary_browser.entities.DraftListArrayAdapter;
-import adonai.diary_browser.entities.ImgurImageResponse;
-import adonai.diary_browser.entities.PleerEmbedAnswer;
-import adonai.diary_browser.entities.PleerUploadAnswer;
-import adonai.diary_browser.entities.Post;
-import adonai.diary_browser.entities.Umail;
+import adonai.diary_browser.database.DbProvider;
+import adonai.diary_browser.entities.AutocompleteItem;
+import adonai.diary_browser.pages.Comment;
+import adonai.diary_browser.adapters.DraftListArrayAdapter;
+import adonai.diary_browser.dto.ImgurImageResponse;
+import adonai.diary_browser.dto.PleerEmbedAnswer;
+import adonai.diary_browser.dto.PleerUploadAnswer;
+import adonai.diary_browser.pages.Post;
+import adonai.diary_browser.pages.Umail;
 import adonai.diary_browser.misc.FileUtils;
+import adonai.diary_browser.misc.SemicolonTokenizer;
 import pl.droidsonroids.gif.GifDrawable;
 import pl.droidsonroids.gif.GifImageButton;
 
@@ -176,7 +184,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // http://xxxx.diary.ru/?editpost&postid=#######&draft
-                                    String editUrl = clicked.URL.substring(0, clicked.URL.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
+                                    String editUrl = clicked.url.substring(0, clicked.url.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
                                     ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_EDIT_POST, editUrl);
                                 }
                             }).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() { // удалить
@@ -308,9 +316,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     private EditText titleText;
     private EditText contentText;
     private EditText requoteText;
-    private EditText themesText;
-    private EditText musicText;
-    private EditText moodText;
+    private MultiAutoCompleteTextView themesText;
+    private MultiAutoCompleteTextView musicText;
+    private MultiAutoCompleteTextView moodText;
     private CheckBox mShowOptionals;
     private CheckBox mShowPoll;
     private CheckBox mSubscribe;
@@ -449,7 +457,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         if (dataPage == null)
                             return false;
 
-                        // собираем пары ID аватара - URL аватара
+                        // собираем пары ID аватара - url аватара
                         Elements avatardivs = Jsoup.parse(dataPage).select("div#avatarbit");
                         avatarMap = new SparseArray<>();
                         for (Element avatarbit : avatardivs) {
@@ -520,7 +528,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             String fullContent = post.select(".postContent .postInner .paragraph").text();
                             draft.content = fullContent.substring(0, fullContent.length() > 100 ? 100 : fullContent.length());
                             draft.postID = post.id().substring(4); // после post#####
-                            draft.URL = post.select(".postLinksBackg .urlLink a").attr("href");
+                            draft.url = post.select(".postLinksBackg .urlLink a").attr("href");
                             drafts.add(draft);
                         }
 
@@ -719,9 +727,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         titleText = (EditText) sender.findViewById(R.id.message_title);
         contentText = (EditText) sender.findViewById(R.id.message_content);
         requoteText = (EditText) sender.findViewById(R.id.message_requote_content);
-        themesText = (EditText) sender.findViewById(R.id.message_themes);
-        musicText = (EditText) sender.findViewById(R.id.message_music);
-        moodText = (EditText) sender.findViewById(R.id.message_mood);
+        themesText = (MultiAutoCompleteTextView) sender.findViewById(R.id.message_themes);
+        themesText.setTokenizer(new SemicolonTokenizer());
+        musicText = (MultiAutoCompleteTextView) sender.findViewById(R.id.message_music);
+        musicText.setTokenizer(new SemicolonTokenizer());
+        moodText = (MultiAutoCompleteTextView) sender.findViewById(R.id.message_mood);
+        moodText.setTokenizer(new SemicolonTokenizer());
         mPublish = (Button) sender.findViewById(R.id.message_publish);
         mPublish.setOnClickListener(this);
         mSaveDraft = (Button) sender.findViewById(R.id.message_save_draft);
@@ -798,14 +809,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mSaveDraft);
         postElements.add(mLoadDraft);
         postElements.add(titleText);
+        postElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
         postElements.add(mShowOptionals);
         postElements.add(mShowCloseOptions);
         postElements.add(mShowPoll);
         postElements.add(mNoComments);
 
-        umailElements.add(sender.findViewById(R.id.message_to_hint));
         umailElements.add(toText);
+        umailElements.add((View) toText.getParent()); // контейнер (TextInputLayout)
         umailElements.add(titleText);
+        umailElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
         umailElements.add(mCopyMessage);
@@ -868,6 +881,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         mSignature = signature;
 
         if (mPost.getClass() == Post.class) {
+            // загружаем автодополнение тем, музыки и настроения
+            loadCompletions(themesText, AutocompleteItem.AutocompleteType.THEME);
+            loadCompletions(moodText, AutocompleteItem.AutocompleteType.MOOD);
+            loadCompletions(musicText, AutocompleteItem.AutocompleteType.MUSIC);
+            
             // Если это новый пост
             if (mPost.postID.isEmpty()) {
                 mTitle.setText(R.string.new_post);
@@ -954,6 +972,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             mSecureOptions.setVisibility(View.GONE);
     }
 
+    @SuppressLint({"SetTextI18n", "DefaultLocale"})
     private void prepareUi(Umail mail) {
         toText.setText(mail.receiver);
         if(mail.receiver.isEmpty() && mail.messageTheme.isEmpty()) {        // новое сообщение
@@ -1166,6 +1185,11 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
         // Если пост
         if (mPost.getClass() == Post.class) {
+            // сохраняем темы, музыку, настроение для автокомплита
+            saveCompletions(themesText, AutocompleteItem.AutocompleteType.THEME);
+            saveCompletions(moodText, AutocompleteItem.AutocompleteType.MOOD);
+            saveCompletions(musicText, AutocompleteItem.AutocompleteType.MUSIC);
+            
             postParams.add(Pair.create("avatar", "1")); // Показываем аватарку
             postParams.add(Pair.create("module", "journal"));
             postParams.add(Pair.create("resulttype", "2"));
@@ -1329,6 +1353,33 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
             mHandler.sendEmptyMessage(HANDLE_DO_UMAIL);
         }
+    }
+
+    private void saveCompletions(EditText edit, AutocompleteItem.AutocompleteType type) {
+        RuntimeExceptionDao<AutocompleteItem, Long> acDao = DbProvider.getHelper().getAutocompleteDao();
+        String tokenString = edit.getText().toString();
+        if(!tokenString.isEmpty()) {
+            for(String token : tokenString.split(";")) {
+                String testToken = token.trim();
+                if(testToken.isEmpty()) {
+                    continue;
+                }
+
+                SelectArg textEscaped = new SelectArg(testToken);
+                List<AutocompleteItem> found = acDao.queryForEq("text", textEscaped);
+                AutocompleteItem item = found.isEmpty() ? new AutocompleteItem() : found.get(0);
+                item.setType(type);
+                item.setText(testToken);
+                acDao.createOrUpdate(item);
+            }
+        }
+    }
+    
+    private void loadCompletions(MultiAutoCompleteTextView edit, AutocompleteItem.AutocompleteType type) {
+        RuntimeExceptionDao<AutocompleteItem, Long> acDao = DbProvider.getHelper().getAutocompleteDao();
+        List<AutocompleteItem> tokens = acDao.queryForEq("type", type);
+        ArrayAdapter<AutocompleteItem> tokenAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_dropdown_item_1line, tokens);
+        edit.setAdapter(tokenAdapter);
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {

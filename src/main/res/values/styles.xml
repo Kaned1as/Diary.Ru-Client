@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <attr name="horizontal_divider_color" format="color" /> <!-- Фон разделителя и ника -->
-    <attr name="panel_background" format="color" /> <!-- Фон верхней панели -->
-    <attr name="text_color_main" format="color" /> <!-- заголовки списков и кнопки табов -->
-    <attr name="text_color_secondary" format="color" /> <!-- Подписи списков -->
+    <attr name="panel_background" format="color" /> <!-- Фон панелей (светлее основного) -->
+    <attr name="textColorTitles" format="color" /> <!-- заголовки списков и кнопки табов -->
+    <attr name="textColorSubtitles" format="color" /> <!-- Подписи списков -->
+    <attr name="editText" format="color" /> <!-- Подписи списков -->
     <attr name="button_tint" format="color" /> <!-- значки цитатника и U-Mail -->
     <attr name="quote_menu_drawable" format="reference" /> <!-- значок цитирования в Action-меню -->
 
@@ -12,20 +13,22 @@
         <item name="colorPrimaryDark">#600000</item>
         <item name="colorAccent">#ffd13325</item>
 
-        <item name="text_color_main">@android:color/black</item>
-        <item name="text_color_secondary">#303030</item>
+        <item name="textColorTitles">@android:color/black</item>
+        <item name="textColorSubtitles">#303030</item>
+        
+        
         <item name="horizontal_divider_color">#400000</item>
         <item name="panel_background">#edd8bd</item>
         <item name="button_tint">#600000</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeLight" parent="Theme.AppCompat.Light">
@@ -33,16 +36,17 @@
         <item name="colorPrimaryDark">#707070</item>
         <item name="colorAccent">#607D8B</item>
 
-        <item name="text_color_main">@android:color/black</item>
-        <item name="text_color_secondary">#303030</item>
+        <item name="textColorTitles">@android:color/black</item>
+        <item name="textColorSubtitles">#303030</item>
+        
         <item name="horizontal_divider_color">#000000</item>
         <item name="panel_background">#eeeeee</item>
         <item name="button_tint">#000000</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_black</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
     </style>
 
     <style name="DiaryThemeDark" parent="Theme.AppCompat">
@@ -50,17 +54,18 @@
         <item name="colorPrimaryDark">#000000</item>
         <item name="colorAccent">#a0a0a0</item>
 
-        <item name="text_color_main">@android:color/white</item>
-        <item name="text_color_secondary">#a0a0a0</item>
+        <item name="textColorTitles">@android:color/white</item>
+        <item name="textColorSubtitles">#a0a0a0</item>
+        
         <item name="horizontal_divider_color">#ffffff</item>
         <item name="panel_background">#111111</item>
         <item name="button_tint">#ffffff</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
-        <item name="md_item_color">?attr/text_color_main</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
+        <item name="md_item_color">?attr/textColorTitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
@@ -72,20 +77,21 @@
         <item name="colorPrimaryDark">#6c6ba7</item>
         <item name="colorAccent">#433f58</item>
 
-        <item name="text_color_main">#000440</item>
-        <item name="text_color_secondary">#000660</item>
+        <item name="textColorTitles">#000440</item>
+        <item name="textColorSubtitles">#000660</item>
+        
         <item name="horizontal_divider_color">#0043b0</item>
         <item name="panel_background">#a595d5</item>
         <item name="button_tint">#000a80</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeDarkLilac" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -93,20 +99,21 @@
         <item name="colorPrimaryDark">#ff4e3468</item>
         <item name="colorAccent">#450038</item>
 
-        <item name="text_color_main">#1e0d2d</item>
-        <item name="text_color_secondary">#311549</item>
+        <item name="textColorTitles">#1e0d2d</item>
+        <item name="textColorSubtitles">#311549</item>
+        
         <item name="horizontal_divider_color">#4f0c3f</item>
         <item name="panel_background">#d4beed</item>
         <item name="button_tint">#ff382f4a</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreen" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -114,16 +121,17 @@
         <item name="colorPrimaryDark">#ff001c0b</item>
         <item name="colorAccent">#ff006919</item>
 
-        <item name="text_color_main">#003004</item>
-        <item name="text_color_secondary">#ff004704</item>
+        <item name="textColorTitles">#003004</item>
+        <item name="textColorSubtitles">#ff004704</item>
+        
         <item name="horizontal_divider_color">#007c11</item>
         <item name="panel_background">#e6ffb6</item>
         <item name="button_tint">#0f5c00</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
@@ -135,20 +143,21 @@
         <item name="colorPrimaryDark">#ff75365d</item>
         <item name="colorAccent">#ffe74bcb</item>
 
-        <item name="text_color_main">#ff230e1c</item>
-        <item name="text_color_secondary">#ff410f38</item>
+        <item name="textColorTitles">#ff230e1c</item>
+        <item name="textColorSubtitles">#ff410f38</item>
+        
         <item name="horizontal_divider_color">#ff8f3376</item>
         <item name="panel_background">#edc6e5</item>
         <item name="button_tint">#ff633155</item>
         <item name="quote_menu_drawable">@drawable/ic_reply_white</item>
 
         <item name="md_background_color">?attr/panel_background</item>
-        <item name="md_title_color">?attr/text_color_main</item>
-        <item name="md_content_color">?attr/text_color_secondary</item>
+        <item name="md_title_color">?attr/textColorTitles</item>
+        <item name="md_content_color">?attr/textColorSubtitles</item>
 
         <!-- fixing bug with action style -->
         <!-- TODO: remove this when fixed upstream -->
-        <item name="actionModeStyle">@style/DiaryTheme.WithDarkActionBar.ActionMode</item>
+        <item name="actionModeStyle">@style/DiaryTheme.Dark.ActionMode</item>
     </style>
 
     <style name="DiaryThemeGreenyBrown" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -156,8 +165,9 @@
         <item name="colorPrimaryDark">#ff172f0e</item>
         <item name="colorAccent">#ff207a11</item>
 
-        <item name="text_color_main">#251d15</item>
-        <item name="text_color_secondary">#483a29</item>
+        <item name="textColorTitles">#251d15</item>
+        <item name="textColorSubtitles">#483a29</item>
+        
         <item name="horizontal_divider_color">#ff33ac13</item>
         <item name="panel_background">#1e4611</item>
         <item name="button_tint">#ffffff</item>
@@ -173,7 +183,7 @@
     </style>
 
     <style name="DiaryTheme.WithDarkActionBar.ActionMode" parent="Widget.AppCompat.ActionMode">
-        <item name="background">?attr/text_color_main</item>
+        <item name="background">?attr/textColorTitles</item>
     </style>
 
     <style name="DiaryTheme.Dark.ActionMode" parent="Widget.AppCompat.Light.ActionMode.Inverse">

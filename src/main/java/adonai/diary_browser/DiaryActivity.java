@@ -96,7 +96,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Utils.setupTheme(this);
-        DbProvider.setHelper(this);
         super.onCreate(savedInstanceState);
 
         mSharedPrefs = getApplicationContext().getSharedPreferences(Utils.mPrefsFile, MODE_PRIVATE);
@@ -225,7 +224,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                         message.setGravity(Gravity.CENTER_HORIZONTAL);
                         message.setText(Html.fromHtml(getString(R.string.ad_text)));
                         TypedValue color = new TypedValue();
-                        getTheme().resolveAttribute(R.attr.text_color_main, color, true);
+                        getTheme().resolveAttribute(R.attr.textColorTitles, color, true);
                         message.setTextColor(color.data);
                         builder.setTitle(R.string.ad_title).setView(message);
                         builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener() {
@@ -321,7 +320,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
     @Override
     protected void onDestroy() {
-        DbProvider.releaseHelper();
         if (mCanBuy)
             mHelper.dispose();
         super.onDestroy();

@@ -24,14 +24,11 @@ import android.widget.ListView;
 import android.widget.TabWidget;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
-
-import adonai.diary_browser.entities.ListPage;
-import adonai.diary_browser.entities.Umail;
-import adonai.diary_browser.entities.UmailListArrayAdapter;
-import adonai.diary_browser.entities.UmailListPage;
-import adonai.diary_browser.entities.UmailPage;
-import adonai.diary_browser.entities.WebPage;
+import adonai.diary_browser.pages.ListPage;
+import adonai.diary_browser.pages.Umail;
+import adonai.diary_browser.adapters.UmailListArrayAdapter;
+import adonai.diary_browser.pages.UmailPage;
+import adonai.diary_browser.pages.WebPage;
 import adonai.diary_browser.preferences.PreferencePage;
 
 /**
@@ -97,7 +94,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
         swipeBrowser.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageURL());
+                handleBackground(Utils.HANDLE_OPEN_MAIL, getUser().getCurrentUmailPage().getPageUrl());
                 swipeBrowser.setRefreshing(false);
             }
         });
@@ -193,7 +190,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
                 break;
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
-                mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageURL(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageURL());
+                mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageUrl(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageUrl());
                 
                 // смена заголовка
                 WebPage page = getUser().getCurrentUmailPage();
