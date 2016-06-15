@@ -45,11 +45,11 @@ import okio.Source;
 public class DiaryHttpClient {
     public final static String CLOUDFLARE_ANCHOR = "a = document.getElementById('jschl-answer');";
     public final static String FIXED_USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.135 Safari/537.36";
-    
-    private final static Pattern OPERATION_PATTERN = Pattern.compile("setTimeout\\(function\\(\\)\\{\\s+(var t,r,a,f.+?\\r?\\n[\\s\\S]+?a\\.value =.+?)\\r?\\n");
+
     private final static Pattern PASS_PATTERN = Pattern.compile("name=\"pass\" value=\"(.+?)\"");
     private final static Pattern CHALLENGE_PATTERN = Pattern.compile("name=\"jschl_vc\" value=\"(\\w+)\"");
-    
+    private final static Pattern OPERATION_PATTERN = Pattern.compile("setTimeout\\(function\\(\\)\\{\\s+(var s,t,o,p,b,r,e,a,k,i,n,g,f.+?\\r?\\n[\\s\\S]+?a\\.value =.+?)\\r?\\n");
+
     private URI currentUrl = URI.create("http://www.diary.ru");
 
     OkHttpClient httpClient = new OkHttpClient();
@@ -91,7 +91,7 @@ public class DiaryHttpClient {
     public CookieStore getCookieStore() {
         return cookieManager.getCookieStore();
     }
-    
+
     public boolean hasCookie(@NonNull String name) {
         for(HttpCookie cookie : cookieManager.getCookieStore().getCookies()) {
             if(cookie.getName().equals(name))
@@ -103,18 +103,18 @@ public class DiaryHttpClient {
     public String postPageToString(@NonNull String url, @NonNull RequestBody data) {
         return postPageToString(url, data, null);
     }
-    
+
     public String postPageToString(@NonNull String url, @NonNull RequestBody data, @Nullable Headers headers) {
         URI current = resolve(url);
-        
+
         Request.Builder httpPost = new Request.Builder()
                 .url(HttpUrl.get(current))
                 .post(data);
-        
+
         if(headers != null) {
             httpPost.headers(headers);
         }
-        
+
         Call call = httpClient.newCall(httpPost.build());
         runningRequests.add(call);
         try {
@@ -125,7 +125,7 @@ public class DiaryHttpClient {
             return null;
         }
     }
-    
+
     public String postPageToString(@NonNull String url, @NonNull List<Pair<String, String>> nameValuePairs) {
         URI current = resolve(url);
         FormEncodingBuilder rb = new FormEncodingBuilder();
@@ -135,7 +135,7 @@ public class DiaryHttpClient {
             } catch (UnsupportedEncodingException ignored) {
             }
         }
-        
+
         Request httpPost = new Request.Builder()
                 .url(HttpUrl.get(current))
                 .post(rb.build())
@@ -207,7 +207,7 @@ public class DiaryHttpClient {
         try {
             Call call = httpClient.newCall(new Request.Builder().url(HttpUrl.get(url)).get().build());
             runningRequests.add(call);
-    
+
             Response result = call.execute();
             syncCookiesWithWebViews();
             return result;
@@ -246,30 +246,30 @@ public class DiaryHttpClient {
         try {
             String domain = "www.diary.ru";
             getPage(URI.create("http://" + domain));
-            
+
             // CF should wait
             Thread.sleep(5000);
-            
+
             // extract the arithmetic operation
             Matcher operationSearch = OPERATION_PATTERN.matcher(responseString);
             Matcher challengeSearch = CHALLENGE_PATTERN.matcher(responseString);
             Matcher passSearch = PASS_PATTERN.matcher(responseString);
             if(!operationSearch.find() || !passSearch.find() || !challengeSearch.find())
                 return false;
-            
+
             String rawOperation = operationSearch.group(1);
             String challengePass = passSearch.group(1);
             String challenge = challengeSearch.group(1);
-            
+
             String operation = rawOperation
-                    .replaceAll("a\\.value =(.+?) \\+ .+?;", "$1")
+                    .replaceAll("a\\.value = (parseInt\\(.+?\\)).+", "$1")
                     .replaceAll("\\s{3,}[a-z](?: = |\\.).+", "");
             String js = operation.replace("\n", "");
-            
+
             rhino.setOptimizationLevel(-1);
             Scriptable scope = rhino.initStandardObjects();
             int result = ((Double) rhino.evaluateString(scope, js, "CloudFlare JS Challenge", 1, null)).intValue();
-            
+
             String answer = String.valueOf(result + domain.length());
 
             Headers headers = new Headers.Builder()
@@ -284,7 +284,7 @@ public class DiaryHttpClient {
                     .addEncodedQueryParameter("pass", URLEncoder.encode(challengePass, "windows-1251"))
                     .addEncodedQueryParameter("jschl_answer", URLEncoder.encode(answer, "windows-1251"))
                     .build().toString();
-            
+
             Response response = getPage(URI.create(url), headers);
             if(response.isSuccessful()) {
                 response.request();
@@ -345,11 +345,11 @@ public class DiaryHttpClient {
             }
         }
     }
-    
+
     private void syncCookiesWithWebViews() {
         List<HttpCookie> cookies = getCookieStore().getCookies();
         CookieManager cookieManager = CookieManager.getInstance();
-        
+
         // to webviews
         for (HttpCookie cookie : cookies) {
             String cookieString = cookie.getName() + "=" + cookie.getValue() + "; domain=" + cookie.getDomain();
@@ -381,7 +381,7 @@ public class DiaryHttpClient {
     public void setCurrentUrl(URI url) {
         currentUrl = url;
     }
-    
+
     public URI resolve(String url) {
         return currentUrl.resolve(url);
     }
