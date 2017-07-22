@@ -6,6 +6,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.ActionMode;
@@ -74,8 +75,14 @@ public class WebFrame extends WebView {
          */
         @Override
         public boolean onCreateActionMode(final ActionMode mode, final Menu menu) {
-            boolean result = mOriginalCallback.onCreateActionMode(mode, menu);
-            final MenuItem copyButton = findByTitle(menu, "Копировать|Copy|Копіювати"); // ugly hack, no better way
+            return mOriginalCallback.onCreateActionMode(mode, menu);
+        }
+
+        @Override
+        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+            boolean result = mOriginalCallback.onPrepareActionMode(mode, menu);
+
+            final MenuItem copyButton = findByTitle(menu, "(?i)Копировать|Copy|Копіювати"); // ugly hack, no better way
             if(copyButton == null) {
                 return result;
             }
@@ -83,28 +90,12 @@ public class WebFrame extends WebView {
             TypedValue drawable = new TypedValue();
             getContext().getTheme().resolveAttribute(R.attr.quote_menu_drawable, drawable, true);
 
-            menu.add(copyButton.getGroupId(), Menu.NONE, copyButton.getOrder() + 100, R.string.quote) // будет в начале
+            menu.add(copyButton.getGroupId(), Menu.NONE, 0, R.string.quote) // будет в начале
                     .setIcon(drawable.resourceId)
-                    .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT)
                     .setOnMenuItemClickListener(new ClipboardGrab(this, mode, copyButton));
 
             return result;
-        }
-
-        @Override
-        public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
-            // родные пункты меню "нумеруются" с 1, 
-            // дополнительные я "пронумеровал" со 100
-            while (menu.getItem(0).getOrder() < 100) {
-                MenuItem item = menu.getItem(0);
-                menu.removeItem(item.getItemId());
-                // теперь родные будут "нумероваться" с 200, то есть
-                // станут после дополнительных
-                menu.add(item.getGroupId(), item.getItemId(),
-                        item.getOrder() + 200, item.getTitle());
-            }
-            
-            return mOriginalCallback.onPrepareActionMode(mode, menu);
         }
 
         @Override
@@ -152,9 +143,9 @@ public class WebFrame extends WebView {
             TypedValue drawable = new TypedValue();
             getContext().getTheme().resolveAttribute(R.attr.quote_menu_drawable, drawable, true);
 
-            menu.add(copyButton.getGroupId(), Menu.NONE, copyButton.getOrder(), R.string.quote) // будет в начале
+            menu.add(copyButton.getGroupId(), Menu.NONE, 0, R.string.quote) // будет в начале
                     .setIcon(drawable.resourceId)
-                    .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+                    .setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS | MenuItem.SHOW_AS_ACTION_WITH_TEXT)
                     .setOnMenuItemClickListener(new ClipboardGrab(this, mode, copyButton));
 
             return result;

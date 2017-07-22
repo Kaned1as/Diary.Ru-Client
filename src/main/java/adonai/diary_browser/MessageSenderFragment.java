@@ -25,6 +25,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Pair;
@@ -53,16 +54,16 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
 import com.j256.ormlite.stmt.SelectArg;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.MultipartBuilder;
 
+import okhttp3.Headers;
+import okhttp3.MultipartBody;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -73,10 +74,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -100,17 +98,17 @@ import pl.droidsonroids.gif.GifImageButton;
 
 /**
  * Основной фрагмент посылки сообщения. Такой фрагмент присутствует в каждой {@link DiaryActivity}.
- * Отвечает за посылку и редактирование постов/комментариев/U-Mail с произвольными параметрами, 
+ * Отвечает за посылку и редактирование постов/комментариев/U-Mail с произвольными параметрами,
  * а также вставку смайлов и других объектов.
  * <p/>
  * <i>Замечание: содержит в себе асинхронный обработчик для посылки/приёма сообщений с сайта и отслеживания статуса</i>
- * 
+ *
  * @see DiaryListActivity
  * @see UmailListActivity
- * 
- * @author Адонай 
- * 
- * @// TODO: Добавить возможность отмены посылки поста/комментария 
+ *
+ * @author Адонай
+ *
+ * @// TODO: Добавить возможность отмены посылки поста/комментария
  */
 public class MessageSenderFragment extends Fragment implements OnClickListener, OnCheckedChangeListener, android.widget.RadioGroup.OnCheckedChangeListener {
 
@@ -171,67 +169,78 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         break;
                     }
 
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                    ListAdapter adapter = new DraftListArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, android.R.id.text1, drafts);
-                    builder.setAdapter(adapter, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            final Post clicked = drafts.get(which);
-
-                            // выбираем действие - удалить или редактировать
-                            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                            builder.setPositiveButton(R.string.edit, new DialogInterface.OnClickListener() { // редактировать
+                    new MaterialDialog.Builder(getActivity())
+                            .title(R.string.select_draft)
+                            .items(drafts)
+                            .itemsCallback(new MaterialDialog.ListCallback() {
                                 @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // http://xxxx.diary.ru/?editpost&postid=#######&draft
-                                    String editUrl = clicked.url.substring(0, clicked.url.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
-                                    ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_EDIT_POST, editUrl);
-                                }
-                            }).setNegativeButton(R.string.delete, new DialogInterface.OnClickListener() { // удалить
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    // диалог подтверждения
-                                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                                    builder.setTitle(android.R.string.dialog_alert_title).setCancelable(false).setMessage(R.string.really_delete);
-                                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_DELETE_POST_DRAFT, clicked.postID);
-                                        }
-                                    }).setNegativeButton(android.R.string.no, null).create().show();
-                                }
-                            }).setTitle(R.string.select_action).create().show();
-                        }
-                    }).setTitle(R.string.select_draft).create().show();
+                                public void onSelection(MaterialDialog materialDialog, View view, int which, CharSequence charSequence) {
+                                    final Post clicked = drafts.get(which);
 
+                                    // выбираем действие - удалить или редактировать
+                                    new MaterialDialog.Builder(getActivity())
+                                            .title(R.string.select_action)
+                                            .positiveText(R.string.edit)
+                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                                    // http://xxxx.diary.ru/?editpost&postid=#######&draft
+                                                    String editUrl = clicked.url.substring(0, clicked.url.lastIndexOf('/') + 1) + "?editpost&postid=" + clicked.postID + "&draft";
+                                                    ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_EDIT_POST, editUrl);
+                                                }
+                                            })
+                                            .negativeText(R.string.delete)
+                                            .onNegative(new MaterialDialog.SingleButtonCallback() {
+                                                @Override
+                                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                                    // диалог подтверждения
+                                                    new MaterialDialog.Builder(getActivity())
+                                                            .title(android.R.string.dialog_alert_title)
+                                                            .content(R.string.really_delete)
+                                                            .cancelable(false)
+                                                            .positiveText(android.R.string.ok)
+                                                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                                                @Override
+                                                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                                                    ((DiaryActivity) getActivity()).handleBackground(Utils.HANDLE_DELETE_POST_DRAFT, clicked.postID);
+                                                                }
+                                                            })
+                                                            .negativeText(android.R.string.no)
+                                                            .show();
+                                                }
+                                            }).show();
+                                }
+                            }).show();
                     break;
                 }
                 case HANDLE_UMAIL_ACK: {
                     pd.dismiss();
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                    builder.setTitle(android.R.string.ok).setCancelable(false).setMessage(R.string.message_send_ok);
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            closeMe(false);
-                        }
-                    });
-                    builder.create().show();
+                    new MaterialDialog.Builder(getActivity())
+                            .title(android.R.string.ok)
+                            .cancelable(false)
+                            .content(R.string.message_send_ok)
+                            .positiveText(android.R.string.ok)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                    closeMe(false);
+                                }
+                            }).show();
                     break;
                 }
                 case HANDLE_UMAIL_REJ: {
                     pd.dismiss();
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                    builder.setTitle(android.R.string.no).setCancelable(false).setMessage(R.string.message_send_error);
-                    builder.setPositiveButton(android.R.string.no, new DialogInterface.OnClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            closeMe(false);
-                        }
-                    });
-                    builder.create().show();
+                    new MaterialDialog.Builder(getActivity())
+                            .title(android.R.string.no)
+                            .cancelable(false)
+                            .content(R.string.message_send_error)
+                            .positiveText(android.R.string.no)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                    closeMe(false);
+                                }
+                            }).show();
                     break;
                 }
                 case HANDLE_REQUEST_AVATARS: {
@@ -269,7 +278,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
 
                         GifImageButton current = new GifImageButton(getActivity());
                         current.setTag(R.integer.smile_key, smile.getKey());
-                        
+
                         int maxImageHeight = (int) (gif.getIntrinsicHeight() * dm.density);
                         int maxImageWidth = (int) (gif.getIntrinsicWidth() * dm.density);
 
@@ -547,20 +556,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         long length = file.length();
                         final DiaryHttpClient.ProgressListener listener = new SendProgressListener(length);
 
-                        MultipartBuilder mpEntityBuilder = new MultipartBuilder();
-                        mpEntityBuilder.type(MultipartBuilder.FORM)
+                        MultipartBody mpEntity = new MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
                                 .addFormDataPart("module", "photolib")
                                 .addFormDataPart("signature", mSignature)
                                 .addFormDataPart("resulttype1", String.valueOf(message.arg1))
                                 .addFormDataPart("file", file.getName(),
-                                        new DiaryHttpClient.CountingFileRequestBody(file, listener));
-                        
-                        String progressId = ""; 
+                                        new DiaryHttpClient.CountingFileRequestBody(file, listener))
+                                .build();
+
+                        String progressId = "";
                         for (int i = 0; i < 8; ++i) {
                             progressId += (int) Math.ceil(Math.random() * 100000);
                         }
                         String str = mHttpClient.postPageToString("http://pleer.com/upload/send?X-Progress-ID=" + progressId,
-                                mpEntityBuilder.build());
+                                mpEntity);
                         if(str == null) {
                             Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                             pd.dismiss();
@@ -571,7 +581,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                                 .create();
 
-                        // check if upload was success
+                        // check if upload was successful
                         PleerUploadAnswer uploadAnswer = pleerGson.fromJson(str, PleerUploadAnswer.class);
                         if(!uploadAnswer.isCorrectFile()) {
                             Toast.makeText(getActivity(), getString(R.string.pp_wrong_file), Toast.LENGTH_LONG).show();
@@ -584,11 +594,12 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             break;
                         }
 
-                        MultipartBuilder embedBody = new MultipartBuilder()
-                                .type(MultipartBuilder.FORM)
-                                .addFormDataPart("id", uploadAnswer.getLink());
+                        MultipartBody embedBody = new MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
+                                .addFormDataPart("id", uploadAnswer.getLink())
+                                .build();
                         String embedStr = mHttpClient.postPageToString("http://pleer.com/site_api/embed/track",
-                                embedBody.build());
+                                embedBody);
                         if(embedStr == null) {
                             Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
                             pd.dismiss();
@@ -600,7 +611,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             pd.dismiss();
                             break;
                         }
-                        
+
                         InputStream is = getResources().getAssets().open("plaintext/prostopleer_embed.html");
                         String htmlToEmbed = String.format(Utils.getStringFromInputStream(is),
                                 embedAnswer.getEmbedId(), message.arg1 == 2 ? "grey" : "black",
@@ -619,17 +630,18 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         Headers authHeaders = new Headers.Builder()
                                 .add("Authorization", Utils.IMGUR_CLIENT_AUTH)
                                 .build();
-                        
-                        MultipartBuilder mpEntityBuilder = new MultipartBuilder();
-                        mpEntityBuilder.type(MultipartBuilder.FORM)
+
+                        MultipartBody mpEntity = new MultipartBody.Builder()
+                                .setType(MultipartBody.FORM)
                                 .addFormDataPart("title", gifImage.getName())
                                 .addFormDataPart("type", "file")
                                 .addFormDataPart("image", gifImage.getName(),
-                                        new DiaryHttpClient.CountingFileRequestBody(gifImage, listener));
+                                        new DiaryHttpClient.CountingFileRequestBody(gifImage, listener))
+                                .build();
 
                         String result = mHttpClient.postPageToString(Utils.IMGUR_API_ENDPOINT + "image",
-                                mpEntityBuilder.build(), authHeaders);
-                        
+                                mpEntity, authHeaders);
+
                         ImgurImageResponse response = new Gson().fromJson(result, ImgurImageResponse.class);
                         if(!response.success) {
                             Toast.makeText(getActivity(), getString(R.string.message_send_error), Toast.LENGTH_LONG).show();
@@ -639,9 +651,9 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         int width = message.arg1 * 100; // 100 / 200 / 300
                         double rate = width / (float) response.data.width;
                         int height = (int) (response.data.height * rate);
-                        String toPaste = String.format("<img width='%d' height='%d' src='%s' />", 
-                                width, 
-                                height, 
+                        String toPaste = String.format(Locale.getDefault(), "<img width='%d' height='%d' src='%s' />",
+                                width,
+                                height,
                                 response.data.link);
 
                         mUiHandler.sendMessage(mUiHandler.obtainMessage(Utils.HANDLE_UPLOAD_GIF, toPaste));
@@ -654,16 +666,17 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                             long length = file.length();
                             final DiaryHttpClient.ProgressListener listener = new SendProgressListener(length);
 
-                            MultipartBuilder mpEntityBuilder = new MultipartBuilder();
-                            mpEntityBuilder.type(MultipartBuilder.FORM)
-                                .addFormDataPart("module", "photolib")
-                                .addFormDataPart("signature", mSignature)
-                                .addFormDataPart("resulttype1", String.valueOf(message.arg1))
-                                .addFormDataPart("attachment1",
-                                        URLEncoder.encode(file.getName(), "windows-1251"),
-                                        new DiaryHttpClient.CountingFileRequestBody(file, listener));
+                            MultipartBody mpEntity = new MultipartBody.Builder()
+                                    .setType(MultipartBody.FORM)
+                                    .addFormDataPart("module", "photolib")
+                                    .addFormDataPart("signature", mSignature)
+                                    .addFormDataPart("resulttype1", String.valueOf(message.arg1))
+                                    .addFormDataPart("attachment1",
+                                            URLEncoder.encode(file.getName(), "windows-1251"),
+                                            new DiaryHttpClient.CountingFileRequestBody(file, listener))
+                                    .build();
 
-                            String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntityBuilder.build());
+                            String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntity);
                             if (result != null) {
                                 if (result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
                                     Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();
@@ -809,16 +822,16 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         postElements.add(mSaveDraft);
         postElements.add(mLoadDraft);
         postElements.add(titleText);
-        postElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
+        postElements.add((View) titleText.getParent().getParent()); // контейнер (TextInputLayout)
         postElements.add(mShowOptionals);
         postElements.add(mShowCloseOptions);
         postElements.add(mShowPoll);
         postElements.add(mNoComments);
 
         umailElements.add(toText);
-        umailElements.add((View) toText.getParent()); // контейнер (TextInputLayout)
+        umailElements.add((View) toText.getParent().getParent()); // контейнер (TextInputLayout)
         umailElements.add(titleText);
-        umailElements.add((View) titleText.getParent()); // контейнер (TextInputLayout)
+        umailElements.add((View) titleText.getParent().getParent()); // контейнер (TextInputLayout)
         umailElements.add(mGetReceipt);
         umailElements.add(mRequote);
         umailElements.add(mCopyMessage);
@@ -852,7 +865,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mPaneStateReceiver);
         super.onDestroyView();
     }
-    
+
     public String getContentText() {
         return contentText.getText().toString();
     }
@@ -868,7 +881,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
     public <T extends Comment> void prepareFragment(String signature, T contents) {
         prepareFragment(signature, contents, true);
     }
-    
+
     public <T extends Comment> void prepareFragment(String signature, T contents, boolean checkSame) {
         mService = NetworkService.getInstance(getActivity());
         assert (mService != null);
@@ -885,7 +898,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             loadCompletions(themesText, AutocompleteItem.AutocompleteType.THEME);
             loadCompletions(moodText, AutocompleteItem.AutocompleteType.MOOD);
             loadCompletions(musicText, AutocompleteItem.AutocompleteType.MUSIC);
-            
+
             // Если это новый пост
             if (mPost.postID.isEmpty()) {
                 mTitle.setText(R.string.new_post);
@@ -896,18 +909,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     v.setVisibility(View.VISIBLE);
 
                 if (oldpost.getClass() == Post.class && ((Post) oldpost).diaryID.equals(((Post) mPost).diaryID)) {
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                    builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
-                    builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prepareUi((Post) mPost);
-                        }
-                    });
-                    builder.setNegativeButton(R.string.no, null);
-                    builder.create().show();
-                } else
+                    new MaterialDialog.Builder(getActivity())
+                            .title(R.string.confirmation)
+                            .content(R.string.clear_contents)
+                            .positiveText(android.R.string.yes)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                    prepareUi((Post) mPost);
+                                }
+                            })
+                            .negativeText(R.string.no)
+                            .show();
+                } else {
                     prepareUi((Post) mPost);
+                }
             } else { // если редактирование поста
                 mTitle.setText(R.string.edit_post);
                 mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getTitle());
@@ -929,18 +945,21 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                     v.setVisibility(View.VISIBLE);
 
                 if (checkSame && oldpost.getClass() == Comment.class && oldpost.postID.equals(mPost.postID)) {
-                    AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
-                    builder.setTitle(R.string.confirmation).setMessage(R.string.clear_contents);
-                    builder.setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            prepareUi(mPost);
-                        }
-                    });
-                    builder.setNegativeButton(R.string.no, null);
-                    builder.create().show();
-                } else
+                    new MaterialDialog.Builder(getActivity())
+                            .title(R.string.confirmation)
+                            .content(R.string.clear_contents)
+                            .positiveText(android.R.string.yes)
+                            .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                @Override
+                                public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                    prepareUi(mPost);
+                                }
+                            })
+                            .negativeText(R.string.no)
+                            .show();
+                } else {
                     prepareUi(mPost);
+                }
             } else { // редактирование комментария
                 mTitle.setText(R.string.edit_comment);
                 mCurrentPage.setText(UserData.getInstance().getCurrentDiaryPage().getSubtitle());
@@ -1189,7 +1208,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             saveCompletions(themesText, AutocompleteItem.AutocompleteType.THEME);
             saveCompletions(moodText, AutocompleteItem.AutocompleteType.MOOD);
             saveCompletions(musicText, AutocompleteItem.AutocompleteType.MUSIC);
-            
+
             postParams.add(Pair.create("avatar", "1")); // Показываем аватарку
             postParams.add(Pair.create("module", "journal"));
             postParams.add(Pair.create("resulttype", "2"));
@@ -1374,7 +1393,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             }
         }
     }
-    
+
     private void loadCompletions(MultiAutoCompleteTextView edit, AutocompleteItem.AutocompleteType type) {
         RuntimeExceptionDao<AutocompleteItem, Long> acDao = DbProvider.getHelper().getAutocompleteDao();
         List<AutocompleteItem> tokens = acDao.queryForEq("type", type);
@@ -1485,39 +1504,39 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_GIF, file.getCanonicalPath());
                 msg.arg1 = 3;
-                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
-                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                msg.arg1 = 1;
-                                break;
-                            case DialogInterface.BUTTON_NEUTRAL:
-                                msg.arg1 = 2;
-                                break;
-                            case DialogInterface.BUTTON_POSITIVE:
-                            default:
-                                msg.arg1 = 3;
-                                break;
-                        }
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.select_gif_width)
+                        .negativeText(R.string.s100)
+                        .neutralText(R.string.s200)
+                        .positiveText(R.string.s300)
+                        .onAny(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                switch (dialogAction) {
+                                    case NEGATIVE:
+                                        msg.arg1 = 1;
+                                        break;
+                                    case NEUTRAL:
+                                        msg.arg1 = 2;
+                                        break;
+                                    case POSITIVE:
+                                    default:
+                                        msg.arg1 = 3;
+                                        break;
+                                }
 
-                        pd = new MaterialDialog.Builder(getActivity())
-                                .title(R.string.loading)
-                                .content(R.string.sending_data)
-                                .progress(false, 100)
-                                .build();
-                        pd.show();
-                        mHandler.sendMessage(msg);
-                    }
-                };
-                origOrMoreOrLink.setTitle(R.string.select_gif_width);
-                origOrMoreOrLink.setNegativeButton(R.string.s100, selector);
-                origOrMoreOrLink.setNeutralButton(R.string.s200, selector);
-                origOrMoreOrLink.setPositiveButton(R.string.s300, selector);
-                origOrMoreOrLink.create().show();
-            } else
+                                pd = new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.loading)
+                                        .content(R.string.sending_data)
+                                        .progress(false, 100)
+                                        .build();
+                                pd.show();
+                                mHandler.sendMessage(msg);
+                            }
+                        }).show();
+            } else {
                 Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
         }
@@ -1539,35 +1558,35 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_MUSIC, file.getCanonicalPath());
                 msg.arg1 = 2;
-                AlertDialogWrapper.Builder pleerType = new AlertDialogWrapper.Builder(getActivity());
-                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                msg.arg1 = 1;
-                                break;
-                            case DialogInterface.BUTTON_POSITIVE:
-                            default:
-                                msg.arg1 = 2;
-                                break;
-                        }
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.select_pleer_color)
+                        .negativeText(R.string.black)
+                        .positiveText(R.string.grey)
+                        .onAny(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                switch (dialogAction) {
+                                    case NEGATIVE:
+                                        msg.arg1 = 1;
+                                        break;
+                                    case POSITIVE:
+                                    default:
+                                        msg.arg1 = 2;
+                                        break;
+                                }
 
-                        pd = new MaterialDialog.Builder(getActivity())
-                                .title(R.string.loading)
-                                .content(R.string.sending_data)
-                                .progress(false, 100)
-                                .build();
-                        pd.show();
-                        mHandler.sendMessage(msg);
-                    }
-                };
-                pleerType.setTitle(R.string.select_pleer_color);
-                pleerType.setNegativeButton(R.string.black, selector);
-                pleerType.setPositiveButton(R.string.grey, selector);
-                pleerType.create().show();
-            } else
+                                pd = new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.loading)
+                                        .content(R.string.sending_data)
+                                        .progress(false, 100)
+                                        .build();
+                                pd.show();
+                                mHandler.sendMessage(msg);
+                            }
+                        }).show();
+            } else {
                 Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
         }
@@ -1579,39 +1598,39 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
             if (file != null) {
                 final Message msg = mHandler.obtainMessage(Utils.HANDLE_UPLOAD_FILE, file.getCanonicalPath());
                 msg.arg1 = 3;
-                AlertDialogWrapper.Builder origOrMoreOrLink = new AlertDialogWrapper.Builder(getActivity());
-                DialogInterface.OnClickListener selector = new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                msg.arg1 = 1;
-                                break;
-                            case DialogInterface.BUTTON_NEUTRAL:
-                                msg.arg1 = 2;
-                                break;
-                            case DialogInterface.BUTTON_POSITIVE:
-                            default:
-                                msg.arg1 = 3;
-                                break;
-                        }
+                new MaterialDialog.Builder(getActivity())
+                        .title(R.string.howto_send_img)
+                        .negativeText(R.string.pack_inoriginal)
+                        .positiveText(R.string.pack_inmore)
+                        .neutralText(R.string.pack_inlink)
+                        .onAny(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                switch (dialogAction) {
+                                    case NEGATIVE:
+                                        msg.arg1 = 1;
+                                        break;
+                                    case NEUTRAL:
+                                        msg.arg1 = 2;
+                                        break;
+                                    case POSITIVE:
+                                    default:
+                                        msg.arg1 = 3;
+                                        break;
+                                }
 
-                        pd = new MaterialDialog.Builder(getActivity())
-                                .title(R.string.loading)
-                                .content(R.string.sending_data)
-                                .progress(false, 100)
-                                .build();
-                        pd.show();
-                        mHandler.sendMessage(msg);
-                    }
-                };
-                origOrMoreOrLink.setTitle(R.string.howto_send_img);
-                origOrMoreOrLink.setNegativeButton(R.string.pack_inoriginal, selector);
-                origOrMoreOrLink.setPositiveButton(R.string.pack_inmore, selector);
-                origOrMoreOrLink.setNeutralButton(R.string.pack_inlink, selector);
-                origOrMoreOrLink.create().show();
-            } else
+                                pd = new MaterialDialog.Builder(getActivity())
+                                        .title(R.string.loading)
+                                        .content(R.string.sending_data)
+                                        .progress(false, 100)
+                                        .build();
+                                pd.show();
+                                mHandler.sendMessage(msg);
+                            }
+                        }).show();
+            } else {
                 Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             Toast.makeText(getActivity(), getString(R.string.file_not_found), Toast.LENGTH_SHORT).show();
         }

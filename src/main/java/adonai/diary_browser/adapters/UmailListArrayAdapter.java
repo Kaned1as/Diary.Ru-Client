@@ -9,13 +9,12 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import adonai.diary_browser.R;
 import adonai.diary_browser.pages.UmailListPage;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 public class UmailListArrayAdapter extends ArrayAdapter<UmailListPage> {
     ArrayList<Long> checkedIds = new ArrayList<>();
@@ -66,8 +65,9 @@ public class UmailListArrayAdapter extends ArrayAdapter<UmailListPage> {
         preview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getContext());
-                builder.setMessage(diary.getPageHint()).create().show();
+                new MaterialDialog.Builder(getContext())
+                        .content(diary.getPageHint())
+                        .show();
             }
         });
 

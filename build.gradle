@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.2'
+        classpath 'com.android.tools.build:gradle:2.3.3'
     }
 }
 
@@ -19,29 +19,25 @@ allprojects {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: '*.jar')                              // custom JSoup
-    //compile 'com.android.support:support-v4:23.0.1'                            // support library (Drawers) // pulled by MDDialogs
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.13'                   // animated gif drawables
-    //compile 'com.android.support:appcompat-v7:23.0.1'                          // support library (material design)  // pulled by MDDialogs
-    compile('com.github.afollestad.material-dialogs:core:0.8.5.6@aar') {         // material design for dialogs
-        transitive = true
-    }
-    compile 'com.android.support:design:23.2.0'							         // material design controls
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'                    // animated gif drawables
+    compile 'com.afollestad.material-dialogs:core:0.9.4.5'                       // material design for dialogs
+    compile 'com.android.support:design:25.3.1'                                  // material design controls
     compile 'com.j256.ormlite:ormlite-android:4.48'                              // ORM
-    //compile 'org.jsoup:jsoup:1.8.3'
-    compile 'org.mozilla:rhino:1.7.7.1'                                            // JS for CloudFlare solving
-    compile 'com.squareup.okhttp:okhttp:2.7.5'                                   // HTTP client
-    compile 'com.google.code.gson:gson:2.5'                                      // For Prostopleer Json (de)serializing
+    compile 'org.jsoup:jsoup:1.10.3'                                             // HTML parser
+    compile 'org.mozilla:rhino:1.7.7.1'                                          // JS for CloudFlare solving
+    compile 'com.squareup.okhttp3:okhttp:3.8.1'                                  // HTTP client
+    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.8.1'                    // cookie handling
+    compile 'com.google.code.gson:gson:2.7'                                      // For Prostopleer Json (de)serializing
     compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3' // text input validation with unreadable name
 }
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion '23.0.1'
+    compileSdkVersion 25
+    buildToolsVersion '25.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 23
+        targetSdkVersion 25
         versionCode 259
         versionName "2.5.9"
     }
@@ -49,13 +45,13 @@ android {
     try {
         def proc = 'git rev-parse --short HEAD'.execute()
         def gitOutput = new StringBuilder('-')
-        proc.waitForProcessOutput(gitOutput, System.err)
+        proc.waitForProcessOutput gitOutput, System.err
         def hash = gitOutput.toString().replace('\n', '').replace('\r', '')
         if(!hash.empty) {
             defaultConfig.versionName += hash
         }
     } catch (ignored) {
-        println "Be sure that git executable is in your PATH to see extended version info in app"
+        println "Ensure that git executable is in your PATH to see extended version info in app"
     }
 
     compileOptions {

@@ -9,11 +9,8 @@ import android.support.v7.graphics.drawable.DrawerArrowDrawable;
  */
 public class ArrowDrawable extends DrawerArrowDrawable {
 
-    private final Activity mActivity;
-
-    public ArrowDrawable(Activity activity, Context themedContext) {
+    public ArrowDrawable(Context themedContext) {
         super(themedContext);
-        mActivity = activity;
     }
 
     public void setPosition(float position) {

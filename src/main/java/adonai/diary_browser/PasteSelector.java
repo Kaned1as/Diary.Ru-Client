@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -15,8 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
-
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
@@ -38,9 +38,9 @@ public class PasteSelector extends DialogFragment {
         return new PasteSelector();
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(getActivity());
         LayoutInflater inflater = LayoutInflater.from(getActivity());
         View mainView = inflater.inflate(R.layout.special_paste_selector, null);
 
@@ -54,10 +54,10 @@ public class PasteSelector extends DialogFragment {
             }
         }
 
-        builder.setTitle(R.string.menu_special_paste);
-        builder.setView(mainView);
-
-        return builder.create();
+        return new MaterialDialog.Builder(getActivity())
+                .title(R.string.menu_special_paste)
+                .customView(mainView, false)
+                .build();
     }
 
     @SuppressWarnings("deprecation")
@@ -100,7 +100,7 @@ public class PasteSelector extends DialogFragment {
             case R.id.button_image:
                 if(!checkAndRequestPermissions())
                     return false;
-                
+
                 if (pasteClipboard) {
                     msf.insertInCursorPosition("<img src=\"", paste.toString(), "\" />");
                 } else
@@ -116,7 +116,7 @@ public class PasteSelector extends DialogFragment {
             case R.id.button_mp3:
                 if(!checkAndRequestPermissions())
                     return false;
-                
+
                 try {
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("audio/*");
@@ -129,7 +129,7 @@ public class PasteSelector extends DialogFragment {
             case R.id.button_gif:
                 if(!checkAndRequestPermissions())
                     return false;
-                
+
                 try {
                     Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
                     intent.setType("image/gif");
@@ -142,7 +142,7 @@ public class PasteSelector extends DialogFragment {
         }
         return true;
     }
-    
+
     private boolean checkAndRequestPermissions() {
         int permissionCheck = ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE);
         if(permissionCheck != PackageManager.PERMISSION_GRANTED) {

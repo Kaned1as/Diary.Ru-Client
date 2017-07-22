@@ -5,18 +5,8 @@ import android.support.annotation.Nullable;
 import android.util.Pair;
 import android.webkit.CookieManager;
 
-import com.squareup.okhttp.Call;
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Headers;
-import com.squareup.okhttp.HttpUrl;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.MediaType;
-import com.squareup.okhttp.OkHttpClient;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
-import com.squareup.okhttp.internal.Util;
-
+import okhttp3.*;
+import okhttp3.internal.Util;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.Scriptable;
 
@@ -52,15 +42,17 @@ public class DiaryHttpClient {
 
     private URI currentUrl = URI.create("http://www.diary.ru");
 
-    OkHttpClient httpClient = new OkHttpClient();
-    java.net.CookieManager cookieManager = new java.net.CookieManager();
-    List<Call> runningRequests = new ArrayList<>();
+    private final OkHttpClient httpClient;
+    private java.net.CookieManager cookieManager = new java.net.CookieManager();
+    private List<Call> runningRequests = new ArrayList<>();
 
     public DiaryHttpClient() {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        httpClient.setReadTimeout(30, TimeUnit.SECONDS);
-        httpClient.setCookieHandler(cookieManager);
-        httpClient.interceptors().add(new UserAgentInterceptor());
+        httpClient = new OkHttpClient.Builder()
+                .readTimeout(30, TimeUnit.SECONDS)
+                .cookieJar(new JavaNetCookieJar(cookieManager))
+                .addInterceptor(new UserAgentInterceptor())
+                .build();
     }
 
     public class UserAgentInterceptor implements Interceptor {
@@ -128,17 +120,17 @@ public class DiaryHttpClient {
 
     public String postPageToString(@NonNull String url, @NonNull List<Pair<String, String>> nameValuePairs) {
         URI current = resolve(url);
-        FormEncodingBuilder rb = new FormEncodingBuilder();
+        FormBody.Builder fb = new FormBody.Builder();
         for(Pair<String, String> param : nameValuePairs) {
             try {
-                rb.addEncoded(param.first, URLEncoder.encode(param.second, "windows-1251"));
+                fb.addEncoded(param.first, URLEncoder.encode(param.second, "windows-1251"));
             } catch (UnsupportedEncodingException ignored) {
             }
         }
 
         Request httpPost = new Request.Builder()
                 .url(HttpUrl.get(current))
-                .post(rb.build())
+                .post(fb.build())
                 .build();
         Call call = httpClient.newCall(httpPost);
         runningRequests.add(call);

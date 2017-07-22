@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,18 +18,19 @@ import adonai.diary_browser.pages.DiaryProfilePage;
 import adonai.diary_browser.pages.DiscussionList;
 import adonai.diary_browser.pages.SearchPage;
 import adonai.diary_browser.pages.TagsPage;
+import com.afollestad.materialdialogs.MaterialDialog;
 
 /**
  * Класс-свалка полезных функций и констант.
  * Один большой антипаттерн
- * 
+ *
  * @author не кто иной как Адонай!
- * 
+ *
  * //@TODO разгрести тут всё!
  */
 public class Utils {
     public static final int FROM_MESSAGE_SENDER = 0;
-    
+
     public static final String KEY_USERNAME = "diary.username.key";
     public static final String KEY_PASSWORD = "diary.password.key";
     public static final String KEY_KEEP_AUTH = "diary.keep.auth";
@@ -92,7 +91,7 @@ public class Utils {
     static final int ACTIVITY_ACTION_REQUEST_IMAGE              = 0;
     static final int ACTIVITY_ACTION_REQUEST_MUSIC              = 1;
     static final int ACTIVITY_ACTION_REQUEST_GIF                = 2;
-    
+
     public static final String MAIN_PAGE = "http://www.diary.ru";
     public static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
     public static final String REGISTER_PAGE = "http://www.diary.ru/registration/";
@@ -105,7 +104,7 @@ public class Utils {
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/from_pages.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/functions.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal2.js\"> </script>";
-    
+
     static final String IMGUR_CLIENT_AUTH = "Client-ID 860dc14aa7caf25";
     static final String IMGUR_API_ENDPOINT = "https://api.imgur.com/3/";
 
@@ -135,10 +134,10 @@ public class Utils {
     }
 
     static void showDevelSorry(Context ctx) {
-        AlertDialogWrapper.Builder dlg = new AlertDialogWrapper.Builder(ctx);
-        dlg.setTitle("Sorry :(");
-        dlg.setMessage("This object is under development now, please, have a patience! ^_^");
-        dlg.create().show();
+        new MaterialDialog.Builder(ctx)
+                .title("Sorry :(")
+                .content("This object is under development now, please, have a patience! ^_^")
+                .show();
     }
 
     /**

@@ -9,4 +9,9 @@ public class Comment implements Serializable {
     public String postID = "";
     // Идентификатор комментария
     public String commentID = "";
+
+    @Override
+    public String toString() {
+        return content;
+    }
 }

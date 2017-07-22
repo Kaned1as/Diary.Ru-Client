@@ -26,14 +26,12 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.vending.util.IabHelper;
 import com.android.vending.util.IabResult;
 import com.android.vending.util.Inventory;
 import com.android.vending.util.Purchase;
-
-import adonai.diary_browser.database.DbProvider;
 
 /**
  * Родительская активность для всех остальных.
@@ -45,7 +43,7 @@ import adonai.diary_browser.database.DbProvider;
  *     <li>Обработка ошибок исполнения</li>
  *     <li>Обработка посылок сообщений в {@link NetworkService}</li>
  * </ul>
- * 
+ *
  * @author Адонай
  */
 public abstract class DiaryActivity extends AppCompatActivity implements Callback, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -63,16 +61,16 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     protected DiaryWebView mPageBrowser;
     protected MessageSenderFragment messagePane;
     protected MaterialDialog pd;
-     
+
     protected Handler mUiHandler;
     protected NetworkService mService;
     protected DiaryHttpClient mHttpClient;
     protected SharedPreferences mSharedPrefs;
-    
+
     protected String pageToLoad;
     protected String textToWrite;
     protected Uri imageToUpload;
-    
+
     SlidingPaneLayout.PanelSlideListener sliderListener = new SlidingPaneLayout.PanelSlideListener() {
         @Override
         public void onPanelSlide(View view, float v) {
@@ -138,8 +136,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_about:
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
-                builder.setTitle(R.string.about);
                 View aboutContent = LayoutInflater.from(this).inflate(R.layout.about_d, null);
                 TextView author = (TextView) aboutContent.findViewById(R.id.author_info);
                 author.setText(Html.fromHtml(getString(R.string.author_description)));
@@ -156,8 +152,10 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
                 app.setText(Html.fromHtml(appWithVersion));
                 app.setMovementMethod(LinkMovementMethod.getInstance());
-                builder.setView(aboutContent);
-                builder.create().show();
+                new MaterialDialog.Builder(this)
+                        .title(R.string.about)
+                        .customView(aboutContent, false)
+                        .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -178,7 +176,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
 
                     if (getPackageName().contains("pro"))
                         break;
-                    
+
                     showChangesPage();
                 }
                 break;
@@ -195,7 +193,7 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                 Toast.makeText(getApplicationContext(), getString(R.string.completed), Toast.LENGTH_SHORT).show();
                 break;
         }
-        
+
         if (pd != null) {
             pd.dismiss();
             pd = null;
@@ -218,7 +216,6 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                             return;
 
                         // TODO: move to XML
-                        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
                         TextView message = new TextView(DiaryActivity.this);
                         message.setMovementMethod(LinkMovementMethod.getInstance());
                         message.setGravity(Gravity.CENTER_HORIZONTAL);
@@ -226,15 +223,18 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                         TypedValue color = new TypedValue();
                         getTheme().resolveAttribute(R.attr.textColorTitles, color, true);
                         message.setTextColor(color.data);
-                        builder.setTitle(R.string.ad_title).setView(message);
-                        builder.setPositiveButton(R.string.help, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                purchaseGift();
-                            }
-                        });
-                        builder.setNegativeButton(R.string.later, null);
-                        builder.create().show();
+                        new MaterialDialog.Builder(DiaryActivity.this)
+                                .title(R.string.ad_title)
+                                .customView(message, false)
+                                .positiveText(R.string.help)
+                                .onPositive(new MaterialDialog.SingleButtonCallback() {
+                                    @Override
+                                    public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                                        purchaseGift();
+                                    }
+                                })
+                                .negativeText(R.string.later)
+                                .show();
                     }
                 }, 5000);
 
@@ -253,10 +253,11 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
                 @Override
                 public void onIabPurchaseFinished(IabResult result, Purchase info) {
                     if (result.isSuccess()) {
-                        AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(DiaryActivity.this);
-                        builder.setTitle(R.string.completed).setMessage(R.string.thanks);
-                        builder.setPositiveButton(android.R.string.ok, null);
-                        builder.create().show();
+                        new MaterialDialog.Builder(DiaryActivity.this)
+                                .title(R.string.completed)
+                                .content(R.string.thanks)
+                                .positiveText(android.R.string.ok)
+                                .show();
                     }
 
                     mHelper.queryInventoryAsync(false, new IabHelper.QueryInventoryFinishedListener() {
@@ -333,9 +334,9 @@ public abstract class DiaryActivity extends AppCompatActivity implements Callbac
         slider.closePane();
     }
 
-    public void onRequestPermissionsResult(int requestCode, 
+    public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) 
+                                           @NonNull int[] grantResults)
     {
         for (int result : grantResults) {
             if(result == PackageManager.PERMISSION_DENIED)

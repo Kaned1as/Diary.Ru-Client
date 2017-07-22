@@ -39,4 +39,12 @@ public class Post extends Comment {
     public Boolean noComments = false;
 
     public Map<String, Boolean> predefinedTags = new LinkedHashMap<>();
+
+    @Override
+    public String toString() {
+        if (title.isEmpty())
+            return super.toString();
+
+        return title + ": " + content;
+    }
 }

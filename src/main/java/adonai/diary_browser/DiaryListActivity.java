@@ -6,20 +6,22 @@ import android.animation.ValueAnimator;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.InputType;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
+import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -45,7 +47,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.j256.ormlite.dao.RuntimeExceptionDao;
@@ -81,41 +82,41 @@ import adonai.diary_browser.preferences.PreferencePage;
  *     <li>Просмотр дневников (напр. {@link #TAB_MY_DIARY})</li>
  *     <li>Отправка ({@link MessageSenderFragment#prepareUi(Post)}) и удаление ({@link DiaryWebView.DiaryWebClient#shouldOverrideUrlLoading(WebView, String)}) постов/комментариев</li>
  * </ul>
- * 
+ *
  * @author Адонай
  */
 public class DiaryListActivity extends DiaryActivity implements OnClickListener, OnChildClickListener, OnGroupClickListener, OnItemLongClickListener, View.OnLongClickListener {
-    
+
     // вкладки приложения
     public static final int TAB_FAV_LIST        = 0;
     public static final int TAB_FAV_POSTS       = 1;
     public static final int TAB_MY_DIARY        = 2;
     public static final int TAB_DISCUSSIONS     = 3;
-    
-    static final int PART_LIST                  = 0;
-    static final int PART_WEB                   = 1;
-    static final int PART_DISC_LIST             = 2;
-    
-    public BrowseHistory browserHistory;
-    int mCurrentTab = 0;
-    
-    // Адаптеры типов
-    DiaryListArrayAdapter mFavouritesAdapter;
-    DiscListArrayAdapter mDiscussionsAdapter;
-    TextView mLogin;
-    Button mDiscussNum;
-    Button mCommentsNum;
-    TextView mUmailNum;
-    ListView mDiaryBrowser;
-    ExpandableListView mDiscussionBrowser;
-    ImageButton mExitButton;
-    ImageButton mQuotesButton;
-    ImageButton mUmailButton;
-    LinearLayout mTabs;
-    Handler mUiHandler;
 
-    SwipeRefreshLayout swipeDiscussions;
-    ArrowDrawable mActionBarToggle;
+    public static final int PART_LIST                  = 0;
+    public static final int PART_WEB                   = 1;
+    public static final int PART_DISC_LIST             = 2;
+
+    private BrowseHistory browserHistory;
+    private int mCurrentTab = 0;
+
+    // Адаптеры типов
+    private DiaryListArrayAdapter mFavouritesAdapter;
+    private DiscListArrayAdapter mDiscussionsAdapter;
+    private TextView mLogin;
+    private Button mDiscussNum;
+    private Button mCommentsNum;
+    private TextView mUmailNum;
+    private ListView mDiaryBrowser;
+    private ExpandableListView mDiscussionBrowser;
+    private ImageButton mExitButton;
+    private ImageButton mQuotesButton;
+    private ImageButton mUmailButton;
+    private LinearLayout mTabs;
+    private Handler mUiHandler;
+
+    private SwipeRefreshLayout swipeDiscussions;
+    private ArrowDrawable mActionBarToggle;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -138,7 +139,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     public void initializeUI(View main) {
         // Настраиваем верхнюю панель
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mActionBarToggle = new ArrowDrawable(this, getSupportActionBar().getThemedContext());
+        mActionBarToggle = new ArrowDrawable(getSupportActionBar().getThemedContext());
         getSupportActionBar().setHomeAsUpIndicator(mActionBarToggle);
 
         swipeList = (SwipeRefreshLayout) main.findViewById(R.id.refresher_layout_list);
@@ -234,6 +235,15 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         swipeDiscussions.setColorSchemeColors(color.data);
     }
 
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        try {
+            super.onRestoreInstanceState(savedInstanceState);
+        } catch (RuntimeException ex) {
+            Log.e("Activity error", "Cannot restore activity state", ex);
+        }
+    }
+
     // старые телефоны тоже должны работать
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -296,7 +306,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
     protected void onResume() {
         super.onResume();
         Intent incoming = getIntent();
-        
+
         // обработка открытия странички дайри в самих дайри
         if (incoming.hasExtra("url")) {
             pageToLoad = incoming.getStringExtra("url");
@@ -305,7 +315,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             pageToLoad = getIntent().getDataString();
             incoming.setData(null);
         }
-        
+
         // обработка передачи изображения/текста в дайри
         String action = incoming.getAction();
         String type = incoming.getType();
@@ -417,7 +427,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     WebPage page = getUser().getCurrentDiaryPage();
                     getSupportActionBar().setTitle(page.getTitle());
                     getSupportActionBar().setSubtitle(page.getSubtitle());
-                    
+
                     if (getUser().getCurrentDiaryPage().getClass() == DiaryPage.class) {
                         persistAutocompleteInfo();
                     }
@@ -463,44 +473,43 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if (src == null) // нет картинки!
                     return false;
 
-                ArrayList<String> itemsBuilder = new ArrayList<>();
+                List<String> itemsBuilder = new ArrayList<>();
                 itemsBuilder.add(getString(R.string.image_save));
                 itemsBuilder.add(getString(R.string.image_copy_url));
                 itemsBuilder.add(getString(R.string.image_open_here));
                 itemsBuilder.add(getString(R.string.image_open));
 
-                final String[] items = itemsBuilder.toArray(new String[itemsBuilder.size()]);
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
-                builder.setTitle(R.string.image_action);
-                builder.setItems(items, new DialogInterface.OnClickListener() {
-                    @SuppressWarnings("deprecation")
-                    public void onClick(DialogInterface dialog, int item) {
-                        switch (item) {
-                            case DiaryWebView.IMAGE_SAVE: {
-                                Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, true));
+                new MaterialDialog.Builder(mPageBrowser.getContext())
+                        .title(R.string.image_action)
+                        .items(itemsBuilder)
+                        .itemsCallback(new MaterialDialog.ListCallback() {
+                            @Override
+                            public void onSelection(MaterialDialog materialDialog, View view, int i, CharSequence charSequence) {
+                                switch (i) {
+                                    case DiaryWebView.IMAGE_SAVE: {
+                                        Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                        mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, true));
+                                    }
+                                    break;
+                                    case DiaryWebView.IMAGE_COPY_URL: {
+                                        android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                                        Toast.makeText(DiaryListActivity.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
+                                        clipboard.setText(src);
+                                    }
+                                    break;
+                                    case DiaryWebView.IMAGE_OPEN_HERE:  {
+                                        Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
+                                        mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, false));
+                                    }
+                                    break;
+                                    case DiaryWebView.IMAGE_OPEN_EXTERNAL:  {
+                                        final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(src));
+                                        startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
+                                    }
+                                    break;
+                                }
                             }
-                            break;
-                            case DiaryWebView.IMAGE_COPY_URL: {
-                                android.text.ClipboardManager clipboard = (android.text.ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-                                Toast.makeText(DiaryListActivity.this, getString(R.string.copied) + " " + src, Toast.LENGTH_SHORT).show();
-                                clipboard.setText(src);
-                            }
-                            break;
-                            case DiaryWebView.IMAGE_OPEN_HERE:  {
-                                Toast.makeText(DiaryListActivity.this, getString(R.string.loading), Toast.LENGTH_SHORT).show();
-                                mService.handleRequest(Utils.HANDLE_PICK_URL, new Pair<>(src, false));
-                            }
-                            break;
-                            case DiaryWebView.IMAGE_OPEN_EXTERNAL:  {
-                                final Intent sendIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(src));
-                                startActivity(Intent.createChooser(sendIntent, getResources().getText(R.string.app_name)));
-                            }
-                            break;
-                        }
-                    }
-                });
-                builder.create().show();
+                        }).show();
                 break;
             }
             case Utils.HANDLE_EDIT_POST:
@@ -525,8 +534,6 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     Toast.makeText(DiaryListActivity.this, getString(R.string.nobody_here), Toast.LENGTH_SHORT).show();
                     break;
                 }
-                AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
-                builder.setTitle(R.string.whos_online);
                 View whosOnline = LayoutInflater.from(this).inflate(R.layout.whos_online_d, null);
                 TextView favs = (TextView) whosOnline.findViewById(R.id.favs_online);
                 favs.setMovementMethod(LinkMovementMethod.getInstance());
@@ -538,8 +545,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                 if(onliners.containsKey(R.string.subscribers_online)) {
                     subs.setText(onliners.get(R.string.subscribers_online));
                 }
-                builder.setView(whosOnline);
-                builder.create().show();
+                new MaterialDialog.Builder(this)
+                        .title(R.string.whos_online)
+                        .customView(whosOnline, false)
+                        .show();
                 break;
             case Utils.HANDLE_REQUEST_DIARY:
                 Boolean result = (Boolean) message.obj;
@@ -624,7 +633,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
             mTabs.getChildAt(mCurrentTab).setSelected(false);
             mCurrentTab = TAB_MY_DIARY;
             mTabs.getChildAt(mCurrentTab).setSelected(true);
-            
+
             // обработка текста, который был прислан интентом
             if(textToWrite != null) {
                 String fullText = "<span class='quote_text'><blockquote>" + textToWrite + "</blockquote></span>";
@@ -647,22 +656,23 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
 
     public void onClick(View view) {
         if (view == mExitButton) {
-            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(mPageBrowser.getContext());
-            builder.setTitle(R.string.really_exit);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                
-                public void onClick(DialogInterface dialog, int item) {
-                    CookieManager cookieManager = CookieManager.getInstance();
-                    cookieManager.removeSessionCookie();
-                    CookieSyncManager.getInstance().sync();
-                    mService.newSession();
+            new MaterialDialog.Builder(mPageBrowser.getContext())
+                    .title(R.string.really_exit)
+                    .positiveText(android.R.string.ok)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(@NonNull MaterialDialog materialDialog, @NonNull DialogAction dialogAction) {
+                            CookieManager cookieManager = CookieManager.getInstance();
+                            cookieManager.removeSessionCookie();
+                            CookieSyncManager.getInstance().sync();
+                            mService.newSession();
 
-                    startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
-                    finish();
-                }
-            });
-            builder.setNegativeButton(android.R.string.no, null);
-            builder.create().show();
+                            startActivity(new Intent(getApplicationContext(), AuthorizationForm.class));
+                            finish();
+                        }
+                    })
+                    .negativeText(android.R.string.no)
+                    .show();
         } else if (view == mQuotesButton) {
             handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getOwnDiaryUrl() + "?quote", false));
         } else if (view == mUmailButton) {
@@ -733,9 +743,10 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         }
 
         if (parent == mDiaryBrowser) {
-            AlertDialogWrapper.Builder builder = new AlertDialogWrapper.Builder(this);
             ListPage diary = (ListPage) mDiaryBrowser.getAdapter().getItem(position);
-            builder.setMessage(diary.getPageHint()).create().show();
+            new MaterialDialog.Builder(this)
+                    .content(diary.getPageHint())
+                    .show();
         }
 
         return true;
@@ -759,7 +770,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
                     showDiaryCreateRequest();
                     break;
                 }
-                
+
                 if (getUser().getNewDiaryCommentsNum() != 0 && !force)
                     handleBackground(Utils.HANDLE_PICK_URL, new Pair<>(getUser().getNewDiaryLink(), true));
                 else
@@ -824,7 +835,7 @@ public class DiaryListActivity extends DiaryActivity implements OnClickListener,
         if(main == null) { // ещё не создано
             return false;
         }
-        
+
         final RelativeLayout upperDeck = (RelativeLayout) mainPane.getView().findViewById(R.id.upper_deck);
         final LinearLayout.LayoutParams lp = (LayoutParams) upperDeck.getLayoutParams();
         final int height = upperDeck.getHeight();
