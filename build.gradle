@@ -38,8 +38,8 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 25
-        versionCode 259
-        versionName "2.5.9"
+        versionCode 260
+        versionName "2.6.0"
     }
 
     try {
