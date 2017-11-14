@@ -1,0 +1,84 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+    }
+}
+
+apply plugin: 'com.android.application'
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io"  } // for saripaar and material-dialogs
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: '*.jar')                                     // custom JSoup
+    //compile 'com.android.support:support-v4:23.0.1'                                   // support library (Drawers) // pulled by MDDialogs
+    compile 'pl.droidsonroids.gif:android-gif-drawable:1.1.10'                          // animated gif drawables
+    //compile 'com.android.support:appcompat-v7:23.0.1'                                 // support library (material design)  // pulled by MDDialogs
+    compile('com.afollestad.material-dialogs:core:0.8.4.0@aar') { transitive = true }   // material design for dialogs
+    compile 'com.android.support:design:23.1.1'							                // material design controls
+<<<<<<< HEAD
+=======
+    compile 'com.j256.ormlite:ormlite-android:4.48'                                     // ORM
+>>>>>>> pr/n13_maniak26
+    //compile 'org.jsoup:jsoup:1.8.3'
+    compile 'org.mozilla:rhino:1.7.6'                                                   // JS for CloudFlare solving
+    compile 'com.squareup.okhttp:okhttp:2.5.0'                                          // HTTP client
+    compile 'com.google.code.gson:gson:2.4'                                           // For Prostopleer Json (de)serializing
+    compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3'        // text input validation with unreadable name
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion '23.0.2'
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 23
+        versionCode 240
+        versionName "2.4.0"
+    }
+
+    try {
+        def proc = 'git rev-parse --short HEAD'.execute()
+        def gitOutput = new StringBuilder('-')
+        proc.waitForProcessOutput(gitOutput, System.err)
+        def hash = gitOutput.toString().replace('\n', '').replace('\r', '')
+        if(!hash.empty) {
+            defaultConfig.versionName += hash
+        }
+    } catch (ignored) {
+        println "Be sure that git executable is in your PATH to see extended version info in app"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs {
+        release {
+            storeFile file("/home/adonai/devel/keystore/Adonai")
+            storePassword "release"
+            keyAlias "adonai"
+            keyPassword "release"
+        }
+    }
+
+    buildTypes {
+        pro {
+            debuggable false
+            signingConfig signingConfigs.release
+            applicationIdSuffix '.pro'
+        }
+
+        release {
+            debuggable false
+            signingConfig signingConfigs.release
+        }
+    }
+}
