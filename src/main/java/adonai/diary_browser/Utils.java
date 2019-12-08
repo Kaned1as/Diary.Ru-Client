@@ -92,12 +92,12 @@ public class Utils {
     static final int ACTIVITY_ACTION_REQUEST_MUSIC              = 1;
     static final int ACTIVITY_ACTION_REQUEST_GIF                = 2;
 
-    public static final String MAIN_PAGE = "http://www.diary.ru";
-    public static final String LOGIN_PAGE = "http://www.diary.ru/login.php";
-    public static final String REGISTER_PAGE = "http://www.diary.ru/registration/";
-    public static final String DISCUSSIONS_PAGE = "http://www.diary.ru/discussion/";
-    public static final String FAVORITES_PAGE = "http://www.diary.ru/list/?act=show&fgroup_id=0";
-    public static final String SUBSCRIBERS_PAGE = "http://www.diary.ru/list/?act=show&fgroup_id=-1";
+    public static final String MAIN_PAGE = "https://x.diary.ru";
+    public static final String LOGIN_PAGE = "https://x.diary.ru/login.php";
+    public static final String REGISTER_PAGE = "https://x.diary.ru/registration/";
+    public static final String DISCUSSIONS_PAGE = "https://x.diary.ru/discussion/";
+    public static final String FAVORITES_PAGE = "https://x.diary.ru/list/?act=show&fgroup_id=0";
+    public static final String SUBSCRIBERS_PAGE = "https://x.diary.ru/list/?act=show&fgroup_id=-1";
 
     static String javascriptContent = "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/journal.js\"> </script>" +
             "<script type=\"text/javascript\" src=\"file:///android_asset/javascript/diary_client.js\"> </script>" +

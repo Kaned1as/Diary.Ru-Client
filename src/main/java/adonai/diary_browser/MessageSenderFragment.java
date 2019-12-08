@@ -393,7 +393,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_GET_SMILIES: {
-                        String url = message.obj != null ? (String) message.obj : "http://www.diary.ru/smile.php";
+                        String url = message.obj != null ? (String) message.obj : "https://x.diary.ru/smile.php";
                         String urlValid = url.replaceAll("[:/]", "_"); // не содержащее недопустимых символов для ФС имя
                         String result;
                         if (mCache.hasData(getActivity(), urlValid))
@@ -461,7 +461,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_REQUEST_AVATARS: {
-                        String url = "http://www.diary.ru/options/member/?avatar";
+                        String url = "https://x.diary.ru/options/member/?avatar";
                         String dataPage = mHttpClient.getPageAsString(url);
                         if (dataPage == null)
                             return false;
@@ -545,7 +545,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                         return true;
                     }
                     case HANDLE_SET_AVATAR: {
-                        String URL = "http://www.diary.ru/options/member/?avatar";
+                        String URL = "https://x.diary.ru/options/member/?avatar";
                         mHttpClient.postPageToString(URL, postParams);
                         Toast.makeText(getActivity(), R.string.avatar_selected, Toast.LENGTH_SHORT).show();
                         return true;
@@ -676,7 +676,7 @@ public class MessageSenderFragment extends Fragment implements OnClickListener, 
                                             new DiaryHttpClient.CountingFileRequestBody(file, listener))
                                     .build();
 
-                            String result = mHttpClient.postPageToString("http://www.diary.ru/diary.php?upload=1&js", mpEntity);
+                            String result = mHttpClient.postPageToString("https://x.diary.ru/diary.php?upload=1&js", mpEntity);
                             if (result != null) {
                                 if (result.contains("допустимые:")) // ошибка отправки, слишком большая картинка
                                     Toast.makeText(getActivity(), getString(R.string.too_big_picture), Toast.LENGTH_LONG).show();

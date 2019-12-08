@@ -42,14 +42,14 @@ import adonai.diary_browser.preferences.PreferencePage;
  *     <li>Пересылка писем</li>
  *     <li>Автоотслеживание счётчика Re[*] в переписке (см {@link MessageSenderFragment#prepareUi(Umail)})</li>
  * </ul>
- * 
+ *
  * @author Адонай
  * @see MessageSenderFragment#umailElements
  */
 public class UmailListActivity extends DiaryActivity implements OnClickListener {
-    
-    static final String IN_FOLDER_ADDRESS   = "http://www.diary.ru/u-mail/folder/?f_id=1";
-    static final String OUT_FOLDER_ADDRESS  = "http://www.diary.ru/u-mail/folder/?f_id=2";
+
+    static final String IN_FOLDER_ADDRESS   = "https://x.diary.ru/u-mail/folder/?f_id=1";
+    static final String OUT_FOLDER_ADDRESS  = "https://x.diary.ru/u-mail/folder/?f_id=2";
 
     static final int TAB_INCOMING           = 0;
     static final int TAB_OUTCOMING          = 1;
@@ -191,7 +191,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
             case Utils.HANDLE_OPEN_MAIL:
                 setCurrentVisibleComponent(PART_WEB);
                 mPageBrowser.loadDataWithBaseURL(getUser().getCurrentUmailPage().getPageUrl(), getUser().getCurrentUmailPage().getContent(), null, "utf-8", getUser().getCurrentUmailPage().getPageUrl());
-                
+
                 // смена заголовка
                 WebPage page = getUser().getCurrentUmailPage();
                 getSupportActionBar().setTitle(page.getTitle());
@@ -277,7 +277,7 @@ public class UmailListActivity extends DiaryActivity implements OnClickListener 
     }
 
     private class UmailDeleteChoiceListener implements AbsListView.MultiChoiceModeListener {
-        
+
         @Override
         public void onItemCheckedStateChanged(ActionMode mode, int position, long id, boolean checked) {
             mode.setSubtitle(getString(R.string.selected) + mFolderBrowser.getCheckedItemCount());

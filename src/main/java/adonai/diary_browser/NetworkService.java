@@ -275,7 +275,7 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                 break;
             }
             case Utils.HANDLE_QUERY_ONLINE: {
-                final String dataPage = mNetworkClient.getPageAsString("http://www.diary.ru");
+                final String dataPage = mNetworkClient.getPageAsString("https://x.diary.ru");
                 if (dataPage == null) { // no connection
                     notifyListeners(Utils.HANDLE_CONNECTIVITY_ERROR, R.string.connection_error);
                     break;
@@ -288,10 +288,10 @@ public class NetworkService extends Service implements Callback, OnSharedPrefere
                     Element content = rootNode.getElementById("container");
 
                     Element favoritesOnline = content.select("span.sel:containsOwn(в том числе мои избранные) + div.sp").first();
-                    onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "http://www.diary.ru/member/")));
+                    onlineUsers.put(R.string.favourites_online, Html.fromHtml(favoritesOnline.html().replace("/member/", "https://x.diary.ru/member/")));
 
                     Element subscribersOnline = content.select("span.sel:containsOwn(и мои постоянные читатели) + div.sp").first();
-                    onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "http://www.diary.ru/member/")));
+                    onlineUsers.put(R.string.subscribers_online, Html.fromHtml(subscribersOnline.html().replace("/member/", "https://x.diary.ru/member/")));
                 } catch (Exception ignored) {
 
                 }

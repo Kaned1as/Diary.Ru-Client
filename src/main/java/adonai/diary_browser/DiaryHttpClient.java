@@ -40,7 +40,7 @@ public class DiaryHttpClient {
     private final static Pattern CHALLENGE_PATTERN = Pattern.compile("name=\"jschl_vc\" value=\"(\\w+)\"");
     private final static Pattern OPERATION_PATTERN = Pattern.compile("setTimeout\\(function\\(\\)\\{\\s+(var s,t,o,p,b,r,e,a,k,i,n,g,f.+?\\r?\\n[\\s\\S]+?a\\.value =.+?)\\r?\\n");
 
-    private URI currentUrl = URI.create("http://www.diary.ru");
+    private URI currentUrl = URI.create("https://x.diary.ru");
 
     private final OkHttpClient httpClient;
     private java.net.CookieManager cookieManager = new java.net.CookieManager();
@@ -145,11 +145,11 @@ public class DiaryHttpClient {
     }
 
     public String postPageToString(@NonNull RequestBody data) {
-        return postPageToString("http://www.diary.ru/diary.php", data);
+        return postPageToString("https://x.diary.ru/diary.php", data);
     }
 
     public String postPageToString(@NonNull List<Pair<String, String>> nameValuePairs) {
-        return postPageToString("http://www.diary.ru/diary.php", nameValuePairs);
+        return postPageToString("https://x.diary.ru/diary.php", nameValuePairs);
     }
 
     /**
@@ -236,8 +236,8 @@ public class DiaryHttpClient {
         // initialize Rhino
         Context rhino = Context.enter();
         try {
-            String domain = "www.diary.ru";
-            getPage(URI.create("http://" + domain));
+            String domain = "x.diary.ru";
+            getPage(URI.create("https://" + domain));
 
             // CF should wait
             Thread.sleep(5000);
@@ -265,12 +265,12 @@ public class DiaryHttpClient {
             String answer = String.valueOf(result + domain.length());
 
             Headers headers = new Headers.Builder()
-                    .add("Referer", "http://www.diary.ru/")
+                    .add("Referer", "https://x.diary.ru/")
                     .build();
 
             String url = new HttpUrl.Builder()
-                    .scheme("http")
-                    .host("www.diary.ru")
+                    .scheme("https")
+                    .host("x.diary.ru")
                     .addPathSegment("cdn-cgi").addPathSegment("l").addPathSegment("chk_jschl")
                     .addEncodedQueryParameter("jschl_vc", URLEncoder.encode(challenge, "windows-1251"))
                     .addEncodedQueryParameter("pass", URLEncoder.encode(challengePass, "windows-1251"))
@@ -357,7 +357,7 @@ public class DiaryHttpClient {
         String[] cookieValues = cookies.split(";");
 
         HttpCookie cookie;
-        URI diary = URI.create("http://diary.ru");
+        URI diary = URI.create("https://x.diary.ru");
         for (String cookieValue : cookieValues) {
             String[] split = cookieValue.split("=");
             if (split.length == 2)

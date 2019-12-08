@@ -1,10 +1,11 @@
 buildscript {
     repositories {
         jcenter()
+        google()
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.3'
+        classpath 'com.android.tools.build:gradle:3.5.3'
     }
 }
 
@@ -13,33 +14,33 @@ apply plugin: 'com.android.application'
 allprojects {
     repositories {
         mavenCentral()
+        google()
         jcenter()
         maven { url "https://jitpack.io" } // for saripaar and material-dialogs
     }
 }
 
 dependencies {
-    compile 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'                    // animated gif drawables
-    compile 'com.afollestad.material-dialogs:core:0.9.4.5'                       // material design for dialogs
-    compile 'com.android.support:design:25.3.1'                                  // material design controls
-    compile 'com.j256.ormlite:ormlite-android:4.48'                              // ORM
-    compile 'org.jsoup:jsoup:1.10.3'                                             // HTML parser
-    compile 'org.mozilla:rhino:1.7.7.1'                                          // JS for CloudFlare solving
-    compile 'com.squareup.okhttp3:okhttp:3.8.1'                                  // HTTP client
-    compile 'com.squareup.okhttp3:okhttp-urlconnection:3.8.1'                    // cookie handling
-    compile 'com.google.code.gson:gson:2.7'                                      // For Prostopleer Json (de)serializing
-    compile 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3' // text input validation with unreadable name
+    implementation 'pl.droidsonroids.gif:android-gif-drawable:1.2.7'                    // animated gif drawables
+    implementation 'com.afollestad.material-dialogs:core:0.9.4.5'                       // material design for dialogs
+    implementation 'com.android.support:design:25.3.1'                                  // material design controls
+    implementation 'com.j256.ormlite:ormlite-android:4.48'                              // ORM
+    implementation 'org.jsoup:jsoup:1.10.3'                                             // HTML parser
+    implementation 'org.mozilla:rhino:1.7.7.1'                                          // JS for CloudFlare solving
+    implementation 'com.squareup.okhttp3:okhttp:3.8.1'                                  // HTTP client
+    implementation 'com.squareup.okhttp3:okhttp-urlconnection:3.8.1'                    // cookie handling
+    implementation 'com.google.code.gson:gson:2.7'                                      // For Prostopleer Json (de)serializing
+    implementation 'com.github.ragunathjawahar:android-saripaar:android-saripaar-2.0.3' // text input validation with unreadable name
 }
 
 android {
     compileSdkVersion 25
-    buildToolsVersion '25.0.3'
 
     defaultConfig {
         minSdkVersion 14
-        targetSdkVersion 25
-        versionCode 260
-        versionName "2.6.0"
+        targetSdkVersion 26
+        versionCode 261
+        versionName "2.6.1"
     }
 
     try {
@@ -61,7 +62,7 @@ android {
 
     signingConfigs {
         release {
-            storeFile file("/home/adonai/devel/keystore/Adonai")
+            storeFile file("/media/Work/contrib/keystore/Adonai")
             storePassword "release"
             keyAlias "adonai"
             keyPassword "release"

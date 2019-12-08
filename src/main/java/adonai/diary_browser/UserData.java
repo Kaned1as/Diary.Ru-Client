@@ -13,7 +13,7 @@ import adonai.diary_browser.pages.WebPage;
 /**
  * Синглетон данных пользователя в текущем сеансе.
  * Все записи и чтения отсюда, хоть и разнесены по разным потокам, но не выполняются одновременно.
- * 
+ *
  * Обновляются эти данные в потоке NetworkService'a, запрашиваются - в UI-потоках различных активностей
  */
 public class UserData {
@@ -21,22 +21,22 @@ public class UserData {
     private static UserData user = new UserData();
 
     private boolean isAuthorized;
-    
+
     // Динамические списки постов
     private DiaryLinkList<ListPage> currentDiaries = new DiaryLinkList<>();
     private DiaryLinkList<UmailListPage> currentUmails = new DiaryLinkList<>();
     private WebPage currentDiaryPage = new DiaryPage("");
     private UmailPage currentUmailPage = new UmailPage("");
-    
+
     // Личные данные
     private String ownProfileId = "";
     private String userName = "";
     private String signature = "";
-    
+
     // Ссылки
     private String ownDiaryUrl = "";
-    private String ownFavoritesPageUrl = "http://www.diary.ru/?favorite";
-    
+    private String ownFavoritesPageUrl = "https://x.diary.ru/?favorite";
+
     // число новых постов в дискуссиях
     private int newDiscussNum;
     private String newDiscussLink = "";
@@ -44,7 +44,7 @@ public class UserData {
     // число новых U-Mail
     private int newUmailNum;
     private String newUmailLink = "";
-    
+
     // число новых постов в дневнике
     private int newDiaryCommentsNum;
     private String newDiaryLink = "";
@@ -268,7 +268,7 @@ public class UserData {
 
         return null;
     }
-    
+
     public boolean hasNotifications() {
         return  getNewDiaryCommentsNum() + getNewDiscussNum() + getNewUmailNum() > 0;
     }

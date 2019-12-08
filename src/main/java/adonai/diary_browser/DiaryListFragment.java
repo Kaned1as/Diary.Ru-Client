@@ -37,16 +37,16 @@ import adonai.diary_browser.pages.DiaryPage;
  * Фрагмент основной активности дайри, отвечающий за обработку пунктов меню и кнопок {@link ActionBar}'a
  * <br/>
  * По историческим причинам логика всего контента, который присутствует в этом фрагменте, обрабатывается в активности.
- * 
+ *
  * @see DiaryListActivity
- * 
+ *
  * @author Адонай
  */
 public class DiaryListFragment extends DiaryFragment {
-    
+
     public final static int GROUP_PAGE_LINKS = 100;
     public final static int ITEM_PAGE_LINKS = 101;
-    
+
     private final URLAutocompleteQueryListener mUrlListener = new URLAutocompleteQueryListener();
     private final URLAutocompleteSuggestionListener mUrlSuggestionListener = new URLAutocompleteSuggestionListener();
     private URLAutocompleteAdapter mUrlAdapter; // created on attach to activity
@@ -104,7 +104,7 @@ public class DiaryListFragment extends DiaryFragment {
             menu.findItem(R.id.menu_share).setVisible(false);
             menu.findItem(R.id.menu_subscr_list).setVisible(true);
             menu.findItem(R.id.menu_manual_input).setVisible(true);
-            
+
             SearchView searchView = (SearchView) menu.findItem(R.id.menu_manual_input).getActionView();
             searchView.setQueryHint(getString(R.string.url_hint));
             searchView.setSuggestionsAdapter(mUrlAdapter);
@@ -139,10 +139,10 @@ public class DiaryListFragment extends DiaryFragment {
     private String convertToSearchQuery(String somethingLikeURL) {
         try {
             if (!somethingLikeURL.startsWith("http")) {
-                if (somethingLikeURL.contains("diary.ru"))
-                    somethingLikeURL = "http://" + somethingLikeURL;
+                if (somethingLikeURL.contains("x.diary.ru"))
+                    somethingLikeURL = "https://" + somethingLikeURL;
                 else
-                    somethingLikeURL = "http://diary.ru/search/?q=" + URLEncoder.encode(somethingLikeURL, "windows-1251");
+                    somethingLikeURL = "https://x.diary.ru/search/?q=" + URLEncoder.encode(somethingLikeURL, "windows-1251");
             }
         } catch (UnsupportedEncodingException ignored) {
         }
@@ -192,7 +192,7 @@ public class DiaryListFragment extends DiaryFragment {
             return true;
         }
     }
-    
+
     @NonNull
     private Cursor getPersistedUrlCompletions(@NonNull String containingText) {
         try {
